@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cropfusion-training"
+version = "0.1.0"
+description = "CropFusion training & evaluation framework — multi-task crop recommendation + yield prediction"
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.0",
+    "timm>=1.0",
+    "pydantic>=2.0",
+    "PyYAML>=6.0",
+    "numpy>=1.24",
+    "scikit-learn>=1.0",
+    "matplotlib>=3.5",
+    "psutil>=5.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+tracking = ["tensorboard>=2.10", "wandb>=0.15"]
+
+[tool.setuptools]
+py-modules = [
+    "ablation", "benchmark", "callbacks", "checkpoint", "config", "evaluator",
+    "exceptions", "experiment", "interfaces", "logger", "losses", "metrics",
+    "optimizers", "schedulers", "trainer", "utils", "validator", "visualizer",
+]
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "tests.*", "docs", "docs.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["../.."]
+addopts = "-q --strict-markers"
+markers = [
+    "integration: full STAM -> preprocessing -> training pipeline",
+]

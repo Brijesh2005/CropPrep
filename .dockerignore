@@ -1,0 +1,44 @@
+# Version control
+.git
+.gitignore
+
+# Python caches / build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+
+# Environments
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+
+# Data blobs (keep on host; mounted as volumes at runtime)
+**/datasets/*.parquet
+**/datasets/*.csv
+backend/datasets/
+gis/*.tif
+gis/*.tiff
+Tabular_Datasets/
+
+# Local dev / tooling
+.benchmarks/
+.claude/
+.idea/
+.vscode/
+*.log
+.DS_Store

@@ -1,0 +1,68 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "Drift severity by dimension",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "cropfusion_drift_severity",
+          "legendFormat": "{{dimension}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "min": 0, "max": 2, "thresholds": { "steps": [
+          { "color": "green", "value": null },
+          { "color": "yellow", "value": 0.5 },
+          { "color": "red", "value": 1.5 }
+        ] } },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Fairness status by attribute",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "cropfusion_fairness_status", "legendFormat": "{{attribute}}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "min": 0, "max": 2, "thresholds": { "steps": [
+          { "color": "green", "value": null },
+          { "color": "yellow", "value": 0.5 },
+          { "color": "red", "value": 1.5 }
+        ] } },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Disparate impact ratio",
+      "type": "gauge",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "cropfusion_fairness_disparate_impact", "legendFormat": "{{attribute}}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "min": 0, "max": 1.2, "unit": "percentunit",
+          "thresholds": { "steps": [
+            { "color": "green", "value": null },
+            { "color": "red", "value": 0.8 }
+          ] } },
+        "overrides": []
+      }
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": ["cropfusion", "ml-quality"],
+  "templating": { "list": [] },
+  "time": { "from": "now-7d", "to": "now" },
+  "title": "CropFusion ML Quality (drift & fairness)",
+  "uid": "cropfusion-ml-quality"
+}

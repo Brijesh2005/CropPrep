@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1
+# CropFusion inference worker.
+#
+# The API and the embedded inference engine normally share one process
+# (Dockerfile.backend). This image is the GPU-accelerated warm inference
+# replica used for horizontal scaling (profile `gpu`); it pre-loads the model
+# and serves the same API on a separate port. See DEPLOYMENT.md.
+#
+# Build:
+#   docker build -f Dockerfile.inference -t cropfusion/inference .
+
+FROM cropfusion/backend AS runtime
+
+ENV PORT=8001 \
+    BACKEND_MODEL__WARMUP=true
+
+EXPOSE 8001
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "1"]

@@ -1,0 +1,99 @@
+"""Exception hierarchy for the Spatial-Temporal Alignment Module (STAM).
+
+Every STAM failure raises :class:`StamError` (or a subclass) carrying a
+stable machine-readable ``code`` (``ST-<AREA>-<NNN>``). Callers can catch the
+base type and still discriminate between failure modes.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+
+class StamError(Exception):
+    """Base class for all STAM errors."""
+
+    code: str = "ST-ERROR"
+
+    def __init__(self, message: str, *, detail: Any = None) -> None:
+        super().__init__(message)
+        self.message = message
+        self.detail = detail
+
+    def __str__(self) -> str:
+        text = f"{self.code}: {self.message}"
+        if self.detail is not None:
+            text += f" (detail={self.detail!r})"
+        return text
+
+
+class StamConfigurationError(StamError):
+    """Raised when STAM configuration is invalid or inconsistent."""
+
+    code = "ST-CONFIG-001"
+
+
+class InvalidCoordinatesError(StamError):
+    """Raised when a location has out-of-range latitude/longitude."""
+
+    code = "ST-COORD-001"
+
+
+class LocationNotFoundError(StamError):
+    """Raised when no dataset location matches within the search radius."""
+
+    code = "ST-SPATIAL-001"
+
+
+class BoundaryNotFoundError(StamError):
+    """Raised when no administrative boundary contains a point."""
+
+    code = "ST-ADMIN-001"
+
+
+class NoTabularRecordError(StamError):
+    """Raised when no tabular agricultural record matches a query."""
+
+    code = "ST-TABULAR-001"
+
+
+class NoImageRecordError(StamError):
+    """Raised when no image record matches a query (year/season/index)."""
+
+    code = "ST-IMAGE-001"
+
+
+class PairingError(StamError):
+    """Raised when NDVI/EVI pairing fails for an observation date."""
+
+    code = "ST-PAIR-001"
+
+
+class CRSMismatchError(StamError):
+    """Raised when two rasters (or a raster and a point) use different CRS."""
+
+    code = "ST-CRS-001"
+
+
+class ResolutionMismatchError(StamError):
+    """Raised when paired rasters use different spatial resolutions."""
+
+    code = "ST-RES-001"
+
+
+class TemporalGapError(StamError):
+    """Raised when a temporal sequence exceeds the allowed gap."""
+
+    code = "ST-TEMP-001"
+
+
+class PatchOutOfBoundsError(StamError):
+    """Raised when a requested patch cannot be produced (raster too small)."""
+
+    code = "ST-PATCH-001"
+
+
+class NotInitializedError(StamError):
+    """Raised when an operation requires :meth:`STAM.initialize` first."""
+
+    code = "ST-INIT-001"

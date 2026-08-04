@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cropfusion-explainability"
+version = "0.1.0"
+description = "CropFusion Multimodal Explainable AI (MXAI) framework — SHAP, GradCAM, attention, counterfactuals, confidence, reports"
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.0",
+    "numpy>=1.24",
+    "matplotlib>=3.5",
+    "scikit-learn>=1.0",
+    "PyYAML>=6.0",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+shap = ["shap>=0.40"]
+
+[tool.setuptools]
+py-modules = [
+    "config", "counterfactual", "cross_modal_attention", "exceptions",
+    "exporter", "facade", "gradcam", "integrated_gradients", "interfaces",
+    "report_generator", "shap_explainer", "temporal_attention", "uncertainty",
+    "utils", "visualization",
+]
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "tests.*", "docs", "docs.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["../.."]
+addopts = "-q --strict-markers"

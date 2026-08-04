@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cropfusion"
+version = "1.0.0"
+description = "CropFusion - precision agriculture decision support (multimodal crop-yield prediction, spatial analysis, drift/fairness monitoring)"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+authors = [{ name = "CropFusion Contributors" }]
+keywords = ["agriculture", "machine-learning", "yield-prediction", "gis", "mlops"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "cropfusion-models",
+    "cropfusion-preprocessing",
+    "cropfusion-training",
+    "cropfusion-explainability",
+    "cropfusion-dataset-manager",
+    "cropfusion-spatial-alignment",
+]
+
+[project.scripts]
+cropfusion-mlops = "mlops.cli:app"
+
+[tool.setuptools]
+packages = ["cropfusion", "mlops"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests", "backend/app/tests", "ai", "services", "quality", "mlops"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.coverage.run]
+branch = true
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+exclude = ["frontend", "docs", "datasets", "Tabular_Datasets"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S"]
+ignore = ["E501", "S101"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+no_implicit_optional = true
+warn_unused_ignores = true
+exclude = ["frontend", "docs", "datasets"]
+
+[tool.bandit]
+exclude_dirs = ["frontend", "docs", "datasets", "tests"]
+skips = ["B101"]
+
+[tool.cropfusion]
+version = "1.0.0"

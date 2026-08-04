@@ -1,0 +1,136 @@
+name: cropfusion_training
+general:
+  device: auto
+  output_dir: artifacts\training
+  seed: 42
+  deterministic: false
+  amp: false
+  amp_dtype: float16
+  gradient_clip: null
+  gradient_clip_type: norm
+  gradient_accumulation_steps: 1
+  gradient_checkpointing: false
+  nan_detection: true
+  nan_policy: skip
+  log_every: 1
+  validation_frequency: 1
+data:
+  batch_size: 32
+  workers: 0
+  pin_memory: false
+  prefetch_factor: null
+  persistent_workers: false
+  drop_last: false
+  train_shuffle: true
+optimizer:
+  name: adamw
+  lr: 0.0001
+  weight_decay: 0.0001
+  betas:
+  - 0.9
+  - 0.999
+  eps: 1.0e-08
+  momentum: 0.0
+  nesterov: false
+  lion_beta1: 0.9
+  lion_beta2: 0.99
+scheduler:
+  name: cosine
+  step: epoch
+  warmup_steps: 0
+  warmup_epochs: 0
+  warmup_ratio: 0.0
+  t_max: null
+  eta_min: 0.0
+  pct_start: 0.3
+  div_factor: 25.0
+  final_div_factor: 10000.0
+  factor: 0.1
+  patience: 10
+  threshold: 0.0001
+  cooldown: 0
+  min_lr: 0.0
+  mode: min
+  power: 1.0
+  end_lr: 0.0
+loss:
+  crop_loss: label_smoothing
+  yield_loss: huber
+  crop_weight: 0.7
+  yield_weight: 0.3
+  weighting_mode: fixed
+  label_smoothing: 0.1
+  focal_gamma: 2.0
+  reduction: mean
+  gradnorm_alpha: 1.5
+  log_variance_eps: 0.01
+train:
+  epochs: 100
+  early_stopping_metric: val_loss
+  early_stopping_mode: min
+  early_stopping_patience: 10
+  early_stopping_min_delta: 0.0
+  restore_best_on_stop: true
+checkpoint:
+  directory: artifacts/training/checkpoints
+  keep_last: 3
+  save_best: true
+  save_latest: true
+  save_periodic: null
+  resume: false
+  resume_path: null
+metrics:
+  top_k: 5
+  average: macro
+  roc_auc: false
+  per_class: false
+logging:
+  level: INFO
+  console: true
+  csv: true
+  json_logs: true
+  tensorboard: false
+  tensorboard_dir: artifacts/training/tensorboard
+  wandb: false
+  wandb_project: cropfusion
+  wandb_entity: null
+  config_snapshot: true
+  git_hash: true
+validation:
+  strategy: holdout
+  k_folds: 5
+  shuffle: true
+  seed: 42
+  group_column: village
+  temporal_column: year
+ablation:
+  enabled: false
+  variants:
+  - full
+  - only_tabular
+  - only_ndvi
+  - only_evi
+  - only_image
+  - no_cross_attention
+  - no_adaptive_gate
+  compare_metric: multi_task_score
+  compare_mode: max
+benchmark:
+  enabled: false
+  iterations: 100
+  warmup_iterations: 10
+  batch_size: 32
+  measure_training_speed: true
+  measure_inference_speed: true
+  inference_only: false
+visualization:
+  enabled: true
+  directory: artifacts/training/visualizations
+  dashboard: true
+  loss_curves: true
+  accuracy_curves: true
+  lr_curves: true
+  regression_scatter: true
+  confusion_matrix: true
+  precision_recall: true
+  feature_distribution: true

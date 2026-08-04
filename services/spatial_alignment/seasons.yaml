@@ -1,0 +1,25 @@
+# Default cropping-season calendar for CropFusion.
+#
+# The SeasonResolver loads this file to map a calendar date to a season and
+# its planting year, so a farmer only needs to supply a location. Calendars
+# are YAML-configurable: point ST_TEMPORAL__SEASON_FILE (or ST_SEASONS_FILE)
+# at a regional calendar to override the bundled default. A season whose
+# start_month > end_month (e.g. Rabi Nov -> Mar) crosses the calendar-year
+# boundary and is handled explicitly by the season calendar.
+version: "1"
+seasons:
+  - name: Kharif
+    start_month: 6
+    end_month: 10
+    start_day: 1
+    end_day: 31
+  - name: Rabi
+    start_month: 11
+    end_month: 3
+    start_day: 1
+    end_day: 31
+  - name: Summer
+    start_month: 4
+    end_month: 5
+    start_day: 1
+    end_day: 31

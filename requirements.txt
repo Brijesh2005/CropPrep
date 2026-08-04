@@ -1,0 +1,78 @@
+# CropFusion - reproducible runtime dependencies (Python 3.12).
+#
+# Pins mirror the verified development environment. Install with:
+#   pip install -r requirements.txt
+#
+# First-party packages (ai/*, services/*, quality/*) are installed from source
+# with pip install -e /app/ai/models ... and are NOT listed here.
+#
+# NOTE: torch/torchvision wheels are platform-specific. On Linux you can use
+# the CPU-only index to slim the install:
+#   pip install torch==2.13.0 torchvision==0.28.0 --index-url https://download.pytorch.org/whl/cpu
+
+# ---------------------------------------------------------------- web/api
+fastapi==0.115.0
+uvicorn==0.30.6
+python-multipart==0.0.32
+python-jose==3.5.0
+passlib==1.7.4
+argon2-cffi==25.1.0
+pydantic==2.8.2
+python-dotenv==1.2.2
+
+# ---------------------------------------------------------------- database
+SQLAlchemy==2.0.51
+alembic==1.18.5
+aiosqlite==0.22.1
+asyncpg==0.31.0
+GeoAlchemy2==0.20.0
+
+# ---------------------------------------------------------------- services
+redis==8.1.0
+tenacity==9.1.4
+httpx==0.28.1
+aiofiles==24.1.0
+PyYAML==6.0.3
+
+# ---------------------------------------------------------------- observability
+prometheus_client==0.26.0
+opentelemetry-api==1.44.0
+opentelemetry-sdk==1.44.0
+opentelemetry-instrumentation-fastapi==0.65b0
+opentelemetry-instrumentation-asgi==0.65b0
+loguru==0.7.3
+
+# ---------------------------------------------------------------- data/ml
+numpy==2.4.6
+pandas==3.0.3
+scipy==1.18.0
+scikit-learn==1.8.0
+xgboost==3.3.0
+torch==2.13.0
+torchvision==0.28.0
+timm==1.0.28
+onnx==1.22.0
+onnxruntime==1.26.0
+joblib==1.5.3
+
+# ---------------------------------------------------------------- geospatial
+rasterio==1.5.0
+geopandas==1.1.4
+shapely==2.1.2
+pyproj==3.7.2
+pyogrio==0.13.0
+
+# ---------------------------------------------------------------- reporting
+matplotlib==3.11.0
+reportlab==5.0.0
+Jinja2==3.1.6
+pyarrow==25.0.0
+
+# ---------------------------------------------------------------- datasets
+kagglehub>=0.3.0
+
+# ---------------------------------------------------------------- cli
+typer==0.25.1
+
+# ---------------------------------------------------------------- runtime
+psutil==7.2.2

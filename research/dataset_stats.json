@@ -1,0 +1,117 @@
+{
+  "datasets": [
+    {
+      "file": "All-India_-Crop-wise-Area,-Production-&-Yield (2).csv",
+      "rows": 98,
+      "columns": 17,
+      "memory_mb": 0.01,
+      "numeric_columns": 15,
+      "missing_cells": 48,
+      "columns_sample": [
+        "Crop",
+        "Season",
+        "Area-2021-22",
+        "Area-2022-23",
+        "Area-2023-24",
+        "Area-2024-25",
+        "Area-2025-26",
+        "Production-2021-22",
+        "Production-2022-23",
+        "Production-2023-24",
+        "Production-2024-25",
+        "Production-2025-26"
+      ],
+      "min_year": null,
+      "max_year": null
+    },
+    {
+      "file": "cropdata_updated.csv",
+      "rows": 16411,
+      "columns": 7,
+      "memory_mb": 1.46,
+      "numeric_columns": 4,
+      "missing_cells": 0,
+      "columns_sample": [
+        "crop ID",
+        "soil_type",
+        "Seedling Stage",
+        "MOI",
+        "temp",
+        "humidity",
+        "result"
+      ],
+      "min_year": null,
+      "max_year": null
+    },
+    {
+      "file": "data_season.csv",
+      "rows": 3158,
+      "columns": 12,
+      "memory_mb": 0.4,
+      "numeric_columns": 7,
+      "missing_cells": 58,
+      "columns_sample": [
+        "Year",
+        "Location",
+        "Area",
+        "Rainfall",
+        "Temperature",
+        "Soil type",
+        "Irrigation",
+        "yeilds",
+        "Humidity",
+        "Crops",
+        "price",
+        "Season"
+      ],
+      "min_year": 2004,
+      "max_year": 2019
+    },
+    {
+      "file": "dataset.csv",
+      "rows": 18,
+      "columns": 8,
+      "memory_mb": 0.0,
+      "numeric_columns": 7,
+      "missing_cells": 0,
+      "columns_sample": [
+        "Unnamed: 0",
+        "Dist",
+        "Precipitation",
+        "Min_Temp",
+        "Cloud_Cover",
+        "Vapour_pressure",
+        "Area",
+        "Production"
+      ],
+      "min_year": 0,
+      "max_year": 17
+    },
+    {
+      "file": "ICRISAT-District Level Data.csv",
+      "rows": 16146,
+      "columns": 80,
+      "memory_mb": 10.64,
+      "numeric_columns": 78,
+      "missing_cells": 0,
+      "columns_sample": [
+        "Dist Code",
+        "Year",
+        "State Code",
+        "State Name",
+        "Dist Name",
+        "RICE AREA (1000 ha)",
+        "RICE PRODUCTION (1000 tons)",
+        "RICE YIELD (Kg per ha)",
+        "WHEAT AREA (1000 ha)",
+        "WHEAT PRODUCTION (1000 tons)",
+        "WHEAT YIELD (Kg per ha)",
+        "KHARIF SORGHUM AREA (1000 ha)"
+      ],
+      "min_year": 1,
+      "max_year": 917
+    }
+  ],
+  "total_rows": 35831,
+  "total_columns": 124
+}

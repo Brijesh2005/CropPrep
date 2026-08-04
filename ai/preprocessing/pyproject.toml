@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cropfusion-preprocessing"
+version = "0.1.0"
+description = "CropFusion preprocessing pipeline — AgriculturalObservation -> AI-ready tensors"
+requires-python = ">=3.12"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "torch>=2.0"]
+
+[tool.setuptools]
+py-modules = [
+    "augmentations", "config", "dataloader", "dataset", "exceptions",
+    "image_pipeline", "interfaces", "label_pipeline", "logger",
+    "master_pipeline", "statistics", "tabular_pipeline", "temporal_pipeline",
+    "transforms", "utils", "validators",
+]
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "tests.*", "docs", "docs.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["../.."]
+addopts = "-q --strict-markers"

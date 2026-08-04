@@ -1,0 +1,21 @@
+# CropFusion - reproducible conda environment.
+#
+#   conda env create -f environment.yml
+#   conda activate cropfusion
+#   pip install -e ./ai/models ./ai/preprocessing ./ai/training ./ai/explainability
+#   pip install -e ./services/dataset_manager ./services/spatial_alignment
+#
+# Runtime dependencies are pinned in requirements.txt (installed via pip),
+# keeping the conda layer minimal and cross-platform.
+
+name: cropfusion
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip>=24
+  - gdal>=3.8
+  - git
+  - pip:
+      - -r requirements.txt
+      - -r requirements-dev.txt

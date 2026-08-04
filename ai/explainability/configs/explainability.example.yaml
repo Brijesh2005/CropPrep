@@ -1,0 +1,58 @@
+name: cropfusion_explainability
+general:
+  device: auto
+  seed: 42
+shap:
+  method: kernel
+  background_size: 50
+  max_samples: 256
+  prefer_library: false
+  plots:
+  - feature_importance
+  - summary
+  - waterfall
+  - bar
+cam:
+  method: gradcam++
+  target_layer: null
+  relu: true
+  colormap: jet
+temporal_attention:
+  rollout: true
+  include_residual: true
+  head_aggregation: mean
+  max_timesteps: null
+cross_modal:
+  top_tokens: 5
+  normalize: true
+integrated_gradients:
+  steps: 50
+  baseline: zero
+  random_fraction: 0.1
+counterfactual:
+  perturbations: {}
+  max_examples: 10
+  switch_threshold: 0.05
+uncertainty:
+  mc_dropout_samples: 10
+  bins: 10
+  yield_confidence: mc
+report:
+  top_k_features: 10
+  top_image_regions: 5
+  include_historical: true
+  farmer_reasoning: true
+  include_limitations: true
+visualization:
+  directory: artifacts/explainability/figures
+  dpi: 110
+  colormap: jet
+  max_features_bar: 15
+export:
+  directory: artifacts/explainability/exports
+  formats:
+  - html
+  - json
+  - png
+  - csv
+  pdf: true
