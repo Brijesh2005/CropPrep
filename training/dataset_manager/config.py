@@ -25,13 +25,14 @@ configure via YAML; the environment can supply them as JSON arrays.
 
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 from typing import Any, Mapping
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
+
+from shared.config import apply_case_insensitive, deep_merge, parse_env
 
 from .exceptions import InvalidConfigurationError
 
@@ -236,63 +237,6 @@ class Settings(BaseModel):
         return self.state_root / "cache"
 
 
-def deep_merge(base: dict[str, Any], override: Mapping[str, Any]) -> dict[str, Any]:
-    """Recursively merge ``override`` into a copy of ``base``."""
-    result = dict(base)
-    for key, value in override.items():
-        if (
-            key in result
-            and isinstance(result[key], dict)
-            and isinstance(value, Mapping)
-        ):
-            result[key] = deep_merge(result[key], value)
-        else:
-            result[key] = value
-    return result
-
-
-def _normalise_key(key: str) -> str:
-    """Lower-case + strip a field path segment for case-insensitive matching."""
-    return key.lower().replace("-", "_")
-
-
-def _parse_env(env: Mapping[str, str], prefix: str = ENV_PREFIX) -> dict[str, Any]:
-    """Convert ``DM_<SECTION>__<FIELD>`` env vars into a nested dict.
-
-    Values that look like JSON (``[...]``, ``{...}``, ``true``/``false``,
-    integers) are parsed; everything else stays a string.
-    """
-    overrides: dict[str, Any] = {}
-    for raw_key, raw_value in env.items():
-        if not raw_key.startswith(prefix):
-            continue
-        path = raw_key[len(prefix):].split("__")
-        path = [_normalise_key(part) for part in path if part]
-        if not path:
-            continue
-        value: Any = raw_value
-        stripped = raw_value.strip()
-        lowered = stripped.lower()
-        if lowered in {"true", "false"}:
-            value = lowered == "true"
-        else:
-            try:
-                value = json.loads(stripped)
-            except (json.JSONDecodeError, TypeError):
-                pass
-        node = overrides
-        for part in path[:-1]:
-            node = node.setdefault(part, {})
-        node[path[-1]] = value
-    return overrides
-
-
-def _apply_case_insensitive(data: dict[str, Any], schema: type[BaseModel]) -> dict[str, Any]:
-    """Match config keys to pydantic field names case-insensitively."""
-    field_names = {_normalise_key(name): name for name in schema.model_fields}
-    return {field_names.get(_normalise_key(key), key): value for key, value in data.items()}
-
-
 def load_settings(
     config_path: str | Path | None = None,
     *,
@@ -340,9 +284,9 @@ def load_settings(
             )
         data = raw
 
-    env_overrides = _parse_env(env_map)
+    env_overrides = parse_env(env_map, ENV_PREFIX)
     merged = deep_merge(data, env_overrides)
-    merged = _apply_case_insensitive(merged, Settings)
+    merged = apply_case_insensitive(merged, Settings)
 
     try:
         return Settings.model_validate(merged)

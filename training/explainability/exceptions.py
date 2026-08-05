@@ -9,22 +9,13 @@ from __future__ import annotations
 
 from typing import Any
 
+from shared.exceptions import CropFusionError
 
-class ExplainabilityError(Exception):
+
+class ExplainabilityError(CropFusionError):
     """Base class for all explainability errors."""
 
     code: str = "MXAI-ERROR"
-
-    def __init__(self, message: str, *, detail: Any = None) -> None:
-        super().__init__(message)
-        self.message = message
-        self.detail = detail
-
-    def __str__(self) -> str:
-        text = f"{self.code}: {self.message}"
-        if self.detail is not None:
-            text += f" (detail={self.detail!r})"
-        return text
 
 
 class ExplainabilityConfigurationError(ExplainabilityError):

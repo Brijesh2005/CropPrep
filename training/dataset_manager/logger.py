@@ -14,57 +14,15 @@ compact human readable format. Both support all standard log levels and the
 
 from __future__ import annotations
 
-import json
 import logging
 import sys
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Mapping
 
-# Reserved LogRecord attributes that must not be re-emitted verbatim.
-_RESERVED = frozenset(
-    {
-        "name", "msg", "args", "levelname", "levelno", "pathname", "filename",
-        "module", "exc_info", "exc_text", "stack_info", "lineno", "funcName",
-        "created", "msecs", "relativeCreated", "thread", "threadName",
-        "processName", "process", "taskName", "message", "asctime",
-    }
-)
+from shared.logging.formatters import CompactFormatter, JsonFormatter, RESERVED as _RESERVED
 
 _configured = False
-
-
-class JsonFormatter(logging.Formatter):
-    """Emit one JSON object per log record."""
-
-    def format(self, record: logging.LogRecord) -> str:
-        payload: dict[str, Any] = {
-            "timestamp": self.formatTime(record, "%Y-%m-%dT%H:%M:%S%z"),
-            "level": record.levelname,
-            "logger": record.name,
-            "message": record.getMessage(),
-        }
-        if record.exc_info:
-            payload["exc_info"] = self.formatException(record.exc_info)
-        if record.stack_info:
-            payload["stack_info"] = self.formatStack(record.stack_info)
-        # Fold in any custom attributes passed via `extra=`.
-        for key, value in record.__dict__.items():
-            if key not in _RESERVED and not key.startswith("_"):
-                payload[key] = value
-        return json.dumps(payload, ensure_ascii=False, default=str)
-
-
-class CompactFormatter(logging.Formatter):
-    """Single line, human readable console formatter."""
-
-    def format(self, record: logging.LogRecord) -> str:
-        base = "%(asctime)s %(levelname)-8s %(name)s: %(message)s"
-        formatter = logging.Formatter(base, datefmt="%H:%M:%S")
-        text = formatter.format(record)
-        if record.exc_info:
-            text += "\n" + self.formatException(record.exc_info)
-        return text
 
 
 def setup_logging(

@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from training.models import ModelConfig
-from training.dataset_manager.config import deep_merge
+from shared.config import deep_merge
 
 from .config import TrainingConfig
 from .exceptions import AblationError

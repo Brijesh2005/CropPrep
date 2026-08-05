@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 
-from training.dataset_manager.logger import CompactFormatter, JsonFormatter
+from shared.logging.formatters import CompactFormatter, JsonFormatter
 
 ROOT_NAME = "cropfusion.preprocessing"
 

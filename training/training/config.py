@@ -20,7 +20,8 @@ from typing import Any, Mapping
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-from training.dataset_manager.config import _apply_case_insensitive, _parse_env, deep_merge
+from shared.config import apply_case_insensitive, deep_merge, parse_env
+from shared.utils import yaml_safe
 
 from .exceptions import TrainingConfigurationError
 
@@ -353,7 +354,7 @@ class TrainingConfig(BaseModel):
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
 
     def to_yaml(self) -> str:
-        return yaml.safe_dump(_yaml_safe(self.model_dump()), sort_keys=False)
+        return yaml.safe_dump(yaml_safe(self.model_dump()), sort_keys=False)
 
     def save(self, path: str | Path) -> Path:
         out = Path(path)
@@ -405,11 +406,11 @@ def load_training_config(
             raise TrainingConfigurationError("Training config root must be a mapping")
         data = raw
 
-    parsed_env = _parse_env(env_map, prefix=ENV_PREFIX)
+    parsed_env = parse_env(env_map, prefix=ENV_PREFIX)
     # ``TRN_CONFIG_FILE`` selects the YAML; it is not a config field.
     parsed_env.pop("config_file", None)
     merged = deep_merge(data, parsed_env)
-    merged = _apply_case_insensitive(merged, TrainingConfig)
+    merged = apply_case_insensitive(merged, TrainingConfig)
     try:
         return TrainingConfig.model_validate(merged)
     except Exception as exc:  # pydantic.ValidationError
@@ -421,17 +422,6 @@ def save_training_template(path: str | Path) -> Path:
     template = TrainingConfig().model_dump()
     out = Path(path)
     out.write_text(
-        yaml.safe_dump(_yaml_safe(template), sort_keys=False), encoding="utf-8"
+        yaml.safe_dump(yaml_safe(template), sort_keys=False), encoding="utf-8"
     )
     return out
-
-
-def _yaml_safe(value: Any) -> Any:
-    """Convert Path / non-primitive values so YAML serialization succeeds."""
-    if isinstance(value, Path):
-        return str(value)
-    if isinstance(value, dict):
-        return {str(k): _yaml_safe(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_yaml_safe(v) for v in value]
-    return value

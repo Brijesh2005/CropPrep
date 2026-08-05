@@ -15,8 +15,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from shared.exceptions import CropFusionError
 
-class DatasetManagerError(Exception):
+
+class DatasetManagerError(CropFusionError):
     """Base class for all Dataset Manager errors.
 
     Attributes:
@@ -24,20 +26,10 @@ class DatasetManagerError(Exception):
         message: Human readable description of the failure.
         detail: Optional structured detail (offending path, expected value,
             actual value, ...) attached to the error.
+        suggested_resolution: Optional human readable guidance for recovering.
     """
 
     code: str = "DM-ERROR"
-
-    def __init__(self, message: str, *, detail: Any = None) -> None:
-        super().__init__(message)
-        self.message = message
-        self.detail = detail
-
-    def __str__(self) -> str:
-        text = f"{self.code}: {self.message}"
-        if self.detail is not None:
-            text += f" (detail={self.detail!r})"
-        return text
 
 
 class InvalidConfigurationError(DatasetManagerError):

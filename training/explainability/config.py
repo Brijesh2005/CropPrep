@@ -20,7 +20,8 @@ from typing import Any, Mapping
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-from training.dataset_manager.config import _apply_case_insensitive, _parse_env, deep_merge
+from shared.config import apply_case_insensitive, deep_merge, parse_env
+from shared.utils import yaml_safe
 
 from .exceptions import ExplainabilityConfigurationError
 
@@ -200,7 +201,7 @@ class ExplainabilityConfig(BaseModel):
     export: ExportConfig = Field(default_factory=ExportConfig)
 
     def to_yaml(self) -> str:
-        return yaml.safe_dump(_yaml_safe(self.model_dump()), sort_keys=False)
+        return yaml.safe_dump(yaml_safe(self.model_dump()), sort_keys=False)
 
     def save(self, path: str | Path) -> Path:
         out = Path(path)
@@ -241,10 +242,10 @@ def load_explainability_config(
             )
         data = raw
 
-    parsed_env = _parse_env(env_map, prefix=ENV_PREFIX)
+    parsed_env = parse_env(env_map, prefix=ENV_PREFIX)
     parsed_env.pop("config_file", None)
     merged = deep_merge(data, parsed_env)
-    merged = _apply_case_insensitive(merged, ExplainabilityConfig)
+    merged = apply_case_insensitive(merged, ExplainabilityConfig)
     try:
         return ExplainabilityConfig.model_validate(merged)
     except Exception as exc:  # pydantic.ValidationError
@@ -258,13 +259,3 @@ def save_explainability_template(path: str | Path) -> Path:
     out = Path(path)
     out.write_text(ExplainabilityConfig().to_yaml(), encoding="utf-8")
     return out
-
-
-def _yaml_safe(value: Any) -> Any:
-    if isinstance(value, Path):
-        return str(value)
-    if isinstance(value, dict):
-        return {str(k): _yaml_safe(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_yaml_safe(v) for v in value]
-    return value

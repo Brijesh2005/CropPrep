@@ -26,7 +26,7 @@ from typing import Any, Mapping
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-from training.dataset_manager.config import _apply_case_insensitive, deep_merge, _parse_env
+from shared.config import apply_case_insensitive, deep_merge, parse_env
 from .exceptions import StamConfigurationError
 
 ENV_PREFIX = "ST_"
@@ -234,8 +234,8 @@ def load_stam_config(
             raise StamConfigurationError("STAM config root must be a mapping")
         data = raw
 
-    merged = deep_merge(data, _parse_env(env_map, prefix=ENV_PREFIX))
-    merged = _apply_case_insensitive(merged, StamConfig)
+    merged = deep_merge(data, parse_env(env_map, prefix=ENV_PREFIX))
+    merged = apply_case_insensitive(merged, StamConfig)
     try:
         return StamConfig.model_validate(merged)
     except Exception as exc:  # pydantic.ValidationError

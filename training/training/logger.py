@@ -22,6 +22,8 @@ from typing import Any, Mapping
 
 from .utils import get_environment_info, get_git_branch, get_git_hash, is_primary
 
+from shared.utils import yaml_safe
+
 
 class ExperimentLogger:
     """Structured metrics + artifact logger for a single run."""
@@ -103,7 +105,7 @@ class ExperimentLogger:
             data["preprocessing"] = preprocessing_config.model_dump()
         path = self.run_dir / "config.yaml"
         path.write_text(
-            yaml.safe_dump(_yaml_safe(data), sort_keys=False), encoding="utf-8"
+            yaml.safe_dump(yaml_safe(data), sort_keys=False), encoding="utf-8"
         )
         return path
 
@@ -158,22 +160,6 @@ class ExperimentLogger:
     def _rewrite_json(self) -> None:
         """Keep metrics.json up to date as training progresses."""
         self.finalize()
-
-
-def _yaml_safe(value: Any) -> Any:
-    """Recursively convert Path / tensor / numpy values for YAML serialization."""
-    if isinstance(value, Path):
-        return str(value)
-    if isinstance(value, dict):
-        return {str(k): _yaml_safe(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_yaml_safe(v) for v in value]
-    if hasattr(value, "item"):
-        try:
-            return _yaml_safe(value.item())
-        except Exception:
-            return str(value)
-    return value
 
 
 def _fmt_extra(extra: Mapping[str, Any]) -> str:

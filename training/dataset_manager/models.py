@@ -13,65 +13,19 @@ enums and paths).
 
 from __future__ import annotations
 
-import enum
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
-# --------------------------------------------------------------------------- #
-# Enumerations
-# --------------------------------------------------------------------------- #
-
-
-class IndexType(str, enum.Enum):
-    """Vegetation index encoded in a raster file (detected from paths/names)."""
-
-    NDVI = "NDVI"
-    EVI = "EVI"
-    NONE = "NONE"
-
-
-class Resolution(str, enum.Enum):
-    """Spatial resolution band (Sentinel-2 10m / 20m products)."""
-
-    R10M = "R10m"
-    R20M = "R20m"
-    UNKNOWN = "UNKNOWN"
-
-
-class FileCategory(str, enum.Enum):
-    """High-level file classification produced by the scanner."""
-
-    CSV = "csv"
-    GEOTIFF = "geotiff"
-    OTHER = "other"
-
-
-class Severity(str, enum.Enum):
-    """Severity of a validation issue."""
-
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
-    CRITICAL = "critical"
-
-
-# Issues of at least this weight cause a validation report to fail.
-FAILING_SEVERITY = {Severity.ERROR, Severity.CRITICAL}
-
-
-class DatasetStatus(str, enum.Enum):
-    """Lifecycle status of a registered dataset."""
-
-    PENDING = "pending"
-    DOWNLOADING = "downloading"
-    DOWNLOADED = "downloaded"
-    VALIDATING = "validating"
-    VALIDATED = "validated"
-    READY = "ready"
-    FAILED = "failed"
-    STALE = "stale"
+from shared.enums import (
+    DatasetStatus,
+    FAILING_SEVERITY,
+    FileCategory,
+    IndexType,
+    Resolution,
+    Severity,
+)
 
 
 # --------------------------------------------------------------------------- #

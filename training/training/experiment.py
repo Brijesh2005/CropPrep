@@ -31,7 +31,7 @@ from training.preprocessing import (
     build_dataloader,
     split_observations,
 )
-from training.dataset_manager.config import deep_merge
+from shared.config import deep_merge
 
 from .benchmark import Benchmark
 from .callbacks import HistoryRecorder

@@ -13,7 +13,8 @@ from typing import Any, Mapping
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-from training.dataset_manager.config import _apply_case_insensitive, _parse_env, deep_merge
+from shared.config import apply_case_insensitive, deep_merge, parse_env
+from shared.utils import yaml_safe
 
 ENV_PREFIX = "BACKEND_"
 
@@ -253,7 +254,7 @@ class Settings(BaseModel):
     log: LogSettings = Field(default_factory=LogSettings)
 
     def to_yaml(self) -> str:
-        return yaml.safe_dump(_yaml_safe(self.model_dump()), sort_keys=False)
+        return yaml.safe_dump(yaml_safe(self.model_dump()), sort_keys=False)
 
     def save(self, path: str | Path) -> Path:
         out = Path(path)
@@ -279,10 +280,10 @@ def load_settings(
             raw = yaml.safe_load(config_file.read_text(encoding="utf-8"))
             data = raw if isinstance(raw, dict) else {}
 
-    parsed_env = _parse_env(env_map, prefix=ENV_PREFIX)
+    parsed_env = parse_env(env_map, prefix=ENV_PREFIX)
     parsed_env.pop("config_file", None)
     merged = deep_merge(data, parsed_env)
-    merged = _apply_case_insensitive(merged, Settings)
+    merged = apply_case_insensitive(merged, Settings)
     return Settings.model_validate(merged)
 
 
@@ -291,13 +292,3 @@ def save_settings_template(path: str | Path) -> Path:
     out = Path(path)
     out.write_text(Settings().to_yaml(), encoding="utf-8")
     return out
-
-
-def _yaml_safe(value: Any) -> Any:
-    if isinstance(value, Path):
-        return str(value)
-    if isinstance(value, dict):
-        return {str(k): _yaml_safe(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_yaml_safe(v) for v in value]
-    return value
