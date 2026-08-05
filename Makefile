@@ -5,12 +5,12 @@ help: ## Show this help
 
 install: ## Install runtime dependencies + first-party packages
 	pip install -r requirements.txt
-	pip install -e ./ai/models ./ai/preprocessing ./ai/training ./ai/explainability
-	pip install -e ./services/dataset_manager ./services/spatial_alignment
+	pip install -e ./training/models ./training/preprocessing ./training/training ./training/explainability
+	pip install -e ./training/dataset_manager ./training/stam
 
 install-dev: install ## Install development tooling too
 	pip install -r requirements-dev.txt
-	cd frontend && npm ci
+	cd application/frontend && npm ci
 
 test: ## Run the full Python test suite
 	pytest
@@ -19,36 +19,36 @@ test-fast: ## Fast subset (unit markers only)
 	pytest -m "not slow and not performance"
 
 test-quality: ## Quality assurance package tests
-	pytest quality -q
+	pytest training/quality -q
 
 test-backend: ## Backend tests
-	pytest backend/app/tests -q
+	pytest application/backend/app/tests -q
 
 coverage: ## Run tests with coverage report
-	pytest --cov=ai --cov=services --cov=quality --cov=backend/app --cov-report=term-missing
+	pytest --cov=training --cov=application/backend/app --cov-report=term-missing
 
 lint: ## Ruff lint on Python packages
-	ruff check ai services quality backend scripts mlops
+	ruff check training application/backend application/database application/tests shared scripts
 
 format: ## Ruff format
-	ruff format ai services quality backend scripts mlops
+	ruff format training application/backend application/database shared scripts
 
 typecheck: ## mypy type check
-	mypy ai services quality backend/app scripts mlops
+	mypy training shared application/backend application/database scripts
 
 security: ## Security scanning (bandit + safety)
-	bandit -r ai services quality backend mlops
+	bandit -r training shared application/backend application/database
 	safety check -r requirements.txt
 
 build: ## Build frontend production bundle
-	cd frontend && npm ci && npm run build
+	cd application/frontend && npm ci && npm run build
 
 compose: ## Validate docker-compose files
-	docker compose config --quiet
-	docker compose -f docker-compose.prod.yml config --quiet
+	docker compose -f application/docker/docker-compose.yml config --quiet
+	docker compose -f application/docker/docker-compose.prod.yml config --quiet
 
 docs: ## Build the static documentation site
 	python scripts/build_docs.py --source docs --output build/docs
 
 release: ## Validate everything before a release
-	pytest -q && cd frontend && npm test && npm run build
+	pytest -q && cd application/frontend && npm test && npm run build

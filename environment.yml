@@ -2,8 +2,8 @@
 #
 #   conda env create -f environment.yml
 #   conda activate cropfusion
-#   pip install -e ./ai/models ./ai/preprocessing ./ai/training ./ai/explainability
-#   pip install -e ./services/dataset_manager ./services/spatial_alignment
+#   pip install -e ./training/models ./training/preprocessing ./training/training ./training/explainability
+#   pip install -e ./training/dataset_manager ./training/stam
 #
 # Runtime dependencies are pinned in requirements.txt (installed via pip),
 # keeping the conda layer minimal and cross-platform.

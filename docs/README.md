@@ -2,24 +2,33 @@
 
 ## Getting started
 
-- [INSTALLATION.md](INSTALLATION.md) — local (non-Docker) environment setup
-- [QUICKSTART.md](QUICKSTART.md) — 5-minute Docker quick start
-- [DEPLOYMENT.md](DEPLOYMENT.md) — Docker Compose (dev + prod), TLS, monitoring, backups
+- [installation/INSTALLATION.md](installation/INSTALLATION.md) — local (non-Docker) environment setup
+- [installation/QUICKSTART.md](installation/QUICKSTART.md) — 5-minute Docker quick start
+- [installation/TROUBLESHOOTING.md](installation/TROUBLESHOOTING.md) — common problems and fixes
+- [deployment/DEPLOYMENT.md](deployment/DEPLOYMENT.md) — Docker Compose (dev + prod), TLS, monitoring, backups
+
+## Architecture
+
+- [architecture/ARCHITECTURE_GUIDE.md](architecture/ARCHITECTURE_GUIDE.md) — two-platform architecture
+- [architecture/FOLDER_GUIDE.md](architecture/FOLDER_GUIDE.md) — folder-by-folder tour
+- [architecture/SOFTWARE_DESIGN_DOCUMENT.md](architecture/SOFTWARE_DESIGN_DOCUMENT.md) — original design document
+- [diagrams/](diagrams/) — architecture diagrams
+- [migration/MIGRATION_GUIDE.md](migration/MIGRATION_GUIDE.md) — migration to the two-platform layout
+- [migration/MIGRATION_REPORT.md](migration/MIGRATION_REPORT.md) — detailed migration report
 
 ## Guides
 
-- [API.md](API.md) — HTTP API overview
-- [BACKEND.md](BACKEND.md) — backend architecture & modules
-- [FRONTEND.md](FRONTEND.md) — frontend development guide
-- [DATABASE.md](DATABASE.md) — schema, migrations, PostGIS
-- [MLOPS.md](MLOPS.md) — model registry, promotion gates, scheduler
-- [DEVELOPMENT.md](DEVELOPMENT.md) — how to work in this repository
-- [TESTING.md](TESTING.md) — running and writing tests
-- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — common problems and fixes
+- [api/API.md](api/API.md) — HTTP API overview
+- [deployment/BACKEND.md](deployment/BACKEND.md) — backend architecture & modules
+- [usage/FRONTEND.md](usage/FRONTEND.md) — frontend development guide
+- [deployment/DATABASE.md](deployment/DATABASE.md) — schema, migrations, PostGIS
+- [deployment/MLOPS.md](deployment/MLOPS.md) — model registry, promotion gates, scheduler
+- [developer-guide/DEVELOPMENT.md](developer-guide/DEVELOPMENT.md) — how to work in this repository
+- [developer-guide/TESTING.md](developer-guide/TESTING.md) — running and writing tests
+- [developer-guide/CONTRIBUTING.md](developer-guide/CONTRIBUTING.md) — contribution guidelines
 
 ## Project
 
-- [CONTRIBUTING.md](CONTRIBUTING.md) — contribution guidelines
 - [CHANGELOG.md](CHANGELOG.md) — version history
 - [ROADMAP.md](ROADMAP.md) — planned work
 - [CITATION.md](CITATION.md) — how to cite CropFusion
@@ -33,14 +42,14 @@
 
 ## Reference
 
-- [SOFTWARE_DESIGN_DOCUMENT.md](SOFTWARE_DESIGN_DOCUMENT.md) — the original design document
-- Phase completion reports: `PHASE2_COMPLETION_REPORT.md` … `PHASE11_COMPLETION_REPORT.md`
-- Research assets: `../research/` (architecture diagrams, benchmarks, dataset stats)
+- Phase completion reports: `PHASE2_COMPLETION_REPORT.md` … `PHASE10_COMPLETION_REPORT.md`
+- Research assets: [research/](research/) (architecture diagrams, benchmarks, dataset stats)
 
 ## Package documentation
 
 Each package documents itself:
 
-- `ai/models/docs/` — architecture, layers, configuration, development
-- `ai/preprocessing/docs/`, `ai/training/docs/`, `ai/explainability/docs/`
-- `services/dataset_manager/docs/`, `services/spatial_alignment/docs/`
+- `training/models/docs/` — architecture, layers, configuration, development
+- `training/preprocessing/docs/`, `training/training/docs/`, `training/explainability/docs/`
+- `training/dataset_manager/docs/`, `training/stam/docs/`
+- `application/database/docs/`

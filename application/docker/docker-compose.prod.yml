@@ -1,0 +1,220 @@
+# CropFusion - production deployment orchestration.
+#
+#   cp .env.production.example .env
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# TLS is terminated by the Caddy edge proxy (automatic Let's Encrypt). All
+# services pin versions, enforce restart policies, resource limits and run as
+# non-root. Secrets come from the environment / secret files, never the image.
+
+name: cropfusion-prod
+
+x-app-base: &app-base
+  restart: unless-stopped
+  env_file:
+    - ../.env
+
+services:
+  # ------------------------------------------------------------------ edge
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on:
+      - frontend
+      - backend
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: application/docker/Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    expose:
+      - "80"
+
+  backend:
+    build:
+      context: ..
+      dockerfile: application/docker/Dockerfile.backend
+    restart: unless-stopped
+    environment:
+      BACKEND_DATABASE__URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      BACKEND_DATABASE__POSTGIS: "true"
+      BACKEND_REDIS__URL: redis://redis:6379/0
+      BACKEND_MONITORING__PROMETHEUS_ENABLED: "true"
+      BACKEND_MONITORING__TRACING_ENABLED: "true"
+      BACKEND_SECURITY__SECURE_COOKIES: "true"
+      BACKEND_SECURITY__SECRET_KEY: ${BACKEND_SECURITY__SECRET_KEY}
+      BACKEND_MODEL__WARMUP: "true"
+    secrets:
+      - db_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - models:/app/models
+      - datasetdata:/app/data
+    expose:
+      - "8000"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: ${POSTGRES_DB}
+    secrets:
+      - db_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $REDIS_PASSWORD ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  docs:
+    build:
+      context: ..
+      dockerfile: application/docker/Dockerfile.docs
+    restart: unless-stopped
+    expose:
+      - "80"
+
+  # ------------------------------------------------------------- observability
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - promdata:/prometheus
+    expose:
+      - "9090"
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: https://${DOMAIN}/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../training/quality/monitoring/grafana:/var/lib/grafana/dashboards:ro
+      - grafanadata:/var/lib/grafana
+    expose:
+      - "3000"
+
+  loki:
+    image: grafana/loki:3.1.1
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ../monitoring/loki.yml:/etc/loki/local-config.yaml:ro
+      - lokidata:/loki
+    expose:
+      - "3100"
+
+  promtail:
+    image: grafana/promtail:3.1.1
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/promtail.yml
+    volumes:
+      - ../monitoring/promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    restart: unless-stopped
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/host/root
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro,ro
+    expose:
+      - "9100"
+
+  # ------------------------------------------------------------- backups
+  backup:
+    image: alpine:3.20
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/scripts/backup-db.sh"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      S3_BUCKET: ${BACKUP_S3_BUCKET:-}
+      S3_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+      AWS_ACCESS_KEY_ID: ${BACKUP_AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${BACKUP_AWS_SECRET_ACCESS_KEY:-}
+    volumes:
+      - ../scripts/backup:/scripts:ro
+      - backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+
+volumes:
+  pgdata:
+  redisdata:
+  models:
+  datasetdata:
+  promdata:
+  grafanadata:
+  lokidata:
+  caddydata:
+  caddyconfig:
+  backups:

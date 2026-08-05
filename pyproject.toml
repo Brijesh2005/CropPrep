@@ -28,15 +28,15 @@ dependencies = [
 ]
 
 [project.scripts]
-cropfusion-mlops = "mlops.cli:app"
+cropfusion-mlops = "training.mlops.cli:app"
 
 [tool.setuptools]
-packages = ["cropfusion", "mlops"]
+packages = ["cropfusion"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-testpaths = ["tests", "backend/app/tests", "ai", "services", "quality", "mlops"]
-pythonpath = ["."]
+testpaths = ["application/tests", "application/backend/app/tests", "training", "shared"]
+pythonpath = [".", "application/backend"]
 addopts = "-ra --strict-markers"
 filterwarnings = [
     "ignore::DeprecationWarning",
@@ -54,7 +54,7 @@ skip_covered = true
 [tool.ruff]
 line-length = 88
 target-version = "py312"
-exclude = ["frontend", "docs", "datasets", "Tabular_Datasets"]
+exclude = ["application/frontend", "docs", "datasets", "Tabular_Datasets"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "S"]
@@ -65,10 +65,10 @@ python_version = "3.12"
 ignore_missing_imports = true
 no_implicit_optional = true
 warn_unused_ignores = true
-exclude = ["frontend", "docs", "datasets"]
+exclude = ["application/frontend", "docs", "datasets"]
 
 [tool.bandit]
-exclude_dirs = ["frontend", "docs", "datasets", "tests"]
+exclude_dirs = ["application/frontend", "docs", "datasets", "tests"]
 skips = ["B101"]
 
 [tool.cropfusion]

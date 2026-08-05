@@ -1,0 +1,69 @@
+# syntax=docker/dockerfile:1
+# CropFusion admin / MLOps worker.
+#
+# Runs the scheduled MLOps loop (drift + fairness monitoring, monitoring
+# exporters, model promotion, dataset refresh, backups). Shares the same
+# dependency set as the backend but is built standalone, so it works both with
+# docker compose and in the CI image matrix.
+#
+# Build:
+#   docker compose build admin
+#   docker build -f Dockerfile.admin -t cropfusion/admin .
+
+FROM python:3.12-slim AS builder
+
+ENV PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /build
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc g++ build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+
+# Third-party wheels (torch, onnxruntime, pandas, rasterio, ...) are heavy, so
+# build them once here and reuse the wheel set in the runtime stage.
+RUN pip install --prefix=/build/wheels -r requirements.txt
+
+FROM python:3.12-slim AS runtime
+
+ENV PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app:/app/application:/app/application/backend
+
+WORKDIR /app/training/mlops
+
+# rasterio/pyogrio wheels bundle GDAL; only OpenMP runtime is needed.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl libgomp1 libgl1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/wheels /usr/local
+
+# First-party packages are installed from source so the image is always in
+# sync with the working tree.
+COPY training/ /app/training/
+COPY shared/ /app/shared/
+COPY application/backend/ /app/application/backend/
+COPY application/database/ /app/application/database/
+COPY scripts/ /app/scripts/
+
+RUN pip install --no-cache-dir \
+    /app/training/models \
+    /app/training/preprocessing \
+    /app/training/training \
+    /app/training/explainability \
+    /app/training/dataset_manager \
+    /app/training/stam
+
+RUN addgroup --system cropfusion \
+    && adduser --system --ingroup cropfusion cropfusion \
+    && chown -R cropfusion:cropfusion /app
+
+USER cropfusion
+
+CMD ["python", "-m", "training.mlops.scheduler"]

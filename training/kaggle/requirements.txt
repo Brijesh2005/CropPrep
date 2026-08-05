@@ -1,0 +1,10 @@
+# CropFusion Kaggle training environment.
+#
+# Mirrors the minimum training runtime used by the Kaggle notebooks in
+# training/kaggle/notebooks/. The authoritative dependency set lives in the
+# root requirements.txt.
+pandas>=2.2
+numpy>=1.26
+torch>=2.3
+scikit-learn>=1.5
+timm>=1.0

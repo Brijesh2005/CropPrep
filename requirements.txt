@@ -3,8 +3,8 @@
 # Pins mirror the verified development environment. Install with:
 #   pip install -r requirements.txt
 #
-# First-party packages (ai/*, services/*, quality/*) are installed from source
-# with pip install -e /app/ai/models ... and are NOT listed here.
+# First-party packages (training/*, application/*) are installed from source
+# with pip install -e /app/training/models ... and are NOT listed here.
 #
 # NOTE: torch/torchvision wheels are platform-specific. On Linux you can use
 # the CPU-only index to slim the install:

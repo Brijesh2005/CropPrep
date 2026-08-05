@@ -18,76 +18,89 @@ as a full MLOps-ready platform: model registry with promotion gates, drift and
 fairness monitoring, a production monitoring stack, and one-command Docker
 deployments.
 
-## Feature highlights
-
-- **Multimodal model** — TabTransformer + Dual CNN (NDVI/EVI) + temporal
-  Transformer + cross-modal gated fusion (`ai/models`).
-- **Enterprise backend** — modular FastAPI monolith: auth + RBAC, predictions,
-  history, notifications, explainability, GIS, model/dataset registries
-  (`backend/`).
-- **Dataset & spatial management** — dataset profiling/validation/versioning
-  (`services/dataset_manager`) and spatio-temporal alignment
-  (`services/spatial_alignment`).
-- **ML quality gates** — drift, fairness, and optimization tooling (`quality/`)
-  with Grafana dashboards.
-- **MLOps** — model registry CLI, promotion gates, rollback, experiment
-  tracking, scheduled monitoring (`mlops/`).
-- **Deployment** — Docker Compose (dev + prod) with Caddy TLS, Prometheus,
-  Grafana, Loki, and automated backups.
-
-## Repository layout
+The repository is organised into two independent platform roots — a
+**Training Platform** and a **Prediction Platform** — that share code only
+through a common `shared/` contract layer:
 
 ```
 cropfusion/
-├── ai/            # models, preprocessing, training, explainability
-├── backend/       # FastAPI modular monolith + enterprise database (Alembic)
-├── frontend/      # React 19 + TypeScript + Vite SPA (PWA)
-├── services/      # dataset_manager, spatial_alignment
-├── quality/       # drift, fairness, monitoring, optimization
-├── mlops/         # registry, gates, scheduler, experiments, reports
-├── research/      # architecture diagrams, benchmarks, dataset stats
-├── docs/          # installation, deployment, API, manuals, releases
-├── deployment/    # compose configs, monitoring, TLS (Caddy)
-├── scripts/       # docs build, backups
-└── datasets/      # dataset caches (git-ignored)
+├── training/       # Training Platform: models, preprocessing, training,
+│                   #   explainability, dataset manager, STAM, quality, MLOps
+├── application/    # Prediction Platform: backend, frontend, database, GIS,
+│                   #   monitoring, docker, config, tests
+├── shared/         # Platform-agnostic schemas, DTOs, interfaces, validation
+├── docs/           # architecture, installation, usage, deployment, research
+├── releases/       # tagged release archives
+├── scripts/        # docs build, backups
+├── datasets/       # dataset caches (git-ignored)
+└── .github/        # CI/CD, dependabot, CODEOWNERS
 ```
+
+## Feature highlights
+
+- **Multimodal model** — TabTransformer + Dual CNN (NDVI/EVI) + temporal
+  Transformer + cross-modal gated fusion (`training/models`).
+- **Enterprise backend** — modular FastAPI monolith: auth + RBAC, predictions,
+  history, notifications, explainability, GIS, model/dataset registries
+  (`application/backend`).
+- **Dataset & spatial management** — dataset profiling/validation/versioning
+  (`training/dataset_manager`) and spatio-temporal alignment
+  (`training/stam`).
+- **ML quality gates** — drift, fairness, and optimization tooling
+  (`training/quality`) with Grafana dashboards.
+- **MLOps** — model registry CLI, promotion gates, rollback, experiment
+  tracking, scheduled monitoring (`training/mlops`).
+- **Deployment** — Docker Compose (dev + prod) with Caddy TLS, Prometheus,
+  Grafana, Loki, and automated backups.
+
+## Platform roots
+
+| Root | Platform | Contents |
+| ---- | -------- | -------- |
+| [`training/`](training/README.md) | Training | Model development, dataset management, evaluation, quality gates, experiment tracking |
+| [`application/`](application/README.md) | Prediction | Backend, frontend, database, GIS, monitoring, inference |
+| [`shared/`](shared/README.md) | Contracts | Schemas, DTOs, enums, interfaces, validation, serialization |
 
 ## Quick start
 
 ```bash
 # One-command development stack (frontend :3000, backend :8000, docs :8080)
-cp .env.example .env
-docker compose up -d
+cp application/config/.env.example .env
+docker compose -f application/docker/docker-compose.yml up -d
 
 # Docs site
 open http://localhost:8080
 ```
 
-See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the step-by-step guide and
-[docs/INSTALLATION.md](docs/INSTALLATION.md) for local (non-Docker) setup.
+See [docs/installation/QUICKSTART.md](docs/installation/QUICKSTART.md) for the
+step-by-step guide and [docs/installation/INSTALLATION.md](docs/installation/INSTALLATION.md)
+for local (non-Docker) setup.
 
 ## Development
 
 ```bash
 pip install -r requirements.txt -r requirements-dev.txt
-pip install -e ./ai/models ./ai/preprocessing ./ai/training ./ai/explainability
-pip install -e ./services/dataset_manager ./services/spatial_alignment
-cd frontend && npm ci && cd ..
+pip install -e ./training/models ./training/preprocessing ./training/training ./training/explainability
+pip install -e ./training/dataset_manager ./training/stam
+cd application/frontend && npm ci && cd ../..
 make test      # full Python suite
 make compose   # validate compose files
 ```
 
-See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) and
-[CONTRIBUTING.md](CONTRIBUTING.md).
+See [docs/developer-guide/DEVELOPMENT.md](docs/developer-guide/DEVELOPMENT.md),
+[docs/developer-guide/CONTRIBUTING.md](docs/developer-guide/CONTRIBUTING.md)
+and the [Repository & Folder Guide](docs/architecture/FOLDER_GUIDE.md).
 
 ## Documentation
 
 - [docs/README.md](docs/README.md) — documentation index
-- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — Docker, TLS, monitoring, backups
-- [docs/MLOPS.md](docs/MLOPS.md) — model promotion workflow
-- [docs/API.md](docs/API.md) — API overview
-- [research/ARCHITECTURE.md](research/ARCHITECTURE.md) — system architecture
-- [research/MODEL_ARCHITECTURE.md](research/MODEL_ARCHITECTURE.md) — neural architecture
+- [docs/architecture/ARCHITECTURE_GUIDE.md](docs/architecture/ARCHITECTURE_GUIDE.md) — platform architecture
+- [docs/architecture/FOLDER_GUIDE.md](docs/architecture/FOLDER_GUIDE.md) — folder-by-folder tour
+- [docs/deployment/DEPLOYMENT.md](docs/deployment/DEPLOYMENT.md) — Docker, TLS, monitoring, backups
+- [docs/deployment/MLOPS.md](docs/deployment/MLOPS.md) — model promotion workflow
+- [docs/api/API.md](docs/api/API.md) — API overview
+- [docs/research/ARCHITECTURE.md](docs/research/ARCHITECTURE.md) — system architecture
+- [docs/migration/MIGRATION_GUIDE.md](docs/migration/MIGRATION_GUIDE.md) — two-platform migration guide
 
 ## Reproducibility
 

@@ -14,4 +14,4 @@ mypy>=1.10
 bandit==1.9.4
 safety==3.8.1
 
-# Frontend tooling is managed by npm (see frontend/package.json).
+# Frontend tooling is managed by npm (see application/frontend/package.json).
