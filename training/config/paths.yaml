@@ -1,0 +1,49 @@
+# Workspace layout + configuration registry for the Kaggle Training Platform.
+#
+# Consumed by ``training/kaggle/config.py`` (env ``KAGGLE_*`` wins over this
+# file). All paths are repository-relative so the same file works from the repo
+# root on a research machine and from the mounted repo inside a Kaggle
+# notebook.
+#
+# Inheritance: set ``extends`` to a parent paths file (resolved relative to
+# this file); the parent is merged under this file and both are overridden by
+# ``KAGGLE_<SECTION>__<KEY>`` environment variables. ``extends`` may itself
+# chain.
+
+extends: null
+
+# Kaggle workspace layout (created by the WorkspaceManager).
+workspace:
+  root: training/kaggle
+  logs_dir: logs
+  outputs_dir: outputs
+  checkpoints_dir: checkpoints
+  cache_dir: cache
+  configs_dir: configs
+
+# Registry of every Training Platform config file. ``$env`` expands to the
+# ``training/config`` directory resolved through the Kaggle runtime section.
+config:
+  dataset: training/config/dataset.yaml
+  training: training/config/training.yaml
+  kaggle: training/config/kaggle.yaml
+  model: training/config/model.yaml
+  logging: training/config/logging.yaml
+  paths: training/config/paths.yaml
+  validation: training/config/validation.yaml
+
+# Minimum environment requirements enforced by the Training Validator.
+environment:
+  min_python: "3.10"
+  require_gpu: true
+  min_free_gb: 5.0
+  required_dependencies:
+    - numpy
+    - pandas
+    - torch
+    - scikit-learn
+    - rasterio
+    - yaml
+    - kagglehub
+  gpu_dependencies:
+    - torch

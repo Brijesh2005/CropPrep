@@ -38,6 +38,15 @@
 - [migration/MIGRATION_REPORT_R1.4.md](migration/MIGRATION_REPORT_R1.4.md) — inference-only preparation
 - [diagrams/](diagrams/) — incl. [R1.4 prediction architecture](diagrams/r1-4-prediction-architecture.md)
 
+## Kaggle training infrastructure (R2.1)
+
+- [training/kaggle/docs/SETUP.md](../training/kaggle/docs/SETUP.md) — training setup guide
+- [training/kaggle/docs/KAGGLE.md](../training/kaggle/docs/KAGGLE.md) — Kaggle guide
+- [training/kaggle/docs/BOOTSTRAP.md](../training/kaggle/docs/BOOTSTRAP.md) — bootstrap guide
+- [training/kaggle/docs/WORKSPACE.md](../training/kaggle/docs/WORKSPACE.md) — workspace guide
+- [training/kaggle/docs/CONFIGURATION.md](../training/kaggle/docs/CONFIGURATION.md) — configuration guide
+- [migration/MIGRATION_REPORT_R2.1.md](migration/MIGRATION_REPORT_R2.1.md) — Kaggle training infrastructure
+
 ## Guides
 
 - [api/API.md](api/API.md) — HTTP API overview

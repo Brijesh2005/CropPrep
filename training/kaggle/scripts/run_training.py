@@ -1,33 +1,49 @@
-"""Kaggle training runner — end-to-end model training orchestration.
+"""Kaggle training runner — pipeline orchestration (R2.1, no training yet).
 
-This script drives a complete CropFusion training run on Kaggle / a GPU
-machine. It is **orchestration only** — the actual training engine lives in
-``training/training`` (Experiment + Trainer + Evaluator) and the data assembly
-lives in the Dataset Manager + STAM. This script:
+This script initialises the complete CropFusion training pipeline and verifies
+that every component is wired and ready. It performs **no training** — model
+construction, data assembly and the training loop arrive in a later phase.
 
-1. Loads ``training/config/{dataset,training,model,validation}.yaml``.
-2. Builds the :class:`DatasetManager` and materialises both data sources
-   (tabular Git CSVs + Kaggle imagery).
-3. Builds the observation set with :class:`STAM` (sole data access path).
-4. Runs :func:`run_experiment` and writes the experiment report.
+It does:
+
+1. Initialise environment (runtime / system / GPU / dependencies) + logging.
+2. Load every configuration file (dataset / training / model / validation /
+   kaggle / paths / logging) with ``KAGGLE_*`` / platform env overrides.
+3. Initialise providers + the :class:`DatasetManager`.
+4. Initialise STAM, preprocessing, trainer, evaluator and exporter component
+   readiness (constructor descriptors — no model / no data required).
+5. Create the workspace (logs / outputs / checkpoints / cache / configs),
+   checkpoint manager + training cache.
+6. Generate the orchestration report (config, providers, components,
+   validation) as JSON.
 
 Run on Kaggle::
 
-    !python training/kaggle/scripts/run_training.py \\
-        --locations training/kaggle/locations.csv --epochs 100
+    !python training/kaggle/scripts/run_training.py
 
 Run on a research machine::
 
-    python training/kaggle/scripts/run_training.py \\
-        --repo-root . --locations training/kaggle/locations.csv
+    python training/kaggle/scripts/run_training.py --repo-root .
 """
 
 from __future__ import annotations
 
 import argparse
-import csv
+import inspect
 import json
 from pathlib import Path
+from typing import Any
+
+from training.kaggle.config import (
+    load_kaggle_config,
+    load_logging_config,
+    load_paths_config,
+    WorkspaceLayout,
+)
+from training.kaggle.environment import EnvironmentManager
+from training.kaggle.logging import TrainingLogger
+from training.kaggle.validation import TrainingValidator
+from training.kaggle.workspace import WorkspaceManager
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -40,66 +56,31 @@ def _add_repo_root(repo_root: Path) -> None:
         sys.path.insert(0, str(repo_root))
 
 
-def _build_manager(repo_root: Path, dataset_config: Path):
-    from training.dataset_manager import DatasetManager, load_settings
-
-    settings = load_settings(dataset_config)
-    return DatasetManager(settings)
-
-
-def _ensure_data(manager) -> None:
-    names = manager.tabular_names()
-    print(f"[run_training] tabular datasets available: {len(names)}")
-    manager.ensure_image()
-    print("[run_training] imagery data ready")
-
-
-def _load_locations(locations: str) -> list[tuple[float, float]]:
-    """Read ``lon,lat`` rows from a CSV (header optional) or a "lon,lat" pair."""
-    if locations.startswith("[") or "," in locations and ":" not in locations:
-        lon, lat = locations.split(",")
-        return [(float(lon), float(lat))]
-    path = Path(locations)
-    if not path.exists():
-        raise FileNotFoundError(f"locations file not found: {path}")
-    points: list[tuple[float, float]] = []
-    with path.open(encoding="utf-8", newline="") as fh:
-        for row in csv.reader(fh):
-            if len(row) < 2 or not row[0] or not row[1]:
-                continue
-            try:
-                points.append((float(row[0]), float(row[1])))
-            except ValueError:
-                continue
-    if not points:
-        raise ValueError(f"no valid lon/lat rows in {path}")
-    return points
-
-
-def _build_observations(manager, stam_config_path: Path, locations: str):
-    from training.stam import STAM
-
-    stam = STAM.from_config(manager, config_path=str(stam_config_path))
-    stam.initialize()
-
-    observations = []
-    for lon, lat in _load_locations(locations):
-        obs = stam.build_observation(lon, lat)
-        observations.append(obs)
-        print(
-            f"[run_training] observation ({lon:.4f}, {lat:.4f}) "
-            f"season={obs.temporal.season} score={obs.quality.overall_score}"
-        )
-    print(f"[run_training] observations built: {len(observations)}")
-    return observations
+def _component_descriptor(cls: type) -> dict[str, Any]:
+    """Constructor signature + module for an orchestration component."""
+    sig = inspect.signature(cls.__init__)
+    params = [
+        name
+        for name, param in sig.parameters.items()
+        if name != "self" and param.default is inspect.Parameter.empty
+    ]
+    return {
+        "class": f"{cls.__module__}.{cls.__name__}",
+        "required_init_args": params,
+        "instantiated": False,
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="cropfusion-run-training",
-        description="End-to-end model training orchestration",
+        description="Training pipeline orchestration readiness check (no training)",
     )
     parser.add_argument("--repo-root", default=str(_REPO_ROOT))
+    parser.add_argument(
+        "--paths-config",
+        default=str(_REPO_ROOT / "training" / "config" / "paths.yaml"),
+    )
     parser.add_argument(
         "--dataset-config",
         default=str(_REPO_ROOT / "training" / "config" / "dataset.yaml"),
@@ -113,53 +94,124 @@ def main(argv: list[str] | None = None) -> int:
         default=str(_REPO_ROOT / "training" / "config" / "model.yaml"),
     )
     parser.add_argument(
-        "--stam-config",
+        "--validation-config",
         default=str(_REPO_ROOT / "training" / "config" / "validation.yaml"),
     )
     parser.add_argument(
-        "--locations",
-        default=str(_REPO_ROOT / "training" / "kaggle" / "locations.csv"),
-        help="CSV of lon,lat rows (or a single 'lon,lat' pair)",
+        "--output",
+        default=None,
+        help="Write the orchestration report JSON here (default: workspace outputs)",
     )
-    parser.add_argument("--epochs", type=int, default=None)
-    parser.add_argument("--run-name", default=None)
-    parser.add_argument("--output", default=None, help="Write the report JSON here")
     args = parser.parse_args(argv)
 
-    _add_repo_root(Path(args.repo_root))
+    repo_root = Path(args.repo_root).resolve()
+    _add_repo_root(repo_root)
 
-    from training.training.config import load_training_config
-    from training.models.config import load_model_config
+    # 1. Configuration.
+    paths = load_paths_config(Path(args.paths_config))
+    kaggle_cfg = load_kaggle_config()
+    logging_cfg = load_logging_config()
 
-    training = load_training_config(Path(args.training_config))
-    model = load_model_config(Path(args.model_config))
-    if args.epochs is not None:
-        training.train.epochs = args.epochs
+    # 2. Environment + logging + workspace.
+    environment = EnvironmentManager(repo_root)
+    env_report = environment.report()
+    layout = WorkspaceLayout.resolve(paths, repo_root=repo_root)
+    logger = TrainingLogger(logging_cfg, log_dir=layout.logs).setup()
+    workspace = WorkspaceManager(layout)
+    workspace.create()
+    logger.log_experiment(
+        "orchestration_start",
+        repo_root=str(repo_root),
+        python=env_report["system"].get("python_version"),
+        gpu=env_report["gpu"].get("available"),
+    )
 
-    manager = _build_manager(Path(args.repo_root), Path(args.dataset_config))
+    report: dict[str, Any] = {
+        "environment": env_report,
+        "configuration": _config_report(args, paths, kaggle_cfg),
+        "workspace": workspace.report(),
+    }
+
+    # 3. Providers + Dataset Manager.
+    from training.dataset_manager import DatasetManager, load_settings
+
+    settings = load_settings(Path(args.dataset_config))
+    manager = DatasetManager(settings)
     try:
-        _ensure_data(manager)
-        observations = _build_observations(
-            manager, Path(args.stam_config), args.locations
-        )
-
-        from training.training.experiment import run_experiment
-
-        report = run_experiment(
-            training_config=training,
-            observations=observations,
-            model_config=model,
-            run_name=args.run_name,
-        )
-        payload = report.to_dict()
-        print(json.dumps(payload, indent=2, default=str))
-        if args.output:
-            Path(args.output).write_text(
-                json.dumps(payload, indent=2, default=str), encoding="utf-8"
-            )
-        return 0
+        manifests = manager.provider_manifests()
+        report["dataset_manager"] = {
+            "providers": manifests,
+            "tabular_datasets": manager.tabular_names(),
+        }
     finally:
         manager.close()
+
+    # 4. Pipeline components (constructor descriptors — no model/data).
+    from training.training import Evaluator, Trainer, TrainingConfig
+    from training.training.config import load_training_config as load_training_cfg
+    from training.models.config import load_model_config as load_model_cfg
+    from training.preprocessing import Preprocessor
+
+    training_cfg = load_training_cfg(Path(args.training_config))
+    model_cfg = load_model_cfg(Path(args.model_config))
+    components = {
+        "training_config": {
+            "name": training_cfg.name,
+            "device": training_cfg.general.device,
+            "epochs": training_cfg.train.epochs,
+            "checkpoint_dir": training_cfg.checkpoint.directory,
+        },
+        "model_config": {"name": model_cfg.name},
+        "preprocessor": _component_descriptor(Preprocessor),
+        "trainer": _component_descriptor(Trainer),
+        "evaluator": _component_descriptor(Evaluator),
+        "stam": _component_descriptor(_stam_class()),
+    }
+    components["trainer"]["config_loaded"] = isinstance(
+        training_cfg, TrainingConfig
+    )
+    report["components"] = components
+
+    # 5. Validation (config / python / gpu / deps / folders / disk).
+    validator = TrainingValidator(paths, layout, env_report)
+    validation = validator.validate(provider_manifests=manifests)
+    report["validation"] = validation.to_dict()
+    logger.log_experiment(
+        "orchestration_complete",
+        passed=validation.passed,
+        severity_summary=validation.by_severity(),
+    )
+
+    output = Path(args.output) if args.output else workspace.output_path("reports")
+    output.mkdir(parents=True, exist_ok=True)
+    target = output / "orchestration.json"
+    target.write_text(
+        json.dumps(report, indent=2, default=str, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    print(f"[run_training] wrote orchestration report -> {target}")
+    print(
+        f"[run_training] validation passed={validation.passed} "
+        f"({validation.by_severity()})"
+    )
+    return 0
+
+
+def _stam_class():
+    from training.stam import STAM
+
+    return STAM
+
+
+def _config_report(args, paths, kaggle_cfg) -> dict[str, Any]:
+    return {
+        "paths": paths.model_dump(),
+        "kaggle": kaggle_cfg.model_dump(),
+        "dataset_config": args.dataset_config,
+        "training_config": args.training_config,
+        "model_config": args.model_config,
+        "validation_config": args.validation_config,
+    }
 
 
 if __name__ == "__main__":  # pragma: no cover
