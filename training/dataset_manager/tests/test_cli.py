@@ -34,6 +34,36 @@ def test_no_command_fails():
         _run()
 
 
+def test_providers_and_tabulars(tmp_path: Path, monkeypatch):
+    import pandas as pd
+
+    tabular_root = tmp_path / "tabular"
+    tabular_root.mkdir()
+    pd.DataFrame({"village": ["a"], "yield_kg": [1]}).to_csv(
+        tabular_root / "samples.csv", index=False
+    )
+    monkeypatch.setenv("DM_PROVIDERS__TABULAR__ROOT", str(tabular_root))
+
+    code, out = _run("providers")
+    assert code == 0
+    assert "git_repository_tabular" in out
+
+    code, out = _run("tabulars")
+    assert code == 0
+    assert "samples" in out
+
+    code, out = _run("tabular-schema", "samples")
+    assert code == 0
+    assert "yield_kg" in out
+
+
+def test_image_catalog(synthetic_dataset: Path, monkeypatch):
+    monkeypatch.setenv("DM_DATASET_ROOT", str(synthetic_dataset))
+    code, out = _run("image-catalog")
+    assert code == 0
+    assert "NDVI: 2" in out
+
+
 def test_info(tmp_path: Path):
     code, out = _run("info")
     assert code == 0

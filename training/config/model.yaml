@@ -1,0 +1,105 @@
+# Model configuration for the CropFusion architecture (R1.2 defaults).
+#
+# Loaded by ``training.models.config.load_model_config`` (env ``MDL_*`` wins
+# over this file). The tabular schema / crop class count / image input size are
+# derived from the fitted preprocessor at build time
+# (``ModelConfig.from_preprocessor``) — only architecture-level knobs live
+# here.
+
+name: cropfusion_v1
+version: 1.0.0
+validate_inputs: true
+
+tabular:
+  numeric_dim: 0                 # derived from the fitted preprocessor
+  categorical_cardinalities: []  # derived from the fitted preprocessor
+  embedding_dim: 64
+  depth: 4
+  num_heads: 4
+  ff_dim: 256
+  dropout: 0.1
+  activation: gelu
+  use_cls: true
+  position_encoding: none
+  max_len: 64
+
+image_encoder:
+  backbone: efficientnetv2_s     # Dual-CNN branch: NDVI + EVI
+  pretrained: false
+  freeze_backbone: false
+  input_size: 128
+  channel_expansion: repeat
+  drop_path_rate: 0.0
+  ndvi_backbone: null
+  evi_backbone: null
+  enable_ndvi: true
+  enable_evi: true
+
+image_fusion:
+  method: learnable
+  hidden_dim: null
+  dropout: 0.1
+
+temporal:
+  d_model: 256
+  depth: 2
+  num_heads: 4
+  ff_dim: 1024
+  dropout: 0.1
+  activation: gelu
+  use_cls: true
+  position_encoding: learned
+  max_len: 16
+  embedding_dim: 256
+
+cross_attention:
+  enabled: true
+  num_heads: 4
+  dropout: 0.1
+  out_dim: 256
+
+gated_fusion:
+  enabled: true
+  out_dim: 256
+  hidden_dim: 256
+  dropout: 0.1
+
+shared_encoder:
+  d_model: 256
+  depth: 2
+  num_heads: 4
+  ff_dim: 1024
+  dropout: 0.1
+  activation: gelu
+  out_dim: 512
+
+heads:
+  crop:
+    num_classes: 0              # derived from the fitted label encoder
+    hidden_dim: null
+    dropout: 0.1
+    activation: relu
+  yield_prediction:
+    hidden_dim: null
+    dropout: 0.1
+    activation: relu
+    output_clamp_min: null
+
+loss:
+  crop_loss: label_smoothing
+  yield_loss: huber
+  crop_weight: 0.7
+  yield_weight: 0.3
+  weighting_mode: fixed
+  label_smoothing: 0.1
+  focal_gamma: 2.0
+  reduction: mean
+  log_variance_eps: 0.01
+
+checkpoint:
+  directory: training/artifacts/models
+  keep_last: 3
+
+export:
+  onnx_opset: 17
+  torchscript_mode: trace

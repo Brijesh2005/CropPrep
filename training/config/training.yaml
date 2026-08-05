@@ -1,0 +1,107 @@
+# Training engine configuration for the Training Platform.
+#
+# Loaded by ``training.training.config.load_training_config`` (env ``TRN_*``
+# wins over this file). All artifact paths are repository-relative.
+
+name: cropfusion_training
+
+general:
+  device: auto          # auto | cpu | cuda (auto => best available on GPU)
+  output_dir: training/artifacts/training
+  seed: 42
+  deterministic: false
+  amp: true             # fp16 mixed precision on CUDA, no-op elsewhere
+  amp_dtype: float16
+  gradient_clip: 1.0
+  gradient_clip_type: norm
+  gradient_accumulation_steps: 1
+  gradient_checkpointing: false
+  nan_detection: true
+  nan_policy: skip
+  log_every: 10
+  validation_frequency: 1
+
+data:
+  batch_size: 32
+  workers: 2
+  pin_memory: true
+  prefetch_factor: 2
+  persistent_workers: true
+  drop_last: false
+  train_shuffle: true
+
+optimizer:
+  name: adamw
+  lr: 0.0001
+  weight_decay: 0.0001
+  betas: [0.9, 0.999]
+  eps: 1.0e-08
+
+scheduler:
+  name: cosine
+  step: epoch
+  warmup_epochs: 3
+  warmup_ratio: 0.0
+  t_max: null
+  eta_min: 0.0
+  pct_start: 0.3
+  mode: min
+
+loss:
+  crop_loss: label_smoothing
+  yield_loss: huber
+  crop_weight: 0.7
+  yield_weight: 0.3
+  weighting_mode: fixed
+  label_smoothing: 0.1
+  focal_gamma: 2.0
+  reduction: mean
+
+train:
+  epochs: 100
+  early_stopping_metric: val_loss
+  early_stopping_mode: min
+  early_stopping_patience: 10
+  early_stopping_min_delta: 0.0
+  restore_best_on_stop: true
+
+checkpoint:
+  directory: training/artifacts/training/checkpoints
+  keep_last: 3
+  save_best: true
+  save_latest: true
+  resume: false
+
+metrics:
+  top_k: 5
+  average: macro
+  roc_auc: false
+
+logging:
+  level: INFO
+  console: true
+  csv: true
+  json_logs: true
+  tensorboard: false
+  config_snapshot: true
+
+validation:
+  strategy: holdout
+  k_folds: 5
+  shuffle: true
+  seed: 42
+  group_column: village
+  temporal_column: year
+
+ablation:
+  enabled: false
+  variants: [full, only_tabular, only_ndvi, only_evi, only_image]
+
+benchmark:
+  enabled: false
+
+visualization:
+  enabled: true
+  directory: training/artifacts/training/visualizations
+  loss_curves: true
+  regression_scatter: true

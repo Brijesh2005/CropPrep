@@ -1,0 +1,47 @@
+# Kaggle runtime configuration for the Training Platform.
+#
+# Consumed by ``training/kaggle/scripts/*.py`` (bootstrap / run_training /
+# evaluate / export_release) and the ``training/kaggle/notebooks/*.ipynb``
+# notebooks. This file is NOT loaded by any pydantic loader — the scripts
+# read it with plain ``yaml.safe_load`` so it can stay small and readable.
+
+# Kaggle dataset that holds the Sentinel-2 imagery (NDVI / EVI GeoTIFFs
+# 2018-2025). It is downloaded through ``kagglehub`` at runtime and NEVER
+# committed to the repository.
+kaggle:
+  dataset_handle: shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada
+  competition: null                 # set when running inside a competition kernel
+  gpu: true                         # require a GPU accelerator
+  internet: true                    # Kaggle notebooks need internet for kagglehub
+
+# Runtime paths (Kaggle notebook defaults; overridable on a research machine).
+runtime:
+  repo_root: /kaggle/working/CropPrep   # the mounted repository (git checkout)
+  input_dir: /kaggle/input
+  working_dir: /kaggle/working
+  artifacts_root: /kaggle/working/artifacts
+  config_dir: training/config
+
+# Dataset Manager settings used by the scripts (mirrors dataset.yaml).
+dataset_manager:
+  config_file: training/config/dataset.yaml
+  dataset_root: training/datasets
+  tabular_root: training/datasets/tabular
+
+# Outputs produced by the pipeline scripts.
+outputs:
+  run_dir: training/artifacts/runs
+  checkpoint_dir: training/artifacts/checkpoints
+  export_dir: training/artifacts/export
+  release_dir: training/artifacts/releases
+
+# Installed first-party packages (relative to repo_root) that the Kaggle
+# kernel installs with ``pip install -e`` before running.
+install:
+  editable_packages:
+    - training/models
+    - training/preprocessing
+    - training/training
+    - training/dataset_manager
+    - training/stam
+    - training/explainability

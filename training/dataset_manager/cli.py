@@ -55,6 +55,13 @@ def build_parser() -> argparse.ArgumentParser:
     _add(sub, "summary", "Print a dataset summary", _cmd_summary, common)
     _add(sub, "csvs", "List discovered CSV files", _cmd_csvs, common)
     _add(sub, "images", "List GeoTIFF files (NDVI/EVI, R10m/R20m)", _cmd_images, common)
+    _add(sub, "tabulars", "List Git-versioned tabular datasets", _cmd_tabulars, common)
+    _add(sub, "tabular-schema", "Show the schema of a tabular dataset", _cmd_tabular_schema, common)
+    _add(sub, "tabular-statistics", "Show numeric statistics of a tabular dataset", _cmd_tabular_stats, common)
+    _add(sub, "image-ensure", "Download (or reuse) the imagery dataset", _cmd_image_ensure, common)
+    _add(sub, "image-catalog", "Show the classified imagery catalog", _cmd_image_catalog, common)
+    _add(sub, "image-patch", "Retrieve a raster patch around a center point", _cmd_image_patch, common)
+    _add(sub, "providers", "Show provider manifests", _cmd_providers, common)
     _add(sub, "register", "Register the dataset in the registry", _cmd_register, common)
     _add(sub, "versions", "List dataset version history", _cmd_versions, common)
     _add(sub, "bump-version", "Bump the dataset version (major/minor/patch)", _cmd_bump, common)
@@ -156,6 +163,76 @@ def _cmd_images(args: argparse.Namespace) -> dict[str, Any]:
     return {"ok": True, "files": files, "count": len(files)}
 
 
+def _cmd_tabulars(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    catalog = manager.tabular_catalog()
+    return {
+        "ok": True,
+        "root": str(catalog.root),
+        "datasets": [d.to_dict() for d in catalog.datasets],
+        "count": len(catalog.datasets),
+    }
+
+
+def _cmd_tabular_schema(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    return {"ok": True, "name": args.name, "schema": manager.tabular_schema(args.name)}
+
+
+def _cmd_tabular_stats(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    return {
+        "ok": True,
+        "name": args.name,
+        "statistics": manager.tabular_statistics(args.name),
+    }
+
+
+def _cmd_image_ensure(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    path = manager.ensure_image(force=getattr(args, "force", False))
+    return {"ok": True, "path": str(path), "status": "downloaded"}
+
+
+def _cmd_image_catalog(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    catalog = manager.image_catalog()
+    return {
+        "ok": True,
+        "location": catalog.location.to_dict(),
+        "ndvi_count": len(catalog.ndvi),
+        "evi_count": len(catalog.evi),
+        "years": catalog.years,
+        "resolutions": catalog.resolutions,
+        "counts": catalog.counts,
+    }
+
+
+def _cmd_image_patch(args: argparse.Namespace) -> dict[str, Any]:
+    from .providers.models import PatchRequest
+
+    manager = _manager(args)
+    patch = manager.patch_image(
+        PatchRequest(
+            path=args.path,
+            center=(args.x, args.y),
+            size=args.size,
+            band=getattr(args, "band", 1),
+        )
+    )
+    return {
+        "ok": True,
+        "path": args.path,
+        "shape": list(patch.shape),
+        "dtype": str(patch.dtype),
+    }
+
+
+def _cmd_providers(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    return {"ok": True, "providers": manager.provider_manifests()}
+
+
 def _cmd_register(args: argparse.Namespace) -> dict[str, Any]:
     manager = _manager(args)
     dataset_id = manager.register()
@@ -228,6 +305,18 @@ def _add(
         cmd.add_argument("--index", default=None, help="Filter by index (NDVI/EVI)")
         cmd.add_argument("--resolution", default=None, help="Filter by resolution (R10m/R20m)")
         cmd.add_argument("--year", type=int, default=None, help="Filter by year")
+    elif name == "tabular-schema":
+        cmd.add_argument("name", help="Dataset name (file stem)")
+    elif name == "tabular-statistics":
+        cmd.add_argument("name", help="Dataset name (file stem)")
+    elif name == "image-ensure":
+        cmd.add_argument("--force", action="store_true", help="Re-download even if cached")
+    elif name == "image-patch":
+        cmd.add_argument("path", help="Raster file path")
+        cmd.add_argument("--x", type=float, required=True, help="Center longitude/X (CRS units)")
+        cmd.add_argument("--y", type=float, required=True, help="Center latitude/Y (CRS units)")
+        cmd.add_argument("--size", type=int, default=64, help="Square patch edge (pixels)")
+        cmd.add_argument("--band", type=int, default=1, help="Band index (1-based)")
     elif name == "bump-version":
         cmd.add_argument("part", choices=["major", "minor", "patch"], default="patch", nargs="?")
         cmd.add_argument("--message", default="")
@@ -297,6 +386,39 @@ def _render(result: dict[str, Any]) -> str:
             lines.append(f"  {path}")
         if result["count"] > 50:
             lines.append(f"  ... and {result['count'] - 50} more")
+
+    if "datasets" in result:
+        lines.append(f"Tabular datasets ({result['count']}):")
+        for dataset in result["datasets"]:
+            lines.append(f"  {dataset['name']:<32} {dataset['size_bytes']} bytes  {dataset['relative_path']}")
+
+    if "schema" in result:
+        schema = result["schema"]
+        lines.append(f"Schema of {result['name']}: {schema['column_count']} columns, "
+                     f"{schema['row_count']} rows, dtypes={schema['dtypes']}")
+
+    if "statistics" in result and "name" in result:
+        lines.append(f"Statistics of {result['name']}:")
+        for column, stats in result["statistics"].items():
+            lines.append(f"  {column:<24} {stats}")
+
+    if "location" in result:
+        loc = result["location"]
+        lines.append(f"Imagery: {loc['handle']}  materialized={loc['materialized']} "
+                     f"downloaded={loc['downloaded']} files={loc['files']}")
+    if "ndvi_count" in result:
+        lines.append(f"NDVI: {result['ndvi_count']}  EVI: {result['evi_count']}")
+        lines.append(f"Years: {result['years']}  Resolutions: {result['resolutions']}")
+
+    if "shape" in result:
+        lines.append(f"Patch at {result['path']}: shape={result['shape']} dtype={result['dtype']}")
+
+    if "providers" in result:
+        lines.append("Providers:")
+        for name, manifest in result["providers"].items():
+            lines.append(
+                f"  {name:<24} status={manifest['status']} available={manifest['available']}"
+            )
 
     if "current" in result:
         lines.append(f"Current version: {result['current']}")

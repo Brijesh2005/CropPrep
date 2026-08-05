@@ -1,8 +1,9 @@
 # CropFusion Dataset Management System (DMS)
 
 The **single access point** for every dataset in the CropFusion platform. No
-other module (AI, GIS, backend, frontend) reads CSVs or GeoTIFFs directly —
-they all communicate with the Dataset Manager.
+other module reads CSVs or GeoTIFFs directly — they all communicate with the
+Dataset Manager. Data access happens exclusively through **providers** (the
+provider pattern), so sources are interchangeable and independently testable.
 
 Part of the **CropFusion** research platform:
 *Hybrid ML–DL spatio-temporal cross-modal fusion for multi-crop
@@ -10,6 +11,33 @@ recommendation and yield prediction* (Phase 2 of the Software Design
 Document).
 
 ---
+
+## Provider pattern
+
+The manager never touches files itself. Two providers implement the
+`TabularProvider` / `ImageProvider` ports (in `providers/`) and reuse the
+existing engines below:
+
+| Provider | Source | What it gives you |
+|----------|--------|-------------------|
+| `GitRepositoryTabularProvider` | `training/datasets/tabular/*.csv` (version controlled) | discovery, schema, statistics, missing values, join, metadata |
+| `KaggleHubImageProvider` | Kaggle handle `shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada` | download-or-reuse, NDVI/EVI catalog, lazy reads, `patch`, historical context |
+
+```python
+from training.dataset_manager import DatasetManager
+
+manager = DatasetManager.from_config()
+
+manager.provider_manifests()        # -> readiness for both providers
+manager.tabular_names()             # -> ["cropdata_updated", ...]
+manager.load_tabular("cropdata_updated")
+manager.ensure_image()              # download-or-reuse
+manager.image_catalog()             # -> NDVI/EVI, years, resolutions, counts
+manager.patch_image(...)            # -> windowed read at a point
+```
+
+Configuration lives in `Settings.providers.tabular` / `Settings.providers.image`
+(see [`training/config/dataset.yaml`](../../config/dataset.yaml)).
 
 ## What it does
 
@@ -131,6 +159,13 @@ inventory          Print the full file inventory
 summary            Print a dataset summary
 csvs               List discovered CSV files
 images             List GeoTIFF files (--index NDVI/EVI, --resolution, --year)
+tabulars           List tabular datasets (provider discovery)
+tabular-schema     Print the schema of a tabular dataset
+tabular-statistics Print column statistics of a tabular dataset
+image-ensure       Download-or-reuse the Kaggle imagery (--force)
+image-catalog      Print the NDVI/EVI image catalog (years/resolutions/counts)
+image-patch        Read a spatial patch at a point (--x --y --size --band)
+providers          Print provider manifests (readiness + roots)
 register           Register the dataset in the registry
 versions           List dataset version history
 bump-version       Bump the version (major/minor/patch)

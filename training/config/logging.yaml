@@ -1,0 +1,15 @@
+# Logging configuration for the Training Platform.
+#
+# The ``logging`` section is a valid Dataset Manager ``LogConfig`` so this file
+# can be merged into a Dataset Manager config (or passed via ``DM_CONFIG_FILE``
+# with only the logging section). The platform-wide defaults below mirror the
+# Dataset Manager logger conventions (``cropfusion.<module>`` identifiers,
+# JSON lines, rotating files).
+
+logging:
+  level: INFO            # DEBUG | INFO | WARNING | ERROR
+  dir: training/artifacts/logs   # null => console only
+  max_bytes: 10485760    # 10 MB per file
+  backup_count: 5
+  json_format: true      # structured JSON log lines
+  console: true

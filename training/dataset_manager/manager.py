@@ -61,6 +61,14 @@ from .models import (
     ValidationReport,
     VersionEntry,
 )
+from .providers import GitRepositoryTabularProvider, KaggleHubImageProvider
+from .providers.models import (
+    ImageCatalog,
+    ImageDatasetLocation,
+    PatchRequest,
+    TabularCatalog,
+    TabularJoinSpec,
+)
 from .scanner import DatasetScanner
 from .validator import DatasetValidator
 from .version_manager import SQLiteVersionManager
@@ -135,6 +143,32 @@ class DatasetManager:
             metadata_store=self.metadata_store,
         )
 
+        # -- Providers (the only way data sources are touched) ------------------- #
+        tab_cfg = self.settings.providers.tabular
+        self.tabular_provider = GitRepositoryTabularProvider(
+            root=self.settings.tabular_root,
+            loader=self.csv_loader,
+            patterns=list(tab_cfg.patterns),
+        )
+        img_cfg = self.settings.providers.image
+        self.image_provider = KaggleHubImageProvider(
+            handle=img_cfg.handle or self.settings.download.kaggle_handle,
+            dataset_root=self.settings.dataset_root,
+            catalog_name=img_cfg.catalog_name or self.settings.catalog_name,
+            downloader=self.downloader,
+            scanner=self.scanner,
+            validator=self.validator,
+            csv_loader=self.csv_loader,
+            image_loader=self.image_loader,
+            metadata_generator=self.metadata_generator,
+            metadata_store=self.metadata_store,
+            cache=self.cache,
+            force_download=img_cfg.force_download,
+            materialize=img_cfg.materialize,
+            link_method=img_cfg.link_method,
+            verify_integrity=img_cfg.verify_integrity,
+        )
+
         # Ensure the default catalog is registered so the registry is never empty.
         if self.registry.get_by_name(self.settings.catalog_name) is None:
             self.registry.register(
@@ -183,32 +217,19 @@ class DatasetManager:
         """
         handle = handle or self.settings.download.kaggle_handle
         self._set_status(DatasetStatus.DOWNLOADING)
-        source = self.downloader.download(handle, force=force)
-
-        should_materialize = (
-            self.settings.download.materialize if materialize is None else materialize
+        self.image_provider.handle = handle
+        try:
+            path = self.image_provider.ensure(force=force, materialize=materialize)
+        except Exception:
+            self._set_status(DatasetStatus.FAILED)
+            raise
+        status = (
+            DatasetStatus.DOWNLOADED
+            if self.image_provider.status.value != "error"
+            else DatasetStatus.FAILED
         )
-        if should_materialize:
-            self.downloader.materialize(
-                source,
-                self.settings.catalog_root,
-                progress=lambda done, total, name: logger.info(
-                    "materializing", extra={"done": done, "total": total, "file": name}
-                ),
-            )
-            if self.settings.download.verify_integrity:
-                ok = self.downloader.verify_integrity(self.settings.catalog_root)
-                if not ok:
-                    self._set_status(DatasetStatus.FAILED)
-                    logger.error("Integrity verification failed after download")
-                else:
-                    self._set_status(DatasetStatus.DOWNLOADED)
-            else:
-                self._set_status(DatasetStatus.DOWNLOADED)
-            return self.settings.catalog_root
-
-        self._set_status(DatasetStatus.DOWNLOADED)
-        return source
+        self._set_status(status)
+        return path
 
     def scan(self, *, use_cache: bool | None = None, refresh: bool = False) -> DatasetInventory:
         """Scan the managed dataset root and return an inventory.
@@ -473,6 +494,150 @@ class DatasetManager:
         )
 
     # ------------------------------------------------------------------ #
+    # Provider access (tabular + image data sources)
+    # ------------------------------------------------------------------ #
+
+    # -- Tabular (Git-versioned CSVs) ---------------------------------------- #
+
+    def tabular_catalog(self, *, refresh: bool = False) -> TabularCatalog:
+        """Discover the Git-versioned tabular datasets (auto-discovery)."""
+        return self.tabular_provider.discover(refresh=refresh)
+
+    def tabular_names(self) -> list[str]:
+        """Discovered tabular dataset names (sorted, no hardcoded filenames)."""
+        return self.tabular_provider.names()
+
+    def load_tabular(
+        self,
+        name: str,
+        *,
+        chunksize: int | None = None,
+        columns: list[str] | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Load a discovered tabular dataset as a DataFrame (or iterator)."""
+        return self.tabular_provider.load(
+            name, chunksize=chunksize, columns=columns, **kwargs
+        )
+
+    def stream_tabular(self, name: str, chunksize: int, **kwargs: Any) -> Any:
+        """Stream a tabular dataset in bounded chunks (memory bounded)."""
+        return self.tabular_provider.stream(name, chunksize, **kwargs)
+
+    def tabular_schema(self, name: str) -> dict[str, Any]:
+        """Schema / dtype / missing-value profile of a tabular dataset."""
+        return self.tabular_provider.schema(name)
+
+    def validate_tabular_schema(self, name: str) -> dict[str, Any]:
+        """Run schema validation; returns ``{valid, issues}``."""
+        return self.tabular_provider.validate_schema(name)
+
+    def tabular_statistics(self, name: str) -> dict[str, Any]:
+        """Numeric column statistics of a tabular dataset."""
+        return self.tabular_provider.statistics(name)
+
+    def tabular_missing(self, name: str) -> dict[str, int]:
+        """``{column: missing_count}`` for a tabular dataset."""
+        return self.tabular_provider.missing_values(name)
+
+    def handle_missing_tabular(
+        self,
+        name: str,
+        strategy: str = "drop",
+        *,
+        fill_value: Any = None,
+        fill_method: str = "mean",
+    ) -> Any:
+        """Return a copy of the dataset with missing values handled."""
+        return self.tabular_provider.handle_missing(
+            name, strategy, fill_value=fill_value, fill_method=fill_method
+        )
+
+    def join_tabular(
+        self, joins: list[TabularJoinSpec], *, how: str | None = None
+    ) -> Any:
+        """Sequentially join discovered tabular datasets into one frame."""
+        return self.tabular_provider.join(joins, how=how)
+
+    def tabular_metadata(self, name: str) -> dict[str, Any]:
+        """Tabular dataset metadata (path, size, schema, statistics)."""
+        return self.tabular_provider.metadata(name)
+
+    # -- Image (Kaggle Sentinel NDVI / EVI) ------------------------------------ #
+
+    def ensure_image(
+        self, *, force: bool = False, materialize: bool | None = None
+    ) -> Path:
+        """Download (or reuse) the imagery dataset via the image provider."""
+        return self.image_provider.ensure(force=force, materialize=materialize)
+
+    def image_location(self) -> ImageDatasetLocation:
+        """Current on-disk location / materialisation state of the imagery."""
+        return self.image_provider.location()
+
+    def image_catalog(self, *, refresh: bool = False) -> ImageCatalog:
+        """Classified imagery catalog (NDVI / EVI, year, resolution)."""
+        return self.image_provider.catalog(refresh=refresh)
+
+    def validate_image(
+        self, *, report_dir: str | Path | None = None
+    ) -> ValidationReport:
+        """Validate the imagery dataset through the image provider."""
+        return self.image_provider.validate(report_dir=report_dir)
+
+    def generate_image_metadata(self, *, force: bool = False) -> int:
+        """Generate metadata records for the imagery dataset."""
+        return self.image_provider.generate_metadata(force=force)
+
+    def discover_ndvi(self) -> list[Any]:
+        """Discover NDVI rasters (lazy — no pixel data loaded)."""
+        return self.image_provider.discover_ndvi()
+
+    def discover_evi(self) -> list[Any]:
+        """Discover EVI rasters (lazy — no pixel data loaded)."""
+        return self.image_provider.discover_evi()
+
+    def read_image(
+        self,
+        path: str | Path,
+        *,
+        window: tuple[int, int, int, int] | None = None,
+        band: int = 1,
+    ) -> Any:
+        """Read a raster band (or bounded window) through the provider."""
+        return self.image_provider.read(path, window=window, band=band)
+
+    def patch_image(self, request: PatchRequest) -> Any:
+        """Retrieve a square raster patch around a geographic center point."""
+        return self.image_provider.patch(request)
+
+    def image_historical_context(
+        self,
+        *,
+        window_months: Sequence[int] | set[int] | None = None,
+        index_type: str | None = None,
+        resolution: str | None = None,
+        years: list[int] | None = None,
+    ) -> HistoricalContext:
+        """Temporal imagery availability via the image provider."""
+        months: list[int] | None = None
+        if window_months is not None:
+            months = [int(m) for m in window_months]
+        return self.image_provider.get_historical_context(
+            window_months=months,
+            index_type=index_type,
+            resolution=resolution,
+            years=years,
+        )
+
+    def provider_manifests(self) -> dict[str, Any]:
+        """Introspection of every configured provider (for diagnostics)."""
+        return {
+            self.tabular_provider.name: self.tabular_provider.manifest().to_dict(),
+            self.image_provider.name: self.image_provider.manifest().to_dict(),
+        }
+
+    # ------------------------------------------------------------------ #
     # Metadata access
     # ------------------------------------------------------------------ #
 
@@ -667,6 +832,7 @@ class DatasetManager:
             "metadata_store": self.settings.metadata.store_type,
             "cache_enabled": self.settings.cache.enabled,
             "kaggle_handle": self.settings.download.kaggle_handle,
+            "providers": self.provider_manifests(),
             "dependencies": {
                 "kagglehub": _import_version("kagglehub"),
                 "rasterio": _import_version("rasterio"),

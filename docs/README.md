@@ -12,9 +12,10 @@
 - [architecture/ARCHITECTURE_GUIDE.md](architecture/ARCHITECTURE_GUIDE.md) — two-platform architecture
 - [architecture/FOLDER_GUIDE.md](architecture/FOLDER_GUIDE.md) — folder-by-folder tour
 - [architecture/SOFTWARE_DESIGN_DOCUMENT.md](architecture/SOFTWARE_DESIGN_DOCUMENT.md) — original design document
-- [diagrams/](diagrams/) — architecture diagrams
+- [diagrams/](diagrams/) — architecture diagrams (incl. [R1.2 provider architecture](diagrams/r1-2-provider-architecture.md))
 - [migration/MIGRATION_GUIDE.md](migration/MIGRATION_GUIDE.md) — migration to the two-platform layout
 - [migration/MIGRATION_REPORT.md](migration/MIGRATION_REPORT.md) — detailed migration report
+- [migration/MIGRATION_REPORT_R1.2.md](migration/MIGRATION_REPORT_R1.2.md) — Dataset Manager provider pattern
 
 ## Guides
 

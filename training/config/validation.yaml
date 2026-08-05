@@ -1,0 +1,63 @@
+# STAM (spatio-temporal alignment) + validation configuration for the
+# Training Platform.
+#
+# Loaded by ``training.stam.config.load_stam_config`` (env ``ST_*`` wins over
+# this file). STAM resolves a farmer's location + season against the satellite
+# catalog and produces the historical context used before model inference; the
+# settings below drive that alignment and its quality gate.
+
+patch:
+  size: 128                # square patch edge in pixels
+  pad_mode: constant
+  pad_value: 0.0
+  edge_correction: true    # shrink at raster edges instead of failing
+
+spatial:
+  max_search_radius_km: 5.0
+  distance_threshold_km: 5.0
+  kdtree_leaf_size: 40
+  duplicate_tolerance_m: 50.0
+
+temporal:
+  default_year: null       # null => latest available
+  default_season: null     # null => infer from the observation date
+  tolerance_days: 15
+  max_gap_days: 60
+  season_file: null
+
+image:
+  resolution: R10m         # preferred band: R10m | R20m
+  index_types: [NDVI, EVI]
+  require_pairs: true      # every observation date needs both NDVI and EVI
+
+quality:
+  max_temporal_gap_days: 60
+  min_observations: 1
+  fail_below: 40.0
+
+cache:
+  enabled: true
+  observation_ttl_seconds: 3600
+  index_ttl_seconds: 86400
+
+admin:
+  boundaries: []
+  admin_dir: null
+  name_column: name
+  level_column: level
+
+tabular:
+  table: null              # null => auto-discovered via the Dataset Manager
+  village_column: village
+  district_column: district
+  season_column: season
+  year_column: year
+  crop_column: crop
+  yield_column: yield
+  feature_columns: []      # empty => all non-key columns
+  fallback_to_district: true
+
+seasons:
+  - { name: Kharif, start_month: 6, end_month: 10, start_day: 1, end_day: 31 }
+  - { name: Rabi,   start_month: 11, end_month: 3,  start_day: 1, end_day: 31 }
+  - { name: Summer, start_month: 4,  end_month: 5,  start_day: 1, end_day: 31 }

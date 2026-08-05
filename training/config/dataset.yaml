@@ -1,0 +1,63 @@
+# Dataset Manager configuration for the Training Platform.
+#
+# Loaded by ``training.dataset_manager.load_settings`` (env ``DM_*`` wins over
+# this file). Root paths are repository-relative so the same file works from
+# the repo root on a research machine and from the mounted repo inside a
+# Kaggle notebook.
+#
+# Data sources (R1.2):
+#   * tabular  — Git-versioned CSVs under ``training/datasets/tabular/``
+#                (version controlled, must stay in the repository).
+#   * image    — Kaggle Sentinel-2 NDVI / EVI GeoTIFFs, downloaded through
+#                ``kagglehub`` at runtime and NEVER committed to GitHub.
+
+dataset_root: training/datasets
+raw_dir_name: raw
+processed_dir_name: processed
+state_dir_name: .cropfusion
+catalog_name: kaggle-crop-yield
+
+download:
+  kaggle_handle: shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada
+  force_download: false
+  materialize: true
+  verify_integrity: true
+  link_method: hardlink
+
+scan:
+  workers: 8
+  hash_files: false
+  use_cache: true
+
+validation:
+  fail_on_warning: false
+  expected_years: [2018, 2025]
+  expected_index_types: [NDVI, EVI]
+  expected_resolutions: [R10m, R20m]
+  require_metadata: true
+
+cache:
+  enabled: true
+  default_ttl_seconds: 86400
+  max_entries: 10000
+
+metadata:
+  store_type: sqlite
+  compute_hashes: true
+  workers: 8
+
+registry:
+  auto_register_on_validate: true
+
+providers:
+  tabular:
+    root: training/datasets/tabular
+    patterns: ["*.csv"]
+    chunk_size: 100000
+  image:
+    handle: shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada
+    catalog_name: kaggle-crop-yield
+    materialize: true
+    verify_integrity: true
+    link_method: hardlink
+    force_download: false

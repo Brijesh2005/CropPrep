@@ -126,6 +126,46 @@ class LogConfig(BaseModel):
     console: bool = True
 
 
+class TabularProviderConfig(BaseModel):
+    """Settings for the Git-versioned tabular provider."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: Root of the Git-versioned tabular CSVs. When None it resolves to
+    #: ``<dataset_root>/tabular`` (e.g. ``training/datasets/tabular``).
+    root: Path | None = None
+    #: Glob patterns used for automatic discovery.
+    patterns: list[str] = ["*.csv"]
+    #: Default chunk size for streaming loads.
+    chunk_size: int = 100_000
+    #: Column suffix disambiguation for joins.
+    join_suffixes: tuple[str, str] = ("_left", "_right")
+
+
+class ImageProviderConfig(BaseModel):
+    """Settings for the Kaggle imagery provider."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: Kaggle dataset handle (defaults to the downloader's handle).
+    handle: str | None = None
+    #: Catalog directory name inside ``<dataset_root>/raw``.
+    catalog_name: str | None = None
+    materialize: bool = True
+    verify_integrity: bool = True
+    link_method: str = "hardlink"  # "hardlink" | "copy"
+    force_download: bool = False
+
+
+class ProviderConfig(BaseModel):
+    """Provider-layer settings (tab + image data sources)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tabular: TabularProviderConfig = Field(default_factory=TabularProviderConfig)
+    image: ImageProviderConfig = Field(default_factory=ImageProviderConfig)
+
+
 class Settings(BaseModel):
     """Root settings object validated by pydantic."""
 
@@ -154,6 +194,7 @@ class Settings(BaseModel):
     metadata: MetadataConfig = Field(default_factory=MetadataConfig)
     registry: RegistryConfig = Field(default_factory=RegistryConfig)
     logging: LogConfig = Field(default_factory=LogConfig)
+    providers: ProviderConfig = Field(default_factory=ProviderConfig)
 
     # -- Derived paths ------------------------------------------------------- #
 
@@ -173,6 +214,14 @@ class Settings(BaseModel):
     def catalog_root(self) -> Path:
         """Canonical root of the primary catalog inside the raw directory."""
         return self.raw_root / self.catalog_name
+
+    @property
+    def tabular_root(self) -> Path:
+        """Root of the Git-versioned tabular CSVs."""
+        root = self.providers.tabular.root
+        if root is not None:
+            return Path(root)
+        return self.dataset_root / "tabular"
 
     def metadata_db_path(self) -> Path:
         return self.metadata.db_path or (self.state_root / "metadata.db")
@@ -333,6 +382,20 @@ def save_settings_template(path: str | Path) -> Path:
         "metadata": {"store_type": "sqlite"},
         "registry": {"auto_register_on_validate": True},
         "logging": {"level": "INFO", "json_format": True},
+        "providers": {
+            "tabular": {
+                "patterns": ["*.csv"],
+                "chunk_size": 100000,
+                "join_suffixes": ["_left", "_right"],
+            },
+            "image": {
+                "handle": DEFAULT_KAGGLE_HANDLE,
+                "materialize": True,
+                "verify_integrity": True,
+                "link_method": "hardlink",
+                "force_download": False,
+            },
+        },
     }
     out = Path(path)
     out.write_text(yaml.safe_dump(template, sort_keys=False), encoding="utf-8")
