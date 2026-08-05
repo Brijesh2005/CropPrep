@@ -1,0 +1,16 @@
+# CropFusion — security settings (inference-only platform).
+#
+# R1.4 template. Values here are placeholders; production secrets are supplied
+# via env (`CF_SECURITY__SECRET_KEY=...`) and never committed.
+security:
+  secret_key: "change-me-in-production"
+  algorithm: "HS256"
+  access_token_expire_minutes: 30
+  refresh_token_expire_days: 7
+  issuer: "cropfusion-inference"
+  secure_cookies: true
+
+rate_limit:
+  enabled: true
+  requests_per_minute: 60
+  storage: "memory"  # memory | redis

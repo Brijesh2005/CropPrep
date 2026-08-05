@@ -1,0 +1,15 @@
+# CropFusion — inference engine settings (inference-only platform).
+#
+# R1.4 template for the future `application/inference/engine` implementation.
+inference:
+  # Bounded async queue.
+  queue_size: 100
+  max_workers: 2
+  timeout_seconds: 60.0
+
+  # Prediction cache.
+  enable_cache: true
+  cache_ttl_seconds: 3600
+
+  # Heuristic fallback when the model is unavailable (opt-in).
+  enable_fallback: true

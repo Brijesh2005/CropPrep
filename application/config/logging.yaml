@@ -1,0 +1,10 @@
+# CropFusion — logging settings (inference-only platform).
+#
+# R1.4 template; `shared.logging.setup_logging` is the reference setup.
+logging:
+  level: "INFO"
+  json_logs: true
+  log_dir: null
+  max_bytes: 10485760  # 10 MiB
+  backup_count: 5
+  correlation_header: "X-Request-ID"

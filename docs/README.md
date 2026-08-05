@@ -27,6 +27,17 @@
 - [shared/EXTENSION_GUIDE.md](shared/EXTENSION_GUIDE.md) — adding serializers, validators, providers
 - [shared/CODING_STANDARDS.md](shared/CODING_STANDARDS.md) — conventions for `shared/` code
 
+## Prediction platform (R1.4)
+
+- [prediction/PREDICTION_PLATFORM.md](prediction/PREDICTION_PLATFORM.md) — overview of the Prediction Platform
+- [prediction/ARCHITECTURE.md](prediction/ARCHITECTURE.md) — inference-only architecture
+- [prediction/INFERENCE.md](prediction/INFERENCE.md) — the inference pipeline contract
+- [prediction/MODEL_LOADING.md](prediction/MODEL_LOADING.md) — loading exported model artifacts
+- [prediction/INFERENCE_PACKAGE.md](prediction/INFERENCE_PACKAGE.md) — the consumed artifact set
+- [prediction/DEPLOYMENT.md](prediction/DEPLOYMENT.md) — inference-only Docker deployment
+- [migration/MIGRATION_REPORT_R1.4.md](migration/MIGRATION_REPORT_R1.4.md) — inference-only preparation
+- [diagrams/](diagrams/) — incl. [R1.4 prediction architecture](diagrams/r1-4-prediction-architecture.md)
+
 ## Guides
 
 - [api/API.md](api/API.md) — HTTP API overview

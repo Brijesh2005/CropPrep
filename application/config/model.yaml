@@ -1,0 +1,18 @@
+# CropFusion — model loading settings (inference-only platform).
+#
+# R1.4 template; consumed by `application/inference/loaders` in a later
+# phase. The process loads EXPORTED artifacts only — it never invokes the
+# Training Platform.
+model:
+  # Directory holding the exported inference package.
+  package_dir: "application/inference_package"
+  # Directory holding the model weights (cropfusion.pt / cropfusion_*.pt).
+  models_dir: "application/models"
+  # Pinned model version to serve; omit or set "latest" for default resolution.
+  pinned_version: "latest"
+  # Optional preprocessor override (defaults to the package's scalers/encoder).
+  preprocessor_dir: null
+
+  device: "auto"  # auto | cpu | cuda
+  batch_size: 1
+  warmup: true

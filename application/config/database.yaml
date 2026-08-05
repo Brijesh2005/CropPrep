@@ -1,0 +1,12 @@
+# CropFusion — database settings (inference-only platform).
+#
+# R1.4 template. The inference process stores PredictionHistory in the
+# existing enterprise schema (`predictions`, `prediction_metadata`,
+# `explanations`) — NO schema changes in R1.4.
+database:
+  url: "sqlite+aiosqlite:///./cropfusion.db"
+  echo: false
+  postgis: false
+  pool_size: 10
+  max_overflow: 20
+  pool_recycle_seconds: 1800

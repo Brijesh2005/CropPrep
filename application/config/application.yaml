@@ -1,0 +1,16 @@
+# CropFusion — application settings (inference-only platform).
+#
+# R1.4 template. When the inference-only process is implemented it will load
+# these files through `shared.config.load_yaml_config` with the resolution
+# order: env (`CF_<SECTION>__<KEY>`) > YAML > defaults.
+application:
+  app_name: "CropFusion Inference"
+  version: "0.1.0"
+  environment: "development"
+  debug: false
+
+  # Farmer mode: POST /predict takes latitude + longitude ONLY; season/year
+  # are auto-resolved from the request date and historical context.
+  application_mode: "farmer"
+
+  api_prefix: "/api/v1"
