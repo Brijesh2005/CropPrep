@@ -1,0 +1,94 @@
+# Performance / R5 training-speed configuration.
+#
+# Additive config: does not replace or modify training.yaml, dataset.yaml,
+# or model.yaml. Load alongside them, e.g.:
+#   perf_cfg = yaml.safe_load(open("training/config/performance.yaml"))
+#
+# Changing anything under `feature_store.*` never changes model outputs —
+# it only controls whether/how expensive computations are cached and reused.
+
+feature_store:
+  enabled: true
+  root: training/feature_store
+  checksum_algo: sha256
+  feature_version: "1"          # bump to force a full cache rebuild
+
+  image_embeddings:
+    enabled: true
+    backbone_id: efficientnet_b0   # must match the actual backbone in use
+    patch_size: 224
+    warm_cache_before_training: true   # precompute during frozen-backbone stages
+
+  temporal_sequences:
+    enabled: true
+
+  tabular_cache:
+    enabled: true
+
+  observation_cache:
+    enabled: true
+
+  patch_cache:
+    enabled: true
+    memmap: true
+
+dataloader:
+  persistent_workers: true
+  pin_memory: true
+  prefetch_factor: 4
+  non_blocking: true
+  automatic_worker_tuning: true      # derive worker count from os.cpu_count()
+  min_workers: 2
+  max_workers: 8
+  smart_batch_prefetch: true
+
+mixed_precision:
+  enabled: true
+  dtype: bf16              # fp16 | bf16 | auto (auto picks bf16 if supported, else fp16)
+  automatic_fallback: true   # fall back to fp32 if AMP is unstable/unsupported
+  grad_scaler: true          # only meaningful for fp16
+
+torch_compile:
+  enabled: true
+  automatic_detection: true   # skip compile() silently if torch version/platform unsupported
+  mode: default                # default | reduce-overhead | max-autotune
+  fallback_on_error: true      # if compile fails at runtime, fall back to eager
+
+gpu_pipeline:
+  cuda_streams: true
+  pinned_memory: true
+  async_copies: true
+  overlap_data_and_compute: true
+
+curriculum_optimization:
+  freeze_efficientnet_early_stages: true
+  freeze_until_stage: 2                 # 0-indexed curriculum stage to unfreeze at
+  generate_embeddings_once: true
+  fine_tune_backbone_final_stage: true
+
+checkpointing:
+  save_latest: true
+  save_best: true
+  periodic_every_n_epochs: 5
+  async_write: true
+  max_periodic_checkpoints_kept: 3
+
+cache_invalidation:
+  invalidate_on:
+    - dataset_version
+    - image_backbone
+    - patch_size
+    - preprocessing_config
+    - feature_version
+  # anything not in this list (batch_size, lr, epoch, seed, ...) must never
+  # trigger invalidation
+
+profiling:
+  enabled: true
+  sample_system_every_n_steps: 50
+  report_path: training/artifacts/training/profiling_report.json
+
+benchmarks:
+  enabled: false          # opt-in: run scripts/benchmark_training.py to populate
+  report_path: training/artifacts/training/benchmark_report.json
+  compare_against_baseline: true
