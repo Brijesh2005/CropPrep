@@ -1,14 +1,19 @@
-# ==========================
+# ===========================================
 # Git
-# ==========================
-# Do NOT ignore Git metadata files like .gitignore or .gitattributes
+# ===========================================
 
-# ==========================
+# DO NOT ignore .gitignore or other Git metadata files
+# (Removed: *.git*)
+
+# ===========================================
 # Python
-# ==========================
+# ===========================================
+
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+*.pyd
+*.so
 
 *.egg-info/
 .eggs/
@@ -16,14 +21,16 @@ build/
 dist/
 pip-wheel-metadata/
 
+# Virtual Environments
 .venv/
 venv/
 env/
 ENV/
 
-# ==========================
-# Testing / Coverage
-# ==========================
+# ===========================================
+# Testing / Coverage / Lint
+# ===========================================
+
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -33,107 +40,99 @@ htmlcov/
 .benchmarks/
 .bandit*
 
-# ==========================
-# Jupyter
-# ==========================
-.ipynb_checkpoints/
-
-# ==========================
+# ===========================================
 # Node.js
-# ==========================
+# ===========================================
+
 node_modules/
 application/frontend/node_modules/
 application/frontend/dist/
 application/frontend/coverage/
 
-# ==========================
+# ===========================================
 # Environment Variables
-# ==========================
+# ===========================================
+
 .env
 .env.*
 !.env.example
 !.env.production.example
 
-# ==========================
-# Datasets (Large Files)
-# ==========================
+# ===========================================
+# Large Datasets
+# ===========================================
+
 application/backend/datasets/
 training/datasets/raw/
 training/datasets/.cropfusion/
 
-# Generated datasets
-**/datasets/*.csv
-**/datasets/*.parquet
+# Ignore generated parquet files
+**/*.parquet
 
-# GIS files
+# Ignore generated CSVs inside dataset folders only
+**/datasets/**/*.csv
+
+# ===========================================
+# GIS / Satellite Images
+# ===========================================
+
 **/*.tif
 **/*.tiff
 
-# ==========================
-# Model Artifacts
-# ==========================
+# ===========================================
+# Model Artifacts (Weights Only)
+# ===========================================
+
 **/*.pt
 **/*.pth
 **/*.onnx
 **/*.ckpt
 **/*.h5
-**/*.pkl
+**/*.keras
 **/*.joblib
+**/*.pkl
 
-# NOTE:
-# Do NOT ignore "models/" because it contains source code
-# if your project has training/models/
-
-# ==========================
+# ===========================================
 # Logs
-# ==========================
+# ===========================================
+
 *.log
 logs/
-training/kaggle/logs/
 
-# ==========================
-# Backups
-# ==========================
+# ===========================================
+# Database Dumps / Backups
+# ===========================================
+
 *.sql.gz
 backups/
 
-# ==========================
+# ===========================================
 # Secrets
-# ==========================
+# ===========================================
+
 secrets/
 
-# ==========================
+# ===========================================
 # IDE
-# ==========================
+# ===========================================
+
 .idea/
-.vscode/
 
-# ==========================
-# macOS
-# ==========================
+# Ignore VS Code except shared settings
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# ===========================================
+# Operating System
+# ===========================================
+
 .DS_Store
-
-# ==========================
-# Claude
-# ==========================
-.claude/
-
-# ==========================
-# OS Temporary Files
-# ==========================
 Thumbs.db
-Desktop.ini
 
-# ==========================
-# Kaggle Outputs
-# ==========================
-/kaggle/working/
-training/kaggle/outputs/
-training/kaggle/checkpoints/
+# ===========================================
+# Claude
+# ===========================================
 
-# ==========================
-# Keep Source Code
-# ==========================
-!training/models/**
-!application/**
-!training/**
+.claude/
