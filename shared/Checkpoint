@@ -1,3 +1,3 @@
-R2.3 test files (79 new tests: observation_resolver 15, feature_engineering 38, quality/samples 9, export 17)
-Full verification run: 1092 passed, 0 failed
-Docs: 5 guides + 5 diagrams + MIGRATION_REPORT_R2.3.md
+R2.4 AI architecture (new test files: test_fusion_engine 12, test_runtime 17, test_architecture 13 = 42 new tests)
+Full verification run: 1134 passed, 0 failed (R2.3 suite intact)
+Docs: 5 guides + 4 diagrams + MIGRATION_REPORT_R2.4.md
