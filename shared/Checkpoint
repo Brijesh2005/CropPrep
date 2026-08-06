@@ -6,3 +6,8 @@ R4 Training framework (new test files: test_curriculum 19, test_class_weights 16
 Full verification run: 1186 passed, 0 failed (R3 suite intact, 1134 -> 1186)
 Docs: 5 guides + 5 diagrams + MIGRATION_REPORT_R4.md
 R4 out of scope: prediction platform / FastAPI / React / Docker / inference / deployment
+---
+R5 Evaluation & inference package (new test files: evaluation 43, inference 27 = 70 new tests)
+Full verification run: 1256 passed, 0 failed (R4 suite intact, 1186 -> 1256)
+Docs: 5 guides + 4 diagrams + MIGRATION_REPORT_R5.md
+R5 out of scope: prediction platform / FastAPI / React / Docker / deployment

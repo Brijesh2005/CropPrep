@@ -358,6 +358,11 @@ class Explainer:
                 np.asarray([explanation.confidence["crop_conf"]]),
                 path=visualizer.output_dir / "confidence.png",
             )
+
+        if explanation.gates:
+            artifacts["fusion_weights"] = visualizer.fusion_weights(
+                explanation.gates, visualizer.output_dir / "fusion_weights.png"
+            )
         return artifacts
 
     def export(

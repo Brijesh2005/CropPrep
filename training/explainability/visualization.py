@@ -280,6 +280,37 @@ class Visualizer:
         return Path(path)
 
     # ------------------------------------------------------------------ #
+    # Fusion weights / gates
+    # ------------------------------------------------------------------ #
+
+    def fusion_weights(
+        self, gates: Mapping[str, float], path: str | Path
+    ) -> Path:
+        """Horizontal bar chart of the per-modality fusion gate values.
+
+        Args:
+            gates: ``{"image_gate": ..., "tabular_gate": ...,
+            "fusion_gate": ..., "temporal_gate": ...}``.
+        """
+        names = list(gates)
+        values = [float(gates[name]) for name in names]
+        fig, ax = plt.subplots(figsize=(6, max(2.0, 0.6 * len(names))))
+        order = np.argsort(values)
+        bars = ax.barh(
+            [names[i] for i in order],
+            [values[i] for i in order],
+            color=["#2e7d32" if v >= 0.5 else "#c62828" for v in values],
+        )
+        ax.axvline(0.5, color="gray", linestyle="--", linewidth=1)
+        ax.set_xlim(0, 1.05)
+        ax.set_xlabel("gate value (0 = modality suppressed)")
+        ax.set_title("Fusion gate weights")
+        fig.tight_layout()
+        fig.savefig(path, dpi=self.dpi)
+        plt.close(fig)
+        return Path(path)
+
+    # ------------------------------------------------------------------ #
     # Confidence / calibration
     # ------------------------------------------------------------------ #
 
