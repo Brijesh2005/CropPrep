@@ -1,3 +1,8 @@
 R2.4 AI architecture (new test files: test_fusion_engine 12, test_runtime 17, test_architecture 13 = 42 new tests)
 Full verification run: 1134 passed, 0 failed (R2.3 suite intact)
 Docs: 5 guides + 4 diagrams + MIGRATION_REPORT_R2.4.md
+---
+R4 Training framework (new test files: test_curriculum 19, test_class_weights 16, test_cropfusion_trainer 8, test_reports 9 = 52 new tests)
+Full verification run: 1186 passed, 0 failed (R3 suite intact, 1134 -> 1186)
+Docs: 5 guides + 5 diagrams + MIGRATION_REPORT_R4.md
+R4 out of scope: prediction platform / FastAPI / React / Docker / inference / deployment

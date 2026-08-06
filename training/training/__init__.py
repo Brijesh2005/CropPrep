@@ -52,6 +52,7 @@ from .config import (
     AblationConfig,
     BenchmarkConfig,
     CheckpointConfig,
+    CurriculumConfig,
     DataConfig,
     GeneralConfig,
     LoggingConfig,
@@ -65,6 +66,16 @@ from .config import (
     VisualizationConfig,
     load_training_config,
     save_training_template,
+)
+from .cropfusion_trainer import CropFusionTrainer, CropFusionTrainingResult
+from .curriculum import (
+    Curriculum,
+    CurriculumCallback,
+    CurriculumStage,
+    CURRICULUM_STAGES,
+    STAGE_ORDER,
+    build_curriculum,
+    stage_for,
 )
 from .evaluator import EvaluationResult, Evaluator
 from .exceptions import (
@@ -88,8 +99,12 @@ from .losses import (
     GradNormController,
     MAELoss,
     MultiTaskLoss,
+    WeightedLabelSmoothingLoss,
+    build_class_weights,
     build_multi_task_loss,
     build_task_loss,
+    class_frequency_weights,
+    compute_class_counts,
 )
 from .metrics import (
     ClassificationAccumulator,
@@ -99,6 +114,16 @@ from .metrics import (
     compute_regression_metrics,
 )
 from .optimizers import Lion, build_optimizer
+from .reports import (
+    REPORT_TYPES,
+    checkpoint_report,
+    default_reports_dir,
+    generate_reports,
+    learning_curve_csv,
+    metrics_report,
+    training_report,
+    validation_report,
+)
 from .schedulers import build_scheduler, get_lr
 from .trainer import Trainer, TrainingResult
 from .utils import (
@@ -147,6 +172,7 @@ __all__ = [
     "MetricsConfig",
     "LoggingConfig",
     "ValidationConfig",
+    "CurriculumConfig",
     "AblationConfig",
     "BenchmarkConfig",
     "VisualizationConfig",
@@ -155,6 +181,8 @@ __all__ = [
     # Engine
     "Trainer",
     "TrainingResult",
+    "CropFusionTrainer",
+    "CropFusionTrainingResult",
     "Validator",
     "ValidationResult",
     "Evaluator",
@@ -164,13 +192,34 @@ __all__ = [
     # Losses / optimizers / schedulers
     "MultiTaskLoss",
     "MAELoss",
+    "WeightedLabelSmoothingLoss",
     "GradNormController",
     "build_multi_task_loss",
     "build_task_loss",
+    "compute_class_counts",
+    "class_frequency_weights",
+    "build_class_weights",
     "Lion",
     "build_optimizer",
     "build_scheduler",
     "get_lr",
+    # Curriculum
+    "Curriculum",
+    "CurriculumCallback",
+    "CurriculumStage",
+    "CURRICULUM_STAGES",
+    "STAGE_ORDER",
+    "build_curriculum",
+    "stage_for",
+    # Reports
+    "REPORT_TYPES",
+    "generate_reports",
+    "default_reports_dir",
+    "training_report",
+    "validation_report",
+    "metrics_report",
+    "checkpoint_report",
+    "learning_curve_csv",
     # Metrics
     "MetricsTracker",
     "ClassificationAccumulator",

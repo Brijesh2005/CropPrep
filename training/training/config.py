@@ -67,6 +67,22 @@ class GeneralConfig(BaseModel):
     log_every: int = Field(default=1, ge=1)
     #: Run validation every N epochs.
     validation_frequency: int = Field(default=1, ge=1)
+    #: Compile the model with ``torch.compile`` when it is available.
+    compile: bool = False
+    #: ``default`` | ``reduce-overhead`` | ``max-autotune`` |
+    #: ``max-autotune-no-cudagraphs``.
+    compile_mode: str = Field(
+        default="default",
+        pattern="^(default|reduce-overhead|max-autotune|max-autotune-no-cudagraphs)$",
+    )
+    #: Explicit compile backend (``inductor`` default; ``eager`` useful for
+    #: testing). ``None`` lets ``torch.compile`` pick its default.
+    compile_backend: str | None = None
+    #: Generate the end-of-run reports (training / validation / metrics /
+    #: checkpoint / learning-curve).
+    reports: bool = True
+    #: Report output directory (defaults to ``<output_dir>/reports``).
+    reports_dir: str | None = None
 
 
 class DataConfig(BaseModel):
@@ -174,6 +190,18 @@ class LossConfig(BaseModel):
     gradnorm_alpha: float = Field(default=1.5, ge=0.0)
     #: Floor for learnable log-variances (numerical stability).
     log_variance_eps: float = Field(default=0.01, ge=1e-6)
+    #: Class-imbalance weighting for the crop task: ``none`` | ``balanced`` |
+    #: ``sqrt_inv`` | ``effective_num``. Weights are derived from the training
+    #: set's class frequencies (no oversampling; focal loss is future work).
+    class_weight_mode: str = Field(
+        default="none",
+        pattern="^(none|balanced|sqrt_inv|effective_num)$",
+    )
+    #: Floor for class-frequency weights (numerical stability).
+    class_weight_eps: float = Field(default=1e-6, ge=0.0)
+    #: Effective-number beta (only used when ``class_weight_mode ==
+    #: effective_num``).
+    class_weight_beta: float = Field(default=0.999, gt=0.0, lt=1.0)
 
 
 class TrainConfig(BaseModel):
@@ -333,6 +361,38 @@ class VisualizationConfig(BaseModel):
 # --------------------------------------------------------------------------- #
 
 
+class CurriculumConfig(BaseModel):
+    """Five-stage curriculum training settings.
+
+    Stage schedule::
+
+        1. tabular  — train the Tabular Encoder only.
+        2. image    — train the image encoders (NDVI / EVI + image fusion).
+        3. temporal — train the Temporal Encoder.
+        4. fusion   — train the Fusion Engine (cross attention / gated fusion /
+                      shared encoder).
+        5. finetune — fine-tune the entire network.
+
+    Transitions are automatic: each active stage runs for its share of the
+    epoch budget (``epochs_per_stage`` overrides individual stages; missing
+    stages are filled from the remaining budget, otherwise the total is split
+    evenly across the active stages). ``start_stage`` skips earlier stages,
+    which doubles as resume-from-any-stage.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool = False
+    #: First stage to run (1..5); earlier stages are skipped (resume semantics).
+    start_stage: int = Field(default=1, ge=1, le=5)
+    #: Optional explicit per-stage epoch counts keyed by stage name
+    #: (``tabular`` | ``image`` | ``temporal`` | ``fusion`` | ``finetune``).
+    #: Unspecified stages receive the remaining epoch budget.
+    epochs_per_stage: dict[str, int] | None = None
+    #: Record the active stage name into each epoch's logs / history.
+    log_transitions: bool = True
+
+
 class TrainingConfig(BaseModel):
     """Root training configuration."""
 
@@ -349,6 +409,7 @@ class TrainingConfig(BaseModel):
     metrics: MetricsConfig = Field(default_factory=MetricsConfig)
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
     validation: ValidationConfig = Field(default_factory=ValidationConfig)
+    curriculum: CurriculumConfig = Field(default_factory=CurriculumConfig)
     ablation: AblationConfig = Field(default_factory=AblationConfig)
     benchmark: BenchmarkConfig = Field(default_factory=BenchmarkConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)

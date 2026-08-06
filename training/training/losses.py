@@ -23,6 +23,7 @@ from typing import Any, Mapping
 
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 from training.models.losses import (
     CrossEntropyLoss,
@@ -58,23 +59,188 @@ class MAELoss(nn.Module):
         return errors.mean()
 
 
+class WeightedLabelSmoothingLoss(nn.Module):
+    """Label-smoothing cross entropy with optional per-class weights.
+
+    Unlike :class:`~ai.models.losses.LabelSmoothingLoss` this variant accepts
+    a ``weight`` ``[C]`` tensor for class-imbalanced crop classification. The
+    weight is gathered per sample and applied on the loss's device, so the
+    module stays correct whether it lives on CPU or GPU.
+
+    Args:
+        smoothing: Smoothing factor in ``[0, 1)``.
+        reduction: ``mean`` | ``sum``.
+        weight: Optional ``[C]`` per-class weights.
+    """
+
+    def __init__(
+        self,
+        smoothing: float = 0.1,
+        reduction: str = "mean",
+        weight: torch.Tensor | None = None,
+    ) -> None:
+        super().__init__()
+        self.smoothing = float(smoothing)
+        self.reduction = reduction
+        if weight is not None:
+            weight = torch.as_tensor(weight, dtype=torch.float32)
+        self.register_buffer("weight", weight)
+
+    def forward(  # type: ignore[override]
+        self, inputs: torch.Tensor, targets: torch.Tensor
+    ) -> torch.Tensor:
+        num_classes = inputs.size(-1)
+        log_probs = F.log_softmax(inputs, dim=-1)
+
+        with torch.no_grad():
+            true_dist = torch.full_like(
+                log_probs, fill_value=self.smoothing / (num_classes - 1)
+            )
+            true_dist.scatter_(1, targets.unsqueeze(1).long(), 1.0 - self.smoothing)
+
+        loss = -(true_dist * log_probs).sum(dim=-1)
+        weight = getattr(self, "weight", None)
+        if weight is not None:
+            weight = weight.to(loss.device).gather(0, targets.long())
+            loss = loss * weight
+        if self.reduction == "sum":
+            return loss.sum()
+        return loss.mean()
+
+
+# --------------------------------------------------------------------------- #
+# Class-imbalance statistics
+# --------------------------------------------------------------------------- #
+
+
+def compute_class_counts(labels: torch.Tensor) -> torch.Tensor:
+    """Count class occurrences in a label tensor.
+
+    Args:
+        labels: ``[N]`` integer class labels (any device / dtype).
+
+    Returns:
+        A float ``[C]`` tensor of per-class counts where ``C`` is one more than
+        the largest observed label (``[0]`` when empty).
+    """
+    labels = torch.as_tensor(labels).reshape(-1)
+    if labels.numel() == 0:
+        return torch.zeros(0, dtype=torch.float32)
+    num_classes = int(labels.max().item()) + 1
+    return torch.bincount(labels.long(), minlength=num_classes).float()
+
+
+def class_frequency_weights(
+    counts: torch.Tensor,
+    mode: str = "balanced",
+    *,
+    eps: float = 1e-6,
+    beta: float = 0.999,
+) -> torch.Tensor:
+    """Convert class counts into normalised per-class weights.
+
+    Args:
+        counts: ``[C]`` per-class occurrence counts.
+        mode: ``balanced`` (inverse frequency, ``N / (C * n_c)``),
+            ``sqrt_inv`` (inverse square-root frequency) or ``effective_num``
+            (Cui et al., 2019, ``(1 - beta) / (1 - beta^n_c)``).
+        eps: Floor applied to counts / weights for numerical stability.
+        beta: Effective-number factor (``effective_num`` mode only).
+
+    Returns:
+        A normalised ``[C]`` weight tensor (mean weight 1).
+    """
+    counts = torch.as_tensor(counts, dtype=torch.float32)
+    safe = counts.clamp(min=eps)
+    if mode == "balanced":
+        total = safe.sum()
+        weights = total / (safe.numel() * safe)
+    elif mode == "sqrt_inv":
+        weights = 1.0 / torch.sqrt(safe)
+    elif mode == "effective_num":
+        weights = (1.0 - beta) / (1.0 - beta**safe)
+    else:
+        raise LossBuildError(
+            f"unknown class-weight mode {mode!r} "
+            "(none | balanced | sqrt_inv | effective_num)"
+        )
+    weights = weights.clamp(min=eps)
+    mean = float(weights.mean().item())
+    if mean > 0:
+        weights = weights / mean
+    return weights
+
+
+def build_class_weights(
+    config: LossConfig | None,
+    num_classes: int,
+    counts: torch.Tensor,
+) -> torch.Tensor | None:
+    """Build a ``[C]`` class-weight tensor from training-set counts.
+
+    Args:
+        config: Validated :class:`LossConfig` (``class_weight_mode`` decides
+            the recipe). ``None`` or ``mode == "none"`` returns ``None``.
+        num_classes: Expected number of crop classes.
+        counts: ``[C]`` per-class counts collected from the training set.
+
+    Returns:
+        A normalised ``[C]`` weight tensor, or ``None`` when weighting is
+        disabled or no class labels were observed.
+    """
+    if config is None or config.class_weight_mode == "none":
+        return None
+    counts = torch.as_tensor(counts, dtype=torch.float32)
+    if counts.numel() < num_classes:
+        counts = F.pad(counts, (0, num_classes - counts.numel()))
+    counts = counts[:num_classes]
+    if float(counts.sum().item()) <= 0.0:
+        return None
+    return class_frequency_weights(
+        counts,
+        mode=config.class_weight_mode,
+        eps=config.class_weight_eps,
+        beta=config.class_weight_beta,
+    )
+
+
 # --------------------------------------------------------------------------- #
 # Task-loss factory
 # --------------------------------------------------------------------------- #
 
 
-def build_task_loss(name: str, config: LossConfig) -> nn.Module:
-    """Build the concrete per-task loss for ``name`` (``crop`` | ``yield``)."""
+def build_task_loss(
+    name: str,
+    config: LossConfig,
+    class_weights: torch.Tensor | None = None,
+) -> nn.Module:
+    """Build the concrete per-task loss for ``name`` (``crop`` | ``yield``).
+
+    Args:
+        name: Task name.
+        config: Validated :class:`LossConfig`.
+        class_weights: Optional ``[C]`` weights threaded into the crop losses
+            (``cross_entropy`` weight, ``label_smoothing`` weight or
+            ``focal`` alpha).
+    """
     if name == "crop":
         crop = config.crop_loss
         if crop == "cross_entropy":
-            return CrossEntropyLoss(reduction=config.reduction)
+            return CrossEntropyLoss(
+                weight=class_weights, reduction=config.reduction
+            )
         if crop == "label_smoothing":
-            return LabelSmoothingLoss(
-                smoothing=config.label_smoothing, reduction=config.reduction
+            return WeightedLabelSmoothingLoss(
+                smoothing=config.label_smoothing,
+                reduction=config.reduction,
+                weight=class_weights,
             )
         if crop == "focal":
-            return FocalLoss(gamma=config.focal_gamma, reduction=config.reduction)
+            return FocalLoss(
+                gamma=config.focal_gamma,
+                alpha=class_weights,
+                reduction=config.reduction,
+            )
         raise LossBuildError(f"unknown crop loss {crop!r}")
     if name == "yield":
         yield_loss = config.yield_loss
@@ -101,6 +267,8 @@ class MultiTaskLoss(nn.Module):
         tasks: Optional mapping of task name -> :class:`~ai.models.interfaces.
             TaskLoss`. Built from ``config`` when omitted (``crop`` +
         ``yield``).
+        class_weights: Optional mapping of task name -> ``[C]`` weight tensor
+            (e.g. ``{"crop": weights}``) threaded into the crop losses.
 
     Forward returns ``(total_loss, per_task_losses)``. In ``uncertainty`` mode
     the per-task log-variances are learned alongside the model; in
@@ -112,12 +280,16 @@ class MultiTaskLoss(nn.Module):
         self,
         config: LossConfig | None = None,
         tasks: Mapping[str, nn.Module] | None = None,
+        class_weights: Mapping[str, torch.Tensor | None] | None = None,
     ) -> None:
         super().__init__()
         self.config = config or LossConfig()
+        self.class_weights = dict(class_weights or {})
         if tasks is None:
             tasks = {
-                "crop": build_task_loss("crop", self.config),
+                "crop": build_task_loss(
+                    "crop", self.config, class_weights=self.class_weights.get("crop")
+                ),
                 "yield": build_task_loss("yield", self.config),
             }
         if not tasks:
@@ -384,6 +556,7 @@ class GradNormController:
 def build_multi_task_loss(
     config: LossConfig | None = None,
     tasks: Mapping[str, nn.Module] | None = None,
+    class_weights: Mapping[str, torch.Tensor | None] | None = None,
 ) -> MultiTaskLoss:
     """Build a :class:`MultiTaskLoss` from a :class:`LossConfig`."""
-    return MultiTaskLoss(config, tasks=tasks)
+    return MultiTaskLoss(config, tasks=tasks, class_weights=class_weights)

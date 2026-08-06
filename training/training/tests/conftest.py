@@ -61,21 +61,36 @@ def tabular_model(tabular_config):
 
 
 def make_fake_loader(n: int = 16, batch_size: int = 8, feature_dim: int = 5,
-                     num_classes: int = 3):
-    """A loader yielding Phase-4-style batches (tabular-only)."""
+                     num_classes: int = 3, multimodal: bool = False,
+                     input_size: int = 32):
+    """A loader yielding Phase-4-style batches.
+
+    ``multimodal=True`` adds ``ndvi`` / ``evi`` (``[B, T, 1, H, W]``) and
+    ``temporal_mask`` keys so a full CropFusion model can run end-to-end.
+    """
     import random
 
     class _FakeLoader:
         def __init__(self) -> None:
             self.batches = []
             for _ in range(n // batch_size):
-                self.batches.append(
-                    {
-                        "tabular": torch.randn(batch_size, feature_dim),
-                        "crop_label": torch.randint(0, num_classes, (batch_size,)),
-                        "yield_label": torch.randn(batch_size, 1),
-                    }
-                )
+                batch = {
+                    "tabular": torch.randn(batch_size, feature_dim),
+                    "crop_label": torch.randint(0, num_classes, (batch_size,)),
+                    "yield_label": torch.randn(batch_size, 1),
+                }
+                if multimodal:
+                    seq_len = 2
+                    batch["ndvi"] = torch.randn(
+                        batch_size, seq_len, 1, input_size, input_size
+                    )
+                    batch["evi"] = torch.randn(
+                        batch_size, seq_len, 1, input_size, input_size
+                    )
+                    batch["temporal_mask"] = torch.ones(
+                        batch_size, seq_len, dtype=torch.bool
+                    )
+                self.batches.append(batch)
             self.n = n
 
         def __len__(self) -> int:

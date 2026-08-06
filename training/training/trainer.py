@@ -143,11 +143,28 @@ class Trainer:
         self.device = device or resolve_device(config.general.device)
         self.input_map = input_map or _default_input_map
 
+        # torch.compile (optional) — wraps the raw model before any
+        # distributed wrapper so parameters / state_dict stay shared.
+        if config.general.compile:
+            if not hasattr(torch, "compile"):
+                raise TrainingRunError(
+                    "torch.compile requested but unavailable in this PyTorch build",
+                    detail=torch.__version__,
+                )
+            from training.models.runtime import compile_model as _compile_model
+
+            self.raw_model = _compile_model(
+                model,
+                mode=config.general.compile_mode,
+                backend=config.general.compile_backend,
+            )
+
         # Distributed wrapper (no-op on single process).
-        self.model: nn.Module = model
+        self.model: nn.Module = self.raw_model
         if is_distributed() and get_world_size() > 1:
             self.model = nn.parallel.DistributedDataParallel(
-                model, device_ids=None if self.device.type == "cpu" else [self.device]
+                self.raw_model,
+                device_ids=None if self.device.type == "cpu" else [self.device],
             )
 
         self.train_loader = train_loader
@@ -380,6 +397,7 @@ class Trainer:
         general = cfg.general
         model = self.model
         model.train()
+        self._on_model_train_mode()
 
         running_loss = 0.0
         running_samples = 0
@@ -492,6 +510,21 @@ class Trainer:
     # ------------------------------------------------------------------ #
     # Helpers
     # ------------------------------------------------------------------ #
+
+    def _on_model_train_mode(self) -> None:
+        """Hook fired after ``model.train()`` at the start of every epoch.
+
+        Subclasses / callbacks use it to re-apply per-epoch module states that
+        ``model.train()`` would otherwise reset — e.g. the curriculum keeps
+        frozen modules in ``eval()`` mode so their BatchNorm statistics and
+        Dropout stay inert.
+        """
+        for callback in self.callbacks:
+            method = getattr(callback, "on_model_train_mode", None)
+            if method is not None and (
+                getattr(callback, "all_ranks", False) or is_primary()
+            ):
+                method()
 
     @staticmethod
     def _batch_size(batch: Mapping[str, Any]) -> int:
