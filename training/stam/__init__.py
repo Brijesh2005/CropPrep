@@ -53,6 +53,8 @@ from .exceptions import (
     PairingError,
     PatchOutOfBoundsError,
     ResolutionMismatchError,
+    SampleCellError,
+    SampleResolutionError,
     StamConfigurationError,
     StamError,
     TemporalGapError,
@@ -72,6 +74,14 @@ from .observation import (
     SequenceInfo,
     TabularFeatures,
     TemporalInfo,
+)
+from .observation_resolver import (
+    ObservationCorpus,
+    ObservationPlan,
+    ObservationResolver,
+    ObservationResolverConfig,
+    ResolvedSample,
+    SamplingCell,
 )
 from .patch_generator import RasterPatch, SpatialPatchGenerator
 from .season_resolver import SeasonResolver
@@ -119,6 +129,13 @@ __all__ = [
     "HistoricalContext",
     "Season",
     "NearestMatch",
+    # Observation resolver (R2.3 training-sample generation)
+    "ObservationResolver",
+    "ObservationResolverConfig",
+    "ObservationPlan",
+    "SamplingCell",
+    "ResolvedSample",
+    "ObservationCorpus",
     # Utilities
     "normalise_crs",
     "transform_point",
@@ -137,4 +154,6 @@ __all__ = [
     "TemporalGapError",
     "PatchOutOfBoundsError",
     "NotInitializedError",
+    "SampleResolutionError",
+    "SampleCellError",
 ]

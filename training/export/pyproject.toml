@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cropfusion-export"
+version = "0.1.0"
+description = "CropFusion R2.3 dataset export (JSON / Parquet / Torch)"
+requires-python = ">=3.10"
+dependencies = ["cropfusion-stam", "cropfusion-feature-engineering"]
+
+[tool.setuptools.packages.find]
+where = [".."]
+include = ["training.export*"]

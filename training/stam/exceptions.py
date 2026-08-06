@@ -88,3 +88,20 @@ class NotInitializedError(StamError):
     """Raised when an operation requires :meth:`STAM.initialize` first."""
 
     code = "ST-INIT-001"
+
+
+class SampleResolutionError(StamError):
+    """Raised when a training-sample plan cannot be built or resolved."""
+
+    code = "ST-RESOLVE-001"
+
+
+class SampleCellError(StamError):
+    """Raised when a single sampling cell cannot be resolved to an observation.
+
+    Per-cell failures during bulk resolution are recorded on the
+    :class:`~training.stam.observation_resolver.ResolvedSample` instead of
+    raised; this error only surfaces when a cell is resolved directly.
+    """
+
+    code = "ST-RESOLVE-002"
