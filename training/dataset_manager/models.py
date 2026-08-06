@@ -584,3 +584,276 @@ class DatasetSummary:
             "csv_row_estimate": self.csv_row_estimate,
             "generated_at": self.generated_at.isoformat(),
         }
+
+
+# --------------------------------------------------------------------------- #
+# Spatial models
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class SpatialRecord:
+    """A named spatial location (village / district / taluk / state).
+
+    Produced by the :class:`~training.dataset_manager.spatial_index.
+    SpatialIndex` from tabular datasets or manual registrations. Coordinates
+    are WGS84 (EPSG:4326) — longitude / latitude in degrees.
+
+    Attributes:
+        name: Location name.
+        kind: ``village`` | ``district`` | ``taluk`` | ``state`` | ...
+        latitude / longitude: WGS84 coordinates.
+        district: Optional parent district for villages.
+        metadata: Extra attributes (e.g. crop, population).
+    """
+
+    name: str
+    kind: str
+    latitude: float
+    longitude: float
+    district: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "kind": self.kind,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "district": self.district,
+            "metadata": self.metadata,
+        }
+
+
+@dataclass(slots=True)
+class LocationResult:
+    """Result of a spatial lookup through the Dataset Manager.
+
+    Attributes:
+        found: Whether any record matched.
+        records: Matching :class:`SpatialRecord` objects.
+        query: The raw query dict (village / district / coordinates).
+    """
+
+    found: bool
+    records: list[SpatialRecord]
+    query: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "found": self.found,
+            "records": [r.to_dict() for r in self.records],
+            "query": self.query,
+        }
+
+
+@dataclass(slots=True)
+class SpatialMetadata:
+    """Aggregate spatial metadata used by reports and validation."""
+
+    count: int
+    villages: int
+    districts: int
+    bounds: tuple[float, float, float, float] | None = None
+    updated_at: datetime = field(default_factory=datetime.now)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "count": self.count,
+            "villages": self.villages,
+            "districts": self.districts,
+            "bounds": list(self.bounds) if self.bounds else None,
+            "updated_at": self.updated_at.isoformat(),
+        }
+
+
+# --------------------------------------------------------------------------- #
+# Temporal models
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class TemporalRecord:
+    """One temporal availability record (index type x year x resolution).
+
+    Persisted in the extended metadata database and aggregated into the
+    temporal report / historical context.
+    """
+
+    index_type: str
+    year: int
+    resolution: str
+    count: int = 0
+    observation_months: list[int] = field(default_factory=list)
+    observation_dates: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "index_type": self.index_type,
+            "year": self.year,
+            "resolution": self.resolution,
+            "count": self.count,
+            "observation_months": sorted(self.observation_months),
+            "observation_dates": self.observation_dates,
+        }
+
+
+# --------------------------------------------------------------------------- #
+# Patch models
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class PatchMetadata:
+    """Metadata describing a patch extraction request and its result.
+
+    Persisted in the extended metadata database for audit / reproducibility.
+    """
+
+    path: Path
+    center: tuple[float, float]
+    size: int
+    band: int = 1
+    crs: str | None = None
+    resolution: str = "UNKNOWN"
+    padded: bool = False
+    created_at: datetime = field(default_factory=datetime.now)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "path": str(self.path),
+            "center": list(self.center),
+            "size": self.size,
+            "band": self.band,
+            "crs": self.crs,
+            "resolution": self.resolution,
+            "padded": self.padded,
+            "created_at": self.created_at.isoformat(),
+        }
+
+
+# --------------------------------------------------------------------------- #
+# Historical observation models
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class HistoricalObservation:
+    """All observations for one location in one year.
+
+    Combines the matched tabular row (if the tabular data is keyed by
+    location) with the satellite records (NDVI / EVI metadata + observation
+    dates). **No STAM inference is performed** — this is raw context only.
+
+    Attributes:
+        year: Calendar year.
+        tabular: Matched tabular row (as a dict), when a location-keyed
+            dataset was found. None otherwise.
+        tabular_source: Name of the tabular dataset the row came from.
+        ndvi / evi: Metadata records (paths + observation dates + resolution).
+        observation_dates: All observation dates in the year, sorted.
+        quality: Quality metrics (record counts, missing indices).
+    """
+
+    year: int
+    tabular: dict[str, Any] | None = None
+    tabular_source: str | None = None
+    ndvi: list[dict[str, Any]] = field(default_factory=list)
+    evi: list[dict[str, Any]] = field(default_factory=list)
+    observation_dates: list[str] = field(default_factory=list)
+    quality: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "year": self.year,
+            "tabular": self.tabular,
+            "tabular_source": self.tabular_source,
+            "ndvi": list(self.ndvi),
+            "evi": list(self.evi),
+            "observation_dates": self.observation_dates,
+            "quality": self.quality,
+        }
+
+
+@dataclass(slots=True)
+class HistoricalObservationSet:
+    """All observations for one location across every available year.
+
+    Produced by the :class:`~training.dataset_manager.historical_context_builder.
+    HistoricalContextBuilder` — the multi-year "same location" context gathered
+    before model inference. STAM is intentionally **not** executed here.
+
+    Attributes:
+        location: Resolved location name (village / district) or raw label.
+        latitude / longitude: Location coordinates (WGS84), when known.
+        years: Years that contain observations, sorted.
+        observations: Per-year observation bundles.
+        missing_years: Years in the observed range with no records.
+        quality: Cross-year quality metrics.
+        generated_at: Timestamp of the build.
+    """
+
+    location: str
+    latitude: float | None = None
+    longitude: float | None = None
+    years: list[int] = field(default_factory=list)
+    observations: list[HistoricalObservation] = field(default_factory=list)
+    missing_years: list[int] = field(default_factory=list)
+    quality: dict[str, Any] = field(default_factory=dict)
+    generated_at: datetime = field(default_factory=datetime.now)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "location": self.location,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "years": self.years,
+            "observations": [o.to_dict() for o in self.observations],
+            "missing_years": self.missing_years,
+            "quality": self.quality,
+            "generated_at": self.generated_at.isoformat(),
+        }
+
+
+# --------------------------------------------------------------------------- #
+# Statistics model
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(slots=True)
+class DatasetStatistics:
+    """Aggregate statistics across every tabular and image dataset.
+
+    Produced by :meth:`DatasetManager.statistics` for reports and diagnostics.
+
+    Attributes:
+        tabular: ``{dataset_name: {column: {count, mean, std, min, max}}}``.
+        images_by_year: ``{year: count}`` of GeoTIFF files.
+        images_by_index: ``{NDVI: n, EVI: n}``.
+        images_by_resolution: ``{R10m: n, R20m: n}``.
+        total_images: GeoTIFF count.
+        total_tabular_rows: Sum of tabular row counts.
+        tabular_row_counts: ``{dataset_name: rows}``.
+        generated_at: Timestamp of the computation.
+    """
+
+    tabular: dict[str, dict[str, Any]] = field(default_factory=dict)
+    images_by_year: dict[int, int] = field(default_factory=dict)
+    images_by_index: dict[str, int] = field(default_factory=dict)
+    images_by_resolution: dict[str, int] = field(default_factory=dict)
+    total_images: int = 0
+    total_tabular_rows: int = 0
+    tabular_row_counts: dict[str, int] = field(default_factory=dict)
+    generated_at: datetime = field(default_factory=datetime.now)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "tabular": self.tabular,
+            "images_by_year": {str(k): v for k, v in sorted(self.images_by_year.items())},
+            "images_by_index": self.images_by_index,
+            "images_by_resolution": self.images_by_resolution,
+            "total_images": self.total_images,
+            "total_tabular_rows": self.total_tabular_rows,
+            "tabular_row_counts": self.tabular_row_counts,
+            "generated_at": self.generated_at.isoformat(),
+        }

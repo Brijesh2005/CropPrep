@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 from .config import ValidateConfig
 from .exceptions import CorruptedDatasetError
@@ -48,6 +49,12 @@ class DatasetValidator(Validator):
         image_loader: :class:`ImageLoader` used to check raster headers.
         metadata_store: Optional :class:`MetadataStore` used for
             completeness checks. When None those checks are skipped.
+        spatial_index: Optional :class:`SpatialIndex` used for spatial
+            consistency checks. When None those checks are skipped.
+        provider_registry: Optional :class:`ProviderRegistry` used for
+            provider availability checks. When None those checks are skipped.
+        metadata_repository: Optional :class:`MetadataRepository` used for
+            extended metadata consistency checks.
     """
 
     def __init__(
@@ -56,10 +63,16 @@ class DatasetValidator(Validator):
         *,
         image_loader: ImageLoader,
         metadata_store: MetadataStore | None = None,
+        spatial_index: Any | None = None,
+        provider_registry: Any | None = None,
+        metadata_repository: Any | None = None,
     ) -> None:
         self.config = config or ValidateConfig()
         self.image_loader = image_loader
         self.metadata_store = metadata_store
+        self.spatial_index = spatial_index
+        self.provider_registry = provider_registry
+        self.metadata_repository = metadata_repository
 
     def validate(self, root: Path, inventory: DatasetInventory) -> ValidationReport:
         """Run every validation check and return the aggregated report.
@@ -79,8 +92,13 @@ class DatasetValidator(Validator):
         issues.extend(self._check_empty_csvs(entries))
         issues.extend(self._check_raster_integrity(entries))
         issues.extend(self._check_duplicates(entries))
+        issues.extend(self._check_crs_consistency(entries))
+        issues.extend(self._check_temporal(entries))
+        issues.extend(self._check_spatial())
+        issues.extend(self._check_providers())
         if self.metadata_store is not None:
             issues.extend(self._check_metadata_completeness(root, entries))
+            issues.extend(self._check_duplicate_records())
 
         failing = any(i.severity in {Severity.ERROR, Severity.CRITICAL} for i in issues)
         if self.config.fail_on_warning:
@@ -304,3 +322,216 @@ class DatasetValidator(Validator):
                     )
                 )
         return issues
+
+    # -- R2.2 checks: temporal / spatial / provider ------------------------------ #
+
+    def _check_temporal(self, entries: list[FileEntry]) -> list[ValidationIssue]:
+        """Temporal consistency: year coverage + duplicate observation records."""
+        issues: list[ValidationIssue] = []
+        rasters = [e for e in entries if e.category is FileCategory.GEOTIFF]
+        if not rasters:
+            return issues
+
+        # Duplicate records: same index / resolution / year / observation date.
+        by_key: dict[tuple[str, str, int, str], list[FileEntry]] = defaultdict(list)
+        for entry in rasters:
+            from .utils import parse_observation_date
+
+            obs_date = parse_observation_date(entry.path)
+            date_key = obs_date.isoformat() if obs_date else "none"
+            key = (entry.index_type.value, entry.resolution.value, entry.year, date_key)
+            by_key[key].append(entry)
+
+        for key, group in by_key.items():
+            if len(group) < 2:
+                continue
+            issues.append(
+                ValidationIssue(
+                    Severity.WARNING, "V-TEMP-001", "duplicate_record",
+                    "Duplicate observation records share index/resolution/year/date",
+                    None,
+                    {
+                        "index_type": key[0],
+                        "resolution": key[1],
+                        "year": key[2],
+                        "observation_date": key[3],
+                        "files": [e.relative_path for e in group],
+                    },
+                )
+            )
+
+        # Year coverage vs the expected range (only when rasters exist).
+        lo, hi = self.config.expected_years
+        covered = sorted({e.year for e in rasters if e.year is not None})
+        missing_years = sorted(set(range(lo, hi + 1)) - set(covered))
+        if missing_years:
+            issues.append(
+                ValidationIssue(
+                    Severity.WARNING, "V-TEMP-002", "missing_years",
+                    "Expected year range is not fully covered by imagery",
+                    None, {"missing_years": missing_years, "covered": covered},
+                )
+            )
+        return issues
+
+    def _check_spatial(self) -> list[ValidationIssue]:
+        """Spatial consistency: coordinate ranges + duplicate location names."""
+        issues: list[ValidationIssue] = []
+        if self.spatial_index is None:
+            return issues
+        try:
+            records = self.spatial_index.records()
+        except Exception as exc:  # noqa: BLE001 - best effort
+            issues.append(
+                ValidationIssue(
+                    Severity.ERROR, "V-SPAT-000", "spatial",
+                    f"Spatial index is unreadable: {exc}",
+                )
+            )
+            return issues
+        if not records:
+            return issues
+
+        seen: dict[str, list[str]] = defaultdict(list)
+        for record in records:
+            key = f"{record.kind}:{record.name.strip().lower()}"
+            seen[key].append(f"{record.latitude},{record.longitude}")
+            if not (-90 <= record.latitude <= 90):
+                issues.append(
+                    ValidationIssue(
+                        Severity.ERROR, "V-SPAT-001", "invalid_coordinates",
+                        f"Latitude out of range for {record.kind} {record.name!r}",
+                        None, {"latitude": record.latitude},
+                    )
+                )
+            if not (-180 <= record.longitude <= 180):
+                issues.append(
+                    ValidationIssue(
+                        Severity.ERROR, "V-SPAT-002", "invalid_coordinates",
+                        f"Longitude out of range for {record.kind} {record.name!r}",
+                        None, {"longitude": record.longitude},
+                    )
+                )
+        duplicates = {k: v for k, v in seen.items() if len(v) > 1}
+        for key, coords in sorted(duplicates.items()):
+            issues.append(
+                ValidationIssue(
+                    Severity.WARNING, "V-SPAT-003", "duplicate_location",
+                    f"Duplicate spatial locations share a name: {key}",
+                    None, {"coordinates": coords},
+                )
+            )
+        return issues
+
+    def _check_crs_consistency(self, entries: list[FileEntry]) -> list[ValidationIssue]:
+        """Coordinate-system consistency: rasters sharing one CRS."""
+        issues: list[ValidationIssue] = []
+        rasters = [e for e in entries if e.category is FileCategory.GEOTIFF]
+        if len(rasters) < 2:
+            return issues
+
+        crs_count: dict[str, int] = defaultdict(int)
+        for entry in rasters:
+            try:
+                crs = self.image_loader.read_metadata(entry.path).crs
+            except Exception:  # noqa: BLE001 - handled by integrity check
+                continue
+            crs_count[str(crs)] += 1
+        if not crs_count:
+            return issues
+        majority, majority_count = max(crs_count.items(), key=lambda pair: pair[1])
+        mismatched = sorted(
+            entry.relative_path
+            for entry in rasters
+            if _raster_crs(self.image_loader, entry) not in {majority, None}
+        )
+        if mismatched:
+            issues.append(
+                ValidationIssue(
+                    Severity.WARNING, "V-CRS-001", "crs_mismatch",
+                    f"Rasters use mixed coordinate systems (majority {majority})",
+                    None, {"majority": majority, "files": mismatched[:20]},
+                )
+            )
+        return issues
+
+    def _check_duplicate_records(self) -> list[ValidationIssue]:
+        """Metadata-store duplicates: (category, index, resolution, year, date)."""
+        issues: list[ValidationIssue] = []
+        if self.metadata_store is None:
+            return issues
+        try:
+            records = self.metadata_store.query()
+        except Exception:  # noqa: BLE001 - handled by completeness check
+            return issues
+
+        by_key: dict[tuple, list[str]] = defaultdict(list)
+        for record in records:
+            if record.category is not FileCategory.GEOTIFF:
+                continue
+            date_key = (
+                record.observation_date.isoformat() if record.observation_date else "none"
+            )
+            key = (
+                record.category.value,
+                record.index_type.value,
+                record.resolution.value,
+                record.year,
+                date_key,
+            )
+            by_key[key].append(record.relative_path)
+        for key, paths in by_key.items():
+            if len(paths) < 2:
+                continue
+            issues.append(
+                ValidationIssue(
+                    Severity.WARNING, "V-META-004", "duplicate_record",
+                    "Metadata store contains duplicate observation records",
+                    None,
+                    {
+                        "index_type": key[1],
+                        "resolution": key[2],
+                        "year": key[3],
+                        "observation_date": key[4],
+                        "files": paths,
+                    },
+                )
+            )
+        return issues
+
+    def _check_providers(self) -> list[ValidationIssue]:
+        """Provider availability: no provider should be silently dead."""
+        issues: list[ValidationIssue] = []
+        if self.provider_registry is None:
+            return issues
+        try:
+            availability = self.provider_registry.availability()
+            health = self.provider_registry.health()
+        except Exception as exc:  # noqa: BLE001 - best effort
+            issues.append(
+                ValidationIssue(
+                    Severity.ERROR, "V-PROV-000", "provider",
+                    f"Provider registry is unreadable: {exc}",
+                )
+            )
+            return issues
+        for name, available in sorted(availability.items()):
+            snapshot = health.get(name, {})
+            status = snapshot.get("status", "unknown")
+            if available:
+                continue
+            issues.append(
+                ValidationIssue(
+                    Severity.WARNING, "V-PROV-001", "provider_unavailable",
+                    f"Provider {name!r} is unavailable (status={status})",
+                    None, {"name": name, "status": status},
+                )
+            )
+        return issues
+
+
+def _raster_crs(image_loader: ImageLoader, entry: FileEntry) -> str | None:
+    try:
+        return image_loader.read_metadata(entry.path).crs
+    except Exception:  # noqa: BLE001
+        return None

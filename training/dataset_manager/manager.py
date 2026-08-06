@@ -34,33 +34,47 @@ from .csv_loader import PandasCSVLoader
 from .dataset_registry import SQLiteRegistry
 from .downloader import KaggleDownloader
 from .exceptions import DatasetNotFoundError
+from .historical_context_builder import HistoricalContextBuilderImpl
 from .image_loader import RasterioImageLoader
 from .interfaces import (
     Cache,
     CSVLoader,
     Downloader,
+    HistoricalContextBuilder,
     ImageLoader,
     MetadataGenerator,
     MetadataStore,
+    PatchExtractor,
+    ProviderRegistry,
     Registry,
     Scanner,
+    SpatialIndex,
     Validator,
     VersionManager,
 )
 from .logger import get_logger, setup_logging
 from .manager_paths import ensure_state_dirs
 from .metadata import MetadataGeneratorImpl, SQLiteMetadataStore
+from .metadata_repository import MetadataRepository
 from .models import (
     DatasetInventory,
+    DatasetStatistics,
     DatasetStatus,
     DatasetSummary,
+    FileCategory,
     HistoricalContext,
+    HistoricalObservationSet,
     IndexType,
+    LocationResult,
     MetadataRecord,
     Resolution,
+    SpatialMetadata,
+    SpatialRecord,
     ValidationReport,
     VersionEntry,
 )
+from .patch_extractor import PatchExtractorImpl
+from .provider_registry import ProviderRegistryImpl
 from .providers import GitRepositoryTabularProvider, KaggleHubImageProvider
 from .providers.models import (
     ImageCatalog,
@@ -69,7 +83,10 @@ from .providers.models import (
     TabularCatalog,
     TabularJoinSpec,
 )
+from .reports import generate_reports
 from .scanner import DatasetScanner
+from .spatial_index import SpatialIndexImpl, build_records_from_frame
+from .statistics import compute_statistics
 from .validator import DatasetValidator
 from .version_manager import SQLiteVersionManager
 
@@ -143,15 +160,17 @@ class DatasetManager:
             metadata_store=self.metadata_store,
         )
 
-        # -- Providers (the only way data sources are touched) ------------------- #
+        # -- Provider registry (the only way data sources are touched) ----------- #
+        # Providers are registered, then resolved through the registry — the
+        # manager never constructs or holds them directly.
         tab_cfg = self.settings.providers.tabular
-        self.tabular_provider = GitRepositoryTabularProvider(
+        tabular_provider = GitRepositoryTabularProvider(
             root=self.settings.tabular_root,
             loader=self.csv_loader,
             patterns=list(tab_cfg.patterns),
         )
         img_cfg = self.settings.providers.image
-        self.image_provider = KaggleHubImageProvider(
+        image_provider = KaggleHubImageProvider(
             handle=img_cfg.handle or self.settings.download.kaggle_handle,
             dataset_root=self.settings.dataset_root,
             catalog_name=img_cfg.catalog_name or self.settings.catalog_name,
@@ -169,6 +188,56 @@ class DatasetManager:
             verify_integrity=img_cfg.verify_integrity,
         )
 
+        self.provider_registry: ProviderRegistry = ProviderRegistryImpl()
+        self.provider_registry.register(
+            "git_repository_tabular",
+            "tabular",
+            tabular_provider,
+            enabled=True,
+            priority=100,
+            config={"patterns": list(tab_cfg.patterns), "chunk_size": tab_cfg.chunk_size},
+        )
+        self.provider_registry.register(
+            "kaggle_hub_image",
+            "image",
+            image_provider,
+            enabled=True,
+            priority=100,
+            config={"handle": image_provider.handle},
+        )
+        self._apply_provider_registry_config()
+
+        # Legacy R1.2 attributes — wired through the registry without the
+        # enabled check (a registered-but-disabled provider is still owned by
+        # the manager; the registry enforces availability for consumers).
+        self.tabular_provider = self._registered_provider("git_repository_tabular")
+        self.image_provider = self._registered_provider("kaggle_hub_image")
+
+        # -- R2.2 extended metadata repository (same metadata.db) ----------------- #
+        self.metadata_repository = MetadataRepository(self.settings.metadata_db_path())
+
+        # -- R2.2 spatial index (auto-built from tabular location data) ----------- #
+        self.spatial_index: SpatialIndex = SpatialIndexImpl()
+        self._auto_build_spatial_index()
+
+        # Wire the validator's extended checks (spatial / provider / metadata).
+        self._wire_validator_extensions()
+
+        # -- R2.2 patch extractor + historical context builder -------------------- #
+        self.patch_extractor: PatchExtractor = PatchExtractorImpl(
+            self.image_provider,
+            metadata_repository=self.metadata_repository,
+        )
+        self.historical_context_builder: HistoricalContextBuilder = (
+            HistoricalContextBuilderImpl(
+                tabular_provider=self.tabular_provider,
+                image_provider=self.image_provider,
+                metadata_store=self.metadata_store,
+                spatial_index=self.spatial_index,
+                metadata_repository=self.metadata_repository,
+            )
+        )
+
         # Ensure the default catalog is registered so the registry is never empty.
         if self.registry.get_by_name(self.settings.catalog_name) is None:
             self.registry.register(
@@ -177,6 +246,148 @@ class DatasetManager:
                 root_path=self.settings.catalog_root,
                 status=DatasetStatus.PENDING,
             )
+
+    # ------------------------------------------------------------------ #
+    # Provider registry configuration
+    # ------------------------------------------------------------------ #
+
+    def _apply_provider_registry_config(self) -> None:
+        """Apply ``providers.registry`` settings (enable/disable/priority).
+
+        Matching names override the default registration; unknown entries of a
+        supported kind are registered as additional providers (multi-provider
+        setups / future plugins).
+        """
+        for entry in self.settings.providers.registry.providers:
+            name = entry.name
+            if self.provider_registry.has(name):
+                existing = self.provider_registry.resolve(name)
+                self.provider_registry.register(
+                    name,
+                    entry.kind,
+                    existing,
+                    enabled=entry.enabled,
+                    priority=entry.priority,
+                    config=entry.config,
+                )
+                continue
+            if entry.kind == "tabular":
+                root = entry.config.get("root") or self.settings.tabular_root
+                provider = GitRepositoryTabularProvider(
+                    root=root,
+                    name=name,
+                    loader=self.csv_loader,
+                    patterns=entry.config.get("patterns") or ["*.csv"],
+                )
+                self.provider_registry.register(
+                    name, "tabular", provider,
+                    enabled=entry.enabled, priority=entry.priority, config=entry.config,
+                )
+            elif entry.kind == "image":
+                provider = KaggleHubImageProvider(
+                    handle=entry.config.get("handle") or self.settings.download.kaggle_handle,
+                    name=name,
+                    dataset_root=entry.config.get("dataset_root") or self.settings.dataset_root,
+                    catalog_name=entry.config.get("catalog_name") or self.settings.catalog_name,
+                    downloader=self.downloader,
+                    scanner=self.scanner,
+                    validator=self.validator,
+                    csv_loader=self.csv_loader,
+                    image_loader=self.image_loader,
+                    metadata_generator=self.metadata_generator,
+                    metadata_store=self.metadata_store,
+                    cache=self.cache,
+                )
+                self.provider_registry.register(
+                    name, "image", provider,
+                    enabled=entry.enabled, priority=entry.priority, config=entry.config,
+                )
+            else:
+                logger.warning(
+                    "Skipping unsupported provider kind from config",
+                    extra={"provider_name": name, "kind": entry.kind},
+                )
+
+    def _registered_provider(self, name: str) -> Any:
+        """Return the provider instance for ``name`` regardless of enabled state."""
+        for registration in self.provider_registry.registrations():
+            if registration.name == name:
+                return registration.provider
+        raise DatasetNotFoundError(
+            f"Provider not registered: {name}",
+            detail={"registered": self.provider_registry.names()},
+        )
+
+    def _auto_build_spatial_index(self) -> None:
+        """Best-effort spatial index built from tabular location data.
+
+        Scans discovered tabular datasets for a name column plus latitude /
+        longitude columns and indexes every usable row. Datasets without such
+        columns are skipped. The result is persisted to the metadata
+        repository when available.
+        """
+        records: list[SpatialRecord] = []
+        try:
+            names = self.tabular_provider.names()
+        except Exception:  # noqa: BLE001 - no tabular data yet
+            names = []
+        for name in names:
+            try:
+                columns = self.tabular_provider.schema(name).get("columns", [])
+            except Exception:  # noqa: BLE001 - best effort
+                continue
+            name_col = _find_spatial_name_column(columns)
+            lat_col = _find_spatial_lat_column(columns)
+            lon_col = _find_spatial_lon_column(columns)
+            if not (name_col and lat_col and lon_col):
+                continue
+            try:
+                frame = self.tabular_provider.load(name, chunksize=None)
+            except Exception:  # noqa: BLE001 - best effort
+                continue
+            if len(frame) > 50_000:
+                frame = frame.head(50_000)
+            kind = "village" if "village" in name_col.lower() else "district"
+            records.extend(
+                build_records_from_frame(
+                    frame,
+                    name_col=name_col,
+                    lat_col=lat_col,
+                    lon_col=lon_col,
+                    kind=kind,
+                    district_col=(
+                        "district"
+                        if "district" in {c.lower() for c in columns}
+                        else None
+                    ),
+                )
+            )
+        if records:
+            self.spatial_index.build(records)
+            try:
+                self.metadata_repository.save_spatial_many(records)
+            except Exception:  # noqa: BLE001 - persistence is best-effort
+                pass
+            logger.info("Auto-built spatial index", extra={"records": len(records)})
+
+    def _wire_validator_extensions(self) -> None:
+        """Expose the R2.2 stores to the validator for extended checks.
+
+        The validator is constructed before the registry / spatial index exist,
+        so the extended attributes are attached here. Injected test fakes are
+        left untouched when they do not accept attributes.
+        """
+        for attr in ("spatial_index", "provider_registry", "metadata_repository"):
+            try:
+                setattr(self.validator, attr, getattr(self, attr))
+            except Exception:  # noqa: BLE001 - injected fakes may be read-only
+                pass
+        # Persist provider metadata into the extended repository (best-effort).
+        try:
+            for registration in self.provider_registry.registrations():
+                self.metadata_repository.save_provider(registration)
+        except Exception:  # noqa: BLE001 - persistence is best-effort
+            pass
 
     # ------------------------------------------------------------------ #
     # Factories
@@ -631,11 +842,312 @@ class DatasetManager:
         )
 
     def provider_manifests(self) -> dict[str, Any]:
-        """Introspection of every configured provider (for diagnostics)."""
-        return {
-            self.tabular_provider.name: self.tabular_provider.manifest().to_dict(),
-            self.image_provider.name: self.image_provider.manifest().to_dict(),
-        }
+        """Introspection of every registered provider (for diagnostics)."""
+        manifests: dict[str, Any] = {}
+        for name in self.provider_registry.names():
+            try:
+                provider = self.provider_registry.resolve(name)
+                manifests[name] = provider.manifest().to_dict()
+            except Exception as exc:  # noqa: BLE001 - per-provider best-effort
+                manifests[name] = {"error": str(exc)}
+        return manifests
+
+    # ------------------------------------------------------------------ #
+    # R2.2 — Multi-source API
+    # ------------------------------------------------------------------ #
+
+    def load_tabular(self, name: str) -> Any:
+        """Load a full tabular dataset as a DataFrame (via its provider)."""
+        return self.tabular_provider.load(name, chunksize=None)
+
+    def get_csv(self, name: str) -> Any:
+        """Alias of :meth:`load_tabular` (R1.2-compatible naming)."""
+        return self.load_tabular(name)
+
+    def load_images(
+        self,
+        *,
+        index_type: str | None = None,
+        resolution: str | None = None,
+        year: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """Load raster arrays matching the given index / resolution / year.
+
+        Returns one dict per raster: ``{path, index_type, resolution, year,
+        array}``. No preprocessing is applied.
+        """
+        matches = self._matching_entries(
+            index_type=index_type, resolution=resolution, year=year
+        )
+        images: list[dict[str, Any]] = []
+        for entry in matches:
+            images.append(
+                {
+                    "path": str(entry.path),
+                    "index_type": entry.index_type.value,
+                    "resolution": entry.resolution.value,
+                    "year": entry.year,
+                    "array": self.image_provider.read(str(entry.path)),
+                }
+            )
+        return images
+
+    def get_image(
+        self,
+        index_type: str,
+        *,
+        resolution: str | None = None,
+        year: int | None = None,
+    ) -> Any:
+        """Read a single best-matching raster as a NumPy array."""
+        matches = self._matching_entries(
+            index_type=index_type, resolution=resolution, year=year
+        )
+        if not matches:
+            raise DatasetNotFoundError(
+                "No matching raster for the requested image",
+                detail={
+                    "index_type": index_type,
+                    "resolution": resolution,
+                    "year": year,
+                },
+            )
+        return self.image_provider.read(str(matches[0].path))
+
+    def get_patch(
+        self,
+        latitude: float,
+        longitude: float,
+        size: int,
+        *,
+        index_type: str | None = None,
+        resolution: str | None = None,
+        year: int | None = None,
+        band: int = 1,
+        padding: bool = True,
+    ) -> Any:
+        """Extract a ``size`` x ``size`` geographic patch (raw NumPy array).
+
+        The best raster for the index type / resolution / year is located and
+        the point is converted into the raster's CRS automatically.
+        """
+        return self.patch_extractor.extract(
+            latitude,
+            longitude,
+            size,
+            index_type=index_type,
+            resolution=resolution,
+            year=year,
+            band=band,
+            padding=padding,
+        )
+
+    def get_location(
+        self,
+        *,
+        name: str | None = None,
+        kind: str = "village",
+        latitude: float | None = None,
+        longitude: float | None = None,
+        k: int = 1,
+        radius_km: float | None = None,
+        tolerance: float = 0.01,
+    ) -> LocationResult:
+        """Resolve a named or coordinate-based location.
+
+        ``name`` is looked up by kind (``village`` / ``district``);
+        coordinates use nearest-neighbour / radius / tolerance matching.
+        """
+        if name is not None:
+            if kind == "village":
+                records = self.spatial_index.lookup_village(name)
+            elif kind == "district":
+                records = self.spatial_index.lookup_district(name)
+            else:
+                records = [
+                    r for r in self.spatial_index.records()
+                    if r.kind == kind and r.name == name
+                ]
+            return LocationResult(
+                found=bool(records),
+                records=records,
+                query={"name": name, "kind": kind},
+            )
+        if latitude is None or longitude is None:
+            raise ValueError("get_location requires name or latitude/longitude")
+        if radius_km is not None:
+            records = self.spatial_index.within_radius(latitude, longitude, radius_km)
+        else:
+            records = self.spatial_index.search_coordinates(
+                latitude, longitude, tolerance=tolerance
+            )
+        if not records:
+            nearest = self.spatial_index.nearest(latitude, longitude, k=k)
+            records = [r for r, _dist in nearest]
+        return LocationResult(
+            found=bool(records),
+            records=records,
+            query={"latitude": latitude, "longitude": longitude, "k": k},
+        )
+
+    def get_available_years(
+        self,
+        *,
+        index_type: str | None = None,
+        resolution: str | None = None,
+    ) -> list[int]:
+        """Years present in the imagery catalog (optionally filtered)."""
+        return sorted(
+            {
+                e.year
+                for e in self._matching_entries(
+                    index_type=index_type, resolution=resolution
+                )
+                if e.year is not None
+            }
+        )
+
+    def get_available_indices(self, *, resolution: str | None = None) -> list[str]:
+        """Index types (e.g. ``NDVI``, ``EVI``) present in the catalog."""
+        return sorted(
+            {
+                e.index_type.value
+                for e in self._matching_entries(resolution=resolution)
+                if e.index_type is not None
+            }
+        )
+
+    def get_resolutions(self, *, index_type: str | None = None) -> list[str]:
+        """Resolutions present in the catalog (optionally filtered)."""
+        return sorted(
+            {
+                e.resolution.value
+                for e in self._matching_entries(index_type=index_type)
+                if e.resolution is not None
+            }
+        )
+
+    def statistics(self) -> DatasetStatistics:
+        """Aggregate dataset statistics across tabular and image sources."""
+        return compute_statistics(
+            tabular_provider=self.tabular_provider, image_provider=self.image_provider
+        )
+
+    def search(self, query: str, limit: int = 20) -> list[dict[str, Any]]:
+        """Search tabular datasets, imagery and providers for ``query``."""
+        needle = query.lower()
+        hits: list[dict[str, Any]] = []
+        for name in self.tabular_provider.names():
+            if needle in name.lower():
+                hits.append({"type": "tabular", "name": name})
+        for entry in self._catalog_entries():
+            haystack = f"{entry.path} {entry.index_type.value} {entry.resolution.value}".lower()
+            if needle in haystack:
+                hits.append(
+                    {
+                        "type": "image",
+                        "path": str(entry.path),
+                        "index_type": entry.index_type.value,
+                        "resolution": entry.resolution.value,
+                        "year": entry.year,
+                    }
+                )
+        for name in self.provider_registry.names():
+            if needle in name.lower():
+                hits.append({"type": "provider", "name": name})
+        return hits[:limit]
+
+    def availability(self) -> dict[str, bool]:
+        """``{provider: available}`` for every registered provider."""
+        return self.provider_registry.availability()
+
+    def health(self) -> dict[str, Any]:
+        """Health snapshot of every registered provider."""
+        return self.provider_registry.health()
+
+    def discovery(self) -> list[dict[str, Any]]:
+        """Plain registration records for every provider."""
+        return self.provider_registry.discovery()
+
+    def spatial_metadata(self) -> SpatialMetadata:
+        """Aggregate statistics of the spatial index."""
+        return self.spatial_index.metadata()
+
+    def temporal_metadata(
+        self,
+        *,
+        index_type: str | None = None,
+        year: int | None = None,
+        resolution: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Per index/year/resolution temporal availability records."""
+        return self.metadata_repository.list_temporal(
+            index_type=index_type, year=year, resolution=resolution
+        )
+
+    def provider_metadata(self) -> list[dict[str, Any]]:
+        """Persisted provider metadata from the extended repository."""
+        return self.metadata_repository.list_providers()
+
+    def list_patches(self, limit: int = 100) -> list[dict[str, Any]]:
+        """Recent extracted patch records (from the metadata repository)."""
+        return self.metadata_repository.list_patches(limit=limit)
+
+    def reports(self, report_dir: str | Path | None = None) -> list[Path]:
+        """Generate the R2.2 reports; returns the written report paths."""
+        return generate_reports(self, report_dir=report_dir)
+
+    def build_historical_context(
+        self,
+        *,
+        village: str | None = None,
+        district: str | None = None,
+        latitude: float | None = None,
+        longitude: float | None = None,
+        index_type: str | None = None,
+        resolution: str | None = None,
+        years: list[int] | None = None,
+    ) -> HistoricalObservationSet:
+        """Multi-year, per-location observation context (no STAM inference)."""
+        return self.historical_context_builder.build(
+            village=village,
+            district=district,
+            latitude=latitude,
+            longitude=longitude,
+            index_type=index_type,
+            resolution=resolution,
+            years=years,
+        )
+
+    # -- R2.2 helpers ----------------------------------------------------------- #
+
+    def _catalog_entries(self) -> list[Any]:
+        try:
+            return list(self.image_provider.catalog().entries)
+        except Exception as exc:  # noqa: BLE001 - imagery may not be materialised
+            logger.debug("Imagery catalog unavailable", extra={"error": str(exc)})
+            return []
+
+    def _matching_entries(
+        self,
+        *,
+        index_type: str | None = None,
+        resolution: str | None = None,
+        year: int | None = None,
+    ) -> list[Any]:
+        entries = [e for e in self._catalog_entries() if e.category is FileCategory.GEOTIFF]
+        if index_type is not None:
+            needle = index_type.upper()
+            entries = [e for e in entries if e.index_type is not None and e.index_type.value == needle]
+        if resolution is not None:
+            needle = resolution.upper()
+            entries = [
+                e for e in entries
+                if e.resolution is not None and e.resolution.value.upper() == needle
+            ]
+        if year is not None:
+            entries = [e for e in entries if e.year == year]
+        return entries
 
     # ------------------------------------------------------------------ #
     # Metadata access
@@ -942,6 +1454,40 @@ def _classify_image(path: Path) -> dict[str, Any]:
         "resolution": classify_resolution_from_path(path),
         "year": extract_year_from_path(path),
     }
+
+
+def _find_spatial_name_column(columns: list[str]) -> str | None:
+    """Best candidate for a location-name column (village/district/...)."""
+    lowered = [c.lower().strip() for c in columns]
+    for needle in ("village", "district", "taluk", "tehsil", "block", "mandal", "state"):
+        if needle in lowered:
+            return columns[lowered.index(needle)]
+    for i, col in enumerate(lowered):
+        if col in ("name", "place", "location") or col.endswith("_name"):
+            return columns[i]
+    return None
+
+
+def _find_spatial_lat_column(columns: list[str]) -> str | None:
+    lowered = [c.lower().strip() for c in columns]
+    for i, col in enumerate(lowered):
+        if col in ("lat", "latitude", "lat_deg", "latitude_n"):
+            return columns[i]
+    for i, col in enumerate(lowered):
+        if col.endswith("latitude") or col.startswith("lat") or "latitude" in col:
+            return columns[i]
+    return None
+
+
+def _find_spatial_lon_column(columns: list[str]) -> str | None:
+    lowered = [c.lower().strip() for c in columns]
+    for i, col in enumerate(lowered):
+        if col in ("lon", "lng", "longitude", "lon_deg", "longitude_e"):
+            return columns[i]
+    for i, col in enumerate(lowered):
+        if col.endswith("longitude") or col.startswith("lon") or "longitude" in col:
+            return columns[i]
+    return None
 
 
 def _import_version(module_name: str) -> str | None:

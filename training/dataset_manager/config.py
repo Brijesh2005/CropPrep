@@ -158,6 +158,43 @@ class ImageProviderConfig(BaseModel):
     force_download: bool = False
 
 
+class ProviderEntryConfig(BaseModel):
+    """One named provider registered in the provider registry.
+
+    Enables multi-provider setups, priority ordering and future plugins: a
+    provider can be disabled, re-ordered, or added entirely from configuration
+    without touching code.
+
+    Attributes:
+        name: Registration name (e.g. ``git_repository_tabular``).
+        kind: Provider kind (``tabular`` / ``image`` / ...).
+        enabled: False disables the provider without removing it.
+        priority: Higher values resolve first among providers of a kind.
+        config: Free-form options forwarded to the provider factory.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    kind: str = "generic"
+    enabled: bool = True
+    priority: int = 100
+    config: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProviderRegistryConfig(BaseModel):
+    """Provider registry settings (registered providers + defaults).
+
+    When the list is empty the manager registers its default tabular and image
+    providers. Entries may override the defaults by matching the provider
+    name, or register additional providers (future plugins).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    providers: list[ProviderEntryConfig] = Field(default_factory=list)
+
+
 class ProviderConfig(BaseModel):
     """Provider-layer settings (tab + image data sources)."""
 
@@ -165,6 +202,36 @@ class ProviderConfig(BaseModel):
 
     tabular: TabularProviderConfig = Field(default_factory=TabularProviderConfig)
     image: ImageProviderConfig = Field(default_factory=ImageProviderConfig)
+    registry: ProviderRegistryConfig = Field(default_factory=ProviderRegistryConfig)
+
+
+class ExecutionConfig(BaseModel):
+    """Runtime execution settings (threading + streaming)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: Default thread-pool size used by parallel helpers.
+    thread_pool_size: int = Field(default=8, ge=1)
+    #: Default chunk size (rows) for streaming tabular loads.
+    default_chunk_size: int = Field(default=100_000, ge=1)
+
+
+class RasterCacheConfig(BaseModel):
+    """Raster / patch cache settings (bounded in-memory + optional on-disk)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: Whether patch/window reads are cached at the manager layer.
+    enabled: bool = True
+    #: Maximum cached patches (LRU eviction).
+    max_entries: int = Field(default=256, ge=1)
+    #: TTL for cached raster reads.
+    ttl_seconds: int = 3600
+    #: On-disk cache directory; None resolves to ``<state_root>/cache/rasters``.
+    cache_dir: Path | None = None
+
+    def resolved_dir(self, state_root: Path) -> Path:
+        return self.cache_dir or (state_root / "cache" / "rasters")
 
 
 class Settings(BaseModel):
@@ -196,6 +263,8 @@ class Settings(BaseModel):
     registry: RegistryConfig = Field(default_factory=RegistryConfig)
     logging: LogConfig = Field(default_factory=LogConfig)
     providers: ProviderConfig = Field(default_factory=ProviderConfig)
+    execution: ExecutionConfig = Field(default_factory=ExecutionConfig)
+    raster: RasterCacheConfig = Field(default_factory=RasterCacheConfig)
 
     # -- Derived paths ------------------------------------------------------- #
 
@@ -339,6 +408,29 @@ def save_settings_template(path: str | Path) -> Path:
                 "link_method": "hardlink",
                 "force_download": False,
             },
+            "registry": {
+                "providers": [
+                    {
+                        "name": "git_repository_tabular",
+                        "kind": "tabular",
+                        "enabled": True,
+                        "priority": 100,
+                    },
+                    {
+                        "name": "kaggle_hub_image",
+                        "kind": "image",
+                        "enabled": True,
+                        "priority": 100,
+                    },
+                ]
+            },
+        },
+        "execution": {"thread_pool_size": 8, "default_chunk_size": 100000},
+        "raster": {
+            "enabled": True,
+            "max_entries": 256,
+            "ttl_seconds": 3600,
+            "cache_dir": None,
         },
     }
     out = Path(path)

@@ -35,6 +35,95 @@ from ..models import CSVProfile, FileEntry
 # --------------------------------------------------------------------------- #
 
 
+@dataclass(slots=True)
+class ProviderCapabilities:
+    """Declared capabilities of a provider instance.
+
+    Used by the provider registry to answer "what can this provider do?" and
+    to select providers by kind + priority without instantiating them.
+    """
+
+    name: str
+    kind: str
+    features: list[str] = field(default_factory=list)
+    priority: int = 100
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "kind": self.kind,
+            "features": list(self.features),
+            "priority": self.priority,
+        }
+
+
+@dataclass(slots=True)
+class ProviderHealth:
+    """Health snapshot of a provider instance (registry ``health()`` payload).
+
+    Attributes:
+        name: Provider name.
+        kind: Provider kind (``tabular`` / ``image`` / ...).
+        status: Lifecycle status.
+        available: Whether the provider can serve data right now.
+        latency_s: Wall-clock of the availability probe.
+        detail: Extra diagnostics (e.g. dataset count, imagery years).
+        checked_at: When the snapshot was taken.
+    """
+
+    name: str
+    kind: str
+    status: ProviderStatus
+    available: bool
+    latency_s: float = 0.0
+    detail: dict[str, Any] = field(default_factory=dict)
+    checked_at: datetime = field(default_factory=datetime.now)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "kind": self.kind,
+            "status": self.status.value,
+            "available": self.available,
+            "latency_s": round(self.latency_s, 4),
+            "detail": self.detail,
+            "checked_at": self.checked_at.isoformat(),
+        }
+
+
+@dataclass(slots=True)
+class ProviderRegistration:
+    """A provider registered in the :class:`~training.dataset_manager.
+    provider_registry.ProviderRegistry`.
+
+    Attributes:
+        name: Unique registration name.
+        kind: Provider kind.
+        provider: The live provider instance (never constructed by consumers
+            directly — always resolved through the registry).
+        enabled: Whether the provider is currently active.
+        priority: Higher values resolve first when multiple providers share a
+            kind (used for future plugins / fallbacks).
+        config: Free-form registration options (e.g. provider-specific flags).
+    """
+
+    name: str
+    kind: str
+    provider: Any
+    enabled: bool = True
+    priority: int = 100
+    config: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "kind": self.kind,
+            "enabled": self.enabled,
+            "priority": self.priority,
+            "config": self.config,
+        }
+
+
 class ProviderStatus(str, enum.Enum):
     """Lifecycle status of a provider."""
 

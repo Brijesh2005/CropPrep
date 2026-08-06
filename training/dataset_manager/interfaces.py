@@ -18,6 +18,10 @@ The following ports are declared:
 * :class:`Cache`                 — generic key/value caching.
 * :class:`Registry`              — dataset lifecycle registry.
 * :class:`VersionManager`        — semantic versioning of datasets.
+* :class:`ProviderRegistry`      — provider registration / resolution / health.
+* :class:`SpatialIndex`          — village/district/coordinate lookups.
+* :class:`PatchExtractor`        — geographic patch extraction from rasters.
+* :class:`HistoricalContextBuilder` — multi-year per-location observation context.
 """
 
 from __future__ import annotations
@@ -33,6 +37,8 @@ from .models import (
     DatasetStatus,
     MetadataRecord,
     RasterMetadata,
+    SpatialMetadata,
+    SpatialRecord,
     ValidationReport,
     VersionEntry,
 )
@@ -262,3 +268,167 @@ class VersionManager(ABC):
         file_count: int,
     ) -> VersionEntry:
         """Record a version snapshot (used by bump/rollback)."""
+
+
+class ProviderRegistry(ABC):
+    """Registry of named data providers.
+
+    The Dataset Manager **never constructs providers directly** — it resolves
+    them through this registry, which owns registration, health checks,
+    capability queries, priority ordering, availability and discovery (so
+    future plugins can be added purely from configuration).
+    """
+
+    @abstractmethod
+    def register(
+        self,
+        name: str,
+        kind: str,
+        provider: Any,
+        *,
+        enabled: bool = True,
+        priority: int = 100,
+        config: dict[str, Any] | None = None,
+    ) -> Any:
+        """Register a provider instance under ``name``."""
+
+    @abstractmethod
+    def resolve(self, name: str) -> Any:
+        """Return the live provider instance for ``name``.
+
+        Raises :class:`~training.dataset_manager.exceptions.DatasetNotFoundError`
+        when the provider is unknown or disabled.
+        """
+
+    @abstractmethod
+    def resolve_by_kind(self, kind: str) -> list[Any]:
+        """Providers of a kind, sorted by priority (highest first)."""
+
+    @abstractmethod
+    def names(self) -> list[str]:
+        """Registered provider names (sorted)."""
+
+    @abstractmethod
+    def has(self, name: str) -> bool:
+        """True when a provider is registered under ``name``."""
+
+    @abstractmethod
+    def priority(self, name: str) -> int:
+        """Resolution priority of a registered provider."""
+
+    @abstractmethod
+    def availability(self) -> dict[str, bool]:
+        """``{name: available}`` for every registered provider."""
+
+    @abstractmethod
+    def capabilities(self) -> dict[str, Any]:
+        """``{name: capabilities}`` for every registered provider."""
+
+    @abstractmethod
+    def health(self) -> dict[str, Any]:
+        """``{name: health_snapshot}`` for every registered provider."""
+
+    @abstractmethod
+    def discovery(self) -> list[dict[str, Any]]:
+        """Plain registration records (for diagnostics / reports)."""
+
+
+class SpatialIndex(ABC):
+    """Spatial lookup over named locations (villages / districts / ...).
+
+    Backed by a KD-tree over WGS84 coordinates for nearest-neighbour and
+    radius searches, plus name indexes for village/district lookups.
+    """
+
+    @abstractmethod
+    def build(self, records: list[SpatialRecord]) -> int:
+        """(Re)build the index from ``records``; returns the count."""
+
+    @abstractmethod
+    def lookup_village(self, name: str) -> list[SpatialRecord]:
+        """Locations of kind ``village`` whose name matches ``name``."""
+
+    @abstractmethod
+    def lookup_district(self, name: str) -> list[SpatialRecord]:
+        """Locations of kind ``district`` whose name matches ``name``."""
+
+    @abstractmethod
+    def records(self) -> list[SpatialRecord]:
+        """All indexed records."""
+
+    @abstractmethod
+    def nearest(
+        self, latitude: float, longitude: float, k: int = 1
+    ) -> list[tuple[SpatialRecord, float]]:
+        """``k`` nearest records to a point as ``(record, distance_deg)``."""
+
+    @abstractmethod
+    def search_coordinates(
+        self, latitude: float, longitude: float, tolerance: float = 0.01
+    ) -> list[SpatialRecord]:
+        """Records within ``tolerance`` degrees of a point (exact match)."""
+
+    @abstractmethod
+    def within_bbox(
+        self, min_lon: float, min_lat: float, max_lon: float, max_lat: float
+    ) -> list[SpatialRecord]:
+        """Records inside a longitude/latitude bounding box."""
+
+    @abstractmethod
+    def within_radius(
+        self, latitude: float, longitude: float, radius_km: float
+    ) -> list[SpatialRecord]:
+        """Records within ``radius_km`` kilometres of a point."""
+
+    @abstractmethod
+    def metadata(self) -> SpatialMetadata:
+        """Aggregate spatial metadata (counts, bounds, timestamp)."""
+
+
+class PatchExtractor(ABC):
+    """Geographic patch extraction from imagery.
+
+    Given a latitude / longitude (WGS84) the extractor locates the best
+    matching raster (by index type, resolution, year and proximity), converts
+    the point into the raster's CRS, extracts a square window and optionally
+    pads it to the exact requested size. Returns raw NumPy arrays — no raster
+    preprocessing is applied.
+    """
+
+    @abstractmethod
+    def extract(
+        self,
+        latitude: float,
+        longitude: float,
+        size: int,
+        *,
+        index_type: str | None = None,
+        resolution: str | None = None,
+        year: int | None = None,
+        band: int = 1,
+        padding: bool = True,
+    ) -> Any:
+        """Extract a ``size`` x ``size`` patch around (lat, lon)."""
+
+
+class HistoricalContextBuilder(ABC):
+    """Build the multi-year, per-location observation context.
+
+    Combines the tabular record for a location with the satellite records
+    (NDVI / EVI metadata, observation dates, resolutions) for every available
+    year. **No STAM inference is executed** — this is raw context only.
+    """
+
+    @abstractmethod
+    def build(
+        self,
+        *,
+        village: str | None = None,
+        district: str | None = None,
+        latitude: float | None = None,
+        longitude: float | None = None,
+        index_type: str | None = None,
+        resolution: str | None = None,
+        years: list[int] | None = None,
+    ) -> Any:
+        """Return the :class:`HistoricalObservationSet` for a location."""

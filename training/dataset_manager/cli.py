@@ -22,6 +22,8 @@ import sys
 from pathlib import Path
 from typing import Any, Callable
 
+import numpy as np
+
 from .logger import get_logger
 from .manager import DatasetManager
 
@@ -62,6 +64,16 @@ def build_parser() -> argparse.ArgumentParser:
     _add(sub, "image-catalog", "Show the classified imagery catalog", _cmd_image_catalog, common)
     _add(sub, "image-patch", "Retrieve a raster patch around a center point", _cmd_image_patch, common)
     _add(sub, "providers", "Show provider manifests", _cmd_providers, common)
+    _add(sub, "health", "Show provider health snapshots", _cmd_health, common)
+    _add(sub, "availability", "Show which providers are available", _cmd_availability, common)
+    _add(sub, "discovery", "Show provider registration records", _cmd_discovery, common)
+    _add(sub, "search", "Search tabular datasets, imagery and providers", _cmd_search, common)
+    _add(sub, "statistics", "Aggregate dataset statistics", _cmd_statistics, common)
+    _add(sub, "reports", "Generate the R2.2 reports", _cmd_reports, common)
+    _add(sub, "spatial", "Show spatial index metadata", _cmd_spatial, common)
+    _add(sub, "location", "Resolve a village/district name or coordinates", _cmd_location, common)
+    _add(sub, "extract-patch", "Extract a geographic patch by lat/lon", _cmd_extract_patch, common)
+    _add(sub, "historical-context", "Build the multi-year observation context", _cmd_historical_context, common)
     _add(sub, "register", "Register the dataset in the registry", _cmd_register, common)
     _add(sub, "versions", "List dataset version history", _cmd_versions, common)
     _add(sub, "bump-version", "Bump the dataset version (major/minor/patch)", _cmd_bump, common)
@@ -233,6 +245,121 @@ def _cmd_providers(args: argparse.Namespace) -> dict[str, Any]:
     return {"ok": True, "providers": manager.provider_manifests()}
 
 
+def _cmd_health(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    return {"ok": True, "health": manager.health()}
+
+
+def _cmd_availability(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    return {"ok": True, "availability": manager.availability()}
+
+
+def _cmd_discovery(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    return {"ok": True, "registrations": manager.discovery()}
+
+
+def _cmd_search(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    hits = manager.search(args.query, limit=getattr(args, "limit", 20))
+    return {"ok": True, "query": args.query, "hits": hits, "count": len(hits)}
+
+
+def _cmd_statistics(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    return {"ok": True, "statistics": manager.statistics().to_dict()}
+
+
+def _cmd_reports(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    paths = manager.reports(report_dir=getattr(args, "report_dir", None))
+    return {"ok": True, "reports": [str(p) for p in paths], "count": len(paths)}
+
+
+def _cmd_spatial(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    metadata = manager.spatial_metadata()
+    return {
+        "ok": True,
+        "spatial": metadata.to_dict(),
+        "records": len(manager.spatial_index.records()),
+    }
+
+
+def _cmd_location(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    result = manager.get_location(
+        name=getattr(args, "name", None),
+        kind=getattr(args, "kind", "village"),
+        latitude=getattr(args, "lat", None),
+        longitude=getattr(args, "lon", None),
+        k=getattr(args, "k", 1),
+        radius_km=getattr(args, "radius", None),
+    )
+    return {
+        "ok": True,
+        "found": result.found,
+        "query": result.query,
+        "records": [r.to_dict() for r in result.records],
+    }
+
+
+def _cmd_extract_patch(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    patch = manager.get_patch(
+        args.lat,
+        args.lon,
+        args.size,
+        index_type=getattr(args, "index", None),
+        resolution=getattr(args, "resolution", None),
+        year=getattr(args, "year", None),
+        band=getattr(args, "band", 1),
+        padding=not getattr(args, "no_padding", False),
+    )
+    return {
+        "ok": True,
+        "lat": args.lat,
+        "lon": args.lon,
+        "index_type": getattr(args, "index", None),
+        "resolution": getattr(args, "resolution", None),
+        "year": getattr(args, "year", None),
+        "shape": list(patch.shape),
+        "dtype": str(patch.dtype),
+        "finite": bool(patch.shape and np.isfinite(patch).all()),
+    }
+
+
+def _cmd_historical_context(args: argparse.Namespace) -> dict[str, Any]:
+    manager = _manager(args)
+    context = manager.build_historical_context(
+        village=getattr(args, "village", None),
+        district=getattr(args, "district", None),
+        latitude=getattr(args, "lat", None),
+        longitude=getattr(args, "lon", None),
+        index_type=getattr(args, "index", None),
+        resolution=getattr(args, "resolution", None),
+    )
+    return {
+        "ok": True,
+        "location": context.location,
+        "lat": context.latitude,
+        "lon": context.longitude,
+        "years": context.years,
+        "missing_years": context.missing_years,
+        "observations": [
+            {
+                "year": o.year,
+                "tabular": o.tabular is not None,
+                "ndvi_records": len(o.ndvi),
+                "evi_records": len(o.evi),
+            }
+            for o in context.observations
+        ],
+        "quality": context.quality,
+    }
+
+
 def _cmd_register(args: argparse.Namespace) -> dict[str, Any]:
     manager = _manager(args)
     dataset_id = manager.register()
@@ -317,6 +444,34 @@ def _add(
         cmd.add_argument("--y", type=float, required=True, help="Center latitude/Y (CRS units)")
         cmd.add_argument("--size", type=int, default=64, help="Square patch edge (pixels)")
         cmd.add_argument("--band", type=int, default=1, help="Band index (1-based)")
+    elif name == "search":
+        cmd.add_argument("query", help="Search term")
+        cmd.add_argument("--limit", type=int, default=20, help="Maximum results")
+    elif name == "reports":
+        cmd.add_argument("--report-dir", default=None, help="Where to write the reports")
+    elif name == "location":
+        cmd.add_argument("--name", default=None, help="Location name to resolve")
+        cmd.add_argument("--kind", default="village", help="Location kind (village/district)")
+        cmd.add_argument("--lat", type=float, default=None, help="Latitude")
+        cmd.add_argument("--lon", type=float, default=None, help="Longitude")
+        cmd.add_argument("--k", type=int, default=1, help="Nearest neighbours")
+        cmd.add_argument("--radius", type=float, default=None, help="Radius in km")
+    elif name == "extract-patch":
+        cmd.add_argument("lat", type=float, help="Latitude (WGS84)")
+        cmd.add_argument("lon", type=float, help="Longitude (WGS84)")
+        cmd.add_argument("--size", type=int, default=64, help="Square patch edge (pixels)")
+        cmd.add_argument("--index", default=None, help="Index type (NDVI/EVI)")
+        cmd.add_argument("--resolution", default=None, help="Resolution (R10m/R20m)")
+        cmd.add_argument("--year", type=int, default=None, help="Filter by year")
+        cmd.add_argument("--band", type=int, default=1, help="Band index (1-based)")
+        cmd.add_argument("--no-padding", action="store_true", help="Disable edge padding")
+    elif name == "historical-context":
+        cmd.add_argument("--village", default=None, help="Village name")
+        cmd.add_argument("--district", default=None, help="District name")
+        cmd.add_argument("--lat", type=float, default=None, help="Latitude")
+        cmd.add_argument("--lon", type=float, default=None, help="Longitude")
+        cmd.add_argument("--index", default=None, help="Index type (NDVI/EVI)")
+        cmd.add_argument("--resolution", default=None, help="Resolution (R10m/R20m)")
     elif name == "bump-version":
         cmd.add_argument("part", choices=["major", "minor", "patch"], default="patch", nargs="?")
         cmd.add_argument("--message", default="")
@@ -402,7 +557,7 @@ def _render(result: dict[str, Any]) -> str:
         for column, stats in result["statistics"].items():
             lines.append(f"  {column:<24} {stats}")
 
-    if "location" in result:
+    if "location" in result and isinstance(result["location"], dict):
         loc = result["location"]
         lines.append(f"Imagery: {loc['handle']}  materialized={loc['materialized']} "
                      f"downloaded={loc['downloaded']} files={loc['files']}")
@@ -411,7 +566,13 @@ def _render(result: dict[str, Any]) -> str:
         lines.append(f"Years: {result['years']}  Resolutions: {result['resolutions']}")
 
     if "shape" in result:
-        lines.append(f"Patch at {result['path']}: shape={result['shape']} dtype={result['dtype']}")
+        if "lat" in result:
+            lines.append(
+                f"Patch at ({result['lat']}, {result['lon']}): shape={result['shape']} "
+                f"dtype={result['dtype']} finite={result['finite']}"
+            )
+        else:
+            lines.append(f"Patch at {result['path']}: shape={result['shape']} dtype={result['dtype']}")
 
     if "providers" in result:
         lines.append("Providers:")
@@ -419,6 +580,77 @@ def _render(result: dict[str, Any]) -> str:
             lines.append(
                 f"  {name:<24} status={manifest['status']} available={manifest['available']}"
             )
+
+    if "health" in result:
+        lines.append("Provider health:")
+        for name, snapshot in result["health"].items():
+            if "error" in snapshot:
+                lines.append(f"  {name:<24} error={snapshot['error']}")
+            else:
+                lines.append(
+                    f"  {name:<24} status={snapshot.get('status')} "
+                    f"available={snapshot.get('available')} latency={snapshot.get('latency_s')}s"
+                )
+
+    if "availability" in result:
+        lines.append("Availability:")
+        for name, available in result["availability"].items():
+            lines.append(f"  {name:<24} {'available' if available else 'unavailable'}")
+
+    if "registrations" in result:
+        lines.append("Registrations:")
+        for reg in result["registrations"]:
+            lines.append(
+                f"  {reg['name']:<24} kind={reg['kind']} enabled={reg['enabled']} "
+                f"priority={reg['priority']}"
+            )
+
+    if "query" in result and "records" in result:
+        lines.append(f"Location query: {result['query']} found={result['found']}")
+        for record in result["records"]:
+            lines.append(
+                f"  {record['name']:<24} kind={record['kind']} "
+                f"lat={record['latitude']} lon={record['longitude']}"
+            )
+
+    if "hits" in result:
+        lines.append(f"Search \"{result['query']}\" ({result['count']} hits):")
+        for hit in result["hits"]:
+            lines.append(f"  [{hit['type']}] {hit.get('name') or hit.get('path')}")
+
+    if "statistics" in result and "name" not in result:
+        stats = result["statistics"]
+        lines.append(
+            f"Statistics: {stats['total_tabular_rows']} tabular rows, "
+            f"{stats['total_images']} images"
+        )
+        lines.append(f"  images by year:  {stats.get('images_by_year')}")
+        lines.append(f"  images by index: {stats.get('images_by_index')}")
+
+    if "reports" in result:
+        lines.append(f"Reports written ({result['count']}):")
+        for path in result["reports"]:
+            lines.append(f"  {path}")
+
+    if "spatial" in result:
+        spatial = result["spatial"]
+        lines.append(
+            f"Spatial index: {spatial['count']} records, "
+            f"{spatial['villages']} villages, {spatial['districts']} districts"
+        )
+        lines.append(f"  bounds: {spatial['bounds']}  updated: {spatial['updated_at']}")
+
+    if "years" in result and "observations" in result:
+        lines.append(
+            f"Historical context for {result['location']}: "
+            f"{result['years']} years; missing={result['missing_years']}"
+        )
+        for observation in result["observations"]:
+            lines.append(
+                f"  {observation['year']}: tabular={'yes' if observation['tabular'] else 'no'} "
+                f"ndvi={observation['ndvi_records']} evi={observation['evi_records']}"
+            )
+        lines.append(f"  quality: {result['quality']}")
 
     if "current" in result:
         lines.append(f"Current version: {result['current']}")

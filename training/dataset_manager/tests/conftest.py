@@ -56,6 +56,87 @@ def synthetic_dataset(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def r22_dataset(tmp_path: Path) -> Path:
+    """Multi-source R2.2 dataset: location-keyed CSV + multi-year NDVI/EVI.
+
+    Layout::
+
+        <tmp>/datasets/
+        └── raw/kaggle-crop-yield/
+            ├── crop_yield.csv            (village/district/lat/lon/year)
+            ├── 2019_images/R10m/         (S2_NDVI, S2_EVI near Moodabidri)
+            └── 2020_images/R10m/         (S2_NDVI near Bantwal)
+    """
+    root = tmp_path / "datasets"
+    catalog = root / "raw" / "kaggle-crop-yield"
+    (catalog / "2019_images" / "R10m").mkdir(parents=True)
+    (catalog / "2020_images" / "R10m").mkdir(parents=True)
+
+    pd.DataFrame(
+        {
+            "village": ["Moodabidri", "Bantwal", "Sullia"],
+            "district": ["Dakshina Kannada"] * 3,
+            "latitude": [13.08, 12.90, 12.56],
+            "longitude": [74.89, 75.00, 75.35],
+            "year": [2019, 2019, 2020],
+            "yield_kg": [5200, 5400, 3100],
+        }
+    ).to_csv(catalog / "crop_yield.csv", index=False)
+
+    # Moodabidri (13.08, 74.89) lands inside the 2019 rasters.
+    make_tiff(
+        catalog / "2019_images" / "R10m" / "S2_NDVI_20190701.tif",
+        seed=1, origin=(74.8895, 13.0805), crs="EPSG:4326",
+    )
+    make_tiff(
+        catalog / "2019_images" / "R10m" / "S2_EVI_20190701.tif",
+        seed=2, origin=(74.8895, 13.0805), crs="EPSG:4326",
+    )
+    # Bantwal (12.90, 75.00) lands inside the 2020 raster.
+    make_tiff(
+        catalog / "2020_images" / "R10m" / "S2_NDVI_20200715.tif",
+        seed=3, origin=(74.9995, 12.9005), crs="EPSG:4326",
+    )
+    return root
+
+
+@pytest.fixture
+def r22_manager_factory(r22_dataset: Path):
+    """Factory building a fully-wired R2.2 manager on :func:`r22_dataset`."""
+    from training.dataset_manager import DatasetManager, Settings
+
+    def _build(**kwargs):
+        settings_overrides = kwargs.pop("settings_overrides", {})
+        providers = {
+            "tabular": {"root": str(r22_dataset / "raw" / "kaggle-crop-yield")},
+        }
+        override = settings_overrides.pop("providers", None)
+        if override:
+            providers = _deep_merge(providers, override)
+        settings = Settings(
+            dataset_root=r22_dataset,
+            catalog_name="kaggle-crop-yield",
+            logging={"console": False, "level": "ERROR"},
+            providers=providers,
+            **settings_overrides,
+        )
+        return DatasetManager(settings, **kwargs)
+
+    return _build
+
+
+def _deep_merge(base: dict, override: dict) -> dict:
+    """Recursively merge ``override`` into a copy of ``base``."""
+    out = dict(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(out.get(key), dict):
+            out[key] = _deep_merge(out[key], value)
+        else:
+            out[key] = value
+    return out
+
+
+@pytest.fixture
 def manager_factory(tmp_path: Path):
     """Factory building a :class:`DatasetManager` on an isolated dataset root.
 

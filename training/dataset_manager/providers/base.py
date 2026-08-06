@@ -30,6 +30,8 @@ from .models import (
     ImageCatalog,
     ImageDatasetLocation,
     PatchRequest,
+    ProviderCapabilities,
+    ProviderHealth,
     ProviderManifest,
     ProviderStatus,
     TabularCatalog,
@@ -41,7 +43,10 @@ class Provider(ABC):
     """Common contract for every data provider.
 
     Subclasses declare a stable ``name`` and ``kind`` and expose a manifest
-    used by the bootstrap, the CLI and diagnostics.
+    used by the bootstrap, the CLI and diagnostics. The concrete
+    :meth:`capabilities` / :meth:`health` defaults are derived from the
+    manifest and may be overridden by implementations to declare richer
+    feature sets.
     """
 
     name: str = "provider"
@@ -63,6 +68,34 @@ class Provider(ABC):
     @abstractmethod
     def describe(self) -> dict[str, Any]:
         """Human + machine readable provider summary."""
+
+    def capabilities(self) -> ProviderCapabilities:
+        """Declared capabilities of this provider (concrete default).
+
+        Override to declare the feature set (e.g. ``["discover", "join"]``)
+        used by the registry to answer capability queries.
+        """
+        return ProviderCapabilities(
+            name=self.name,
+            kind=self.kind,
+            features=["manifest", "describe"],
+        )
+
+    def health(self) -> ProviderHealth:
+        """Snapshot of current provider health (concrete default)."""
+        import time
+
+        start = time.perf_counter()
+        available = self.available()
+        latency = time.perf_counter() - start
+        return ProviderHealth(
+            name=self.name,
+            kind=self.kind,
+            status=self.status,
+            available=available,
+            latency_s=latency,
+            detail=self.manifest().to_dict().get("details", {}),
+        )
 
 
 class TabularProvider(Provider):

@@ -26,6 +26,7 @@ actual file reads (it remains the only module that reads CSV bytes).
 from __future__ import annotations
 
 import fnmatch
+import hashlib
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -37,6 +38,7 @@ from ..interfaces import CSVLoader
 from ..logger import get_logger
 from .base import TabularProvider
 from .models import (
+    ProviderCapabilities,
     ProviderManifest,
     ProviderStatus,
     TabularCatalog,
@@ -78,12 +80,14 @@ class GitRepositoryTabularProvider(TabularProvider):
         self,
         root: str | Path | None = None,
         *,
+        name: str | None = None,
         recursive: bool = True,
         patterns: list[str] | None = None,
         na_values: list[str] | None = None,
         dtype_overrides: dict[str, str] | None = None,
         loader: CSVLoader | None = None,
     ) -> None:
+        self.name = name or self.name
         self.root = Path(root) if root is not None else Path("training/datasets/tabular")
         self.recursive = recursive
         self.patterns = list(patterns or _DEFAULT_PATTERNS)
@@ -92,6 +96,8 @@ class GitRepositoryTabularProvider(TabularProvider):
         self.loader = loader or PandasCSVLoader()
         self._catalog: TabularCatalog | None = None
         self._status = ProviderStatus.NOT_INITIALIZED
+        #: Per-dataset schema fingerprints recorded over time (version tracking).
+        self._schema_versions: dict[str, list[dict[str, Any]]] = {}
 
     # ------------------------------------------------------------------ #
     # Provider introspection
@@ -100,6 +106,28 @@ class GitRepositoryTabularProvider(TabularProvider):
     @property
     def status(self) -> ProviderStatus:
         return self._status
+
+    def capabilities(self) -> ProviderCapabilities:
+        """Declared tabular capabilities (used by the provider registry)."""
+        return ProviderCapabilities(
+            name=self.name,
+            kind=self.kind,
+            priority=100,
+            features=[
+                "discover",
+                "load",
+                "stream",
+                "schema",
+                "validate_schema",
+                "statistics",
+                "missing_values",
+                "handle_missing",
+                "join",
+                "metadata",
+                "schema_evolution",
+                "version_tracking",
+            ],
+        )
 
     def available(self) -> bool:
         try:
@@ -384,3 +412,72 @@ class GitRepositoryTabularProvider(TabularProvider):
             "schema": profile.to_dict(),
             "statistics": dict(profile.extra.get("statistics", {})),
         }
+
+    # ------------------------------------------------------------------ #
+    # Schema evolution detection
+    # ------------------------------------------------------------------ #
+
+    def schema_fingerprint(self, name: str) -> str:
+        """Stable fingerprint of a dataset schema (columns + dtypes).
+
+        Two datasets with the same columns and dtypes share a fingerprint;
+        adding/removing/renaming a column changes it. Used by
+        :meth:`detect_schema_change` and :meth:`record_version`.
+        """
+        schema = self.schema(name)
+        columns = list(schema.get("columns", []))
+        dtypes = {c: schema.get("dtypes", {}).get(c) for c in columns}
+        payload = "|".join(f"{c}:{dtypes.get(c)}" for c in sorted(columns))
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+    def detect_schema_change(self, name: str) -> dict[str, Any]:
+        """Compare the current schema against the last recorded version.
+
+        Returns:
+            ``{name, changed, previous, current, added, removed}`` where
+            ``changed`` is False when no earlier version exists or the schema
+            is identical.
+        """
+        current = self.schema_fingerprint(name)
+        history = self._schema_versions.get(name, [])
+        previous = history[-1]["fingerprint"] if history else None
+        changed = previous is not None and previous != current
+
+        added: list[str] = []
+        removed: list[str] = []
+        if changed:
+            prev_cols = set(history[-1].get("columns", []))
+            cur_cols = set(self.schema(name).get("columns", []))
+            added = sorted(cur_cols - prev_cols)
+            removed = sorted(prev_cols - cur_cols)
+
+        return {
+            "name": name,
+            "changed": changed,
+            "previous": previous,
+            "current": current,
+            "added": added,
+            "removed": removed,
+        }
+
+    def record_version(self, name: str, *, message: str = "") -> dict[str, Any]:
+        """Record a schema snapshot for ``name`` (version tracking).
+
+        Returns the recorded snapshot (fingerprint, columns, timestamp).
+        """
+        info = self._resolve(name)
+        schema = self.schema(name)
+        snapshot = {
+            "version": len(self._schema_versions.get(name, [])) + 1,
+            "fingerprint": self.schema_fingerprint(name),
+            "columns": list(schema.get("columns", [])),
+            "size_bytes": info.size_bytes,
+            "message": message,
+            "recorded_at": pd.Timestamp.now().isoformat(),
+        }
+        self._schema_versions.setdefault(name, []).append(snapshot)
+        return snapshot
+
+    def dataset_versions(self, name: str) -> list[dict[str, Any]]:
+        """Schema version history for a dataset (oldest first)."""
+        return list(self._schema_versions.get(name, []))

@@ -73,6 +73,7 @@ from .models import (
     ImageCatalog,
     ImageDatasetLocation,
     PatchRequest,
+    ProviderCapabilities,
     ProviderManifest,
     ProviderStatus,
 )
@@ -80,6 +81,9 @@ from .models import (
 logger = get_logger("image_provider")
 
 _DEFAULT_VERSION = "latest"
+
+#: Raster characteristics validated by the image provider.
+_EXPECTED_BANDS = 1
 
 
 class KaggleHubImageProvider(ImageProvider):
@@ -110,6 +114,7 @@ class KaggleHubImageProvider(ImageProvider):
         self,
         handle: str | None = None,
         *,
+        name: str | None = None,
         dataset_root: str | Path | None = None,
         catalog_name: str = "kaggle-crop-yield",
         downloader: Downloader | None = None,
@@ -125,6 +130,7 @@ class KaggleHubImageProvider(ImageProvider):
         link_method: str = "hardlink",
         verify_integrity: bool = True,
     ) -> None:
+        self.name = name or self.name
         self.handle = handle or DEFAULT_KAGGLE_HANDLE
         self.dataset_root = Path(dataset_root) if dataset_root else Path("datasets")
         self.catalog_name = catalog_name
@@ -190,6 +196,30 @@ class KaggleHubImageProvider(ImageProvider):
     @property
     def status(self) -> ProviderStatus:
         return self._status
+
+    def capabilities(self) -> ProviderCapabilities:
+        """Declared imagery capabilities (used by the provider registry)."""
+        return ProviderCapabilities(
+            name=self.name,
+            kind=self.kind,
+            priority=100,
+            features=[
+                "ensure",
+                "location",
+                "validate",
+                "catalog",
+                "discover_ndvi",
+                "discover_evi",
+                "read_metadata",
+                "read",
+                "patch",
+                "get_historical_context",
+                "generate_metadata",
+                "crs_validation",
+                "resolution_validation",
+                "band_validation",
+            ],
+        )
 
     def available(self) -> bool:
         try:
@@ -348,6 +378,115 @@ class KaggleHubImageProvider(ImageProvider):
         inventory = self.scan(use_cache=True)
         records = self.metadata_generator.generate(root, inventory, force=force)
         return len(records)
+
+    # ------------------------------------------------------------------ #
+    # Characteristic validation (CRS / resolution / bands)
+    # ------------------------------------------------------------------ #
+
+    def validate_crs(self, expected: str | None = None) -> dict[str, Any]:
+        """Check that every raster shares a usable, consistent CRS.
+
+        Args:
+            expected: Optional CRS string every raster must match (e.g.
+                ``"EPSG:4326"``). When None, consistency across rasters is
+                checked instead.
+
+        Returns:
+            ``{valid, expected, found, distinct, issues}``.
+        """
+        entries = self.catalog().entries
+        rasters = [e for e in entries if e.category is FileCategory.GEOTIFF]
+        if not rasters:
+            return {"valid": True, "expected": expected, "found": None,
+                    "distinct": [], "issues": []}
+
+        crs_of: list[str] = []
+        issues: list[dict[str, Any]] = []
+        for entry in rasters:
+            try:
+                crs = self.read_metadata(entry.path).crs
+            except Exception as exc:  # noqa: BLE001 - best effort
+                issues.append(
+                    {"path": entry.relative_path, "code": "unreadable", "reason": str(exc)}
+                )
+                continue
+            if not crs or not str(crs).strip():
+                issues.append(
+                    {"path": entry.relative_path, "code": "missing_crs"}
+                )
+                continue
+            crs_of.append(str(crs))
+
+        distinct = sorted({c for c in crs_of if c})
+        expected_norm = str(expected).upper() if expected else None
+        if expected_norm:
+            valid = all(c.upper() == expected_norm for c in crs_of) and not issues
+        else:
+            valid = len(distinct) <= 1 and not issues
+        return {
+            "valid": valid,
+            "expected": expected,
+            "found": distinct[0] if len(distinct) == 1 else distinct,
+            "distinct": distinct,
+            "issues": issues,
+        }
+
+    def validate_resolution(
+        self, expected: list[str] | None = None
+    ) -> dict[str, Any]:
+        """Check that the catalog covers the expected resolution bands.
+
+        Args:
+            expected: Resolution bands that must be present (e.g.
+                ``["R10m", "R20m"]``). Defaults to the provider's configured
+                expectation of both bands.
+
+        Returns:
+            ``{valid, expected, available, missing}``.
+        """
+        catalog = self.catalog()
+        available = sorted(catalog.resolutions)
+        wanted = list(expected or ["R10m", "R20m"])
+        missing = sorted(set(wanted) - set(available))
+        return {
+            "valid": not missing,
+            "expected": wanted,
+            "available": available,
+            "missing": missing,
+        }
+
+    def validate_bands(self, expected: int = _EXPECTED_BANDS) -> dict[str, Any]:
+        """Check that every raster carries the expected band count.
+
+        Returns:
+            ``{valid, expected, found, distinct, issues}``.
+        """
+        entries = self.catalog().entries
+        rasters = [e for e in entries if e.category is FileCategory.GEOTIFF]
+        if not rasters:
+            return {"valid": True, "expected": expected, "found": None,
+                    "distinct": [], "issues": []}
+
+        distinct: dict[int, int] = {}
+        issues: list[dict[str, Any]] = []
+        for entry in rasters:
+            try:
+                bands = self.read_metadata(entry.path).bands
+            except Exception as exc:  # noqa: BLE001 - best effort
+                issues.append(
+                    {"path": entry.relative_path, "code": "unreadable", "reason": str(exc)}
+                )
+                continue
+            distinct[bands] = distinct.get(bands, 0) + 1
+
+        valid = all(b == expected for b in distinct) and not issues
+        return {
+            "valid": valid,
+            "expected": expected,
+            "found": list(distinct),
+            "distinct": distinct,
+            "issues": issues,
+        }
 
     # ------------------------------------------------------------------ #
     # Catalog / discovery

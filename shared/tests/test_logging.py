@@ -64,7 +64,7 @@ def test_setup_logging_idempotent() -> None:
 
 def test_setup_logging_attaches_file_handler(tmp_path) -> None:
     logger = setup_logging(profile="training", log_dir=tmp_path, console=False)
-    files = [h for h in logger.handlers if isinstance(h, logging.Handler)]
+    files = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
     assert len(files) == 1
     assert (tmp_path / "training.log").exists()
 
