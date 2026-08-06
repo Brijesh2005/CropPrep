@@ -1,8 +1,22 @@
 """Application container — the composition root.
 
-Wires the Configuration / Repository / Service / Model containers and exposes
-them on ``app.state``. Heavy components (Dataset Manager, STAM, model) are built
-lazily in :meth:`initialize`, so tests can override providers first.
+REPLACES app/core/app_container.py for the Prediction Platform (R6). Compared
+to the R1-R5 version:
+
+* ``model_registry`` now comes from ``app.services.release_model_registry``
+  (loads only ``cropfusion_release/``) instead of
+  ``app.services.model_registry`` (loaded live training checkpoints).
+* ``inference_engine`` no longer takes ``stam`` / ``preprocessor`` — the
+  release-package engine resolves location + features internally.
+* ``dataset_manager``, ``stam`` and the training-time ``preprocessor`` are
+  removed entirely — the Prediction Platform must never construct these.
+* ``explainability_service`` (which depended on the live training explainer)
+  is removed from this composition root; ``PredictionService`` now does a
+  lightweight, self-contained explanation (see
+  app/modules/predictions/service.py in this batch). Wiring the full
+  Explainability module against release-package artifacts is a follow-up.
+* GIS locations are now discovered from the release package's
+  ``location_index.parquet`` instead of the Dataset Manager.
 """
 
 from __future__ import annotations
@@ -13,15 +27,13 @@ from app.core.config import Settings, load_settings
 from app.core.container import Container
 from app.core.database import Database
 from app.core.logging import get_logger
-from app.modules.dataset.service import DatasetService
-from app.modules.explainability.service import ExplainabilityService
 from app.modules.gis.service import GISService, Location
 from app.modules.health.service import HealthService
 from app.modules.inference.service import InferenceEngine
 from app.modules.monitoring.service import MonitoringService
 from app.services.cache import build_cache
 from app.services.metrics import MetricsRegistry
-from app.services.model_registry import ModelRegistry
+from app.services.release_model_registry import ModelRegistry
 from app.services.rate_limiter import build_rate_limiter
 
 logger = get_logger("container")
@@ -49,13 +61,9 @@ class ApplicationContainer:
         self.config.register("settings", lambda: self._settings, singleton=True)
 
     def _register_services(self) -> None:
+        self.services.register("cache", lambda: build_cache(self._settings.cache), singleton=True)
         self.services.register(
-            "cache", lambda: build_cache(self._settings.cache), singleton=True
-        )
-        self.services.register(
-            "rate_limiter",
-            lambda: build_rate_limiter(self._settings.rate_limit),
-            singleton=True,
+            "rate_limiter", lambda: build_rate_limiter(self._settings.rate_limit), singleton=True
         )
         self.services.register("metrics", lambda: MetricsRegistry(), singleton=True)
         self.services.register(
@@ -68,7 +76,9 @@ class ApplicationContainer:
             lambda: HealthService(
                 self._settings,
                 self.model.resolve("model_registry"),
-                self.model.resolve("dataset_service"),
+                # No live dataset manager in the Prediction Platform — the
+                # release package itself stands in for "dataset readiness".
+                self.model.resolve("model_registry"),
                 self.repositories.resolve("database"),
             ),
             singleton=True,
@@ -76,9 +86,7 @@ class ApplicationContainer:
         from database.services.redis_store import build_redis_store
 
         self.services.register(
-            "redis_store",
-            lambda: build_redis_store(self._settings.redis),
-            singleton=True,
+            "redis_store", lambda: build_redis_store(self._settings.redis), singleton=True
         )
 
     def _register_repositories(self) -> None:
@@ -88,41 +96,16 @@ class ApplicationContainer:
 
     def _register_model_providers(self) -> None:
         self.model.register(
-            "dataset_manager", lambda: self._build_dataset_manager(), singleton=True
+            "model_registry", lambda: ModelRegistry(self._settings.model), singleton=True
         )
-        self.model.register("stam", lambda: self._build_stam(), singleton=True)
-        self.model.register(
-            "preprocessor", lambda: self._build_preprocessor(), singleton=True
-        )
-        self.model.register(
-            "model_registry",
-            lambda: ModelRegistry(self._settings.model),
-            singleton=True,
-        )
-        self.model.register(
-            "dataset_service",
-            lambda: DatasetService(
-                self.model.resolve("dataset_manager"), self._settings.dataset
-            ),
-            singleton=True,
-        )
-        self.model.register(
-            "gis_service", lambda: self._build_gis_service(), singleton=True
-        )
+        self.model.register("gis_service", lambda: self._build_gis_service(), singleton=True)
         self.model.register(
             "inference_engine",
             lambda: InferenceEngine(
                 self.model.resolve("model_registry"),
-                stam=self.model.resolve("stam"),
-                preprocessor=self.model.resolve("preprocessor"),
                 config=self._settings.inference,
                 cache=self.services.resolve("cache"),
             ),
-            singleton=True,
-        )
-        self.model.register(
-            "explainability_service",
-            lambda: self._build_explainability_service(),
             singleton=True,
         )
 
@@ -131,17 +114,12 @@ class ApplicationContainer:
     # ------------------------------------------------------------------ #
 
     async def initialize(self) -> None:
-        """Build heavy components: database, dataset manager, STAM, model."""
+        """Build heavy components: database, release package, model."""
         with _startup_timer("database"):
             database = self.repositories.resolve("database")
             await database.connect()
             await database.create_all()
             await self._seed_if_configured(database)
-
-        with _startup_timer("dataset"):
-            self.model.resolve("dataset_manager")
-            self.model.resolve("stam")
-            self.model.resolve("dataset_service")
 
         with _startup_timer("model"):
             registry = self.model.resolve("model_registry")
@@ -149,7 +127,7 @@ class ApplicationContainer:
                 registry.load()
                 registry.warmup()
             except Exception as exc:
-                logger.warning("model not loaded at startup ({})", exc)
+                logger.warning("release package not loaded at startup ({})", exc)
 
         with _startup_timer("gis"):
             self.model.resolve("gis_service")
@@ -185,102 +163,35 @@ class ApplicationContainer:
         async with database.session_factory() as session:
             try:
                 summary = await seed_database(
-                    session,
-                    include_boundaries=seed.include_boundaries,
-                    csv_path=seed.csv_path,
+                    session, include_boundaries=seed.include_boundaries, csv_path=seed.csv_path
                 )
                 logger.info("database seeded", **summary)
             except Exception as exc:  # pragma: no cover - best effort
                 logger.warning("startup seeding failed ({})", exc)
 
     # ------------------------------------------------------------------ #
-    # Heavy builders
+    # GIS — sourced from the release package, not the Dataset Manager
     # ------------------------------------------------------------------ #
 
-    def _build_dataset_manager(self) -> Any:
-        from training.dataset_manager import DatasetManager, Settings as DMSettings
-
-        ds = self._settings.dataset
-        return DatasetManager(
-            DMSettings(
-                dataset_root=ds.dataset_root or "datasets",
-                catalog_name=ds.catalog_name,
-                admin_dir=ds.admin_dir,
-                logging={"console": False, "level": "ERROR"},
-            )
-        )
-
-    def _build_stam(self) -> Any:
-        from training.stam import STAM, StamConfig
-
-        manager = self.model.resolve("dataset_manager")
-        ds = self._settings.dataset
-        return STAM(
-            manager,
-            StamConfig(
-                patch={"size": ds.patch_size},
-                tabular={
-                    "table": "crop_yield.csv",
-                    "village_column": "village",
-                    "district_column": "district",
-                    "year_column": "year",
-                    "season_column": "season",
-                    "crop_column": "crop",
-                    "yield_column": "yield_kg",
-                },
-                admin={
-                    "boundaries": [f"raw/{ds.catalog_name}/boundaries.geojson"],
-                    "name_column": "name",
-                    "level_column": "level",
-                },
-                image={"resolution": ds.image_resolution, "require_pairs": ds.require_pairs},
-            ),
-        )
-
-    def _build_preprocessor(self) -> Any:
-        from training.preprocessing import Preprocessor
-
-        preprocessor_dir = self._settings.model.preprocessor_dir
-        if preprocessor_dir:
-            try:
-                return Preprocessor.load(preprocessor_dir)
-            except Exception as exc:
-                logger.warning("preprocessor load failed ({}); using empty", exc)
-        return Preprocessor()
-
     def _build_gis_service(self) -> GISService:
-        stam = self.model.resolve("stam")
-        locations = self._discover_locations(stam)
-        return GISService(locations=locations)
+        return GISService(locations=self._discover_locations())
 
-    def _build_explainability_service(self) -> ExplainabilityService:
-        from training.explainability import Explainer as AIExplainer
-        from training.explainability.config import ExplainabilityConfig
-
-        registry = self.model.resolve("model_registry")
-        preprocessor = self.model.resolve("preprocessor")
-        stam = self.model.resolve("stam")
-        ai_explainer = AIExplainer(
-            registry.model,
-            preprocessor,
-            ExplainabilityConfig(),
-            observations=None,
-            extractor=getattr(stam, "get_patch", None),
-        )
-        return ExplainabilityService(ai_explainer, self._settings, stam)
-
-    def _discover_locations(self, stam: Any) -> list[Location]:
-        """Enumerate dataset locations from the STAM metadata (best-effort)."""
+    def _discover_locations(self) -> list[Location]:
+        """Enumerate villages from the release package's location_index
+        (best-effort; empty if the package hasn't loaded yet)."""
         locations: list[Location] = []
+        registry = self.model.resolve("model_registry")
+        package = getattr(registry, "package", None)
+        if package is None:
+            return locations
         try:
-            manager = self.model.resolve("dataset_manager")
-            rows = manager.list_locations() if hasattr(manager, "list_locations") else []
-            for row in rows[:500]:
+            df = package.location_index
+            for i, row in df.iterrows():
                 locations.append(
                     Location(
-                        id=str(row.get("id", row.get("village", len(locations)))),
-                        lon=float(row.get("lon", 0.0)),
-                        lat=float(row.get("lat", 0.0)),
+                        id=str(row.get("village", i)),
+                        lon=float(row["lon"]),
+                        lat=float(row["lat"]),
                         name=str(row.get("village", "")),
                         admin={
                             "village": str(row.get("village", "")),

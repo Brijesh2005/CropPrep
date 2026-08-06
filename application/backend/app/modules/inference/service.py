@@ -1,48 +1,59 @@
-"""Inference engine — STAM -> preprocessing -> model -> prediction.
+"""Inference engine — Location -> Result, using only the exported release package.
 
-Implements model loading, warmup, an async inference queue, prediction caching,
-model versioning and a heuristic fallback. The pipeline never bypasses STAM or
-preprocessing.
+REPLACES ``app/modules/inference/service.py``. The old version called into
+STAM / the training preprocessor / a live checkpoint. This version:
+
+    Location -> LocationResolver -> Historical Context Lookup -> FeatureBuilder
+    -> ModelInput -> CropFusion Model -> Crop Recommendation + Yield + Confidence
+
+and never imports the Dataset Manager, STAM, or Kaggle/GeoTIFF code. The
+public interface (``start``, ``stop``, ``predict``, ``status``, ``warmup``)
+is unchanged from the previous engine, so ``app_container.py``'s wiring keeps
+working with only the constructor arguments updated (see the app_container.py
+file in this same batch).
+
+Note: farmer-mode requests carry lon/lat only — no year/season — per the R6
+spec; season and year are resolved by ``LocationResolver`` from the request
+date, not accepted from the client.
 """
 
 from __future__ import annotations
 
 import asyncio
 import time
-from typing import Any, Callable
+from typing import Any
 
 import torch
 
-from training.explainability.utils import single_sample_batch
-from training.models.cropfusion import CropFusionOutput
-
-from app.core.config import InferenceSettings
 from app.core.exceptions import InferenceError, PredictionError
-from app.core.logging import get_logger, PerformanceTimer
-from app.modules.inference.schemas import PredictionResponse
+from app.core.logging import PerformanceTimer, get_logger
+from app.modules.inference.feature_builder import FeatureBuilder
+from app.modules.inference.location_resolver import LocationNotServedError, LocationResolver
+from app.services.release_model_registry import ModelRegistry
 from app.services.cache import Cache
-from app.services.model_registry import ModelRegistry
 
 logger = get_logger("inference")
 
+#: How many top crop candidates to return alongside the recommendation.
+TOP_K = 3
+
 
 class InferenceEngine:
-    """Runs the CropFusion inference pipeline for a location."""
+    """Runs the CropFusion inference pipeline for a location, backed by the
+    release package only."""
 
     def __init__(
         self,
         registry: ModelRegistry,
         *,
-        stam: Any,
-        preprocessor: Any,
-        config: InferenceSettings,
+        config: Any,
         cache: Cache | None = None,
     ) -> None:
         self.registry = registry
-        self.stam = stam
-        self.preprocessor = preprocessor
         self.config = config
         self.cache = cache
+        self._resolver: LocationResolver | None = None
+        self._feature_builder: FeatureBuilder | None = None
         self._semaphore: asyncio.Semaphore | None = None
         self._queue: asyncio.Queue | None = None
         self._workers: list[asyncio.Task] = []
@@ -56,6 +67,9 @@ class InferenceEngine:
         """Start the bounded inference queue workers (called at startup)."""
         if self._running:
             return
+        if self.registry.is_ready() and self.registry.package is not None:
+            self._resolver = LocationResolver(self.registry.package)
+            self._feature_builder = FeatureBuilder(self.registry.package)
         self._running = True
         self._queue = asyncio.Queue(maxsize=self.config.queue_size)
         self._semaphore = asyncio.Semaphore(self.config.max_workers)
@@ -87,46 +101,32 @@ class InferenceEngine:
     # Public predict API
     # ------------------------------------------------------------------ #
 
-    async def predict(
-        self,
-        lon: float,
-        lat: float,
-        *,
-        year: int | None = None,
-        season: str | None = None,
-    ) -> dict[str, Any]:
-        """Predict for a location (cached, queued, fallback-aware)."""
+    async def predict(self, lon: float, lat: float) -> dict[str, Any]:
+        """Predict for a location (cached, queued, fallback-aware). Location only —
+        season/year/context are resolved internally."""
+        cache_key = self._cache_key(lon, lat)
         if self.cache is not None and self.config.enable_cache:
-            cached = await self.cache.get(self._cache_key(lon, lat, year, season))
+            cached = await self.cache.get(cache_key)
             if cached is not None:
                 return cached
 
-        result = await self._run_in_queue(lon, lat, year=year, season=season)
+        result = await self._run_in_queue(lon, lat)
 
         if self.cache is not None and self.config.enable_cache and not result.get("fallback"):
-            await self.cache.set(
-                self._cache_key(lon, lat, year, season), result,
-                ttl=self.config.cache_ttl_seconds,
-            )
+            await self.cache.set(cache_key, result, ttl=self.config.cache_ttl_seconds)
         return result
 
-    async def _run_in_queue(
-        self, lon: float, lat: float, *, year: int | None, season: str | None
-    ) -> dict[str, Any]:
-        if not self.registry.is_ready():
+    async def _run_in_queue(self, lon: float, lat: float) -> dict[str, Any]:
+        if not self.registry.is_ready() or self._resolver is None or self._feature_builder is None:
             if self.config.enable_fallback:
                 return self.registry.fallback_prediction(lon, lat)
             raise InferenceError("model is not ready")
 
-        semaphore = self._semaphore
-        if semaphore is None:
-            semaphore = asyncio.Semaphore(1)
+        semaphore = self._semaphore or asyncio.Semaphore(1)
 
         async def _task() -> dict[str, Any]:
             async with semaphore:
-                return await asyncio.to_thread(
-                    self._run_sync, lon, lat, year=year, season=season
-                )
+                return await asyncio.to_thread(self._run_sync, lon, lat)
 
         if self._queue is not None:
             loop = asyncio.get_running_loop()
@@ -136,75 +136,90 @@ class InferenceEngine:
         return await _task()
 
     # ------------------------------------------------------------------ #
-    # Synchronous pipeline (never bypasses STAM / preprocessing)
+    # Synchronous pipeline
     # ------------------------------------------------------------------ #
 
-    def _run_sync(
-        self, lon: float, lat: float, *, year: int | None, season: str | None
-    ) -> dict[str, Any]:
-        timer = PerformanceTimer("inference.run", lon=lon, lat=lat)
+    def _run_sync(self, lon: float, lat: float) -> dict[str, Any]:
+        timer_start = time.perf_counter()
         try:
-            observation = self.stam.build_observation(
-                lon, lat, year=year or 2020, season=season or "Kharif"
-            )
-            sample = self.preprocessor.transform(
-                observation, extractor=self.stam.get_patch
-            )
-            batch = single_sample_batch(sample, self.registry.device)
-            model = self.registry.model
-            model.eval()
-            with torch.no_grad():
-                out: CropFusionOutput = model(batch)
+            location = self._resolver.resolve(lon, lat)
+            model_input = self._feature_builder.build(location)
 
-            crop_logits = out.crop_logits
-            yield_pred = out.yield_pred
+            model = self.registry.model
+            with torch.no_grad():
+                output = model(model_input.tensor)
+
+            crop_logits, yield_pred = self._unpack_output(output)
             probs = torch.softmax(crop_logits.float(), dim=-1)[0]
-            crop_class = int(probs.argmax().item())
-            crop_name = self._crop_name(crop_class)
-            crop_probs = {
-                self._crop_name(i): float(p) for i, p in enumerate(probs.tolist())
-            }
-            predicted_yield = (
-                float(yield_pred[0, 0].item()) if yield_pred is not None else None
-            )
-            if predicted_yield is not None:
-                predicted_yield = self._inverse_scale_yield(predicted_yield)
-            elapsed_ms = timer.stop() * 1000
+            top_indices = torch.topk(probs, k=min(TOP_K, probs.shape[0])).indices.tolist()
+
+            classes = getattr(self.registry.package.label_encoder, "classes_", None)
+            crop_probs = {self._crop_name(classes, i): float(probs[i]) for i in range(probs.shape[0])}
+            top3 = [
+                {"crop": self._crop_name(classes, i), "probability": float(probs[i])}
+                for i in top_indices
+            ]
+            recommended_crop = top3[0]["crop"]
+            confidence = top3[0]["probability"]
+
+            expected_yield = float(yield_pred.item()) if yield_pred is not None else None
+
+            inference_time_ms = (time.perf_counter() - timer_start) * 1000
+
             return {
-                "recommended_crop": crop_name,
+                "recommended_crop": recommended_crop,
                 "crop_probs": crop_probs,
-                "expected_yield": predicted_yield,
-                "confidence": float(probs[crop_class].item()),
+                "top3": top3,
+                "expected_yield": expected_yield,
+                "confidence": confidence,
                 "model_version": self.registry.version,
-                "inference_time_ms": round(elapsed_ms, 3),
+                "dataset_version": self.registry.dataset_version,
+                "inference_time_ms": round(inference_time_ms, 3),
                 "fallback": False,
-                "raw_sample": sample,
-                "observation": observation,
+                "location": {
+                    "village": location.village,
+                    "district": location.district,
+                    "taluk": location.taluk,
+                    "lon": location.lon,
+                    "lat": location.lat,
+                    "season": location.season,
+                    "year": location.year,
+                },
+                "feature_names": model_input.feature_names,
+                "feature_values": model_input.raw_values,
             }
+        except LocationNotServedError as exc:
+            raise PredictionError(
+                "location is outside the exported package's coverage area", detail=str(exc)
+            ) from exc
         except InferenceError:
             raise
         except Exception as exc:
             raise PredictionError("inference pipeline failed", detail=str(exc)) from exc
 
-    def _inverse_scale_yield(self, value: float) -> float:
-        scaler = getattr(getattr(self.preprocessor, "label", None), "yield_scaler", None)
-        if scaler is not None and hasattr(scaler, "inverse_transform"):
-            import numpy as np
+    @staticmethod
+    def _unpack_output(output: Any) -> tuple[torch.Tensor, torch.Tensor | None]:
+        """Supports either a (crop_logits, yield_pred) tuple, a namedtuple/dataclass
+        with those attributes, or a dict — whatever shape the exporter produced."""
+        if isinstance(output, tuple):
+            crop_logits = output[0]
+            yield_pred = output[1] if len(output) > 1 else None
+            return crop_logits, yield_pred
+        if isinstance(output, dict):
+            return output["crop_logits"], output.get("yield_pred")
+        crop_logits = getattr(output, "crop_logits")
+        yield_pred = getattr(output, "yield_pred", None)
+        return crop_logits, yield_pred
 
-            arr = np.asarray([[float(value)]], dtype="float64")
-            return float(np.asarray(scaler.inverse_transform(arr))[0, 0])
-        return value
-
-    def _crop_name(self, index: int) -> str:
-        classes = getattr(self.preprocessor.label, "crop_encoder", None)
-        names = getattr(classes, "classes_", None)
-        if names is not None and index < len(names):
-            return str(names[index])
+    @staticmethod
+    def _crop_name(classes: Any, index: int) -> str:
+        if classes is not None and index < len(classes):
+            return str(classes[index])
         return f"crop_{index}"
 
     @staticmethod
-    def _cache_key(lon: float, lat: float, year: int | None, season: str | None) -> str:
-        return f"pred:{lon:.5f}:{lat:.5f}:{year}:{season}"
+    def _cache_key(lon: float, lat: float) -> str:
+        return f"pred:{lon:.5f}:{lat:.5f}"
 
     # ------------------------------------------------------------------ #
     # Status
@@ -214,11 +229,15 @@ class InferenceEngine:
         return {
             "ready": self.registry.is_ready(),
             "model_version": self.registry.version,
+            "dataset_version": self.registry.dataset_version,
             "queue_size": self._queue.qsize() if self._queue else 0,
             "cache_enabled": self.cache is not None and self.config.enable_cache,
-            "device": str(self.registry.device),
+            "device": self.registry.device,
         }
 
     def warmup(self) -> None:
         if self.config.warmup:
             self.registry.warmup()
+
+
+__all__ = ["InferenceEngine"]

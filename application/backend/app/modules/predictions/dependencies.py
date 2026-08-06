@@ -1,4 +1,5 @@
-"""Predictions module dependencies."""
+"""Predictions module dependencies. REPLACES app/modules/predictions/dependencies.py
+(only change: PredictionService no longer takes an explainability_service)."""
 
 from __future__ import annotations
 
@@ -18,6 +19,5 @@ def get_prediction_service(
 ) -> PredictionService:
     return PredictionService(
         model_container.resolve("inference_engine"),
-        model_container.resolve("explainability_service"),
         session,
     )
