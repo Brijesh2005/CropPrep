@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options: [staging, production]
+      ref:
+        description: "Git ref (tag or branch) to deploy"
+        required: true
+        default: main
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Configure SSH
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known_hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+
+      - name: Sync project files
+        run: |
+          rsync -az --delete --exclude node_modules --exclude .pytest_cache \
+            --exclude application/backend/datasets --exclude Tabular_Datasets --exclude .env \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/srv/cropfusion/
+
+      - name: Deploy with compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "cd /srv/cropfusion && docker compose -f application/docker/docker-compose.prod.yml pull \
+            && docker compose -f application/docker/docker-compose.prod.yml up -d"
+
+      - name: Smoke test
+        run: |
+          sleep 20
+          curl -fsS "https://${{ secrets.DEPLOY_DOMAIN }}/health" || exit 1
+          curl -fsS "https://${{ secrets.DEPLOY_DOMAIN }}/" -o /dev/null || exit 1

@@ -1,0 +1,18 @@
+{
+  "name": "CropFusion - Smart Crop Recommendations",
+  "short_name": "CropFusion",
+  "description": "AI-Powered Agricultural Decision Support System for Location-Based Multi-Crop Recommendation and Yield Prediction",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#22c55e",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

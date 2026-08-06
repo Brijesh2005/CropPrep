@@ -1,0 +1,2 @@
+{"timestamp": "2026-08-05T21:55:43+0530", "level": "INFO", "logger": "cropfusion.training.experiment", "message": "orchestration_start", "repo_root": "D:\\CropPrep", "python": "3.12.9", "gpu": false}
+{"timestamp": "2026-08-05T21:55:44+0530", "level": "INFO", "logger": "cropfusion.training.experiment", "message": "orchestration_complete", "passed": false, "severity_summary": {"info": 6, "error": 1, "warning": 1}}

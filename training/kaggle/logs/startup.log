@@ -1,0 +1,3 @@
+{"timestamp": "2026-08-05T21:55:06+0530", "level": "INFO", "logger": "cropfusion.training.startup", "message": "bootstrap_start", "repo_root": "D:\\CropPrep", "is_kaggle": false, "python": "3.12.9", "gpu": false}
+{"timestamp": "2026-08-05T21:55:07+0530", "level": "INFO", "logger": "cropfusion.training.startup", "message": "providers_verified", "tabular_ready": true, "image_ready": false, "tabular_datasets": 5}
+{"timestamp": "2026-08-05T21:55:07+0530", "level": "INFO", "logger": "cropfusion.training.startup", "message": "bootstrap_complete", "ready": true, "report_dir": "C:\\Users\\brije\\AppData\\Local\\Temp\\cf-bootstrap-test"}

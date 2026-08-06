@@ -1,0 +1,106 @@
+name: Docker
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/cropfusion
+
+jobs:
+  build:
+    name: Build images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [backend, frontend, admin, docs, inference]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=long
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: application/docker/Dockerfile.${{ matrix.image }}
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+
+  integration:
+    name: Integration smoke (compose up)
+    runs-on: ubuntu-latest
+    needs: [build]
+    services:
+      # Compose is not used here because GH Actions services are Docker-native.
+      postgres:
+        image: postgis/postgis:16-3.4-alpine
+        env:
+          POSTGRES_USER: cropfusion
+          POSTGRES_PASSWORD: cropfusion
+          POSTGRES_DB: cropfusion
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cropfusion"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          pip install -q -r requirements.txt
+          pip install -q -r requirements-dev.txt
+          pip install -q -e ./training/models ./training/preprocessing ./training/training ./training/explainability
+          pip install -q -e ./training/dataset_manager ./training/stam
+      - name: Backend boot + health check against Postgres
+        working-directory: application/backend
+        run: |
+          $env:CI="1"
+          pytest -q app/tests/test_integration.py -m integration
+        env:
+          BACKEND_DATABASE__URL: postgresql+asyncpg://cropfusion:cropfusion@localhost:5432/cropfusion
+          BACKEND_DATABASE__POSTGIS: "true"
+          PYTHONDONTWRITEBYTECODE: "1"
+      - name: Validate Dockerfiles build (frontend + docs only for speed)
+        run: |
+          docker build -f application/docker/Dockerfile.frontend -t cropfusion/frontend:ci .
+          docker build -f application/docker/Dockerfile.docs -t cropfusion/docs:ci .

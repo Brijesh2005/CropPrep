@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: cropfusion-training
+Version: 0.1.0
+Summary: CropFusion training & evaluation framework — multi-task crop recommendation + yield prediction
+Requires-Python: >=3.12
+Requires-Dist: torch>=2.0
+Requires-Dist: timm>=1.0
+Requires-Dist: pydantic>=2.0
+Requires-Dist: PyYAML>=6.0
+Requires-Dist: numpy>=1.24
+Requires-Dist: scikit-learn>=1.0
+Requires-Dist: matplotlib>=3.5
+Requires-Dist: psutil>=5.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Provides-Extra: tracking
+Requires-Dist: tensorboard>=2.10; extra == "tracking"
+Requires-Dist: wandb>=0.15; extra == "tracking"

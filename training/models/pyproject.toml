@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cropfusion-models"
+version = "0.1.0"
+description = "CropFusion multimodal neural architecture — TabTransformer + Dual CNN + Temporal Transformer + Cross-Modal Fusion"
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.0",
+    "timm>=1.0",
+    "pydantic>=2.0",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+export = ["onnx>=1.15"]
+
+[tool.setuptools]
+py-modules = [
+    "adaptive_gate", "backbone", "checkpoint", "config", "cropfusion",
+    "cross_attention", "evi_encoder", "exceptions", "exporter", "factory",
+    "image_fusion", "interfaces", "losses", "multitask_heads", "ndvi_encoder",
+    "shared_encoder", "tabtransformer", "temporal_transformer", "utils",
+    "validators",
+]
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "tests.*", "docs", "docs.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["../.."]
+addopts = "-q --strict-markers"

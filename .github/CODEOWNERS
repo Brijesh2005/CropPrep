@@ -1,0 +1,16 @@
+# Default owner for everything not matched below.
+* @cropfusion/platform-team
+
+# Training platform
+/training/ @cropfusion/ml-platform
+
+# Application platform (prediction)
+/application/ @cropfusion/ml-platform
+
+# Shared platform-agnostic contracts
+/shared/ @cropfusion/platform-team
+
+# DevOps / infrastructure
+/.github/ @cropfusion/platform-ops
+/application/docker/ @cropfusion/platform-ops
+/scripts/ @cropfusion/platform-ops

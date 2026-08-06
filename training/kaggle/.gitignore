@@ -1,0 +1,26 @@
+# Data blobs pulled by Kaggle notebooks.
+*.csv
+*.parquet
+*.db
+
+# Model checkpoints / artifacts produced during experiments.
+*.pt
+*.pth
+*.onnx
+runs/
+lightning_logs/
+
+# Runtime workspace dirs (created by bootstrap / WorkspaceManager).
+training/kaggle/logs/
+training/kaggle/outputs/
+training/kaggle/checkpoints/
+training/kaggle/cache/
+training/kaggle/configs/*.json
+
+# Jupyter notebooks ignore the environment; the environment.yml is at repo root.
+.env
+
+# Python caches.
+__pycache__/
+.ipynb_checkpoints/
+.pytest_cache/

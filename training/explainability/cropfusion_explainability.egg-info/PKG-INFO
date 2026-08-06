@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: cropfusion-explainability
+Version: 0.1.0
+Summary: CropFusion Multimodal Explainable AI (MXAI) framework — SHAP, GradCAM, attention, counterfactuals, confidence, reports
+Requires-Python: >=3.12
+Requires-Dist: torch>=2.0
+Requires-Dist: numpy>=1.24
+Requires-Dist: matplotlib>=3.5
+Requires-Dist: scikit-learn>=1.0
+Requires-Dist: PyYAML>=6.0
+Requires-Dist: pydantic>=2.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Provides-Extra: shap
+Requires-Dist: shap>=0.40; extra == "shap"

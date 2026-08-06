@@ -1,0 +1,5 @@
+# Exported model weights are shipped at deployment time, never committed.
+*.pt
+!README.md
+!__init__.py
+!.gitkeep
