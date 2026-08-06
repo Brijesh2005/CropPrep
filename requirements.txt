@@ -17,7 +17,7 @@ python-multipart==0.0.32
 python-jose==3.5.0
 passlib==1.7.4
 argon2-cffi==25.1.0
-pydantic==2.8.2
+pydantic==2.13.4
 python-dotenv==1.2.2
 
 # ---------------------------------------------------------------- database
