@@ -43,7 +43,7 @@ opentelemetry-instrumentation-asgi==0.65b0
 loguru==0.7.3
 
 # ---------------------------------------------------------------- data/ml
-numpy==2.4.6
+numpy==2.5.1
 pandas==3.0.3
 scipy==1.18.0
 scikit-learn==1.8.0
