@@ -224,3 +224,168 @@ def stam(manager, stam_config):
     instance = STAM(manager, stam_config)
     instance.initialize()
     return instance
+
+
+# --------------------------------------------------------------------------- #
+# District/place-name alias fixtures (boundary spelling -> data_season Location)
+# --------------------------------------------------------------------------- #
+
+
+def _build_alias_dataset(root: Path) -> Path:
+    """Dataset tree for the district-alias tests.
+
+    Mirrors the real layout: ``tabular/data_season.csv`` (colloquial
+    ``Location`` vocabulary, no district column) + ``raw/crop-alias/``
+    boundaries whose district names use the KGIS spellings (``Dakshina
+    Kannada``, ``Kalaburgi``, ...). No satellite imagery is included — the
+    tabular match is the focus and an empty sequence is fine.
+    """
+    datasets = root / "datasets"
+    catalog = datasets / "raw" / "crop-alias"
+    catalog.mkdir(parents=True)
+    (datasets / "tabular").mkdir(parents=True)
+
+    # data_season.csv: same columns as the real table; one row per location
+    # for 2018 (Mangalore also 2019). Belgaum deliberately absent.
+    pd.DataFrame(
+        {
+            "Year": [2018, 2018, 2018, 2018, 2018, 2019],
+            "Location": ["Mangalore", "Gulbarga", "Bangalore", "Madikeri",
+                         "Kasaragodu", "Mangalore"],
+            "Area": [52119, 22000, 15000, 8000, 10000, 53000],
+            "Rainfall": [2903.1, 850.0, 900.0, 2400.0, 3000.0, 2910.0],
+            "Temperature": [27, 29, 27, 22, 27, 27],
+            "Soil type": ["Alluvial", "Black", "Red", "Laterite", "Alluvial",
+                          "Alluvial"],
+            "Irrigation": ["Drip", "Canal", "Tank", "Rainfed", "Drip", "Drip"],
+            "yeilds": [114744, 86000, 54000, 32000, 41000, 116000],
+            "Humidity": [57, 45, 52, 60, 58, 57],
+            "Crops": ["Coconut", "Tur", "Ragi", "Coffee", "Coconut", "Coconut"],
+            "price": [51239, 40000, 35000, 60000, 50000, 51500],
+            "Season": ["Kharif", "Kharif", "Kharif", "Kharif", "Kharif", "Kharif"],
+        }
+    ).to_csv(datasets / "tabular" / "data_season.csv", index=False)
+
+    # KGIS-style district polygons (official spellings) + a Madikeri taluk
+    # nested inside Kodagu. Query points land on the centroid of the polygon
+    # they live in (which is also the nearest location point).
+    boundaries = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {"name": "Dakshina Kannada", "level": "district"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[74.7, 12.5], [75.3, 12.5],
+                                     [75.3, 13.3], [74.7, 13.3], [74.7, 12.5]]],
+                },
+            },
+            {
+                "type": "Feature",
+                "properties": {"name": "Kodagu", "level": "district"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[75.3, 12.0], [76.2, 12.0],
+                                     [76.2, 12.6], [75.3, 12.6], [75.3, 12.0]]],
+                },
+            },
+            {
+                "type": "Feature",
+                "properties": {"name": "Madikeri", "level": "taluk"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[75.3, 12.1], [75.8, 12.1],
+                                     [75.8, 12.4], [75.3, 12.4], [75.3, 12.1]]],
+                },
+            },
+            {
+                "type": "Feature",
+                "properties": {"name": "Kalaburgi", "level": "district"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[76.5, 16.5], [77.4, 16.5],
+                                     [77.4, 17.5], [76.5, 17.5], [76.5, 16.5]]],
+                },
+            },
+            {
+                "type": "Feature",
+                "properties": {"name": "Belgaum", "level": "district"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[74.2, 15.5], [75.1, 15.5],
+                                     [75.1, 16.5], [74.2, 16.5], [74.2, 15.5]]],
+                },
+            },
+            {
+                "type": "Feature",
+                "properties": {"name": "Bengaluru (Urban)", "level": "district"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[77.3, 12.8], [77.8, 12.8],
+                                     [77.8, 13.2], [77.3, 13.2], [77.3, 12.8]]],
+                },
+            },
+        ],
+    }
+    (catalog / "boundaries.geojson").write_text(
+        json.dumps(boundaries), encoding="utf-8"
+    )
+    return catalog
+
+
+@pytest.fixture
+def alias_catalog(tmp_path: Path) -> Path:
+    return _build_alias_dataset(tmp_path)
+
+
+@pytest.fixture
+def alias_manager(alias_catalog: Path):
+    """A real Dataset Manager over the district-alias dataset tree."""
+    from training.dataset_manager import DatasetManager, Settings
+
+    dataset_root = alias_catalog.parent.parent  # <tmp>/datasets
+    dm = DatasetManager(
+        Settings(
+            dataset_root=dataset_root,
+            catalog_name="crop-alias",
+            logging={"console": False, "level": "ERROR"},
+        )
+    )
+    dm.generate_metadata(force=True)
+    return dm
+
+
+@pytest.fixture
+def alias_stam_config(alias_catalog: Path):
+    """Single-table config: data_season.csv only (no district column)."""
+    from training.stam import StamConfig
+
+    return StamConfig(
+        patch={"size": 16},
+        tabular={
+            "tables": [
+                {"name": "data_season.csv",
+                 "village_column": "Location",
+                 "year_column": "Year",
+                 "season_column": "Season",
+                 "crop_column": "Crops",
+                 "yield_column": "yeilds",
+                 "fallback_to_district": False},
+            ]
+        },
+        admin={"boundaries": ["raw/crop-alias/boundaries.geojson"],
+               "name_column": "name",
+               "level_column": "level"},
+        image={"resolution": "R10m", "require_pairs": True},
+    )
+
+
+@pytest.fixture
+def alias_stam(alias_manager, alias_stam_config):
+    """An initialized STAM instance over the district-alias dataset."""
+    from training.stam import STAM
+
+    instance = STAM(alias_manager, alias_stam_config)
+    instance.initialize()
+    return instance

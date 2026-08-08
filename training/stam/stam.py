@@ -37,7 +37,7 @@ from .historical_context import HistoricalContextBuilder
 from .interfaces import StamCache
 from .logger import get_logger
 from .matcher import SpatialTemporalMatcher, TemporalContext
-from .name_aliases import normalize_name, resolve_location
+from .name_aliases import district_to_csv, normalize_name, resolve_location
 from .observation import (
     AgriculturalObservation,
     LocationInfo,
@@ -218,6 +218,23 @@ class STAM:
             if location_info.admin
             else None
         )
+        # District-name alias: a boundary-derived admin name (e.g. taluk point
+        # ``Bantwal`` inside district ``Dakshina Kannada``) is converted to the
+        # record table's ``Location`` vocabulary (``Mangalore``) before the
+        # village-level join, so queries whose nearest point is a taluk/district
+        # centroid still resolve against the district-less data_season table
+        # (see DISTRICT_TO_CSV). ``admin.village`` (most specific) is tried
+        # first, then ``admin.district``. The ``district``/``taluk`` parameters
+        # stay boundary-canonical: the ICRISAT fallback table matches on those.
+        if location_info.admin is not None:
+            for alias_source in (
+                location_info.admin.village,
+                location_info.admin.district,
+            ):
+                csv_name = district_to_csv(alias_source)
+                if csv_name is not None:
+                    normalized_name = csv_name
+                    break
         tabular = self.matcher.match_tabular(
             village=normalized_name,
             taluk=taluk,
@@ -291,6 +308,7 @@ class STAM:
                     "normalized_name": location_resolution.normalized,
                     "status": location_resolution.status,
                 },
+                "tabular_village": normalized_name,
             },
         )
 

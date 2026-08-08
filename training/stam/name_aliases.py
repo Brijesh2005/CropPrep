@@ -7,6 +7,12 @@ shapefiles carry the official spellings (``Dakshina Kannada``,
 canonical name so a boundary name can be matched against the CSV
 ``Location`` column — see :func:`normalize_name`.
 
+The reverse direction (:data:`DISTRICT_TO_CSV` + :func:`district_to_csv`)
+converts an official boundary spelling into the CSV's ``Location``
+vocabulary before the village-level lookup, so a query whose nearest point is
+a taluk/district centroid still resolves against the (district-less) record
+table — e.g. ``"Dakshina Kannada"`` -> ``"Mangalore"``.
+
 ``SPECIAL_CASES`` covers locations that cannot be resolved from the
 Karnataka boundary files at all (e.g. Kasaragodu in neighbouring Kerala).
 These are injected into the location catalog as manual points and are never
@@ -50,6 +56,26 @@ NO_ALIAS_NEEDED: set[str] = {
     "Kodagu",
     "Mysuru",
     "Raichur",
+}
+
+#: Official KGIS boundary spelling -> ``data_season.csv`` ``Location`` value.
+#: This is the reverse direction of :data:`ALIASES`: it converts the name a
+#: query derives from the boundary files (via ``admin.village`` /
+#: ``admin.district``) into the CSV's colloquial vocabulary so the village
+#: level of the join hits even when the record table has no district column
+#: (e.g. a point in taluk ``Bantwal`` resolves to district ``Dakshina
+#: Kannada`` -> CSV row ``Mangalore``). Keys are matched case-insensitively
+#: and parenthetical qualifiers are ignored, so ``"Bengaluru (Urban)"`` and
+#: ``"Bengaluru (Rural)"`` both map to the undivided ``Bangalore`` row. The
+#: ``district``/``taluk`` parameters passed to ``match_tabular`` are left in
+#: boundary vocabulary — the ICRISAT fallback table matches on those.
+DISTRICT_TO_CSV: dict[str, str] = {
+    "Dakshina Kannada": "Mangalore",
+    "Bengaluru": "Bangalore",
+    "Chikkamagaluru": "Chikmangaluru",
+    "Davanagere": "Davangere",
+    "Kalaburgi": "Gulbarga",
+    "Kalaburagi": "Gulbarga",
 }
 
 #: Locations outside the Karnataka boundary files, injected manually.
@@ -105,6 +131,28 @@ def _key(value: str) -> str:
 _ALIAS_MAP: dict[str, str] = {
     _key(name): _strip_parenthetical(value) for name, value in ALIASES.items()
 }
+
+#: Case-insensitive district lookup: boundary key -> CSV ``Location`` value.
+_CSV_MAP: dict[str, str] = {
+    _key(name): value for name, value in DISTRICT_TO_CSV.items()
+}
+
+
+def district_to_csv(name: str | None) -> str | None:
+    """Map a boundary-derived admin name to the CSV ``Location`` value.
+
+    The reverse of :func:`normalize_name`: takes an official KGIS spelling
+    (``"Dakshina Kannada"``, ``"Kalaburgi"``, ``"Bengaluru (Urban)"`` ...)
+    and returns the ``data_season.csv`` ``Location`` it represents
+    (``"Mangalore"``, ``"Gulbarga"``, ``"Bangalore"`` ...). Returns ``None``
+    when the name has no district alias, so callers keep the resolved name.
+    """
+    if name is None:
+        return None
+    cleaned = _clean(str(name))
+    if not cleaned:
+        return None
+    return _CSV_MAP.get(_key(cleaned))
 
 
 def normalize_name(name: str | None) -> str:

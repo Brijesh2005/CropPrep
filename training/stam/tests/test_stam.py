@@ -8,7 +8,7 @@ from training.stam.exceptions import (
     LocationNotFoundError,
     NotInitializedError,
 )
-from training.stam.name_aliases import normalize_name, resolve_location
+from training.stam.name_aliases import district_to_csv, normalize_name, resolve_location
 from training.stam.observation import AgriculturalObservation
 from training.stam.stam import STAM
 
@@ -255,3 +255,94 @@ def test_multi_table_first_table_wins(manager, stam_config_multi_table):
     assert obs.tabular.source_path.endswith("crop_yield.csv")
     assert obs.crop == "Rice"
     assert obs.yield_value == 5200.0
+
+
+# --------------------------------------------------------------------------- #
+# District / place-name alias (boundary spelling -> data_season Location)
+# --------------------------------------------------------------------------- #
+
+
+def test_district_to_csv():
+    # Reverse direction of the CSV->boundary alias table.
+    assert district_to_csv("Dakshina Kannada") == "Mangalore"
+    assert district_to_csv("Kalaburgi") == "Gulbarga"
+    assert district_to_csv("Kalaburagi") == "Gulbarga"
+    assert district_to_csv("Bengaluru (Urban)") == "Bangalore"
+    assert district_to_csv("Bengaluru (Rural)") == "Bangalore"
+    assert district_to_csv("kodagu") is None
+    assert district_to_csv("Hassan") is None
+    assert district_to_csv(None) is None
+
+
+def test_district_to_csv_round_trip():
+    # For every aliased district the two directions are inverses.
+    for csv_name, boundary in [
+        ("Mangalore", "Dakshina Kannada"),
+        ("Bangalore", "Bengaluru"),
+        ("Chikmangaluru", "Chikkamagaluru"),
+        ("Davangere", "Davanagere"),
+        ("Gulbarga", "Kalaburgi"),
+    ]:
+        assert normalize_name(csv_name) == boundary
+        assert district_to_csv(boundary) == csv_name
+
+
+def test_district_alias_dakshina_kannada_to_mangalore(alias_stam):
+    # A point whose nearest location is the "Dakshina Kannada" district
+    # centroid (no village/taluk polygon) must fall back to the data_season
+    # "Mangalore" row via the district alias, not fail ST-Q-TAB-001.
+    for year in (2018, 2019):
+        obs = alias_stam.build_observation(75.0, 12.9, year=year, season="Kharif")
+        assert obs.location.dataset_location_name == "Dakshina Kannada"
+        assert obs.location.admin.district == "Dakshina Kannada"
+        assert obs.tabular.matched_level == "village"
+        assert obs.crop == "Coconut"
+        assert obs.provenance["tabular_village"] == "Mangalore"
+
+
+def test_district_alias_kalaburgi_to_gulbarga(alias_stam):
+    obs = alias_stam.build_observation(76.95, 17.0, year=2018, season="Kharif")
+    assert obs.location.dataset_location_name == "Kalaburgi"
+    assert obs.tabular.matched_level == "village"
+    assert obs.crop == "Tur"
+    assert obs.provenance["tabular_village"] == "Gulbarga"
+
+
+def test_district_alias_bengaluru_urban_to_bangalore(alias_stam):
+    # "Bengaluru (Urban)" -> undivided "Bangalore" row (parenthetical
+    # qualifiers are stripped before the alias lookup).
+    obs = alias_stam.build_observation(77.55, 13.0, year=2018, season="Kharif")
+    assert obs.location.dataset_location_name == "Bengaluru (Urban)"
+    assert obs.tabular.matched_level == "village"
+    assert obs.crop == "Ragi"
+    assert obs.provenance["tabular_village"] == "Bangalore"
+
+
+def test_district_alias_madikeri_via_taluk(alias_stam):
+    # Kodagu has no district alias, so the taluk name "Madikeri" is kept and
+    # matches the data_season "Madikeri" row unchanged.
+    obs = alias_stam.build_observation(75.55, 12.25, year=2018, season="Kharif")
+    assert obs.location.admin.taluk == "Madikeri"
+    assert obs.location.admin.district == "Kodagu"
+    assert obs.tabular.matched_level == "village"
+    assert obs.crop == "Coffee"
+    assert obs.provenance["tabular_village"] == "Madikeri"
+
+
+def test_district_alias_no_coverage_clean_failure(alias_stam):
+    # Belgaum has no district alias and no data_season row: ST-Q-TAB-001 is
+    # raised as a quality issue (never an exception).
+    obs = alias_stam.build_observation(74.65, 16.0, year=2018, season="Kharif")
+    assert obs.location.dataset_location_name == "Belgaum"
+    assert obs.tabular.matched_level == "none"
+    assert any(i.code == "ST-Q-TAB-001" for i in obs.quality.issues)
+
+
+def test_kasaragodu_resolves_cleanly(alias_stam):
+    # Manual point outside the boundary files: no district alias is applied,
+    # no fake boundary entry, and the data_season "Kasaragodu" row matches.
+    obs = alias_stam.build_observation(74.99, 12.49, year=2018, season="Kharif")
+    assert obs.location.dataset_location_name == "Kasaragodu"
+    assert obs.location.admin is None
+    assert obs.tabular.matched_level == "village"
+    assert obs.crop == "Coconut"
