@@ -26,7 +26,6 @@ orchestrates them behind the provider contract.
 
 from __future__ import annotations
 
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -177,23 +176,9 @@ class KaggleHubImageProvider(ImageProvider):
         duplicated via ``kagglehub`` on the training box.
         """
         if self._mounted_root is None:
-            owner, _, slug = self.handle.partition("/")
-            candidates: list[Path] = []
-            # Explicit override always wins (e.g. a non-standard mount path).
-            env_root = os.environ.get("CROPFUSION_KAGGLE_IMAGE_ROOT")
-            if env_root:
-                candidates.append(Path(env_root))
-            candidates += [
-                # Classic "Add Data" mount: /kaggle/input/<dataset-slug>
-                Path("/kaggle/input") / slug,
-                # kagglehub-style mount seen on some Kaggle runtimes:
-                # /kaggle/input/datasets/<owner>/<dataset-slug>
-                Path("/kaggle/input/datasets") / owner / slug,
-                Path("/kaggle/input/datasets") / self.handle,
-            ]
-            self._mounted_root = next(
-                (c for c in candidates if c.is_dir()), None
-            )
+            slug = self.handle.split("/")[-1]
+            candidate = Path("/kaggle/input") / slug
+            self._mounted_root = candidate if candidate.is_dir() else None
         return self._mounted_root
 
     @property
