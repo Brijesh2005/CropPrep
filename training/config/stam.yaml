@@ -60,19 +60,42 @@ admin:
   level_column: level
 
 tabular:
-  # data_season.csv is the agricultural record table (Year/Location/Season/
-  # Crops/yeilds + agronomic features). Explicitly pinning the table avoids
-  # the auto-discovery heuristic picking the widest CSV (ICRISAT) whose
-  # columns do not match the STAM defaults.
-  table: data_season.csv
-  village_column: Location
-  district_column: district
-  season_column: Season
-  year_column: Year
-  crop_column: Crops
-  yield_column: yeilds
-  feature_columns: [Area, Rainfall, Temperature, Soil type, Irrigation, Humidity, price]
-  fallback_to_district: true
+  # Ordered list of tabular record tables. Every (location, year, season) is
+  # matched against the first table at village -> taluk -> district level,
+  # falling back to the next table only when no exact match exists — so the
+  # fine-grained data_season.csv (2004-2019, Kharif/Rabi/Zaid) wins over the
+  # ICRISAT district-level series (1966-2017, annual) wherever both answer.
+  # The winning record's source is stamped as matched_level / source_path.
+  tables:
+    - name: data_season.csv
+      # Location column holds colloquial district/town names (Mangalore,
+      # Bangalore, ...). district_column is null: the same column is used for
+      # village/taluk attempts, so Madikeri matches via its taluk name.
+      village_column: Location
+      taluk_column: Location
+      district_column: null
+      season_column: Season
+      year_column: Year
+      crop_column: Crops
+      yield_column: yeilds
+      feature_columns: [Area, Rainfall, Temperature, Soil type, Irrigation, Humidity, price]
+      fallback_to_district: false
+
+    - name: ICRISAT-District Level Data.csv
+      # District-level annual series for 20 states. crop/yield columns are
+      # null: the wide "<CROP> AREA/YIELD" triples are reduced to the dominant
+      # crop (largest planted area) whose yield becomes the record label.
+      village_column: null
+      taluk_column: null
+      district_column: Dist Name
+      season_column: null
+      year_column: Year
+      crop_column: null
+      yield_column: null
+      feature_columns: []
+      state_column: State Name
+      state_value: Karnataka
+      fallback_to_district: true
 
 # Cropping calendar aligned with the season values actually present in the
 # tabular data (Kharif / Rabi / Zaid) so every planned season has records.

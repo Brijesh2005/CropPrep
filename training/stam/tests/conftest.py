@@ -32,7 +32,8 @@ def _build_synthetic_dataset(root: Path) -> Path:
         ├── 2019_images/R10m/    (NDVI + EVI on 2019-07-01)
         ├── 2020_images/R10m/    (NDVI + EVI on 3 Kharif dates)
         ├── 2021_images/R10m/    (NDVI only on one date — tests missing EVI)
-        ├── crop_yield.csv
+        ├── crop_yield.csv       (narrow, village-level)
+        ├── icrisat_wide.csv     (wide, district-level AREA/YIELD triples)
         └── boundaries.geojson
     """
     datasets = root / "datasets"
@@ -53,6 +54,22 @@ def _build_synthetic_dataset(root: Path) -> Path:
             "rainfall_mm": [2100, 2050, 2300],
         }
     ).to_csv(catalog / "crop_yield.csv", index=False)
+
+    # Wide-format ICRISAT-style table (district-level, one AREA/PRODUCTION/
+    # YIELD triple per crop, derived dominant crop by largest planted area).
+    pd.DataFrame(
+        {
+            "State Name": ["Karnataka", "Karnataka", "Karnataka"],
+            "Dist Name": ["DK", "DK", "XYZ"],
+            "Year": [2020, 2019, 2020],
+            "RICE AREA (1000 ha)": [100.0, 110.0, 200.0],
+            "RICE PRODUCTION (1000 tons)": [4000.0, 4400.0, 8000.0],
+            "RICE YIELD (Kg per ha)": [4000.0, 4000.0, 4000.0],
+            "COTTON AREA (1000 ha)": [50.0, 40.0, 60.0],
+            "COTTON PRODUCTION (1000 tons)": [300.0, 240.0, 360.0],
+            "COTTON YIELD (Kg per ha)": [6000.0, 6000.0, 6000.0],
+        }
+    ).to_csv(catalog / "icrisat_wide.csv", index=False)
 
     # GeoTIFFs. Top-left origin (74.80, 13.10), pixel 0.0001 deg -> 40x40 px
     # footprint spanning lon 74.800..74.804, lat 13.096..13.100. EPSG:4326
@@ -159,6 +176,39 @@ def stam_config(synthetic_catalog: Path):
                  "season_column": "season",
                  "crop_column": "crop",
                  "yield_column": "yield_kg"},
+        admin={"boundaries": ["raw/kaggle-crop-yield/boundaries.geojson"],
+               "name_column": "name",
+               "level_column": "level"},
+        image={"resolution": "R10m", "require_pairs": True},
+    )
+
+
+@pytest.fixture
+def stam_config_multi_table(synthetic_catalog: Path):
+    """Two-table chain: village-level crop_yield.csv then district-level
+    icrisat_wide.csv (mirrors the real data_season -> ICRISAT fallback)."""
+    from training.stam import StamConfig
+
+    return StamConfig(
+        patch={"size": 16},
+        tabular={
+            "tables": [
+                {"name": "crop_yield.csv",
+                 "village_column": "village",
+                 "district_column": "district",
+                 "year_column": "year",
+                 "season_column": "season",
+                 "crop_column": "crop",
+                 "yield_column": "yield_kg",
+                 "fallback_to_district": False},
+                {"name": "icrisat_wide.csv",
+                 "district_column": "Dist Name",
+                 "year_column": "Year",
+                 "state_column": "State Name",
+                 "state_value": "Karnataka",
+                 "fallback_to_district": True},
+            ]
+        },
         admin={"boundaries": ["raw/kaggle-crop-yield/boundaries.geojson"],
                "name_column": "name",
                "level_column": "level"},

@@ -22,6 +22,33 @@ def test_alias_mapping():
     assert normalize_name("Kodagu") == "Kodagu"
 
 
+def test_alias_mapping_icrisat_spellings():
+    # ICRISAT keeps the pre-2014 district spellings; the alias layer maps
+    # them onto the KGIS boundary spellings for the multi-table join.
+    assert normalize_name("Belgaum") == "Belagavi"
+    assert normalize_name("Bellary") == "Ballari"
+    assert normalize_name("Bijapur") == "Vijayapura"
+    assert normalize_name("Chickmagalur") == "Chikkamagaluru"
+    assert normalize_name("Kolar") == "Kolara"
+    assert normalize_name("Mysore") == "Mysuru"
+    assert normalize_name("Shimoge") == "Shivamogga"
+    assert normalize_name("Tumkur") == "Tumakuru"
+
+
+def test_first_contains_slash_alternates():
+    # ICRISAT stores renamed districts as "Gulbarga / Kalaburagi"; either
+    # alternate must match the boundary's canonical name.
+    import pandas as pd
+
+    from training.stam.matcher import _first_contains
+
+    frame = pd.DataFrame({"dist": ["Gulbarga / Kalaburagi", "Kodagu / Coorg"]})
+    row = _first_contains(frame, "dist", "Kalaburgi")
+    assert row is not None and row["dist"] == "Gulbarga / Kalaburagi"
+    row = _first_contains(frame, "dist", "Kodagu")
+    assert row is not None and row["dist"] == "Kodagu / Coorg"
+
+
 def test_normalize_name_case_and_boundary_side():
     # The boundary side must land on the same canonical spelling.
     assert normalize_name("Dakshina Kannada") == "Dakshina Kannada"
@@ -175,3 +202,56 @@ def test_find_nearest_before_initialize_raises(manager, stam_config):
     stam = STAM(manager, stam_config)
     with pytest.raises(NotInitializedError):
         stam.find_nearest(74.802, 13.098)
+
+
+# --------------------------------------------------------------------------- #
+# Multi-source tabular fallback (data_season-like -> ICRISAT-like chain)
+# --------------------------------------------------------------------------- #
+
+
+def _multi_table_stam(manager, stam_config_multi_table):
+    stam = STAM(manager, stam_config_multi_table)
+    stam.initialize()
+    return stam
+
+
+def test_multi_table_available_years_union(manager, stam_config_multi_table):
+    stam = _multi_table_stam(manager, stam_config_multi_table)
+    years = stam.matcher.tabular_source.available_years()
+    # crop_yield.csv (2020, 2021) ∪ icrisat_wide.csv (2019, 2020).
+    assert 2019 in years and 2020 in years and 2021 in years
+    assert max(years) == 2021
+
+
+def test_multi_table_icrisat_district_fallback(manager, stam_config_multi_table):
+    # Point inside the DK district polygon but outside any village/taluk:
+    # table 1 (village-level) cannot answer, table 2 (ICRISAT-style) does at
+    # district level and its dominant crop (Rice > Cotton by area) wins.
+    stam = _multi_table_stam(manager, stam_config_multi_table)
+    obs = stam.build_observation(74.86, 13.15, year=2020, season="Kharif")
+    assert obs.location.dataset_location_name == "DK"
+    assert obs.tabular.matched_level == "district"
+    assert obs.tabular.source_path.endswith("icrisat_wide.csv")
+    assert obs.crop == "Rice"
+    assert obs.yield_value == 4000.0
+    assert obs.quality.passed is True
+
+
+def test_multi_table_no_coverage_anywhere(manager, stam_config_multi_table):
+    # Neither table has a row for this district-year: no fabricated fallback,
+    # ST-Q-TAB-001 rejects the observation instead of a wrong "match".
+    stam = _multi_table_stam(manager, stam_config_multi_table)
+    obs = stam.build_observation(74.86, 13.15, year=2015, season="Kharif")
+    assert obs.tabular.matched_level == "none"
+    assert any(i.code == "ST-Q-TAB-001" for i in obs.quality.issues)
+
+
+def test_multi_table_first_table_wins(manager, stam_config_multi_table):
+    # Village A is in table 1 (crop_yield.csv @2020 Kharif) and also in the
+    # icrisat_wide.csv district row: table 1 must win.
+    stam = _multi_table_stam(manager, stam_config_multi_table)
+    obs = stam.build_observation(74.802, 13.098, year=2020, season="Kharif")
+    assert obs.tabular.matched_level == "village"
+    assert obs.tabular.source_path.endswith("crop_yield.csv")
+    assert obs.crop == "Rice"
+    assert obs.yield_value == 5200.0

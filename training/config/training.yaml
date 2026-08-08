@@ -58,7 +58,7 @@ loss:
   reduction: mean
 
 train:
-  epochs: 100
+  epochs: 20
   early_stopping_metric: val_loss
   early_stopping_mode: min
   early_stopping_patience: 10

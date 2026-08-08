@@ -22,7 +22,9 @@ from typing import Any
 #: Keys are matched case-insensitively; values are returned verbatim (the
 #: canonical names actually present in ``application/gis``, authoritative
 #: for the join). Both spellings of Gulbarga map to the shapefile's
-#: ``Kalaburgi``.
+#: ``Kalaburgi``. The ICRISAT district table keeps pre-2014 spellings
+#: (``Mysore``, ``Shimoge``, ...) and slash alternates (``Gulbarga /
+#: Kalaburagi``) which are resolved here to the KGIS names.
 ALIASES: dict[str, str] = {
     "Mangalore": "Dakshina Kannada",
     "Bangalore": "Bengaluru",
@@ -31,6 +33,15 @@ ALIASES: dict[str, str] = {
     "Gulbarga": "Kalaburgi",
     "Kalaburagi": "Kalaburgi",
     "Madikeri": "Madikeri",  # taluk-level match required
+    # ICRISAT-district spellings (pre-2014 / alternate).
+    "Belgaum": "Belagavi",
+    "Bellary": "Ballari",
+    "Bijapur": "Vijayapura",
+    "Chickmagalur": "Chikkamagaluru",
+    "Kolar": "Kolara",
+    "Mysore": "Mysuru",
+    "Shimoge": "Shivamogga",
+    "Tumkur": "Tumakuru",
 }
 
 #: CSV location names that already equal the official boundary spelling.

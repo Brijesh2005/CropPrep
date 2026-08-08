@@ -174,15 +174,58 @@ class AdminConfig(BaseModel):
         return coerced
 
 
+class TabularTableConfig(BaseModel):
+    """One tabular record table in the ordered multi-source fallback chain.
+
+    Every (location, year, season) is matched against the first table before
+    falling back to the next, so a fine-grained table (e.g.
+    ``data_season.csv`` with village-level rows) wins over a coarse one
+    (e.g. ICRISAT district-level data) whenever both could answer.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: CSV file name inside the tabular datasets directory.
+    name: str
+    #: Column holding the village/locality name (matching level "village").
+    village_column: str | None = None
+    #: Column holding the taluk name (defaults to ``village_column``).
+    taluk_column: str | None = None
+    #: Column holding the district name (matching level "district").
+    district_column: str | None = None
+    #: Column holding the season (optional — annual tables skip it).
+    season_column: str | None = None
+    #: Column holding the year.
+    year_column: str | None = None
+    #: Column holding the crop label (optional — wide tables derive it).
+    crop_column: str | None = None
+    #: Column holding the yield label (optional — wide tables derive it).
+    yield_column: str | None = None
+    #: Explicit feature columns to expose; empty => all non-key columns.
+    feature_columns: list[str] = Field(default_factory=list)
+    #: Fall back to a district-level aggregate when no village row matches.
+    fallback_to_district: bool = True
+    #: Optional state filter (e.g. ICRISAT holds 20 states). When both are
+    #: set only rows whose ``state_column`` equals ``state_value`` are matched.
+    state_column: str | None = None
+    state_value: str | None = None
+
+
 class TabularConfig(BaseModel):
     """Settings for matching tabular agricultural records."""
 
     model_config = ConfigDict(extra="forbid")
 
     #: CSV file name to use as the agricultural record table. When None the
-    #: table is auto-discovered through the Dataset Manager.
+    #: table is auto-discovered through the Dataset Manager. Legacy single
+    #: table option — prefer :attr:`tables` for multi-source fallback.
     table: str | None = None
+    #: Ordered list of record tables. Each (location, year, season) is matched
+    #: against the first table (village -> taluk -> district) before falling
+    #: back to the next table.
+    tables: list[TabularTableConfig] = Field(default_factory=list)
     village_column: str = "village"
+    taluk_column: str | None = None
     district_column: str = "district"
     season_column: str = "season"
     year_column: str = "year"
@@ -192,6 +235,32 @@ class TabularConfig(BaseModel):
     feature_columns: list[str] = Field(default_factory=list)
     #: Fall back to a district-level aggregate when no village row matches.
     fallback_to_district: bool = True
+
+    def effective_tables(self) -> list[TabularTableConfig]:
+        """The ordered tables to search, synthesised from legacy fields.
+
+        When ``tables`` is configured it is returned as-is. Otherwise a single
+        table is synthesised from the legacy top-level fields so existing
+        ``table``-only configurations keep working unchanged.
+        """
+        if self.tables:
+            return list(self.tables)
+        if self.table:
+            return [
+                TabularTableConfig(
+                    name=self.table,
+                    village_column=self.village_column,
+                    taluk_column=self.taluk_column,
+                    district_column=self.district_column,
+                    season_column=self.season_column,
+                    year_column=self.year_column,
+                    crop_column=self.crop_column,
+                    yield_column=self.yield_column,
+                    feature_columns=list(self.feature_columns),
+                    fallback_to_district=self.fallback_to_district,
+                )
+            ]
+        return []
 
 
 class SeasonDef(BaseModel):
@@ -295,7 +364,8 @@ def save_stam_config_template(path: str | Path) -> Path:
                   "index_ttl_seconds": 86400},
         "admin": {"boundaries": [], "admin_dir": None, "name_column": "name",
                   "level_column": "level"},
-        "tabular": {"table": None, "village_column": "village",
+        "tabular": {"table": None, "tables": [],
+                    "village_column": "village", "taluk_column": None,
                     "district_column": "district", "season_column": "season",
                     "year_column": "year", "crop_column": "crop",
                     "yield_column": "yield", "feature_columns": [],

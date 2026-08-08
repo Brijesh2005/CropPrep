@@ -18,6 +18,7 @@ This module contains:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -150,42 +151,68 @@ class DatasetManagerImageReader(ImageReader):
 class DatasetManagerTabularSource(TabularSource):
     """Tabular agricultural records via the Dataset Manager.
 
-    The record table is either the configured CSV file name or the first CSV
-    discovered by the Dataset Manager (auto-discovery). Rows are matched by
-    village name (case-insensitive), with a district-level fallback.
+    Records are searched across an ordered chain of tables (see
+    :meth:`TabularConfig.effective_tables`): each (location, year, season) is
+    matched against the first table at village -> taluk -> district level
+    before falling back to the next table. Rows are matched by normalised name
+    (case-insensitive, aliases + slash-separated alternates). The
+    ``matched_level`` and ``__source_path``/``__source_table`` of the winning
+    record are stamped so downstream quality checks can see exactly which
+    source answered (see ST-Q-TAB-001).
     """
 
     def __init__(self, manager: DatasetManager, config: TabularConfig | None = None) -> None:
         self.manager = manager
         self.config = config or TabularConfig()
-        self._table: pd.DataFrame | None = None
-        self._table_path: str | None = None
+        self._frames: dict[str, tuple[TabularTableConfig, Path, pd.DataFrame]] = {}
 
     # -- Table discovery ------------------------------------------------------ #
 
-    def _load_table(self) -> pd.DataFrame:
-        if self._table is not None:
-            return self._table
+    def _load_tables(self) -> list[tuple[TabularTableConfig, Path, pd.DataFrame]]:
+        if self._frames:
+            return list(self._frames.values())
         csvs = self.manager.list_csvs()
         if not csvs:
             raise NoTabularRecordError("No CSV files discovered via the Dataset Manager")
-        path = self._pick_table(csvs)
-        self._table = self.manager.load_csv(path)
-        self._table_path = str(path)
-        return self._table
-
-    def _pick_table(self, csvs: list[Path]) -> Path:
-        if self.config.table:
-            name = Path(self.config.table).name.lower()
-            for path in csvs:
-                if path.name.lower() == name:
-                    return path
-            raise NoTabularRecordError(
-                f"Configured tabular table not found: {self.config.table}",
-                detail=[str(p) for p in csvs],
+        tables = self.config.effective_tables()
+        frames: list[tuple[TabularTableConfig, Path, pd.DataFrame]] = []
+        if tables:
+            for table_cfg in tables:
+                path = self._resolve_table_path(csvs, table_cfg.name)
+                frames.append((table_cfg, path, self.manager.load_csv(path)))
+        else:
+            # Backward compatibility: auto-discover the widest "master" CSV and
+            # treat it as a single table using the legacy top-level columns.
+            path = self._pick_widest(csvs)
+            legacy = TabularTableConfig(
+                name=path.name,
+                village_column=self.config.village_column,
+                taluk_column=self.config.taluk_column,
+                district_column=self.config.district_column,
+                season_column=self.config.season_column,
+                year_column=self.config.year_column,
+                crop_column=self.config.crop_column,
+                yield_column=self.config.yield_column,
+                feature_columns=list(self.config.feature_columns),
+                fallback_to_district=self.config.fallback_to_district,
             )
-        # Auto-discovery: prefer the CSV exposing the most columns (the
-        # widest "master" table in a multi-file dataset).
+            frames.append((legacy, path, self.manager.load_csv(path)))
+        self._frames = {cfg.name: (cfg, path, frame) for cfg, path, frame in frames}
+        return frames
+
+    def _resolve_table_path(self, csvs: list[Path], name: str) -> Path:
+        target = Path(name).name.lower()
+        for path in csvs:
+            if path.name.lower() == target:
+                return path
+        raise NoTabularRecordError(
+            f"Configured tabular table not found: {name}",
+            detail=[str(p) for p in csvs],
+        )
+
+    def _pick_widest(self, csvs: list[Path]) -> Path:
+        """Auto-discovery: prefer the CSV exposing the most columns (the
+        widest "master" table in a multi-file dataset)."""
         best, best_cols = None, -1
         for path in csvs:
             try:
@@ -210,61 +237,137 @@ class DatasetManagerTabularSource(TabularSource):
         year: int,
         season: str | None,
     ) -> dict[str, Any] | None:
-        frame = self._load_table()
-        if frame is None or len(frame) == 0:
+        """Best record across the table chain for the location/season/year.
+
+        Tables are tried in configured order. Within each table the name is
+        matched at village -> taluk -> district level and the first hit wins;
+        when no table answers exactly, the legacy behaviour of returning the
+        first row of the year/season subset is preserved (matched_level
+        ``"none"``, so ST-Q-TAB-001 still rejects it).
+        """
+        tables = self._load_tables()
+        if not tables:
             return None
 
-        year_col = self.config.year_column
-        season_col = self.config.season_column
-        village_col = self.config.village_column
-        district_col = self.config.district_column
-
-        subset = frame
-        if year_col in frame.columns:
-            subset = _filter_equals(subset, year_col, year)
-        if season_col in frame.columns and season:
-            subset = _filter_contains(subset, season_col, season)
-        if len(subset) == 0:
-            return None
-
-        if village and village_col in subset.columns:
-            row = _first_contains(subset, village_col, village)
-            if row is not None:
-                return self._to_record(row, "village")
-        # Taluk-level attempt (e.g. Madikeri) before the district fallback.
-        if taluk and village_col in subset.columns and taluk != village:
-            row = _first_contains(subset, village_col, taluk)
-            if row is not None:
-                return self._to_record(row, "taluk")
-        if self.config.fallback_to_district and district and district_col in subset.columns:
-            row = _first_contains(subset, district_col, district)
-            if row is not None:
-                return self._to_record(row, "district")
-        # No name match: first row of the year/season subset.
-        if len(subset):
-            return self._to_record(subset.iloc[0], "none")
+        fabrication: tuple[pd.DataFrame, TabularTableConfig, Path] | None = None
+        for table_cfg, path, frame in tables:
+            if frame is None or len(frame) == 0:
+                continue
+            subset = self._subset(frame, table_cfg, year, season)
+            if subset is None or len(subset) == 0:
+                continue
+            matched = self._match_level(subset, table_cfg, village, taluk, district)
+            if matched is not None:
+                row, level = matched
+                return self._to_record(row, level, table_cfg, path)
+            if fabrication is None:
+                # First table with any year/season rows provides the last-resort
+                # fabricated record (flagged: it fails ST-Q-TAB-001).
+                fabrication = (subset, table_cfg, path)
+        if fabrication is not None:
+            subset, table_cfg, path = fabrication
+            return self._to_record(subset.iloc[0], "none", table_cfg, path)
         return None
 
     def available_years(self) -> list[int]:
-        frame = self._load_table()
-        if frame is None or self.config.year_column not in frame.columns:
-            return []
         years: list[int] = []
-        for value in frame[self.config.year_column]:
-            try:
-                years.append(int(float(value)))
-            except (TypeError, ValueError):
-                continue
+        for table_cfg, path, frame in self._load_tables():
+            if table_cfg.year_column and table_cfg.year_column in frame.columns:
+                for value in frame[table_cfg.year_column]:
+                    try:
+                        years.append(int(float(value)))
+                    except (TypeError, ValueError):
+                        continue
         return sorted(set(years))
 
     # -- Internals ------------------------------------------------------------ #
 
-    def _to_record(self, row: pd.Series, level: str) -> dict[str, Any]:
+    def _subset(
+        self,
+        frame: pd.DataFrame,
+        table_cfg: TabularTableConfig,
+        year: int,
+        season: str | None,
+    ) -> pd.DataFrame | None:
+        """Rows of ``frame`` for the requested state/year/season."""
+        subset = frame
+        if table_cfg.state_column and table_cfg.state_value:
+            if table_cfg.state_column in subset.columns:
+                state = str(table_cfg.state_value).strip().lower()
+                subset = subset[
+                    subset[table_cfg.state_column].astype(str).str.strip().str.lower() == state
+                ]
+        if table_cfg.year_column and table_cfg.year_column in subset.columns:
+            subset = _filter_equals(subset, table_cfg.year_column, year)
+        if table_cfg.season_column and table_cfg.season_column in subset.columns and season:
+            subset = _filter_contains(subset, table_cfg.season_column, season)
+        return subset
+
+    def _match_level(
+        self,
+        subset: pd.DataFrame,
+        table_cfg: TabularTableConfig,
+        village: str | None,
+        taluk: str | None,
+        district: str | None,
+    ) -> tuple[pd.Series, str] | None:
+        village_col = table_cfg.village_column
+        taluk_col = table_cfg.taluk_column or table_cfg.village_column
+        district_col = table_cfg.district_column
+        if village and village_col and village_col in subset.columns:
+            row = _first_contains(subset, village_col, village)
+            if row is not None:
+                return row, "village"
+        # Taluk-level attempt (e.g. Madikeri) before the district fallback.
+        if taluk and taluk_col and taluk_col in subset.columns and taluk != village:
+            row = _first_contains(subset, taluk_col, taluk)
+            if row is not None:
+                return row, "taluk"
+        if table_cfg.fallback_to_district and district and district_col and district_col in subset.columns:
+            row = _first_contains(subset, district_col, district)
+            if row is not None:
+                return row, "district"
+        return None
+
+    def _to_record(
+        self,
+        row: pd.Series,
+        level: str,
+        table_cfg: TabularTableConfig,
+        path: Path,
+    ) -> dict[str, Any]:
         record: dict[str, Any] = {}
         for column, value in row.items():
             record[str(column)] = _json_safe(value)
         record["__matched_level"] = level
-        record["__source_path"] = self._table_path
+        record["__source_path"] = str(path)
+        record["__source_table"] = table_cfg.name
+        record["__feature_columns"] = list(table_cfg.feature_columns)
+        if table_cfg.crop_column and table_cfg.crop_column in row:
+            record["__crop"] = _json_safe(row[table_cfg.crop_column])
+        if table_cfg.yield_column and table_cfg.yield_column in row:
+            record["__yield"] = _json_safe(row[table_cfg.yield_column])
+        if not table_cfg.crop_column or not table_cfg.yield_column:
+            # Wide-format table (e.g. ICRISAT "<CROP> AREA/YIELD" triples):
+            # derive the dominant crop (largest planted area) and its yield.
+            crop, area, yield_value = _dominant_crop_yield(row)
+            record.setdefault("__crop", crop)
+            record.setdefault("__yield", yield_value)
+            record["__derived_fields"] = {
+                "crop": crop,
+                "yield": yield_value,
+                "area": area,
+                "district": (
+                    _json_safe(row.get(table_cfg.district_column))
+                    if table_cfg.district_column
+                    else None
+                ),
+                "year": (
+                    _json_safe(row.get(table_cfg.year_column))
+                    if table_cfg.year_column
+                    else None
+                ),
+            }
         return record
 
 
@@ -618,17 +721,20 @@ class SpatialTemporalMatcher:
         )
         if record is None:
             return None
-        tabular = self.config.tabular
-        crop = record.get(tabular.crop_column)
-        yield_value = _json_safe(record.get(tabular.yield_column))
+        crop = record.get("__crop")
+        yield_value = _json_safe(record.get("__yield"))
         try:
             yield_value = float(yield_value) if yield_value not in (None, "") else None
         except (TypeError, ValueError):
             yield_value = None
 
         fields = {k: v for k, v in record.items() if not k.startswith("__")}
-        if tabular.feature_columns:
-            fields = {k: fields[k] for k in tabular.feature_columns if k in fields}
+        feature_cols = record.get("__feature_columns")
+        if feature_cols:
+            fields = {k: fields[k] for k in feature_cols if k in fields}
+        elif record.get("__derived_fields"):
+            # Wide-format tables keep only the derived (crop/area/yield) record.
+            fields = dict(record["__derived_fields"])
         return TabularFeatures(
             crop=str(crop) if crop is not None else None,
             yield_value=yield_value,
@@ -728,21 +834,34 @@ def _first_contains(frame: pd.DataFrame, column: str, value: Any) -> pd.Series |
     Both sides are normalised through :func:`normalize_name` (aliases,
     casing, parenthetical qualifiers) so a KGIS boundary name like
     ``"Dakshina Kannada"`` matches the CSV's ``"Mangalore"``. Exact match is
-    preferred; a substring match on the normalised names is the fallback.
+    preferred; slash-separated alternates (e.g. ICRISAT ``"Gulbarga /
+    Kalaburagi"``) are tried next; a substring match on the normalised names
+    is the final fallback.
     """
     raw = str(value).strip() if value is not None else ""
     if not raw:
         return None
     norm = normalize_name(raw)
+    names = frame[column].astype(str)
     if norm:
-        names = frame[column].astype(str).map(normalize_name)
-        exact = names == norm
+        norm_names = names.map(normalize_name)
+        exact = norm_names == norm
         if exact.any():
             return frame[exact].iloc[0]
-        contains = names.str.contains(norm, regex=False, case=False, na=False)
+        # Slash / pipe separated alternates, normalised per part.
+        hits = norm_names.map(
+            lambda cand: any(
+                normalize_name(part.strip()) == norm
+                for part in re.split(r"[/|]", cand)
+                if part.strip()
+            )
+        )
+        if hits.any():
+            return frame[hits].iloc[0]
+        contains = norm_names.str.contains(norm, regex=False, case=False, na=False)
         if contains.any():
             return frame[contains].iloc[0]
-    mask = frame[column].astype(str).str.contains(raw, case=False, na=False)
+    mask = names.str.contains(raw, case=False, na=False)
     if mask.any():
         return frame[mask].iloc[0]
     return None
@@ -773,6 +892,66 @@ def _normalise_boundary_frame(
     elif "level" not in frame.columns:
         frame["level"] = None
     return frame
+
+
+#: Wide-format ICRISAT-style column patterns ("RICE AREA (1000 ha)").
+_AREA_RE = re.compile(r"^(.*?)\s+AREA\s*\(", re.IGNORECASE)
+_YIELD_RE = re.compile(r"^(.*?)\s+YIELD\s*\(", re.IGNORECASE)
+
+
+def _to_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _dominant_crop_yield(row: pd.Series) -> tuple[str | None, float | None, float | None]:
+    """Derive (crop, area, yield) from a wide-format row.
+
+    ICRISAT-style tables store one ``<CROP> AREA / PRODUCTION / YIELD`` column
+    triple per crop. The dominant crop (largest planted area, ignoring the
+    ``-1`` missing sentinel) is selected and its yield returned. When no
+    usable AREA column exists the crop with the highest YIELD is used.
+    """
+    area_cols: dict[str, str] = {}
+    yield_cols: dict[str, str] = {}
+    for column in row.index:
+        name = str(column)
+        match = _AREA_RE.match(name)
+        if match:
+            area_cols[match.group(1).strip()] = name
+            continue
+        match = _YIELD_RE.match(name)
+        if match:
+            yield_cols[match.group(1).strip()] = name
+
+    best: tuple[float, str] | None = None
+    for crop, column in area_cols.items():
+        value = _to_float(row.get(column))
+        if value is None or value <= 0:
+            continue
+        if best is None or value > best[0]:
+            best = (value, crop)
+    if best is not None:
+        area, crop = best
+        yield_col = yield_cols.get(crop)
+        yield_value = _to_float(row.get(yield_col)) if yield_col else None
+        return crop.title(), area, yield_value
+
+    best_yield: tuple[float, str] | None = None
+    for crop, column in yield_cols.items():
+        value = _to_float(row.get(column))
+        if value is None or value <= 0:
+            continue
+        if best_yield is None or value > best_yield[0]:
+            best_yield = (value, crop)
+    if best_yield is not None:
+        yield_value, crop = best_yield
+        return crop.title(), None, yield_value
+    return None, None, None
 
 
 def _json_safe(value: Any) -> Any:
