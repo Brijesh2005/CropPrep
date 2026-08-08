@@ -30,7 +30,6 @@ from training.dataset_manager import DatasetManager
 from training.dataset_manager.models import MetadataRecord
 
 from .config import AdminConfig, StamConfig, TabularConfig
-from .coordinate_transform import WGS84, transform_point
 from .exceptions import (
     InvalidCoordinatesError,
     LocationNotFoundError,
@@ -352,17 +351,7 @@ class DatasetManagerLocationCatalog(LocationCatalog):
             if not record.bounds:
                 continue
             left, bottom, right, top = record.bounds
-            x, y = (left + right) / 2.0, (bottom + top) / 2.0
-            # `record.bounds` is in the raster's native CRS (e.g. UTM metres
-            # such as EPSG:32643), not WGS-84 degrees. STAM's public
-            # boundary always deals in (lon, lat) WGS-84 — see
-            # coordinate_transform.py — so the centroid must be reprojected
-            # before being stored as a LocationPoint, otherwise every
-            # downstream coordinate-range check (ST-COORD-001) fails.
-            if record.crs:
-                lon, lat = transform_point(record.crs, WGS84, x, y)
-            else:
-                lon, lat = x, y
+            lon, lat = (left + right) / 2.0, (bottom + top) / 2.0
             points.append(
                 LocationPoint(
                     id=f"image:{record.relative_path}",
