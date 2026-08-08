@@ -74,16 +74,19 @@ def test_rollback_requires_previous(manager):
         manager.rollback()
 
 
-def test_rollback_flow(releases_root):
-    config = RuntimeConfig(general={"releases_root": str(releases_root)})
+def test_rollback_flow(release_env, tmp_path):
+    import shutil
+
+    # Private root so this test never pollutes the shared module fixture.
+    root = tmp_path / "rollback_root"
+    shutil.copytree(release_env.release_path, root / "cropfusion_release-v1.0.0")
+    config = RuntimeConfig(general={"releases_root": str(root)})
     manager = ReleaseManager(config).initialize()
     manager.activate("1.0.0")
 
     # Build a second release on top of the first.
-    second = releases_root / "cropfusion_release-v1.1.0"
-    clone = releases_root / "_clone"
-    import shutil
-
+    second = root / "cropfusion_release-v1.1.0"
+    clone = root / "_clone"
     shutil.copytree(manager.release_path("1.0.0"), clone)
     shutil.copytree(clone, second)
     shutil.rmtree(clone)
@@ -100,15 +103,18 @@ def test_rollback_flow(releases_root):
     assert manager.state().history == []
 
 
-def test_rollback_after_restart(releases_root):
-    config = RuntimeConfig(general={"releases_root": str(releases_root)})
+def test_rollback_after_restart(release_env, tmp_path):
+    import shutil
+
+    # Private root so this test never pollutes the shared module fixture.
+    root = tmp_path / "restart_root"
+    shutil.copytree(release_env.release_path, root / "cropfusion_release-v1.0.0")
+    config = RuntimeConfig(general={"releases_root": str(root)})
     manager = ReleaseManager(config).initialize()
     manager.activate("1.0.0")
 
     # Build a second release and activate it, so history is recorded.
-    second = releases_root / "cropfusion_release-v1.1.0"
-    import shutil
-
+    second = root / "cropfusion_release-v1.1.0"
     shutil.copytree(manager.release_path("1.0.0"), second)
     _bump_release_version(second, "1.1.0")
     manager.activate("1.1.0")

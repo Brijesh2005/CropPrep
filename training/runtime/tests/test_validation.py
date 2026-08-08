@@ -112,7 +112,9 @@ def test_dependency_failure(release_env, release_validator, monkeypatch):
     assert any("numpy" in error for error in errors)
 
 
-def test_onnx_format_requires_onnxruntime(release_env, tmp_path, monkeypatch):
+def test_onnx_format_requires_onnxruntime(
+    release_env, tmp_path, monkeypatch, release_validator
+):
     import shutil
 
     from training.models import ModelExporter

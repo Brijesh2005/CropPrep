@@ -20,6 +20,33 @@ import json
 import sys
 from pathlib import Path
 
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _add_repo_root(repo_root: Path) -> None:
+    """Force the repository root to the front of ``sys.path``.
+
+    Called before any ``training.*`` import so ``import training`` always
+    resolves to THIS repository — a stale ``/kaggle/working/training`` folder
+    or a working-directory entry must not shadow the real package.
+    """
+    repo_root = repo_root.resolve()
+    root = str(repo_root)
+    while root in sys.path:
+        sys.path.remove(root)
+    sys.path.insert(0, root)
+    repo_training = (repo_root / "training").resolve()
+    for entry in list(sys.path):
+        if entry == root or entry == "":
+            continue
+        shadow = Path(entry) / "training"
+        if shadow.exists() and shadow.resolve() != repo_training:
+            print(f"[system_check] removing shadowing sys.path entry: {entry}")
+            sys.path.remove(entry)
+
+
+_add_repo_root(_REPO_ROOT)
+
 from training.kaggle.config import (
     load_kaggle_config,
     load_logging_config,
@@ -31,8 +58,6 @@ from training.kaggle import reports
 from training.kaggle.logging import TrainingLogger
 from training.kaggle.validation import TrainingValidator
 from training.kaggle.workspace import WorkspaceManager
-
-_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -58,8 +83,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     repo_root = Path(args.repo_root).resolve()
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
+    _add_repo_root(repo_root)
 
     paths = load_paths_config(Path(args.paths_config))
     kaggle_cfg = load_kaggle_config()

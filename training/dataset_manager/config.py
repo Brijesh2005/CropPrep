@@ -44,6 +44,26 @@ DEFAULT_KAGGLE_HANDLE = (
 #: Environment variable prefix for the Dataset Manager.
 ENV_PREFIX = "DM_"
 
+#: Repository root (parent of the ``training`` package). Config files use
+#: repository-relative paths so the same YAML works on a research machine and
+#: inside a Kaggle notebook regardless of the current working directory.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _resolve_repo_relative(value: str | Path | None) -> Path | None:
+    """Resolve a repository-relative path against :data:`REPO_ROOT`.
+
+    Absolute / root-anchored paths (and ``None``) pass through unchanged;
+    relative paths are anchored at the repository root instead of the
+    process CWD.
+    """
+    if value is None:
+        return None
+    candidate = Path(value)
+    if candidate.anchor:
+        return candidate
+    return (REPO_ROOT / candidate).resolve()
+
 
 class DownloadConfig(BaseModel):
     """Settings for :mod:`training.dataset_manager.downloader`."""
@@ -354,15 +374,34 @@ def load_settings(
         data = raw
 
     env_overrides = parse_env(env_map, ENV_PREFIX)
+    # ``DM_CONFIG_FILE`` selects the YAML file; it is not a settings field
+    # (mirrors the other platform config loaders).
+    env_overrides.pop("config_file", None)
     merged = deep_merge(data, env_overrides)
     merged = apply_case_insensitive(merged, Settings)
 
     try:
-        return Settings.model_validate(merged)
+        settings = Settings.model_validate(merged)
     except Exception as exc:  # pydantic.ValidationError
         raise InvalidConfigurationError(
             f"Invalid configuration: {exc}", detail=merged
         ) from exc
+
+    # Paths in the shipped configs are repository-relative; anchor them at the
+    # repository root so resolution does not depend on the CWD.
+    settings.dataset_root = _resolve_repo_relative(settings.dataset_root)
+    settings.admin_dir = _resolve_repo_relative(settings.admin_dir)
+    settings.providers.tabular.root = _resolve_repo_relative(
+        settings.providers.tabular.root
+    )
+    settings.metadata.db_path = _resolve_repo_relative(settings.metadata.db_path)
+    settings.metadata.parquet_path = _resolve_repo_relative(
+        settings.metadata.parquet_path
+    )
+    settings.registry.db_path = _resolve_repo_relative(settings.registry.db_path)
+    settings.logging.dir = _resolve_repo_relative(settings.logging.dir)
+    settings.raster.cache_dir = _resolve_repo_relative(settings.raster.cache_dir)
+    return settings
 
 
 def save_settings_template(path: str | Path) -> Path:

@@ -27,6 +27,31 @@ from .exceptions import TrainingConfigurationError
 
 ENV_PREFIX = "TRN_"
 
+#: Repository root (parent of the ``training`` package). The shipped config
+#: writes artifact paths relative to the repository root so the same YAML
+#: works on a research machine and inside a Kaggle notebook.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _resolve_repo_relative(value: str | Path | None) -> Path | None:
+    """Resolve a repository-relative path against :data:`REPO_ROOT`.
+
+    Absolute / root-anchored paths (and ``None``) pass through unchanged;
+    relative paths are anchored at the repository root instead of the
+    process CWD.
+    """
+    if value is None:
+        return None
+    candidate = Path(value)
+    if candidate.anchor:
+        return candidate
+    return (REPO_ROOT / candidate).resolve()
+
+
+def _str(value: Path | None) -> str | None:
+    """Render a resolved path back to ``str`` (None passes through)."""
+    return str(value) if value is not None else None
+
 
 # --------------------------------------------------------------------------- #
 # Per-subsystem config sections
@@ -473,9 +498,22 @@ def load_training_config(
     merged = deep_merge(data, parsed_env)
     merged = apply_case_insensitive(merged, TrainingConfig)
     try:
-        return TrainingConfig.model_validate(merged)
+        config = TrainingConfig.model_validate(merged)
     except Exception as exc:  # pydantic.ValidationError
         raise TrainingConfigurationError(f"Invalid training configuration: {exc}") from exc
+
+    # Artifact paths in the shipped config are repository-relative; anchor them
+    # at the repository root so resolution does not depend on the CWD.
+    config.general.output_dir = _resolve_repo_relative(config.general.output_dir)
+    config.general.reports_dir = _str(_resolve_repo_relative(config.general.reports_dir))
+    config.checkpoint.directory = _str(_resolve_repo_relative(config.checkpoint.directory))
+    config.logging.tensorboard_dir = _str(
+        _resolve_repo_relative(config.logging.tensorboard_dir)
+    )
+    config.visualization.directory = _str(
+        _resolve_repo_relative(config.visualization.directory)
+    )
+    return config
 
 
 def save_training_template(path: str | Path) -> Path:

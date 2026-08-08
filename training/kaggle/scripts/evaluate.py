@@ -26,11 +26,22 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _add_repo_root(repo_root: Path) -> None:
+    """Force the repository root to the front of ``sys.path``."""
     import sys
 
     repo_root = repo_root.resolve()
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
+    root = str(repo_root)
+    while root in sys.path:
+        sys.path.remove(root)
+    sys.path.insert(0, root)
+    repo_training = (repo_root / "training").resolve()
+    for entry in list(sys.path):
+        if entry == root or entry == "":
+            continue
+        shadow = Path(entry) / "training"
+        if shadow.exists() and shadow.resolve() != repo_training:
+            print(f"[evaluate] removing shadowing sys.path entry: {entry}")
+            sys.path.remove(entry)
 
 
 def _build_manager(repo_root: Path, dataset_config: Path):

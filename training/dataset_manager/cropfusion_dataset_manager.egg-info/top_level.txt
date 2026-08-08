@@ -14,6 +14,7 @@ manager
 manager_paths
 metadata
 models
+providers
 scanner
 utils
 validator

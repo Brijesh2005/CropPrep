@@ -162,10 +162,24 @@ class KaggleHubImageProvider(ImageProvider):
         self._status = ProviderStatus.NOT_INITIALIZED
         self._catalog: ImageCatalog | None = None
         self._inventory: DatasetInventory | None = None
+        self._mounted_root: Path | None = None
 
     # ------------------------------------------------------------------ #
     # Derived paths
     # ------------------------------------------------------------------ #
+
+    def _kaggle_input_root(self) -> Path | None:
+        """Root of the imagery dataset mounted under ``/kaggle/input`` (if any).
+
+        Kaggle attaches datasets read-only; the ~148 GB Sentinel imagery is
+        consumed **in place** through the mount and never re-downloaded or
+        duplicated via ``kagglehub`` on the training box.
+        """
+        if self._mounted_root is None:
+            slug = self.handle.split("/")[-1]
+            candidate = Path("/kaggle/input") / slug
+            self._mounted_root = candidate if candidate.is_dir() else None
+        return self._mounted_root
 
     @property
     def raw_root(self) -> Path:
@@ -180,8 +194,20 @@ class KaggleHubImageProvider(ImageProvider):
     def state_root(self) -> Path:
         return self.dataset_root / ".cropfusion"
 
+    def source_root(self) -> Path:
+        """Effective imagery root: the Kaggle mount when present, otherwise
+        the materialised catalog inside the managed dataset tree."""
+        return self._kaggle_input_root() or self.catalog_root
+
+    def source_roots(self) -> list[Path]:
+        """Every filesystem root the provider may legitimately read from."""
+        return self._allowed_roots()
+
     def _allowed_roots(self) -> list[Path]:
         roots = [self.catalog_root.resolve()]
+        mounted = self._kaggle_input_root()
+        if mounted is not None:
+            roots.append(mounted.resolve())
         try:
             source = self.downloader.resolve_downloaded(self.handle)
             roots.append(source.resolve())
@@ -231,7 +257,7 @@ class KaggleHubImageProvider(ImageProvider):
     def manifest(self) -> ProviderManifest:
         location = self.location()
         details: dict[str, Any] = {"handle": self.handle}
-        if location.materialized:
+        if location.materialized and not self._kaggle_input_root():
             details.update(
                 {
                     "files": location.files,
@@ -269,9 +295,19 @@ class KaggleHubImageProvider(ImageProvider):
                 to the provider configuration).
 
         Returns:
-            The materialised root path (``catalog_root``), or the Kaggle
-            cache path when materialisation is disabled.
+            The materialised root path (``catalog_root``), the Kaggle
+            cache path when materialisation is disabled, or the mounted
+            input root when the dataset is attached under ``/kaggle/input``.
         """
+        mounted = self._kaggle_input_root()
+        if mounted is not None:
+            self._status = ProviderStatus.READY
+            logger.info(
+                "Using Kaggle-mounted imagery dataset",
+                extra={"root": str(mounted), "handle": self.handle},
+            )
+            return mounted
+
         should_materialize = self.materialize if materialize is None else materialize
         self._status = ProviderStatus.NOT_INITIALIZED
         source = self.downloader.download(
@@ -306,6 +342,18 @@ class KaggleHubImageProvider(ImageProvider):
 
     def location(self) -> ImageDatasetLocation:
         """Current on-disk location / materialisation state."""
+        mounted = self._kaggle_input_root()
+        if mounted is not None:
+            return ImageDatasetLocation(
+                handle=self.handle,
+                root=mounted,
+                downloaded=True,
+                materialized=True,
+                version=_DEFAULT_VERSION,
+                files=0,
+                size_bytes=0,
+                cache_root=self._cache_root(),
+            )
         downloaded = self.downloader.is_downloaded(self.handle)
         materialized = self.catalog_root.is_dir() and any(self.catalog_root.rglob("*"))
 
@@ -344,7 +392,7 @@ class KaggleHubImageProvider(ImageProvider):
     # ------------------------------------------------------------------ #
 
     def _assert_materialized(self) -> Path:
-        root = self.catalog_root
+        root = self.source_root()
         if not root.is_dir():
             raise DatasetNotFoundError(
                 "Imagery dataset is not available. Run `ensure()` first.",

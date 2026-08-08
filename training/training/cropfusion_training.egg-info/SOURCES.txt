@@ -27,11 +27,15 @@ tests/test_ablation.py
 tests/test_benchmark.py
 tests/test_callbacks.py
 tests/test_checkpoint.py
+tests/test_class_weights.py
 tests/test_config.py
+tests/test_cropfusion_trainer.py
+tests/test_curriculum.py
 tests/test_experiment.py
 tests/test_losses.py
 tests/test_metrics.py
 tests/test_optimizers.py
+tests/test_reports.py
 tests/test_schedulers.py
 tests/test_trainer.py
 tests/test_validator.py

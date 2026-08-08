@@ -35,6 +35,34 @@ import sys
 from pathlib import Path
 from typing import Any
 
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _prepend_to_path(repo_root: Path) -> None:
+    """Force the repository root to the front of ``sys.path``.
+
+    Called before any ``training.*`` import so ``import training`` always
+    resolves to THIS repository — a stale ``/kaggle/working/training`` folder
+    or a working-directory entry must not shadow the real package.
+    """
+    repo_root = repo_root.resolve()
+    root = str(repo_root)
+    while root in sys.path:
+        sys.path.remove(root)
+    sys.path.insert(0, root)
+    repo_training = (repo_root / "training").resolve()
+    for entry in list(sys.path):
+        if entry == root or entry == "":
+            continue
+        shadow = Path(entry) / "training"
+        if shadow.exists() and shadow.resolve() != repo_training:
+            print(f"[bootstrap] removing shadowing sys.path entry: {entry}")
+            sys.path.remove(entry)
+    print(f"[bootstrap] repository root on sys.path: {repo_root}")
+
+
+_prepend_to_path(_REPO_ROOT)
+
 from training.kaggle.config import (
     load_kaggle_config,
     load_logging_config,
@@ -45,15 +73,6 @@ from training.kaggle.environment import EnvironmentManager
 from training.kaggle.logging import TrainingLogger
 from training.kaggle import reports
 from training.kaggle.workspace import WorkspaceManager
-
-_REPO_ROOT = Path(__file__).resolve().parents[3]
-
-
-def _prepend_to_path(repo_root: Path) -> None:
-    repo_root = repo_root.resolve()
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
-    print(f"[bootstrap] repository root on sys.path: {repo_root}")
 
 
 def _install_editable(repo_root: Path, packages: list[str], skip: bool = False) -> None:

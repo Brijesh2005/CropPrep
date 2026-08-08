@@ -1,0 +1,84 @@
+# STAM (Spatial-Temporal Alignment Module) configuration.
+#
+# Resolution precedence: ST_* environment variables (``__``-nested) > this
+# file > built-in defaults. See ``training/stam/config.py`` for every option.
+#
+# The tabular block must match the columns of the agricultural record table
+# shipped in the repository (training/datasets/tabular/data_season.csv), so
+# STAM can resolve years, seasons, crops and yields end-to-end.
+
+patch:
+  size: 128
+  pad_mode: constant
+  pad_value: 0.0
+  edge_correction: true
+
+spatial:
+  max_search_radius_km: 5.0
+  distance_threshold_km: 5.0
+  kdtree_leaf_size: 40
+  duplicate_tolerance_m: 50.0
+
+temporal:
+  default_year: null
+  default_season: null
+  tolerance_days: 15
+  max_gap_days: 60
+  # Project calendar (Kharif / Rabi / Zaid) matching data_season.csv's season
+  # values. Resolved against the repository root by the pipeline driver.
+  season_file: seasons.yaml
+
+image:
+  resolution: R10m
+  index_types: [NDVI, EVI]
+  require_pairs: true
+
+quality:
+  max_temporal_gap_days: 60
+  min_observations: 1
+  fail_below: 40.0
+
+cache:
+  enabled: true
+  observation_ttl_seconds: 3600
+  index_ttl_seconds: 86400
+
+admin:
+  boundaries: []
+  admin_dir: null
+  name_column: name
+  level_column: level
+
+tabular:
+  # data_season.csv is the agricultural record table (Year/Location/Season/
+  # Crops/yeilds + agronomic features). Explicitly pinning the table avoids
+  # the auto-discovery heuristic picking the widest CSV (ICRISAT) whose
+  # columns do not match the STAM defaults.
+  table: data_season.csv
+  village_column: Location
+  district_column: district
+  season_column: Season
+  year_column: Year
+  crop_column: Crops
+  yield_column: yeilds
+  feature_columns: [Area, Rainfall, Temperature, Soil type, Irrigation, Humidity, price]
+  fallback_to_district: true
+
+# Cropping calendar aligned with the season values actually present in the
+# tabular data (Kharif / Rabi / Zaid) so every planned season has records.
+seasons:
+  - name: Kharif
+    start_month: 6
+    end_month: 10
+    start_day: 1
+    end_day: 31
+  - name: Rabi
+    start_month: 11
+    end_month: 3
+    start_day: 1
+    end_day: 31
+  - name: Zaid
+    start_month: 4
+    end_month: 5
+    start_day: 1
+    end_day: 31

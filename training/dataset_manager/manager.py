@@ -26,7 +26,7 @@ import platform
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Iterable, Sequence
 
 from .cache_manager import CacheManager
 from .config import Settings, load_settings
@@ -608,14 +608,18 @@ class DatasetManager:
 
         Prefer ``window`` for memory efficiency.
         """
-        resolved = self._resolve_within_root(path)
+        resolved = self._resolve_within_root(
+            path, extra_roots=self._image_source_roots()
+        )
         if window is not None:
             return self.image_loader.read_window(resolved, window=window, band=band)
         return self.image_loader.load(resolved, band=band)
 
     def image_metadata(self, path: str | Path) -> dict[str, Any]:
         """Lazy header metadata for a raster file."""
-        resolved = self._resolve_within_root(path)
+        resolved = self._resolve_within_root(
+            path, extra_roots=self._image_source_roots()
+        )
         return self.image_loader.read_metadata(resolved).to_dict()
 
     def load_geometries(
@@ -1155,7 +1159,9 @@ class DatasetManager:
 
     def get_metadata(self, path: str | Path) -> MetadataRecord | None:
         """Return the metadata record for a file, if generated."""
-        resolved = self._resolve_within_root(path, must_exist=False)
+        resolved = self._resolve_within_root(
+            path, must_exist=False, extra_roots=self._image_source_roots()
+        )
         return self.metadata_store.get(resolved)
 
     def query_metadata(self, **filters: Any) -> list[MetadataRecord]:
@@ -1379,23 +1385,54 @@ class DatasetManager:
             )
         return root
 
-    def _resolve_within_root(self, path: str | Path, *, must_exist: bool = True) -> Path:
-        """Resolve a user-supplied path, enforcing it lives in the dataset root."""
+    def _image_source_roots(self) -> list[Path]:
+        """Filesystem roots the image provider may read from (e.g. the
+        Kaggle ``/kaggle/input`` mount when imagery is attached)."""
+        try:
+            provider = self._registered_provider("kaggle_hub_image")
+            roots = getattr(provider, "source_roots", None)
+            if callable(roots):
+                return [Path(r) for r in roots()]
+        except Exception:  # noqa: BLE001 - provider not registered
+            pass
+        return []
+
+    def _resolve_within_root(
+        self,
+        path: str | Path,
+        *,
+        must_exist: bool = True,
+        extra_roots: Iterable[str | Path] | None = None,
+    ) -> Path:
+        """Resolve a user-supplied path, enforcing it lives in the dataset root
+        (or in one of ``extra_roots`` — e.g. the image provider's mount)."""
         root = self._assert_root()
         candidate = Path(path).expanduser()
         if not candidate.is_absolute():
             candidate = root / candidate
         candidate = candidate.resolve()
-        try:
-            candidate.relative_to(root)
-        except ValueError as exc:
+        allowed = [root]
+        if extra_roots:
+            for entry in extra_roots:
+                resolved = Path(entry).expanduser().resolve()
+                if resolved not in allowed:
+                    allowed.append(resolved)
+        if not any(self._is_within(candidate, base) for base in allowed):
             raise DatasetNotFoundError(
                 f"Path is outside the managed dataset root: {candidate}",
                 detail=str(root),
-            ) from exc
+            )
         if must_exist and not candidate.exists():
             raise DatasetNotFoundError(f"File not found: {candidate}", detail=str(candidate))
         return candidate
+
+    @staticmethod
+    def _is_within(candidate: Path, base: Path) -> bool:
+        try:
+            candidate.relative_to(base)
+        except ValueError:
+            return False
+        return True
 
     def _set_status(self, status: DatasetStatus) -> None:
         entry = self.registry.get_by_name(self.settings.catalog_name)

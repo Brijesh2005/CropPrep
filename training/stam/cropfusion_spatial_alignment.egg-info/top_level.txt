@@ -2,11 +2,13 @@ cache
 config
 coordinate_transform
 exceptions
+historical_context
 interfaces
 logger
 matcher
 observation
 patch_generator
+season_resolver
 sequence_builder
 spatial_index
 stam

@@ -286,11 +286,11 @@ class ReleasePackager:
             ),
             "model_fingerprint": manifest_payload.get("model_fingerprint"),
             "formats": [
-                rel
-                for rel in (
-                    "model/cropfusion.pt",
-                    "model/cropfusion.torchscript.pt",
-                    "model/cropfusion.onnx",
+                fmt
+                for fmt, rel in (
+                    ("pytorch", "model/cropfusion.pt"),
+                    ("torchscript", "model/cropfusion.torchscript.pt"),
+                    ("onnx", "model/cropfusion.onnx"),
                 )
                 if (dest / rel).exists()
             ],
