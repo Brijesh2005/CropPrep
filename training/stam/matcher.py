@@ -44,6 +44,7 @@ from .interfaces import (
     TabularSource,
 )
 from .logger import get_logger
+from .name_aliases import SPECIAL_CASES, normalize_name
 from .observation import (
     AdminLocation,
     ImageRecordRef,
@@ -61,6 +62,9 @@ from .spatial_index import (
 from .temporal_index import Season, SeasonCalendar, TemporalIndex
 
 logger = get_logger("matcher")
+
+#: Repository root (this file lives at <root>/training/stam/matcher.py).
+_REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 # --------------------------------------------------------------------------- #
@@ -201,6 +205,7 @@ class DatasetManagerTabularSource(TabularSource):
         self,
         *,
         village: str | None,
+        taluk: str | None,
         district: str | None,
         year: int,
         season: str | None,
@@ -226,6 +231,11 @@ class DatasetManagerTabularSource(TabularSource):
             row = _first_contains(subset, village_col, village)
             if row is not None:
                 return self._to_record(row, "village")
+        # Taluk-level attempt (e.g. Madikeri) before the district fallback.
+        if taluk and village_col in subset.columns and taluk != village:
+            row = _first_contains(subset, village_col, taluk)
+            if row is not None:
+                return self._to_record(row, "taluk")
         if self.config.fallback_to_district and district and district_col in subset.columns:
             row = _first_contains(subset, district_col, district)
             if row is not None:
@@ -267,7 +277,13 @@ class DatasetManagerBoundaryProvider(BoundaryProvider):
         self._cache: Any | None = None
 
     def boundaries(self) -> Any:
-        """Return a combined GeoDataFrame (EPSG:4326) of all configured sources."""
+        """Return a combined GeoDataFrame (EPSG:4326) of all configured sources.
+
+        Every source is normalised to the canonical ``name``/``level`` columns
+        using its own ``name_column``/``level`` metadata so a single schema
+        feeds the boundary + location indexes (district and taluk layers use
+        different KGIS attributes).
+        """
         if self._cache is not None:
             return self._cache
         import geopandas as gpd
@@ -279,9 +295,11 @@ class DatasetManagerBoundaryProvider(BoundaryProvider):
 
         frames: list[Any] = []
         for source in sources:
-            path = self._resolve_source(source)
+            path = self._resolve_source(source.path)
             gdf = self.manager.load_geometries(path)
-            frames.append(gdf.to_crs(4326) if gdf.crs is not None else gdf)
+            if gdf.crs is not None:
+                gdf = gdf.to_crs(4326)
+            frames.append(_normalise_boundary_frame(gdf, source, self.config))
         combined = pd.concat(frames, ignore_index=True)
         if combined.crs is None:
             combined = combined.set_crs(4326)
@@ -296,6 +314,9 @@ class DatasetManagerBoundaryProvider(BoundaryProvider):
         if self.config.admin_dir is not None:
             roots.append(Path(self.config.admin_dir))
         roots.append(self.manager.settings.dataset_root)
+        # Repo-relative paths (e.g. ``application/gis/...``) work regardless
+        # of the CWD — the Dataset Manager authorises them via admin_dir.
+        roots.append(_REPO_ROOT)
         for root in roots:
             probe = root / source
             if probe.exists():
@@ -319,7 +340,26 @@ class DatasetManagerLocationCatalog(LocationCatalog):
     def points(self) -> list[LocationPoint]:
         points: list[LocationPoint] = []
 
-        # 1. Admin boundary centroids (villages / taluks / districts).
+        # 1. Manual locations that cannot be resolved from boundary files
+        #    (e.g. Kasaragodu, outside the Karnataka shapefiles).
+        for raw_name, special in SPECIAL_CASES.items():
+            if special.get("type") != "manual_point":
+                continue
+            lon = special.get("lon")
+            lat = special.get("lat")
+            if lon is None or lat is None:
+                continue
+            points.append(
+                LocationPoint(
+                    id=f"manual:{raw_name}",
+                    name=raw_name,
+                    lon=float(lon),
+                    lat=float(lat),
+                    meta={"source": "manual", "status": special.get("status", "manual")},
+                )
+            )
+
+        # 2. Admin boundary centroids (villages / taluks / districts).
         gdf = self.boundary_provider.boundaries()
         if gdf is not None and len(gdf):
             name_col = self.config.admin.name_column
@@ -343,7 +383,7 @@ class DatasetManagerLocationCatalog(LocationCatalog):
                     )
                 )
 
-        # 2. Image record centroids (actual observation footprint).
+        # 3. Image record centroids (actual observation footprint).
         try:
             images = self.manager.query_metadata(category="geotiff")
         except Exception:  # noqa: BLE001 - image metadata may be unavailable
@@ -564,12 +604,17 @@ class SpatialTemporalMatcher:
         *,
         village: str | None,
         district: str | None,
+        taluk: str | None = None,
         year: int,
         season: str | None,
     ) -> TabularFeatures | None:
         """Best tabular record for the location/season/year."""
         record = self.tabular_source.load_record(
-            village=village, district=district, year=year, season=season
+            village=village,
+            taluk=taluk,
+            district=district,
+            year=year,
+            season=season,
         )
         if record is None:
             return None
@@ -678,12 +723,56 @@ def _filter_contains(frame: pd.DataFrame, column: str, value: Any) -> pd.DataFra
 
 
 def _first_contains(frame: pd.DataFrame, column: str, value: Any) -> pd.Series | None:
-    mask = frame[column].astype(str).str.contains(
-        str(value).strip(), case=False, na=False
-    )
+    """First row whose ``column`` name matches ``value``.
+
+    Both sides are normalised through :func:`normalize_name` (aliases,
+    casing, parenthetical qualifiers) so a KGIS boundary name like
+    ``"Dakshina Kannada"`` matches the CSV's ``"Mangalore"``. Exact match is
+    preferred; a substring match on the normalised names is the fallback.
+    """
+    raw = str(value).strip() if value is not None else ""
+    if not raw:
+        return None
+    norm = normalize_name(raw)
+    if norm:
+        names = frame[column].astype(str).map(normalize_name)
+        exact = names == norm
+        if exact.any():
+            return frame[exact].iloc[0]
+        contains = names.str.contains(norm, regex=False, case=False, na=False)
+        if contains.any():
+            return frame[contains].iloc[0]
+    mask = frame[column].astype(str).str.contains(raw, case=False, na=False)
     if mask.any():
         return frame[mask].iloc[0]
     return None
+
+
+def _normalise_boundary_frame(
+    gdf: Any, source: Any, config: AdminConfig
+) -> Any:
+    """Copy ``gdf`` into a canonical ``name``/``level`` schema.
+
+    ``source.name_column`` (falling back to ``config.name_column``) is copied
+    into a ``name`` column and ``source.level`` is stamped onto every feature
+    so the combined boundary frame has one uniform schema.
+    """
+    frame = gdf.copy()
+    name_col = source.name_column or config.name_column
+    if name_col != "name":
+        if name_col in frame.columns:
+            frame["name"] = frame[name_col].astype(str)
+        else:
+            logger.warning(
+                "Boundary source missing name column",
+                extra={"path": source.path, "column": name_col},
+            )
+            frame["name"] = ""
+    if source.level is not None:
+        frame["level"] = str(source.level)
+    elif "level" not in frame.columns:
+        frame["level"] = None
+    return frame
 
 
 def _json_safe(value: Any) -> Any:

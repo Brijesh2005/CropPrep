@@ -17,6 +17,11 @@ processed_dir_name: processed
 state_dir_name: .cropfusion
 catalog_name: kaggle-crop-yield
 
+# Directory the Dataset Manager is allowed to serve boundary geometries from.
+# Enables STAM admin-boundary loading for the KGIS shapefiles configured in
+# training/config/stam.yaml (application/gis/...).
+admin_dir: application/gis
+
 download:
   kaggle_handle: shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada
   force_download: false

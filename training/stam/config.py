@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from shared.config import apply_case_insensitive, deep_merge, parse_env
 from .exceptions import StamConfigurationError
@@ -123,20 +123,55 @@ class CacheConfig(BaseModel):
     index_ttl_seconds: int = Field(default=86400, ge=0)
 
 
+class BoundarySource(BaseModel):
+    """One configured administrative boundary layer.
+
+    ``path`` is a shapefile/GeoJSON path resolved against ``admin_dir`` or the
+    dataset root. ``name_column``/``level`` override the global
+    :class:`AdminConfig` defaults so every shapefile can use its own attribute
+    (e.g. ``KGISDist_1`` for districts, ``KGISTalukN`` for taluks).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    path: str
+    #: Attribute holding the feature name (falls back to AdminConfig.name_column).
+    name_column: str | None = None
+    #: Administrative level stamped onto every feature (falls back to the
+    #: layer's own ``level_column`` when not given).
+    level: str | None = None
+
+
 class AdminConfig(BaseModel):
     """Settings for administrative boundary support."""
 
     model_config = ConfigDict(extra="forbid")
 
-    #: Boundary sources (shapefile/GeoJSON paths). Paths are resolved against
-    #: ``admin_dir`` or the dataset root.
-    boundaries: list[str] = Field(default_factory=list)
+    #: Boundary sources (shapefile/GeoJSON paths with per-layer attributes).
+    #: Plain string paths are accepted for backward compatibility.
+    boundaries: list[BoundarySource] = Field(default_factory=list)
     #: Directory containing boundary files (mirrors Dataset Manager admin_dir).
     admin_dir: Path | None = None
-    #: Column holding the feature name (village/taluk/district).
+    #: Default column holding the feature name (village/taluk/district).
     name_column: str = "name"
-    #: Column holding the administrative level, when present.
+    #: Default column holding the administrative level, when present.
     level_column: str = "level"
+
+    @field_validator("boundaries", mode="before")
+    @classmethod
+    def _coerce_boundaries(cls, value: Any) -> Any:
+        """Coerce plain string paths into :class:`BoundarySource` entries."""
+        if value is None:
+            return []
+        coerced: list[Any] = []
+        for item in value:
+            if isinstance(item, str):
+                coerced.append({"path": item})
+            elif isinstance(item, Mapping):
+                coerced.append(dict(item))
+            else:
+                coerced.append(item)
+        return coerced
 
 
 class TabularConfig(BaseModel):

@@ -37,6 +37,7 @@ from .historical_context import HistoricalContextBuilder
 from .interfaces import StamCache
 from .logger import get_logger
 from .matcher import SpatialTemporalMatcher, TemporalContext
+from .name_aliases import normalize_name, resolve_location
 from .observation import (
     AgriculturalObservation,
     LocationInfo,
@@ -204,18 +205,22 @@ class STAM:
         )
 
         # -- Tabular -------------------------------------------------------- #
-        village = (
+        raw_name = (
             location_info.admin.village
             if location_info.admin and location_info.admin.village
             else location_info.dataset_location_name
         )
+        location_resolution = resolve_location(raw_name)
+        normalized_name = location_resolution.normalized
+        taluk = normalize_name(location_info.admin.taluk) if location_info.admin else None
         district = (
-            location_info.admin.district
+            normalize_name(location_info.admin.district)
             if location_info.admin
             else None
         )
         tabular = self.matcher.match_tabular(
-            village=village,
+            village=normalized_name,
+            taluk=taluk,
             district=district,
             year=context.year,
             season=context.season.name if context.season else None,
@@ -281,6 +286,11 @@ class STAM:
                 "season_resolver_source": self.season_resolver.source,
                 "season_resolver_version": self.season_resolver.version,
                 "historical_context_years": historical_context.years,
+                "location_resolution": {
+                    "raw_name": location_resolution.name,
+                    "normalized_name": location_resolution.normalized,
+                    "status": location_resolution.status,
+                },
             },
         )
 

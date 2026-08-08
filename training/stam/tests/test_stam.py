@@ -8,8 +8,33 @@ from training.stam.exceptions import (
     LocationNotFoundError,
     NotInitializedError,
 )
+from training.stam.name_aliases import normalize_name, resolve_location
 from training.stam.observation import AgriculturalObservation
 from training.stam.stam import STAM
+
+
+def test_alias_mapping():
+    assert normalize_name("Mangalore") == "Dakshina Kannada"
+    assert normalize_name("Bangalore") == "Bengaluru"
+    assert normalize_name("Chikmangaluru") == "Chikkamagaluru"
+    assert normalize_name("Davangere") == "Davanagere"
+    assert normalize_name("Gulbarga") == "Kalaburgi"
+    assert normalize_name("Kodagu") == "Kodagu"
+
+
+def test_normalize_name_case_and_boundary_side():
+    # The boundary side must land on the same canonical spelling.
+    assert normalize_name("Dakshina Kannada") == "Dakshina Kannada"
+    assert normalize_name("  mangalore  ") == "Dakshina Kannada"
+    assert normalize_name("Bengaluru (Urban)") == "Bengaluru"
+    assert normalize_name(None) == ""
+
+
+def test_kasaragodu_handling():
+    result = resolve_location("Kasaragodu")
+    assert result is not None
+    assert result.status in ["manual", "unmatched"]
+    assert result.lon is not None and result.lat is not None
 
 
 def test_not_initialized_raises(manager, stam_config):

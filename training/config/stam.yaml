@@ -44,7 +44,17 @@ cache:
   index_ttl_seconds: 86400
 
 admin:
-  boundaries: []
+  # Karnataka KGIS boundary layers. Each source carries its own KGIS
+  # attribute as ``name_column`` and its administrative ``level`` so the
+  # combined boundary index exposes both district and taluk names.
+  boundaries:
+    - path: application/gis/District/District.shp
+      name_column: KGISDist_1
+      level: district
+
+    - path: application/gis/Taluk/Taluk.shp
+      name_column: KGISTalukN
+      level: taluk
   admin_dir: null
   name_column: name
   level_column: level

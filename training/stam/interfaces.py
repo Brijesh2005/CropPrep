@@ -60,6 +60,7 @@ class TabularSource(ABC):
         district: str | None,
         year: int,
         season: str | None,
+        taluk: str | None = None,
     ) -> dict[str, Any] | None:
         """Return the best matching tabular record, or None."""
 
