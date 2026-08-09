@@ -141,6 +141,10 @@ class Trainer:
         self.config = config
         self.raw_model = model
         self.device = device or resolve_device(config.general.device)
+        # Place the model on the compute device *before* the optimizer / DDP /
+        # validator are built so every consumer sees device-resident parameters
+        # (previously CUDA inputs hit CPU weights on first forward).
+        self.raw_model.to(self.device)
         self.input_map = input_map or _default_input_map
 
         # torch.compile (optional) — wraps the raw model before any
@@ -170,6 +174,7 @@ class Trainer:
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.loss_module = loss_module or MultiTaskLoss(config.loss)
+        self.loss_module.to(self.device)
         self.optimizer = optimizer or build_optimizer(self.raw_model, config.optimizer)
 
         self.steps_per_epoch = max(1, len(train_loader))

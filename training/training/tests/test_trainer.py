@@ -32,6 +32,36 @@ def test_trainer_trains_and_returns_result(tabular_model, fake_loader, train_con
     assert trainer.checkpoint_manager.best_path.exists()
 
 
+def test_model_and_loss_moved_to_trainer_device(
+    tabular_model, fake_loader, train_config
+):
+    """The model must be placed on ``device`` before the first forward pass.
+
+    Regression: on CUDA the batch was moved to ``device`` but the model
+    parameters stayed on CPU, so ``F.linear`` failed with a device mismatch.
+    """
+    from unittest.mock import patch
+
+    records: list[tuple[torch.nn.Module, torch.device]] = []
+    original_to = torch.nn.Module.to
+
+    def spy_to(self, device, *args, **kwargs):
+        records.append((self, torch.device(device)))
+        return original_to(self, device, *args, **kwargs)
+
+    with patch.object(torch.nn.Module, "to", spy_to):
+        trainer = Trainer(tabular_model, fake_loader, train_config)
+
+    model_devices = [d for m, d in records if m is tabular_model]
+    loss_devices = [d for m, d in records if m is trainer.loss_module]
+    assert model_devices, "Trainer must call model.to(device)"
+    assert model_devices[-1] == trainer.device
+    assert loss_devices, "Trainer must move the loss module to the compute device"
+    assert loss_devices[-1] == trainer.device
+    for p in tabular_model.parameters():
+        assert p.device == trainer.device
+
+
 def test_trainer_val_metrics(tabular_model, fake_loader, train_config):
     val_loader = make_fake_loader(n=8, batch_size=8)
     trainer = Trainer(tabular_model, fake_loader, train_config, val_loader=val_loader)
