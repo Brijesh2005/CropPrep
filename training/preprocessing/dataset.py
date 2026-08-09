@@ -97,6 +97,28 @@ def _temporal_split(
         by_year[int(getattr(obs, "temporal").year)].append(obs)
     years = sorted(by_year)
 
+    # Small-corpus fallback: with fewer than ``min_years_for_temporal`` distinct
+    # years a whole-year assignment would force every year out of train (the
+    # ``max(1, ...)`` floor on both test and val). Use an observation-level
+    # split instead, keep everything for train/test, and drop the separate val
+    # set so the holdout never sees empty train/test splits. Explicit
+    # ``test_years`` / ``val_years`` are honored as-is (the user chose them).
+    explicit = bool(cfg.test_years) or bool(cfg.val_years)
+    if items and len(years) < cfg.min_years_for_temporal and not explicit:
+        logger.warning(
+            "temporal split fallback: %d distinct year(s) < "
+            "min_years_for_temporal=%d — using an observation-level split "
+            "with no validation set",
+            len(years),
+            cfg.min_years_for_temporal,
+        )
+        rng = random.Random(cfg.seed)
+        shuffled = list(items)
+        rng.shuffle(shuffled)
+        total = len(shuffled)
+        n_test = min(max(1, int(round(total * cfg.test_ratio))), total - 1)
+        return shuffled[: total - n_test], [], shuffled[total - n_test:]
+
     test_years = set(cfg.test_years) if cfg.test_years else _last_fraction(years, cfg.test_ratio)
     remaining = [y for y in years if y not in test_years]
     val_years = set(cfg.val_years) if cfg.val_years else _last_fraction(
@@ -143,7 +165,12 @@ def _group_split(
 def _last_fraction(years: list[int], fraction: float) -> set[int]:
     if not years:
         return set()
-    count = max(1, int(round(len(years) * fraction)))
+    count = int(round(len(years) * fraction))
+    # Never assign away the ONLY remaining year(s): keep at least one year for
+    # train so a whole-year split can never starve it.
+    count = min(max(count, 1), len(years) - 1)
+    if count <= 0:
+        return set()
     return set(years[-count:])
 
 

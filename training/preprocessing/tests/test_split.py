@@ -72,6 +72,83 @@ def test_temporal_split_recent_years_test():
     assert test_years.isdisjoint(train_years)
 
 
+def test_temporal_split_two_years_falls_back_to_observation_split():
+    # 2 distinct years (< min_years_for_temporal=3): must not raise, must fall
+    # back to an observation-level split with no validation set, and must keep
+    # every observation (a whole-year assignment would leave train empty).
+    obs = [
+        _Obs(year=2018, village="A"), _Obs(year=2018, village="B"),
+        _Obs(year=2019, village="A"), _Obs(year=2019, village="B"),
+    ]
+    train, val, test = split_observations(
+        obs, SplitConfig(strategy="temporal", seed=7)
+    )
+    assert val == []
+    assert len(train) > 0 and len(test) > 0
+    assert len(train) + len(test) == len(obs)
+    # Observation-level split: train spans both years rather than a single year.
+    assert {o.temporal.year for o in train} == {2018, 2019}
+
+
+def test_temporal_split_single_year_falls_back():
+    # 1 distinct year: must not raise and must produce non-empty train/test.
+    obs = [
+        _Obs(year=2018, village="A"), _Obs(year=2018, village="B"),
+        _Obs(year=2018, village="C"), _Obs(year=2018, village="D"),
+    ]
+    train, val, test = split_observations(
+        obs, SplitConfig(strategy="temporal", seed=7)
+    )
+    assert val == []
+    assert len(train) > 0 and len(test) > 0
+    assert len(train) + len(test) == len(obs)
+
+
+def test_temporal_split_many_years_no_regression():
+    # 5 distinct years: whole-year temporal holdout behaves exactly as before.
+    obs = [
+        _Obs(year=year, village=village)
+        for year in range(2016, 2021)
+        for village in ("A", "B")
+    ]
+    train, val, test = split_observations(
+        obs, SplitConfig(strategy="temporal", seed=42)
+    )
+    train_years = {o.temporal.year for o in train}
+    val_years = {o.temporal.year for o in val}
+    test_years = {o.temporal.year for o in test}
+    assert train_years and val_years and test_years
+    assert train_years.isdisjoint(val_years)
+    assert train_years.isdisjoint(test_years)
+    assert val_years.isdisjoint(test_years)
+    assert train_years | val_years | test_years == set(range(2016, 2021))
+    # Whole-year assignment: all observations of a year land in one split.
+    for year in range(2016, 2021):
+        per_split = (
+            sum(1 for o in train if o.temporal.year == year),
+            sum(1 for o in val if o.temporal.year == year),
+            sum(1 for o in test if o.temporal.year == year),
+        )
+        assert per_split.count(0) == 2
+
+
+def test_temporal_split_min_years_threshold_configurable():
+    # Raising the threshold above the year count forces the whole-year path;
+    # lowering it below keeps the fallback off for that corpus size.
+    obs = [
+        _Obs(year=2018, village="A"), _Obs(year=2018, village="B"),
+        _Obs(year=2019, village="A"), _Obs(year=2019, village="B"),
+    ]
+    train, val, test = split_observations(
+        obs, SplitConfig(strategy="temporal", min_years_for_temporal=2, seed=7)
+    )
+    train_years = {o.temporal.year for o in train}
+    test_years = {o.temporal.year for o in test}
+    # Whole-year path: disjoint single years, no mixed-year train set.
+    assert train_years.isdisjoint(test_years)
+    assert len(train_years) == 1 and len(test_years) == 1
+
+
 def test_spatial_split_no_village_leakage():
     obs = _observations()
     train, val, test = split_observations(

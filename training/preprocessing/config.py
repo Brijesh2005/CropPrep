@@ -130,6 +130,10 @@ class SplitConfig(BaseModel):
     test_years: list[int] = Field(default_factory=list)
     #: Explicit validation years (temporal strategy).
     val_years: list[int] = Field(default_factory=list)
+    #: Minimum distinct years before a whole-year temporal holdout is used.
+    #: With fewer years the split falls back to an observation-level split
+    #: (and no separate validation set) so a tiny corpus never starves train.
+    min_years_for_temporal: int = Field(default=3, ge=1)
 
 
 class AugmentationConfig(BaseModel):
@@ -254,7 +258,8 @@ def save_preprocessing_template(path: str | Path) -> Path:
                   "yield_scaler": "standard"},
         "split": {"strategy": "temporal", "train_ratio": 0.7, "val_ratio": 0.15,
                   "test_ratio": 0.15, "seed": 42, "group_column": "village",
-                  "temporal_column": "year", "test_years": [], "val_years": []},
+                  "temporal_column": "year", "test_years": [], "val_years": [],
+                  "min_years_for_temporal": 3},
         "augmentation": {"enabled": False, "flip_horizontal": False,
                          "flip_vertical": False, "rotation_degrees": [],
                          "random_crop": False, "crop_fraction": 0.9,
