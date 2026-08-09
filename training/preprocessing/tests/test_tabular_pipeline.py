@@ -87,6 +87,26 @@ def test_missing_value_filled():
     assert float(tensor[0]) == pytest.approx(2500.0)  # mean fill of [3000, 2000]
 
 
+def test_onehot_feature_names_match_transform_with_mixed_cardinalities():
+    config = TabularConfig(
+        scaler="none", categorical_encoding="onehot",
+        numeric_features=["rainfall_mm"], categorical_features=["village", "district"],
+    )
+    samples = [
+        _Obs({"rainfall_mm": 1.0, "village": "A", "district": "DK"}),
+        _Obs({"rainfall_mm": 2.0, "village": "B", "district": "DK"}),
+        _Obs({"rainfall_mm": 3.0, "village": "A", "district": "KL"}),
+        _Obs({"rainfall_mm": 4.0, "village": "C", "district": "KL"}),
+    ]
+    pipeline = TabularPipeline(config).fit(samples)
+    tensor = pipeline.transform(samples[0])
+    assert tensor.shape[0] == len(pipeline.feature_names)
+    assert "village=A" in pipeline.feature_names and "village=B" in pipeline.feature_names
+    assert "village=C" in pipeline.feature_names
+    assert "district=DK" in pipeline.feature_names and "district=KL" in pipeline.feature_names
+    assert not any(name.startswith("district=") and name == "district=A" for name in pipeline.feature_names)
+
+
 def test_unfitted_raises(samples):
     pipeline = TabularPipeline()
     with pytest.raises(FitError):

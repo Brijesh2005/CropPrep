@@ -70,6 +70,34 @@ def test_ordinal_schema_derived(pipeline):
     assert config.tabular_feature_dim == len(preprocessor.tabular.feature_names)
 
 
+def test_onehot_batch_dim_matches_derived_config(preprocessor_onehot, stam_chain):
+    """One-hot multi-column schemas must not inflate the derived feature dim."""
+    preprocessor, stam = preprocessor_onehot, stam_chain
+    config = ModelFactory.build_config(
+        preprocessor,
+        image_encoder={"backbone": "mobilenetv3_small_050", "input_size": 16},
+    )
+    assert config.tabular.categorical_cardinalities == []
+
+    observations = stam.build_observation(74.801, 13.099, year=2020, season="Kharif")
+    dataset = CropFusionDataset.build(
+        preprocessor, [observations] * 4, split="train", extractor=stam.get_patch
+    )
+    loader = build_dataloader(
+        dataset, config=preprocessor.config, split="train",
+        batch_size=2, shuffle=False,
+    )
+    batch = next(iter(loader))
+
+    assert batch["tabular"].shape[1] == config.tabular_feature_dim
+    assert batch["tabular"].shape[1] == preprocessor.tabular.transform(observations).shape[0]
+
+    model = ModelFactory.create(config)
+    model.train()
+    out = model(batch)
+    assert out.crop_logits.shape[0] == 2
+
+
 def test_temporal_mask_marks_padding(pipeline):
     preprocessor, stam = pipeline
     obs = stam.build_observation(74.801, 13.099, year=2020, season="Kharif")

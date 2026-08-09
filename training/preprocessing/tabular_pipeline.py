@@ -103,6 +103,9 @@ class TabularPipeline(Pipeline):
             cat_matrix = _categorical_matrix(fields, categorical)
             self.encoder = _make_encoder(self.config.categorical_encoding)
             if self.encoder is not None:
+                # Map column name -> position so one-hot feature names expand
+                # per-column categories (not always categories_[0]).
+                self.encoder._col_index = {col: i for i, col in enumerate(categorical)}
                 self.encoder.fit(cat_matrix)
 
         self.feature_names = list(numeric)
@@ -381,6 +384,8 @@ def _make_encoder(name: str) -> Transformer | None:
 def _encoder_categories(encoder: Transformer, column: str) -> list[str]:
     if isinstance(encoder, OneHotEncoder) and encoder.categories_:
         index = getattr(encoder, "_col_index", None)
+        if index is not None:
+            return encoder.categories_[index.get(column, 0)]
         return encoder.categories_[0]
     return []
 
