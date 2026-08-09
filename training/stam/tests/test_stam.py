@@ -227,6 +227,9 @@ def test_multi_table_icrisat_district_fallback(manager, stam_config_multi_table)
     # Point inside the DK district polygon but outside any village/taluk:
     # table 1 (village-level) cannot answer, table 2 (ICRISAT-style) does at
     # district level and its dominant crop (Rice > Cotton by area) wins.
+    # The point is also outside the synthetic raster footprint, so the spatial
+    # coverage filter yields an empty sequence (ST-Q-IMG-001) rather than a
+    # bogus one that cannot be patched.
     stam = _multi_table_stam(manager, stam_config_multi_table)
     obs = stam.build_observation(74.86, 13.15, year=2020, season="Kharif")
     assert obs.location.dataset_location_name == "DK"
@@ -234,7 +237,8 @@ def test_multi_table_icrisat_district_fallback(manager, stam_config_multi_table)
     assert obs.tabular.source_path.endswith("icrisat_wide.csv")
     assert obs.crop == "Rice"
     assert obs.yield_value == 4000.0
-    assert obs.quality.passed is True
+    assert len(obs.sequence.pairs) == 0
+    assert any(i.code == "ST-Q-IMG-001" for i in obs.quality.issues)
 
 
 def test_multi_table_no_coverage_anywhere(manager, stam_config_multi_table):
@@ -346,3 +350,62 @@ def test_kasaragodu_resolves_cleanly(alias_stam):
     assert obs.location.admin is None
     assert obs.tabular.matched_level == "village"
     assert obs.crop == "Coconut"
+
+
+# --------------------------------------------------------------------------- #
+# Spatial raster-coverage filter
+# --------------------------------------------------------------------------- #
+
+
+def _image_record(name, bounds, crs="EPSG:4326", pixel=(0.0001, 0.0001)):
+    from training.stam.observation import ImageRecordRef
+
+    return ImageRecordRef(
+        path=f"mem://{name}.tif",
+        relative_path=f"mem://{name}.tif",
+        index_type="NDVI",
+        resolution="R10m",
+        crs=crs,
+        pixel_size=pixel,
+        bounds=bounds,
+    )
+
+
+def test_spatial_filter_drops_non_covering_rasters(stam):
+    lon, lat = 74.802, 13.098
+    covering = _image_record("covering", (74.80, 13.096, 74.804, 13.100))
+    outside = _image_record("outside", (75.00, 13.00, 75.10, 13.10))
+    kept_ndvi, kept_evi = stam._filter_images_for_point(
+        lon, lat, [covering, outside], []
+    )
+    assert kept_ndvi == [covering]
+    assert kept_evi == []
+
+
+def test_spatial_filter_keeps_edge_patches_within_margin(stam):
+    # 16px patch on 0.0001 deg pixels -> half-patch margin of 0.0008 deg, so a
+    # point slightly west of the raster's left edge still passes through.
+    lon, lat = 74.802, 13.098
+    edge = _image_record("edge", (74.8025, 13.096, 74.804, 13.100))
+    kept_ndvi, _ = stam._filter_images_for_point(lon, lat, [edge], [])
+    assert kept_ndvi == [edge]
+
+
+def test_spatial_filter_projects_point_into_raster_crs(stam):
+    # Karnataka (74.802, 13.098) projects into UTM 43N at (478537, 1447981);
+    # a UTM raster covering that spot is kept.
+    lon, lat = 74.802, 13.098
+    utm = _image_record(
+        "utm", (477000, 1447000, 480000, 1450000),
+        crs="EPSG:32643", pixel=(10.0, 10.0),
+    )
+    kept_ndvi, _ = stam._filter_images_for_point(lon, lat, [utm], [])
+    assert kept_ndvi == [utm]
+
+
+def test_spatial_filter_keeps_records_without_bounds_or_crs(stam):
+    lon, lat = 74.802, 13.098
+    no_bounds = _image_record("no-bounds", None)
+    no_crs = _image_record("no-crs", (74.80, 13.096, 74.804, 13.100), crs=None)
+    kept_ndvi, _ = stam._filter_images_for_point(lon, lat, [no_bounds, no_crs], [])
+    assert kept_ndvi == [no_bounds, no_crs]

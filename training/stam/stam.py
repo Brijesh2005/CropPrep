@@ -32,6 +32,7 @@ from training.dataset_manager import DatasetManager
 
 from .cache import DatasetManagerStamCache
 from .config import StamConfig, load_stam_config
+from .coordinate_transform import WGS84, transform_point
 from .exceptions import PairingError, StamError, NotInitializedError
 from .historical_context import HistoricalContextBuilder
 from .interfaces import StamCache
@@ -365,6 +366,7 @@ class STAM:
         ndvi, evi = self.matcher.match_images(
             year=context.year, season=context.season, resolution=resolution
         )
+        ndvi, evi = self._filter_images_for_point(lon, lat, ndvi, evi)
         return self.sequence_builder.build(ndvi, evi, resolution=resolution)
 
     def get_patch(
@@ -433,6 +435,7 @@ class STAM:
         ndvi, evi = self.matcher.match_images(
             year=context.year, season=context.season, resolution=resolution
         )
+        ndvi, evi = self._filter_images_for_point(lon, lat, ndvi, evi)
         try:
             return self.sequence_builder.build(ndvi, evi, resolution=resolution)
         except PairingError as exc:
@@ -451,10 +454,64 @@ class STAM:
             )
             return result
 
+    def _filter_images_for_point(
+        self,
+        lon: float,
+        lat: float,
+        ndvi: list[Any],
+        evi: list[Any],
+    ) -> tuple[list[Any], list[Any]]:
+        """Drop image records whose raster does not cover the query point.
+
+        ``match_images`` returns every season-window raster in the region, but a
+        location almost never falls inside all of them. Reading a patch from a
+        non-covering raster raises ``PatchOutOfBoundsError`` at training time, so
+        records are kept only when the point (projected into the raster's CRS)
+        is inside the raster bounds expanded by half a patch — partial edge
+        patches still pass through to the edge-correction/padding logic.
+        """
+        records = [*ndvi, *evi]
+        margin = _half_patch_units(self.config.patch.size, records)
+        return (
+            [r for r in ndvi if _record_covers_point(r, lon, lat, margin)],
+            [r for r in evi if _record_covers_point(r, lon, lat, margin)],
+        )
+
 
 # --------------------------------------------------------------------------- #
 # Helpers
 # --------------------------------------------------------------------------- #
+
+
+def _record_covers_point(record, lon: float, lat: float, margin_units: float) -> bool:
+    """True when ``(lon, lat)`` falls inside ``record``'s raster bounds.
+
+    ``record.bounds`` is expressed in the raster's native CRS, so the point is
+    projected into that CRS before the comparison. Records without usable
+    bounds or CRS are kept (best effort) so behaviour is unchanged for them.
+    """
+    if not getattr(record, "bounds", None) or not getattr(record, "crs", None):
+        return True
+    try:
+        x, y = transform_point(WGS84, record.crs, lon, lat)
+    except Exception:  # noqa: BLE001 - keep the record on projection failure
+        return True
+    left, bottom, right, top = record.bounds
+    return (
+        left - margin_units <= x <= right + margin_units
+        and bottom - margin_units <= y <= top + margin_units
+    )
+
+
+def _half_patch_units(size: int, records: list[Any]) -> float:
+    """Half a patch in raster units (max pixel size across the records)."""
+    half_pixels = size // 2
+    max_pixel = 0.0
+    for record in records:
+        px = getattr(record, "pixel_size", None)
+        if px:
+            max_pixel = max(max_pixel, float(px[0]), float(px[1]))
+    return half_pixels * max_pixel
 
 
 def _missing_pair_issue():

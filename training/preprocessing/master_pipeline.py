@@ -24,6 +24,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Sequence
 
+from training.stam.exceptions import PatchOutOfBoundsError
 from training.stam.observation import AgriculturalObservation
 
 from .augmentations import ImageAugmentation
@@ -271,20 +272,54 @@ class Preprocessor:
         for pair in pairs:
             ndvi_tensor = None
             if pair.ndvi is not None:
-                patch = extractor(pair.ndvi.path, lon, lat, size=size)
-                ndvi_tensor = self.image.transform_patch(
-                    patch.array, "NDVI", mask=getattr(patch, "mask", None)
+                patch = self._extract_patch(
+                    extractor, pair.ndvi.path, lon, lat, size, observation
                 )
+                if patch is not None:
+                    ndvi_tensor = self.image.transform_patch(
+                        patch.array, "NDVI", mask=getattr(patch, "mask", None)
+                    )
             evi_tensor = None
             if pair.evi is not None:
-                patch = extractor(pair.evi.path, lon, lat, size=size)
-                evi_tensor = self.image.transform_patch(
-                    patch.array, "EVI", mask=getattr(patch, "mask", None)
+                patch = self._extract_patch(
+                    extractor, pair.evi.path, lon, lat, size, observation
                 )
+                if patch is not None:
+                    evi_tensor = self.image.transform_patch(
+                        patch.array, "EVI", mask=getattr(patch, "mask", None)
+                    )
             ndvi_tensors.append(ndvi_tensor)
             evi_tensors.append(evi_tensor)
             dates.append(pair.date)
         return ndvi_tensors, evi_tensors, dates
+
+    def _extract_patch(
+        self,
+        extractor: Any,
+        path: str,
+        lon: float,
+        lat: float,
+        size: int,
+        observation: Any,
+    ) -> Any | None:
+        """Extract a patch; return None when the point is outside the raster.
+
+        Defensive net behind the sequence-level spatial filter: if the point
+        still misses a raster (projection/metadata drift), the band is treated
+        as missing instead of aborting the whole sample.
+        """
+        try:
+            return extractor(path, lon, lat, size=size)
+        except PatchOutOfBoundsError:
+            logger.warning(
+                "Patch out of bounds; band treated as missing",
+                extra={
+                    "path": path,
+                    "lon": lon, "lat": lat,
+                    "observation_id": observation.id,
+                },
+            )
+            return None
 
 
 def _sample_metadata(observation: AgriculturalObservation) -> dict[str, Any]:
