@@ -17,6 +17,7 @@ built, so callers never wire modules by hand:
 
 from __future__ import annotations
 
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -199,12 +200,32 @@ class ModelFactory:
         return cls.create(merged)
 
     @classmethod
+    def from_config(
+        cls,
+        config: ModelConfig | Mapping[str, Any],
+        *,
+        architecture: str | None = None,
+    ) -> CropFusionModel:
+        """Build a model from a config (or config dict) — alias of :meth:`create`.
+
+        Provided so the inference release loader can rebuild the architecture
+        from ``model.yaml`` on the state-dict fallback path without importing
+        the training stack.
+        """
+        return cls.create(config, architecture=architecture)
+
+    @classmethod
     def from_checkpoint(cls, path: str | Path) -> CropFusionModel:
         """Rebuild a model from a checkpoint (config + weights).
 
         The checkpoint's ``architecture`` (falling back to its config name) is
         used to resolve the model class, so a registered future architecture is
         rebuilt with its own class, not the built-in one.
+
+        The rebuilt model is created with ``image_encoder.pretrained=False`` —
+        the checkpoint already contains the trained backbone weights, so the
+        ImageNet state is never re-downloaded (important on offline inference
+        / export hosts).
 
         Args:
             path: Checkpoint file written by
@@ -221,10 +242,20 @@ class ModelFactory:
                 "the architecture",
                 detail=str(path),
             )
+        rebuild_config = deepcopy(model_config)
+        image_encoder = (
+            rebuild_config.get("image_encoder")
+            if isinstance(rebuild_config, Mapping)
+            else getattr(rebuild_config, "image_encoder", None)
+        )
+        if isinstance(image_encoder, Mapping):
+            image_encoder["pretrained"] = False
+        elif image_encoder is not None:
+            image_encoder.pretrained = False
         architecture = state.get("architecture") or (
             model_config.get("name") if isinstance(model_config, Mapping) else None
         )
-        model = cls.create(model_config, architecture=architecture)
+        model = cls.create(rebuild_config, architecture=architecture)
         report = CheckpointManager.load_state_into(model, path, strict=True)
         return model
 

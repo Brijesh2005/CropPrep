@@ -8,7 +8,7 @@
 # STAM can resolve years, seasons, crops and yields end-to-end.
 
 patch:
-  size: 128
+  size: 224
   pad_mode: constant
   pad_value: 0.0
   edge_correction: true

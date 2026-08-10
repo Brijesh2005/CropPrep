@@ -71,6 +71,7 @@ from training.kaggle.workspace import WorkspaceManager  # noqa: E402
 from training.models.config import (  # noqa: E402
     load_model_config as load_model_cfg,
 )
+from training.preprocessing import Preprocessor  # noqa: E402
 from training.stam import STAM  # noqa: E402
 from training.stam.config import load_stam_config  # noqa: E402
 from training.stam.observation_resolver import ObservationResolver  # noqa: E402
@@ -117,6 +118,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--stam-config",
         default=str(_REPO_ROOT / "training" / "config" / "stam.yaml"),
+    )
+    parser.add_argument(
+        "--preprocessing-config",
+        default=str(_REPO_ROOT / "training" / "config" / "preprocessing.yaml"),
+        help="Preprocessing config (image size, encoding, augmentation)",
     )
     parser.add_argument(
         "--validation-config",
@@ -172,6 +178,7 @@ def main(argv: list[str] | None = None) -> int:
     training_cfg = load_training_cfg(Path(args.training_config))
     model_cfg = load_model_cfg(Path(args.model_config))
     stam_cfg = load_stam_config(Path(args.stam_config))
+    preprocessing_cfg = Preprocessor.from_config(args.preprocessing_config)
     if (
         stam_cfg.temporal.season_file is not None
         and not stam_cfg.temporal.season_file.is_absolute()
@@ -204,6 +211,7 @@ def main(argv: list[str] | None = None) -> int:
             "training_config": args.training_config,
             "model_config": args.model_config,
             "stam_config": args.stam_config,
+            "preprocessing_config": args.preprocessing_config,
         },
         "workspace": workspace.report(),
     }
@@ -286,6 +294,7 @@ def main(argv: list[str] | None = None) -> int:
                 accepted,
                 extractor=stam.get_patch,
                 model_config=model_cfg,
+                preprocessor=preprocessing_cfg,
                 run_dir=run_dir,
                 run_name=training_cfg.name,
             )

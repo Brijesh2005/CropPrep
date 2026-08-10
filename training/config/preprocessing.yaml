@@ -1,0 +1,46 @@
+# Preprocessing configuration for the CropFusion pipeline.
+#
+# Loaded by ``training.preprocessing.config.load_preprocessing_config`` and
+# wired into the training pipeline (``training/kaggle/scripts/run_pipeline.py``).
+#
+# Accuracy improvements (per CropFusion_Accuracy_Improvement_Guide.md):
+# - 224x224 imagery (matches the pretrained CNN input size).
+# - Ordinal encoding for categorical tabular fields so the model learns
+#   categorical embeddings (no one-hot blow-up / sparsity).
+# - Deterministic image augmentation to expand the tiny accepted corpus.
+
+tabular:
+  scaler: standard
+  handle_missing: mean
+  outlier_method: iqr
+  categorical_encoding: ordinal
+  numeric_features: [Area, Rainfall, Temperature, Humidity, price]
+  categorical_features: [Soil type, Irrigation]
+  exclude_columns: []
+
+image:
+  size: 224
+  normalize: minmax
+
+temporal:
+  max_observations: 8
+
+augmentation:
+  enabled: true
+  flip_horizontal: true
+  flip_vertical: true
+  rotation_degrees: [0, 90, 180, 270]
+  random_crop: false
+  crop_fraction: 0.9
+  brightness_jitter: 0.2
+  contrast_jitter: 0.2
+  noise_std: 0.02
+
+split:
+  strategy: temporal
+
+dataloader:
+  batch_size: 16
+
+quality:
+  min_quality_score: 40.0

@@ -1,35 +1,41 @@
-# Model configuration for the CropFusion architecture (R1.2 defaults).
+# Model configuration for the CropFusion architecture (accuracy-improved).
 #
 # Loaded by ``training.models.config.load_model_config`` (env ``MDL_*`` wins
 # over this file). The tabular schema / crop class count / image input size are
 # derived from the fitted preprocessor at build time
 # (``ModelConfig.from_preprocessor``) — only architecture-level knobs live
 # here.
+#
+# Accuracy improvements (per CropFusion_Accuracy_Improvement_Guide.md):
+# - ImageNet-pretrained EfficientNetV2-S backbone at 224x224 input.
+# - Stronger regularisation (dropout 0.15, drop-path 0.1) to offset tiny data.
+# - Deeper tabular / temporal / shared encoders.
+# - Categorical embeddings for tabular features (see preprocessing.yaml).
 
 name: cropfusion_v1
-version: 1.0.0
+version: 2.0.0
 validate_inputs: true
 
 tabular:
   numeric_dim: 0                 # derived from the fitted preprocessor
   categorical_cardinalities: []  # derived from the fitted preprocessor
-  embedding_dim: 64
-  depth: 4
-  num_heads: 4
-  ff_dim: 256
-  dropout: 0.1
+  embedding_dim: 128
+  depth: 6
+  num_heads: 8
+  ff_dim: 512
+  dropout: 0.15
   activation: gelu
   use_cls: true
   position_encoding: none
   max_len: 64
 
 image_encoder:
-  backbone: efficientnetv2_s     # Dual-CNN branch: NDVI + EVI
-  pretrained: false
+  backbone: tf_efficientnetv2_s.in1k  # Dual-CNN branch: NDVI + EVI
+  pretrained: true               # ImageNet weights (downloaded at first build)
   freeze_backbone: false
-  input_size: 128
+  input_size: 224
   channel_expansion: repeat
-  drop_path_rate: 0.0
+  drop_path_rate: 0.1
   ndvi_backbone: null
   evi_backbone: null
   enable_ndvi: true
@@ -38,14 +44,14 @@ image_encoder:
 image_fusion:
   method: learnable
   hidden_dim: null
-  dropout: 0.1
+  dropout: 0.15
 
 temporal:
   d_model: 256
-  depth: 2
-  num_heads: 4
+  depth: 4
+  num_heads: 8
   ff_dim: 1024
-  dropout: 0.1
+  dropout: 0.15
   activation: gelu
   use_cls: true
   position_encoding: learned
@@ -55,21 +61,21 @@ temporal:
 cross_attention:
   enabled: true
   num_heads: 4
-  dropout: 0.1
+  dropout: 0.15
   out_dim: 256
 
 gated_fusion:
   enabled: true
   out_dim: 256
   hidden_dim: 256
-  dropout: 0.1
+  dropout: 0.15
 
 shared_encoder:
   d_model: 256
-  depth: 2
-  num_heads: 4
-  ff_dim: 1024
-  dropout: 0.1
+  depth: 4
+  num_heads: 8
+  ff_dim: 2048
+  dropout: 0.15
   activation: gelu
   out_dim: 512
 
@@ -77,21 +83,21 @@ heads:
   crop:
     num_classes: 0              # derived from the fitted label encoder
     hidden_dim: null
-    dropout: 0.1
+    dropout: 0.15
     activation: relu
   yield_prediction:
     hidden_dim: null
-    dropout: 0.1
+    dropout: 0.15
     activation: relu
     output_clamp_min: null
 
 loss:
-  crop_loss: label_smoothing
+  crop_loss: focal
   yield_loss: huber
-  crop_weight: 0.7
-  yield_weight: 0.3
+  crop_weight: 0.75
+  yield_weight: 0.25
   weighting_mode: fixed
-  label_smoothing: 0.1
+  label_smoothing: 0.15
   focal_gamma: 2.0
   reduction: mean
   log_variance_eps: 0.01

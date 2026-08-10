@@ -72,3 +72,20 @@ def test_quality_config_defaults():
     config = PreprocessingConfig()
     assert config.quality.min_quality_score == 40.0
     assert config.quality.require_valid_coordinates is True
+
+
+def test_repo_preprocessing_config():
+    # The repository's accuracy-improved preprocessing.yaml must stay loadable
+    # with the settings the training pipeline relies on (224px imagery,
+    # ordinal categorical encoding, augmentation enabled).
+    config_path = (
+        Path(__file__).resolve().parents[3] / "training" / "config" / "preprocessing.yaml"
+    )
+    config = load_preprocessing_config(config_path, env={})
+    assert config.image.size == 224
+    assert config.tabular.categorical_encoding == "ordinal"
+    assert config.tabular.numeric_features == [
+        "Area", "Rainfall", "Temperature", "Humidity", "price",
+    ]
+    assert config.tabular.categorical_features == ["Soil type", "Irrigation"]
+    assert config.augmentation.enabled is True

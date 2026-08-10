@@ -113,6 +113,28 @@ def test_from_checkpoint(model, config, tmp_path: Path):
     assert restored.output_names == model.output_names
 
 
+def test_from_config_alias(config):
+    from_config_model = ModelFactory.from_config(config)
+    from_config_dict = ModelFactory.from_config(config.model_dump())
+    assert from_config_model.output_names == ["crop", "yield"]
+    assert from_config_dict.output_names == ["crop", "yield"]
+
+
+def test_from_checkpoint_never_redownloads_pretrained(model, config, tmp_path: Path):
+    # Simulate a checkpoint written by a training run whose model.yaml had
+    # pretrained=True: rebuilding must NOT try to download ImageNet weights on
+    # offline export/inference hosts.
+    path = CheckpointManager(tmp_path).save(model, epoch=1)
+    state = torch.load(path, map_location="cpu", weights_only=True)
+    assert "model_config" in state
+    state["model_config"]["image_encoder"]["pretrained"] = True
+    torch.save(state, path)
+
+    restored = ModelFactory.from_checkpoint(path)
+    assert restored.config.image_encoder.pretrained is False
+    assert restored.output_names == model.output_names
+
+
 def test_from_preprocessor_ordinal(preprocessor_ordinal, stam_chain):
     model = ModelFactory.from_preprocessor(
         preprocessor_ordinal,
