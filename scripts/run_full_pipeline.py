@@ -352,6 +352,39 @@ def publish_checkpoint(
     )
 
 
+def _wait_dataset_file(
+    api: KaggleApi,
+    ref: str,
+    filename: str,
+    *,
+    timeout: float,
+    interval: float = 15.0,
+) -> None:
+    """Wait until ``filename`` is actually listed in dataset ``ref``.
+
+    ``dataset_status == ready`` only means Kaggle accepted the upload; the
+    input-mirror / catalog entry that the export kernel's ``/kaggle/input``
+    mount reads can lag behind. Verify at the file level before pushing a
+    consumer kernel so it never starts before the data is mountable.
+    """
+    deadline = time.monotonic() + timeout
+    last: str | None = None
+    while time.monotonic() < deadline:
+        try:
+            response = api.dataset_list_files(ref)
+            names = {f.name for f in getattr(response, "dataset_files", [])}
+            if filename in names:
+                print(f"[dataset] {ref} lists {filename} (ready to mount)")
+                return
+            last = f"files={sorted(names)}"
+        except Exception as exc:  # noqa: BLE001 - transient API errors while propagating
+            last = f"{type(exc).__name__}: {exc}"
+        time.sleep(interval)
+    raise StageFailure(
+        f"dataset {ref} never exposed '{filename}' within {timeout:g}s (last: {last})"
+    )
+
+
 def _check_export(stage: dict) -> dict:
     release = stage["reports"]
     missing = [name for name, path in release.items() if not path]
@@ -465,6 +498,14 @@ def main(argv: list[str] | None = None) -> int:
         default=CHECKPOINT_DATASET_SLUG,
         help=f"dataset slug for the checkpoint handoff (default: {CHECKPOINT_DATASET_SLUG})",
     )
+    parser.add_argument(
+        "--dataset-ready-timeout",
+        type=float,
+        default=600.0,
+        metavar="SECONDS",
+        help="max seconds to wait for the checkpoint file to appear in the "
+             "dataset before pushing the export kernel (default: 600)",
+    )
     for name, default in STAGE_TIMEOUTS.items():
         parser.add_argument(
             f"--{name.replace('_', '-')}-timeout",
@@ -509,6 +550,11 @@ def main(argv: list[str] | None = None) -> int:
         )
         checkpoint_ref = publish_checkpoint(
             api, owner, ckpt_pt, version_notes, args.checkpoint_dataset
+        )
+        # The input mirror can lag the dataset-status API; only push the export
+        # kernel once the checkpoint is actually listed (mountable).
+        _wait_dataset_file(
+            api, checkpoint_ref, "checkpoint.pt", timeout=args.dataset_ready_timeout
         )
 
         stage = _run_stage(

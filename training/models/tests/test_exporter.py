@@ -80,3 +80,22 @@ def test_export_uses_only_enabled_inputs(tabular_only_config, tmp_path: Path):
     assert len(args) == 1  # tabular only
     path = exporter.export_torchscript(tmp_path / "tab_only.ts")
     assert path.exists()
+
+
+def test_default_sample_batch_trace_matches_model_contract(model, tmp_path: Path):
+    """Regression: example inputs derived from the model config must trace to a
+    graph that accepts the exact trained input contract.
+
+    A hand-built sample fitted on a single observation (all numeric features
+    constant -> dropped) would produce a tabular dim narrower than the model,
+    crashing the trace; this guards the export_release path.
+    """
+    exporter = ModelExporter(model)
+    path = exporter.export_torchscript(tmp_path / "default.ts")
+    traced = torch.jit.load(path)
+    sample = model.sample_batch(batch_size=2, seq_len=2)
+    with torch.no_grad():
+        out = traced(
+            sample["tabular"], sample["ndvi"], sample["evi"], sample["temporal_mask"]
+        )
+    assert out[0].shape == (2, model.config.heads.crop.num_classes)

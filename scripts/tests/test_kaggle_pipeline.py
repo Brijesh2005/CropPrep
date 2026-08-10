@@ -447,6 +447,66 @@ def test_publish_checkpoint_times_out(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# run_full_pipeline: _wait_dataset_file (input-mirror readiness)
+# ---------------------------------------------------------------------------
+
+
+class _FileList:
+    def __init__(self, names):
+        self.dataset_files = [_EnumName(n) for n in names]
+
+
+def test_wait_dataset_file_succeeds_when_listed():
+    class _Api:
+        def dataset_list_files(self, ref):
+            return _FileList(["checkpoint.pt"])
+
+    p._wait_dataset_file(_Api(), "o/d", "checkpoint.pt", timeout=10,
+                        interval=0.01)
+
+
+def test_wait_dataset_file_retries_until_listed(monkeypatch):
+    calls = []
+
+    class _Api:
+        def dataset_list_files(self, ref):
+            calls.append(ref)
+            return _FileList([] if len(calls) < 2 else ["checkpoint.pt"])
+
+    monkeypatch.setattr("time.sleep", lambda *_: None)
+    p._wait_dataset_file(_Api(), "o/d", "checkpoint.pt", timeout=10,
+                        interval=0.01)
+    assert len(calls) == 2
+
+
+def test_wait_dataset_file_times_out(monkeypatch):
+    class _Api:
+        def dataset_list_files(self, ref):
+            return _FileList(["other.pt"])
+
+    monkeypatch.setattr("time.sleep", lambda *_: None)
+    with pytest.raises(p.StageFailure, match="never exposed 'checkpoint.pt'"):
+        p._wait_dataset_file(_Api(), "o/d", "checkpoint.pt", timeout=0.1,
+                            interval=0.01)
+
+
+def test_wait_dataset_file_survives_transient_api_errors(monkeypatch):
+    calls = []
+
+    class _Api:
+        def dataset_list_files(self, ref):
+            calls.append(ref)
+            if len(calls) == 1:
+                raise RuntimeError("connection reset")
+            return _FileList(["checkpoint.pt"])
+
+    monkeypatch.setattr("time.sleep", lambda *_: None)
+    p._wait_dataset_file(_Api(), "o/d", "checkpoint.pt", timeout=10,
+                        interval=0.01)
+    assert len(calls) == 2
+
+
+# ---------------------------------------------------------------------------
 # run_full_pipeline: _run_stage + main()
 # ---------------------------------------------------------------------------
 
@@ -548,6 +608,7 @@ def _patch_pipeline(monkeypatch, tmp_path, raise_stage=None):
     monkeypatch.setattr(p, "_check_export", _check)
     monkeypatch.setattr(p, "publish_checkpoint",
                         lambda *a, **k: "testowner/cropfusion-checkpoints")
+    monkeypatch.setattr(p, "_wait_dataset_file", lambda *a, **k: None)
 
 
 def test_main_success(tmp_path, monkeypatch, capsys):
