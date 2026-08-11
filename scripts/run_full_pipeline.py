@@ -14,7 +14,8 @@ Runs the five stages that take a bare repo to a downloadable release:
     4. export       - push + run ``cropfusion-export`` (which reads the
        checkpoint dataset from ``/kaggle/input``) and require all four release
        artifacts (``release.json``, ``model.torchscript.pt``, ``model.onnx``,
-       ``model.yaml``) in its kernel output.
+       ``model.yaml``) plus the assembled ``cropfusion_release-v<version>/``
+       package (12 files) in its kernel output.
     5. summary      - print and persist a combined pipeline summary.
 
 Any stage failure aborts immediately: the specific reason is pulled from that
@@ -84,6 +85,55 @@ RELEASE_PATHS = {
 
 #: Private dataset that hands the trained checkpoint to the export kernel.
 CHECKPOINT_DATASET_SLUG = "cropfusion-checkpoints"
+
+#: Kernel-output-relative subdir where train.ipynb writes release_sources/.
+RELEASE_SOURCES_REL = "CropPrep/training/artifacts/release_sources"
+
+#: Name -> kernel-output-relative path of every train-side release source.
+RELEASE_SOURCES_PATHS = {
+    "preprocess/scaler.pkl": f"{RELEASE_SOURCES_REL}/preprocess/scaler.pkl",
+    "preprocess/label_encoder.pkl": f"{RELEASE_SOURCES_REL}/preprocess/label_encoder.pkl",
+    "metadata/metadata.db": f"{RELEASE_SOURCES_REL}/metadata/metadata.db",
+    "metadata/historical_context.parquet": (
+        f"{RELEASE_SOURCES_REL}/metadata/historical_context.parquet"
+    ),
+    "metadata/location_index.parquet": (
+        f"{RELEASE_SOURCES_REL}/metadata/location_index.parquet"
+    ),
+    "metadata/village_metadata.parquet": (
+        f"{RELEASE_SOURCES_REL}/metadata/village_metadata.parquet"
+    ),
+    "reports/metrics.json": f"{RELEASE_SOURCES_REL}/reports/metrics.json",
+    "sources.json": f"{RELEASE_SOURCES_REL}/sources.json",
+}
+
+#: Relative files of the Prediction Platform release package (mirrors the
+#: app's ``RELEASE_PACKAGE_FILES`` in application/inference_package/release/).
+RELEASE_PACKAGE_FILES = (
+    "model/cropfusion.pt",
+    "metadata/metadata.db",
+    "metadata/historical_context.parquet",
+    "metadata/location_index.parquet",
+    "metadata/village_metadata.parquet",
+    "preprocess/scaler.pkl",
+    "preprocess/label_encoder.pkl",
+    "configs/model.yaml",
+    "configs/inference.yaml",
+    "version/manifest.json",
+    "version/checksum.json",
+    "reports/metrics.json",
+)
+
+#: Kernel-output-relative root of the release package directory.
+RELEASE_PACKAGE_REL = "CropPrep/training/artifacts/releases"
+
+
+def release_package_paths(version: str) -> dict[str, str]:
+    """Name -> kernel-output-relative paths of one release package."""
+    root = f"{RELEASE_PACKAGE_REL}/cropfusion_release-v{version}"
+    return {
+        f"release/{rel}": f"{root}/{rel}" for rel in RELEASE_PACKAGE_FILES
+    }
 
 #: Default max wall-clock wait (s) per kernel stage.
 STAGE_TIMEOUTS = {"system_check": 2700.0, "train": 7200.0, "export": 3600.0}
@@ -327,6 +377,20 @@ def _check_train(stage: dict) -> dict:
         "run_dir": ckpt_info.get("run_dir"),
         "registered": ckpt_info.get("registered"),
     }
+
+    sources = download_paths(
+        stage["kernel_ref"],
+        RELEASE_SOURCES_PATHS,
+        stage["run_dir"] / "release_sources",
+    )
+    stage["release_sources"] = {
+        name: (str(path) if path else None)
+        for name, path in sources.items()
+    }
+    present = [name for name, path in sources.items() if path]
+    print(f"[train] release sources present: {len(present)}/{len(sources)}")
+    if "preprocess/scaler.pkl" not in sources or not sources["preprocess/scaler.pkl"]:
+        print("[train] WARNING scaler.pkl missing - release package will be partial")
     return stage
 
 
@@ -337,11 +401,15 @@ def publish_checkpoint(
     version_notes: str,
     dataset_slug: str,
     *,
+    sources_dir: Path | None = None,
     poll_timeout: float = 600.0,
     poll_interval: float = 10.0,
 ) -> str:
-    """Upload ``ckpt_pt`` as a new version of ``<owner>/<dataset_slug>``.
+    """Upload ``ckpt_pt`` (+ train-side release sources) as a new dataset version.
 
+    ``sources_dir`` (the ``release_sources/`` tree downloaded from the train
+    kernel) is copied into the upload folder under ``release_sources/`` so the
+    export kernel mounts it at ``/kaggle/input/<dataset>/release_sources/``.
     Falls back to creating the (private) dataset when no version exists yet,
     then polls ``dataset_status`` until the dataset is ``complete``.
     """
@@ -349,12 +417,16 @@ def publish_checkpoint(
     with tempfile.TemporaryDirectory(prefix="cropfusion_ckpt_") as tmp:
         folder = Path(tmp)
         shutil.copy2(ckpt_pt, folder / "checkpoint.pt")
+        if sources_dir is not None and sources_dir.exists():
+            shutil.copytree(sources_dir, folder / "release_sources")
+            print(f"[dataset] staged release_sources from {sources_dir}")
         (folder / "dataset-metadata.json").write_text(
             json.dumps(
                 {
                     "id": ref,
                     "title": "CropFusion Checkpoints",
-                    "subtitle": "Latest trained checkpoint for the export kernel",
+                    "subtitle": "Latest trained checkpoint + release sources "
+                                "for the export kernel",
                     "licenses": [{"name": "other"}],
                 },
                 indent=2,
@@ -441,6 +513,33 @@ def _check_export(stage: dict) -> dict:
         )
     manifest = _load_json(release["release.json"], "release.json")
     stage["manifest"] = manifest
+
+    version = str(manifest.get("model_config", {}).get("version") or "")
+    if not version:
+        raise StageFailure("release.json has no model_config.version")
+    package_paths = release_package_paths(version)
+    package = download_paths(
+        stage["kernel_ref"], package_paths, stage["run_dir"] / "release"
+    )
+    stage["release_package"] = {
+        "version": version,
+        "files": {
+            name.removeprefix("release/"): (str(path) if path else None)
+            for name, path in package.items()
+        },
+    }
+    missing_package = [
+        name.removeprefix("release/")
+        for name, path in package.items()
+        if not path
+    ]
+    if missing_package:
+        raise StageFailure(
+            f"release package (cropfusion_release-v{version}) is incomplete; "
+            "missing files: " + ", ".join(missing_package)
+        )
+    print(f"[export] release package cropfusion_release-v{version} complete "
+          f"({len(package)} files)")
     return stage
 
 
@@ -482,6 +581,13 @@ def _print_summary(
     print("  torchscript    :", release["model.torchscript.pt"])
     print("  onnx           :", release["model.onnx"])
     print("  model config   :", release["model.yaml"])
+    release_package = export.get("release_package", {})
+    if release_package.get("files"):
+        print(f"release package  : cropfusion_release-v{release_package.get('version')}")
+        pkg_dir = Path(
+            next(iter(release_package["files"].values()))
+        ).parent.parent.parent
+        print("  local          :", pkg_dir)
 
     summary = {
         "finished_at": datetime.now(UTC).isoformat(),
@@ -513,6 +619,7 @@ def _print_summary(
             name: (str(path) if path else None)
             for name, path in release.items()
         },
+        "release_package": export.get("release_package", {}),
     }
     out = runs_dir / f"pipeline-{_utc_stamp()}.json"
     out.write_text(json.dumps(summary, indent=2), encoding="utf-8")
@@ -613,12 +720,14 @@ def main(argv: list[str] | None = None) -> int:
         stages["train"] = _check_train(stage)
 
         ckpt_pt = Path(stages["train"]["checkpoint"]["pt"])
+        sources_dir = stages["train"]["run_dir"] / "release_sources"
         version_notes = (
             f"handoff from cropfusion-train run {stages['train']['run_id']} "
             f"({datetime.now(UTC).isoformat()})"
         )
         checkpoint_ref = publish_checkpoint(
-            api, owner, ckpt_pt, version_notes, args.checkpoint_dataset
+            api, owner, ckpt_pt, version_notes, args.checkpoint_dataset,
+            sources_dir=sources_dir,
         )
         # The input mirror can lag the dataset-status API; only push the export
         # kernel once the checkpoint is actually listed (mountable), then give

@@ -278,6 +278,49 @@ def test_check_train_pass(tmp_path, monkeypatch):
     assert stage["corpus"]["accepted"] == 5
 
 
+def test_check_train_downloads_release_sources(tmp_path, monkeypatch):
+    pipeline = _report(
+        tmp_path,
+        {"training": {"status": "completed", "accepted_observations": 5,
+                      "report": {"evaluation": {"loss": 0.1}}}},
+        "pipeline.json",
+    )
+    corpus = _report(
+        tmp_path,
+        {"accepted": 5, "total": 8, "rejected": 3, "errors": 0,
+         "acceptance_rate": 0.625, "plan": {"years": [2018, 2025]},
+         "samples": [{"status": "accepted", "year": 2020}]},
+        "corpus.json",
+    )
+    ckpt = _report(
+        tmp_path,
+        {"found": True, "repo_relative": "training/artifacts/checkpoints/t/"
+                                         "checkpoint.pt"},
+        "checkpoint.json",
+    )
+    ckpt_local = tmp_path / "checkpoint.pt"
+    ckpt_local.write_bytes(b"torch")
+    scaler_local = tmp_path / "scaler.pkl"
+    scaler_local.write_bytes(b"scaler")
+
+    def _download(ref, paths, run_dir):
+        out = {"checkpoint.pt": ckpt_local}
+        if "preprocess/scaler.pkl" in paths:
+            out["preprocess/scaler.pkl"] = scaler_local
+        if "sources.json" in paths:
+            out["sources.json"] = None
+        return out
+
+    monkeypatch.setattr(p, "download_paths", _download)
+
+    stage = p._check_train(
+        _stage({"pipeline": pipeline, "corpus": corpus,
+                "checkpoint.json": ckpt})
+    )
+    assert stage["release_sources"]["preprocess/scaler.pkl"] == str(scaler_local)
+    assert stage["release_sources"]["sources.json"] is None
+
+
 @pytest.mark.parametrize(
     ("pipeline_training", "corpus", "ckpt_data", "ckpt_download",
      "match"),
@@ -314,11 +357,30 @@ def test_check_train_failure_modes(
         p._check_train(_stage(reports))
 
 
-def test_check_export_pass(tmp_path):
+def test_check_export_pass(tmp_path, monkeypatch):
     release = {name: _report(tmp_path, {"ok": True}, name)
                for name in p.RELEASE_PATHS}
+    release["release.json"] = _report(
+        tmp_path, {"model_config": {"version": "2.0.0"}}, "release.json"
+    )
+    pkg = {}
+    for rel in p.RELEASE_PACKAGE_FILES:
+        f = tmp_path / "pkg" / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_bytes(b"x")
+        pkg[f"release/{rel}"] = f
+    monkeypatch.setattr(
+        p, "download_paths", lambda ref, paths, run_dir: pkg
+    )
+
     stage = p._check_export(_stage(release))
-    assert stage["manifest"] == {"ok": True}
+    assert stage["manifest"] == {"model_config": {"version": "2.0.0"}}
+    assert stage["release_package"]["version"] == "2.0.0"
+    files = stage["release_package"]["files"]
+    assert set(files) == set(p.RELEASE_PACKAGE_FILES)
+    assert files["model/cropfusion.pt"] == str(
+        tmp_path / "pkg" / "model/cropfusion.pt"
+    )
 
 
 def test_check_export_fails_on_missing_artifacts(tmp_path):
@@ -330,15 +392,51 @@ def test_check_export_fails_on_missing_artifacts(tmp_path):
         p._check_export(_stage(release))
 
 
+def test_check_export_fails_on_missing_release_version(tmp_path):
+    release = {name: _report(tmp_path, {"ok": True}, name)
+               for name in p.RELEASE_PATHS}
+    with pytest.raises(p.StageFailure, match="no model_config.version"):
+        p._check_export(_stage(release))
+
+
+def test_check_export_fails_on_incomplete_release_package(tmp_path, monkeypatch):
+    release = {name: _report(tmp_path, {"ok": True}, name)
+               for name in p.RELEASE_PATHS}
+    release["release.json"] = _report(
+        tmp_path, {"model_config": {"version": "2.0.0"}}, "release.json"
+    )
+    monkeypatch.setattr(
+        p, "download_paths",
+        lambda ref, paths, run_dir: {
+            "release/model/cropfusion.pt": tmp_path / "x.pt",
+            "release/preprocess/scaler.pkl": None,
+        },
+    )
+    with pytest.raises(p.StageFailure, match="preprocess/scaler.pkl"):
+        p._check_export(_stage(release))
+
+
+def test_release_package_paths():
+    paths = p.release_package_paths("2.0.0")
+    assert set(paths) == {f"release/{rel}" for rel in p.RELEASE_PACKAGE_FILES}
+    for rel in p.RELEASE_PACKAGE_FILES:
+        assert paths[f"release/{rel}"].endswith(
+            f"CropPrep/training/artifacts/releases/"
+            f"cropfusion_release-v2.0.0/{rel}"
+        )
+
+
 # ---------------------------------------------------------------------------
 # run_full_pipeline: checkpoint dataset handoff
 # ---------------------------------------------------------------------------
 
 
 class _FakeDatasetApi:
-    def __init__(self, versions_ok=True, statuses=("ready",)):
+    def __init__(self, versions_ok=True, statuses=("ready",),
+                 expect_sources=False):
         self.versions_ok = versions_ok
         self.statuses = list(statuses)
+        self.expect_sources = expect_sources
         self.version_calls = 0
         self.new_calls = 0
         self.status_calls = 0
@@ -363,6 +461,9 @@ class _FakeDatasetApi:
     def _inspect(self, folder):
         folder = Path(folder)
         assert (folder / "checkpoint.pt").exists()
+        if self.expect_sources:
+            assert (folder / "release_sources" / "preprocess"
+                    / "scaler.pkl").exists()
         meta = json.loads(
             (folder / "dataset-metadata.json").read_text(encoding="utf-8")
         )
@@ -382,6 +483,31 @@ def test_publish_checkpoint_versions_existing_dataset(tmp_path):
     assert api.version_calls == 1
     assert api.new_calls == 0
     assert api.seen_notes == "notes"
+
+
+def test_publish_checkpoint_stages_release_sources(tmp_path):
+    ckpt = tmp_path / "checkpoint.pt"
+    ckpt.write_bytes(b"torch")
+    sources = tmp_path / "release_sources"
+    (sources / "preprocess").mkdir(parents=True)
+    (sources / "preprocess" / "scaler.pkl").write_bytes(b"scaler")
+    api = _FakeDatasetApi(expect_sources=True)
+
+    p.publish_checkpoint(api, "testowner", ckpt, "notes",
+                         p.CHECKPOINT_DATASET_SLUG, sources_dir=sources)
+    assert api.version_calls == 1
+    assert api.new_calls == 0
+
+
+def test_publish_checkpoint_skips_missing_sources_dir(tmp_path):
+    ckpt = tmp_path / "checkpoint.pt"
+    ckpt.write_bytes(b"torch")
+    api = _FakeDatasetApi(expect_sources=False)
+
+    p.publish_checkpoint(api, "testowner", ckpt, "notes",
+                         p.CHECKPOINT_DATASET_SLUG,
+                         sources_dir=tmp_path / "does-not-exist")
+    assert api.version_calls == 1
 
 
 def test_publish_checkpoint_creates_when_missing(tmp_path):
@@ -629,7 +755,7 @@ def test_run_export_retry_exhausts(monkeypatch):
 def _fake_stage(name):
     base = {"run_id": f"{name}-v1", "status": "COMPLETE", "url": "url",
             "kernel_ref": f"testowner/cropfusion-{name}", "version": 1,
-            "run_dir": str(Path("runs") / f"{name}-v1")}
+            "run_dir": Path("runs") / f"{name}-v1"}
     if name == "system_check":
         return {**base,
                 "validation": {"passed": True,
@@ -695,6 +821,30 @@ def test_main_success(tmp_path, monkeypatch, capsys):
     assert data["checkpoint_dataset"] == "testowner/cropfusion-checkpoints"
     assert data["training"]["status"] == "completed"
     assert data["corpus"]["year_range"] == [2018, 2025]
+
+
+def test_main_success_with_release_package(tmp_path, monkeypatch, capsys):
+    _patch_pipeline(monkeypatch, tmp_path)
+    stage = _fake_stage("export")
+    stage["release_package"] = {
+        "version": "2.0.0",
+        "files": {rel: f"X:/pkg/{rel}" for rel in p.RELEASE_PACKAGE_FILES},
+    }
+    monkeypatch.setattr(p, "_check_export", lambda st: stage)
+
+    rc = p.main([
+        "--runs-dir", str(tmp_path),
+        "--system-check-timeout", "1",
+        "--train-timeout", "1",
+        "--export-timeout", "1",
+        "--dataset-grace-period", "0",
+    ])
+    assert rc == 0
+    data = json.loads(
+        list(tmp_path.glob("pipeline-*.json"))[0].read_text(encoding="utf-8")
+    )
+    assert data["release_package"]["version"] == "2.0.0"
+    assert set(data["release_package"]["files"]) == set(p.RELEASE_PACKAGE_FILES)
 
 
 def test_main_aborts_on_stage_failure(tmp_path, monkeypatch, capsys):
