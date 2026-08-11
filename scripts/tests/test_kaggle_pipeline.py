@@ -559,6 +559,73 @@ def test_run_stage_surfaces_infrastructure_failure(monkeypatch, tmp_path):
                      {"train": 60.0}, 1.0, True)
 
 
+# ---------------------------------------------------------------------------
+# run_full_pipeline: _run_export_with_retry (input-mirror lag mitigation)
+# ---------------------------------------------------------------------------
+
+
+def _export_api_ref(monkeypatch, run_stage):
+    monkeypatch.setattr(p, "_run_stage", run_stage)
+    return object()
+
+
+def test_run_export_retry_succeeds_first_try(monkeypatch):
+    calls = []
+
+    def _ok(api, owner, name, runs_dir, timeouts, poll, keep, **kw):
+        calls.append(kw)
+        assert kw["extra_datasets"] == ("testowner/cropfusion-checkpoints",)
+        return {"name": "export", "status": "COMPLETE"}
+
+    stage = p._run_export_with_retry(
+        _export_api_ref(monkeypatch, _ok), "testowner", Path("runs"),
+        {"export": 60.0}, 1.0, False, "testowner/cropfusion-checkpoints",
+        {"release.json": "x"}, max_attempts=3, retry_delay=0.01,
+    )
+    assert stage["status"] == "COMPLETE"
+    assert len(calls) == 1
+
+
+def test_run_export_retry_recovers_after_mirror_lag(monkeypatch):
+    calls = []
+
+    def _flaky(api, owner, name, runs_dir, timeouts, poll, keep, **kw):
+        calls.append(1)
+        if len(calls) == 1:
+            raise p.StageFailure(
+                "stage 'export' infrastructure failure: Kaggle kernel run "
+                "failed with status 'ERROR'"
+            )
+        return {"name": "export", "status": "COMPLETE"}
+
+    monkeypatch.setattr("time.sleep", lambda *_: None)
+    stage = p._run_export_with_retry(
+        _export_api_ref(monkeypatch, _flaky), "testowner", Path("runs"),
+        {"export": 60.0}, 1.0, False, "testowner/cropfusion-checkpoints",
+        {"release.json": "x"}, max_attempts=3, retry_delay=0.01,
+    )
+    assert stage["status"] == "COMPLETE"
+    assert len(calls) == 2
+
+
+def test_run_export_retry_exhausts(monkeypatch):
+    calls = []
+
+    def _always_fails(api, owner, name, runs_dir, timeouts, poll, keep, **kw):
+        calls.append(1)
+        raise p.StageFailure("stage 'export' infrastructure failure: boom")
+
+    monkeypatch.setattr("time.sleep", lambda *_: None)
+    with pytest.raises(p.StageFailure, match="export failed after 3 attempts"):
+        p._run_export_with_retry(
+            _export_api_ref(monkeypatch, _always_fails), "testowner",
+            Path("runs"), {"export": 60.0}, 1.0, False,
+            "testowner/cropfusion-checkpoints", {"release.json": "x"},
+            max_attempts=3, retry_delay=0.01,
+        )
+    assert len(calls) == 3
+
+
 def _fake_stage(name):
     base = {"run_id": f"{name}-v1", "status": "COMPLETE", "url": "url",
             "kernel_ref": f"testowner/cropfusion-{name}", "version": 1,
@@ -618,6 +685,7 @@ def test_main_success(tmp_path, monkeypatch, capsys):
         "--system-check-timeout", "1",
         "--train-timeout", "1",
         "--export-timeout", "1",
+        "--dataset-grace-period", "0",
     ])
     assert rc == 0
     assert "CROPFUSION PIPELINE COMPLETE" in capsys.readouterr().out

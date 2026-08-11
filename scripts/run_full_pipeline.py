@@ -153,6 +153,7 @@ def _run_stage(
     run_dir = runs_dir / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
     reports = download_paths(kernel_ref, dict(download_map or REPORT_PATHS), run_dir)
+
     log_text = api.kernels_logs(kernel_ref)
     log_info = parse_log(log_text)
     (run_dir / "kernel.log").write_text(log_text, encoding="utf-8")
@@ -188,6 +189,51 @@ def _run_stage(
         encoding="utf-8",
     )
     return stage
+
+
+def _run_export_with_retry(
+    api: KaggleApi,
+    owner: str,
+    runs_dir: Path,
+    timeouts: dict[str, float],
+    poll_interval: float,
+    keep_push_dir: bool,
+    checkpoint_ref: str,
+    download_map: dict[str, str],
+    *,
+    max_attempts: int = 3,
+    retry_delay: float = 300.0,
+) -> dict:
+    """Push + run the export kernel, retrying on infrastructure failure.
+
+    Kaggle's input mirror can lag the dataset-status/file-listing APIs, so a
+    freshly uploaded checkpoint is occasionally missing from the export
+    kernel's ``/kaggle/input`` mount. The kernel then dies with status ERROR
+    before producing any release artifact. Re-pushing after a cooldown lets the
+    mirror sync; export is idempotent, so a retry is safe. Only
+    push/run/timeout failures are retried -- a completed kernel whose release
+    is incomplete is a real bug and aborts immediately.
+    """
+    last_exc: StageFailure | None = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return _run_stage(
+                api, owner, "export", runs_dir, timeouts, poll_interval,
+                keep_push_dir,
+                extra_datasets=(checkpoint_ref,),
+                download_map=download_map,
+            )
+        except StageFailure as exc:
+            last_exc = exc
+            print(f"[export] attempt {attempt}/{max_attempts} failed: {exc}")
+            if attempt < max_attempts:
+                wait = retry_delay * attempt
+                print(f"[export] waiting {wait:.0f}s for input-mirror sync, "
+                      f"then retrying ...")
+                time.sleep(wait)
+    raise StageFailure(
+        f"export failed after {max_attempts} attempts: {last_exc}"
+    ) from last_exc
 
 
 def _corpus_accepted(corpus_report: dict, pipeline_corpus: dict) -> int:
@@ -506,6 +552,29 @@ def main(argv: list[str] | None = None) -> int:
         help="max seconds to wait for the checkpoint file to appear in the "
              "dataset before pushing the export kernel (default: 600)",
     )
+    parser.add_argument(
+        "--dataset-grace-period",
+        type=float,
+        default=180.0,
+        metavar="SECONDS",
+        help="extra seconds to sleep after the checkpoint is listed before "
+             "pushing the export kernel, letting Kaggle's input mirror catch "
+             "up with the dataset-file API (default: 180)",
+    )
+    parser.add_argument(
+        "--export-max-attempts",
+        type=int,
+        default=3,
+        metavar="N",
+        help="max pushes of the export kernel on infra failure (default: 3)",
+    )
+    parser.add_argument(
+        "--export-retry-delay",
+        type=float,
+        default=300.0,
+        metavar="SECONDS",
+        help="cooldown between export kernel retries (default: 300)",
+    )
     for name, default in STAGE_TIMEOUTS.items():
         parser.add_argument(
             f"--{name.replace('_', '-')}-timeout",
@@ -552,16 +621,21 @@ def main(argv: list[str] | None = None) -> int:
             api, owner, ckpt_pt, version_notes, args.checkpoint_dataset
         )
         # The input mirror can lag the dataset-status API; only push the export
-        # kernel once the checkpoint is actually listed (mountable).
+        # kernel once the checkpoint is actually listed (mountable), then give
+        # the mirror extra time to catch up before the kernel snapshots it.
         _wait_dataset_file(
             api, checkpoint_ref, "checkpoint.pt", timeout=args.dataset_ready_timeout
         )
+        if args.dataset_grace_period > 0:
+            print(f"[dataset] grace period {args.dataset_grace_period:.0f}s "
+                  f"for input-mirror sync ...")
+            time.sleep(args.dataset_grace_period)
 
-        stage = _run_stage(
-            api, owner, "export", runs_dir, timeouts, args.poll_interval,
-            args.keep_push_dir,
-            extra_datasets=(checkpoint_ref,),
-            download_map=RELEASE_PATHS,
+        stage = _run_export_with_retry(
+            api, owner, runs_dir, timeouts, args.poll_interval,
+            args.keep_push_dir, checkpoint_ref, RELEASE_PATHS,
+            max_attempts=args.export_max_attempts,
+            retry_delay=args.export_retry_delay,
         )
         stages["export"] = _check_export(stage)
     except StageFailure as exc:
