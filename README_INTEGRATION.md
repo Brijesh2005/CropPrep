@@ -13,7 +13,7 @@ was imported everywhere but didn't exist in the R5 zip).
 
 ## Copy these files into your project (same relative paths)
 
-**New files — just add them:**
+**New files —  just add them:**
 ```
 application/inference_package/release/__init__.py
 application/inference_package/release/manifest.py
