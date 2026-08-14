@@ -37,6 +37,25 @@ from .config import LossConfig
 from .exceptions import LossBuildError
 
 
+def _drop_unknown_targets(
+    inputs: torch.Tensor, targets: torch.Tensor
+) -> tuple[torch.Tensor, torch.Tensor] | None:
+    """Drop samples whose classification target is the ``-1`` unknown sentinel.
+
+    Crop-less observations (e.g. district-level tabular matches) have no crop
+    class: they must still train the yield head but contribute nothing to the
+    crop-classification loss. Returns ``None`` when no valid sample remains so
+    the caller can emit a zero loss instead of crashing on an empty tensor.
+    """
+    flat = targets.reshape(-1)
+    valid = flat >= 0
+    if bool(valid.sum().item()) == 0:
+        return None
+    if inputs.dim() >= 1 and inputs.shape[0] == flat.numel():
+        return inputs[valid], flat[valid]
+    return inputs, flat
+
+
 class MAELoss(nn.Module):
     """Mean absolute error for yield regression."""
 
@@ -335,14 +354,28 @@ class MultiTaskLoss(nn.Module):
         inputs: Mapping[str, torch.Tensor],
         targets: Mapping[str, torch.Tensor],
     ) -> dict[str, torch.Tensor]:
-        """Compute each task's raw loss on the current graph (no weighting)."""
+        """Compute each task's raw loss on the current graph (no weighting).
+
+        Classification tasks (integer targets) honour the ``-1`` unknown-crop
+        sentinel: samples without a crop label are masked out so those
+        observations train only the yield head. When every sample in the batch
+        is unknown the task loss is zero.
+        """
         per_task: dict[str, torch.Tensor] = {}
         for name, criterion in self.tasks.items():
             if name not in inputs or name not in targets:
                 raise LossBuildError(
                     f"task {name!r} requires both an input and a target"
                 )
-            per_task[name] = criterion(inputs[name], targets[name])
+            task_input = inputs[name]
+            task_target = targets[name]
+            if not task_target.is_floating_point():
+                masked = _drop_unknown_targets(task_input, task_target)
+                if masked is None:
+                    per_task[name] = task_input.new_zeros(())
+                    continue
+                task_input, task_target = masked
+            per_task[name] = criterion(task_input, task_target)
         return per_task
 
     def combine(

@@ -34,6 +34,25 @@ def _predicted_class(logits: torch.Tensor) -> torch.Tensor:
     return logits.argmax(dim=-1).reshape(-1)
 
 
+def _drop_unknown_labels(
+    logits: torch.Tensor, labels: torch.Tensor
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Drop samples whose target is the ``-1`` (unknown crop) sentinel.
+
+    Crop-less observations (e.g. district-level tabular matches) have no crop
+    class and are excluded from classification metrics, mirroring the masked
+    crop loss. Returns the filtered logits + labels (unchanged when no unknown
+    label is present).
+    """
+    labels = labels.reshape(-1)
+    valid = labels >= 0
+    if bool(valid.all().item()):
+        return logits, labels
+    if logits.dim() >= 1 and logits.shape[0] == labels.numel():
+        return logits[valid], labels[valid]
+    return logits, labels
+
+
 def compute_classification_metrics(
     logits: torch.Tensor,
     targets: torch.Tensor,
@@ -41,22 +60,17 @@ def compute_classification_metrics(
 ) -> dict[str, Any]:
     """Compute classification metrics from a batch of logits / labels.
 
+    Samples whose target is the ``-1`` unknown-crop sentinel are excluded from
+    every metric (see :func:`_drop_unknown_labels`).
+
     Returns a dict of metric name -> float (``None`` when undefined).
     """
     config = config or MetricsConfig()
-    pred = _predicted_class(logits)
-    labels = targets.reshape(-1)
-    probs = torch.softmax(logits, dim=-1)
-
-    accuracy = (pred == labels).float().mean().item()
-    top_k_acc = _top_k_accuracy(probs, labels, k=config.top_k)
-
-    pred_np = tensor_to_numpy(pred).astype(np.int64)
-    labels_np = tensor_to_numpy(labels).astype(np.int64)
+    logits, labels = _drop_unknown_labels(logits, targets)
 
     result: dict[str, Any] = {
-        "accuracy": float(accuracy),
-        f"top{config.top_k}_accuracy": float(top_k_acc),
+        "accuracy": None,
+        f"top{config.top_k}_accuracy": None,
         "precision": None,
         "recall": None,
         "f1": None,
@@ -64,6 +78,19 @@ def compute_classification_metrics(
         "confusion_matrix": None,
         "support": int(labels.numel()),
     }
+    if labels.numel() == 0:
+        return result
+
+    pred = _predicted_class(logits)
+    probs = torch.softmax(logits, dim=-1)
+
+    result["accuracy"] = float((pred == labels).float().mean().item())
+    result[f"top{config.top_k}_accuracy"] = float(
+        _top_k_accuracy(probs, labels, k=config.top_k)
+    )
+
+    pred_np = tensor_to_numpy(pred).astype(np.int64)
+    labels_np = tensor_to_numpy(labels).astype(np.int64)
 
     if pred_np.size == 0 or labels_np.size == 0:
         return result

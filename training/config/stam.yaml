@@ -81,6 +81,72 @@ tabular:
       feature_columns: [Area, Rainfall, Temperature, Soil type, Irrigation, Humidity, price]
       fallback_to_district: false
 
+    # DK grid-cell yield proxies (2018-2023, District/Year/Season/Yield_Proxy_NPP).
+    # These fill the tabular gap for the 2020+ imagery years the older series
+    # cannot answer. They carry no crop label (crop_column null): matched
+    # observations are crop-less and train the yield head only — the crop task
+    # is masked for them (label sentinel -1).
+    - name: DK_Features_2018.csv
+      village_column: null
+      taluk_column: null
+      district_column: District
+      season_column: Season
+      year_column: Year
+      crop_column: null
+      yield_column: Yield_Proxy_NPP
+      feature_columns: []
+      fallback_to_district: true
+    - name: DK_Features_2019.csv
+      village_column: null
+      taluk_column: null
+      district_column: District
+      season_column: Season
+      year_column: Year
+      crop_column: null
+      yield_column: Yield_Proxy_NPP
+      feature_columns: []
+      fallback_to_district: true
+    - name: DK_Features_2020.csv
+      village_column: null
+      taluk_column: null
+      district_column: District
+      season_column: Season
+      year_column: Year
+      crop_column: null
+      yield_column: Yield_Proxy_NPP
+      feature_columns: []
+      fallback_to_district: true
+    - name: DK_Features_2021.csv
+      village_column: null
+      taluk_column: null
+      district_column: District
+      season_column: Season
+      year_column: Year
+      crop_column: null
+      yield_column: Yield_Proxy_NPP
+      feature_columns: []
+      fallback_to_district: true
+    - name: DK_Features_2022.csv
+      village_column: null
+      taluk_column: null
+      district_column: District
+      season_column: Season
+      year_column: Year
+      crop_column: null
+      yield_column: Yield_Proxy_NPP
+      feature_columns: []
+      fallback_to_district: true
+    - name: DK_Features_2023.csv
+      village_column: null
+      taluk_column: null
+      district_column: District
+      season_column: Season
+      year_column: Year
+      crop_column: null
+      yield_column: Yield_Proxy_NPP
+      feature_columns: []
+      fallback_to_district: true
+
     - name: ICRISAT-District Level Data.csv
       # District-level annual series for 20 states. crop/yield columns are
       # null: the wide "<CROP> AREA/YIELD" triples are reduced to the dominant

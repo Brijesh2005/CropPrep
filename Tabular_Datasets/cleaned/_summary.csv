@@ -1,0 +1,8 @@
+source,output,year,rows,in_dk,in_other_district,outside_admin,pct_in_admin,pct_in_dk,districts_present,duplicate_gridpoints,has_yield_column,has_season_column
+DK_Features_2018.csv,DK_Features_2018_cleaned.csv,2018,71027,48016,16989,6022,0.9152,0.676,Dakshina Kannada | Chikkamagaluru | Udupi | Hassan | Kodagu,0,True,True
+DK_Features_2019.csv,DK_Features_2019_cleaned.csv,2019,71134,48016,16989,6129,0.9138,0.675,Dakshina Kannada | Chikkamagaluru | Udupi | Hassan | Kodagu,0,True,True
+DK_Features_2020.csv,DK_Features_2020_cleaned.csv,2020,71134,48016,16989,6129,0.9138,0.675,Dakshina Kannada | Chikkamagaluru | Udupi | Hassan | Kodagu,0,True,True
+DK_Features_2021.csv,DK_Features_2021_cleaned.csv,2021,69233,46732,16989,5512,0.9204,0.675,Dakshina Kannada | Chikkamagaluru | Udupi | Hassan | Kodagu,0,True,True
+DK_Features_2022.csv,DK_Features_2022_cleaned.csv,2022,71134,48016,16989,6129,0.9138,0.675,Dakshina Kannada | Chikkamagaluru | Udupi | Hassan | Kodagu,0,True,True
+DK_Features_2023.csv,DK_Features_2023_cleaned.csv,2023,71134,48016,16989,6129,0.9138,0.675,Dakshina Kannada | Chikkamagaluru | Udupi | Hassan | Kodagu,0,True,True
+DK_Features_2024 (1).csv,DK_Features_2024_cleaned.csv,2024,95082,64185,22670,8227,0.9135,0.675,Dakshina Kannada | Chikkamagaluru | Udupi | Hassan | Kodagu,70,False,False

@@ -44,6 +44,37 @@ def test_multi_task_mae_yield():
     assert torch.isfinite(total)
 
 
+def test_multi_task_masks_unknown_crop_labels():
+    loss = MultiTaskLoss(LossConfig(weighting_mode="fixed", crop_loss="cross_entropy"))
+    inputs = _inputs()
+    inputs["crop"].requires_grad_(True)
+    targets = {"crop": torch.tensor([0, -1, 2, -1]), "yield": torch.randn(4, 1)}
+    total, per = loss(inputs, targets)
+    assert torch.isfinite(total)
+    # Unknown (-1) crop samples are excluded from the crop loss.
+    expected = nn.CrossEntropyLoss()(inputs["crop"][[0, 2]], targets["crop"][[0, 2]]).detach()
+    assert abs(float(per["crop"].detach()) - float(expected)) < 1e-6
+    # The yield head still sees the full batch.
+    assert float(per["yield"]) > 0.0
+    total.backward()
+    assert inputs["crop"].grad is not None
+
+
+def test_multi_task_zero_crop_loss_when_all_unknown():
+    loss = MultiTaskLoss(LossConfig(weighting_mode="fixed", crop_loss="cross_entropy"))
+    inputs = _inputs()
+    inputs["crop"].requires_grad_(True)
+    inputs["yield"].requires_grad_(True)
+    targets = {"crop": torch.full((4,), -1, dtype=torch.long), "yield": torch.randn(4, 1)}
+    total, per = loss(inputs, targets)
+    assert float(per["crop"]) == 0.0
+    assert torch.isfinite(total)
+    total.backward()
+    # No crop gradient flows from fully-unknown batches.
+    assert inputs["crop"].grad is None
+    assert inputs["yield"].grad is not None
+
+
 class _TinyShared(nn.Module):
     def __init__(self) -> None:
         super().__init__()

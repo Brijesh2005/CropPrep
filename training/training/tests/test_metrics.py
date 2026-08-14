@@ -45,6 +45,23 @@ def test_top_k_accuracy():
     assert result["top2_accuracy"] == 1.0  # correct class is in top-2 everywhere
 
 
+def test_classification_metrics_ignore_unknown_crop():
+    logits = torch.tensor([[2.0, 0.0], [0.0, 2.0], [2.0, 0.0]])
+    targets = torch.tensor([0, -1, 0])  # middle sample has no crop label
+    result = compute_classification_metrics(logits, targets, MetricsConfig(top_k=2))
+    assert result["support"] == 2
+    assert result["accuracy"] == 1.0
+    assert result["f1"] == 1.0
+
+
+def test_classification_metrics_all_unknown_crop():
+    logits = torch.tensor([[2.0, 0.0], [0.0, 2.0]])
+    targets = torch.tensor([-1, -1])
+    result = compute_classification_metrics(logits, targets)
+    assert result["support"] == 0
+    assert result["accuracy"] is None
+
+
 def test_metrics_tracker():
     tracker = MetricsTracker({"crop": "classification", "yield": "regression"})
     tracker.update("crop", torch.tensor([[2.0, 0.0]]), torch.tensor([0]))

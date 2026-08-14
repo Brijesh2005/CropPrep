@@ -63,13 +63,20 @@ def _infer_num_classes(model: nn.Module) -> int | None:
 
 
 def _collect_class_counts(loader: Any, num_classes: int | None) -> torch.Tensor:
-    """Count crop-label occurrences across a training loader (one pass)."""
+    """Count crop-label occurrences across a training loader (one pass).
+
+    Samples whose label is the ``-1`` unknown-crop sentinel are skipped so the
+    class-frequency statistics reflect only observations with a real crop.
+    """
     counts = torch.zeros(max(num_classes or 0, 0), dtype=torch.float32)
     for batch in loader:
         label = batch.get("crop_label") if isinstance(batch, Mapping) else None
         if label is None:
             continue
         label = torch.as_tensor(label, dtype=torch.long).reshape(-1)
+        if label.numel() == 0:
+            continue
+        label = label[label >= 0]
         if label.numel() == 0:
             continue
         observed = int(label.max().item()) + 1
