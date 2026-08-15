@@ -1,0 +1,13 @@
+model: cropfusion_v1
+model_version: 2.0.0
+dataset_version: 1.0.0
+device: auto
+precision: float32
+max_service_radius_km: 50.0
+feature_order:
+- Area
+- Rainfall
+- Temperature
+- Humidity
+- price
+input_dim: 5

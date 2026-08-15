@@ -1,0 +1,10 @@
+{
+  "files": {
+    "configs/inference.yaml": "2e019f494d6f7989811fff30566055d565cfe9cfcc54b952b925bdd475fd8b7f",
+    "configs/model.yaml": "4a462a91857111fdcc16f6ce4a8073590ee1d31ee49d1813f01970c75a830bb7",
+    "model/cropfusion.pt": "ad85f7170067331eeb432de66905dff193cac4ec3b833a674516c10ea48a0f3c",
+    "preprocess/label_encoder.pkl": "a8229bc33f2a8a834710ad701f334d8cc7b252acae54ef326826af01fed57415",
+    "preprocess/scaler.pkl": "5eaa00ed05695deebaf82994403bd89536f596c77ecb047a706242dc9d1d4fb2",
+    "reports/metrics.json": "f8dd5d073bf5afaa70141d8385f1c9c3b302d63e96a6cfa3cc437acd751bf83f"
+  }
+}

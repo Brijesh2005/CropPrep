@@ -1,0 +1,17 @@
+{
+  "format": "cropfusion_release",
+  "schema_version": 1,
+  "package_name": "cropfusion",
+  "model_version": "2.0.0",
+  "dataset_version": "1.0.0",
+  "released_at": "2026-08-15T06:16:20.797241+00:00",
+  "files": [
+    "configs/inference.yaml",
+    "configs/model.yaml",
+    "model/cropfusion.pt",
+    "preprocess/label_encoder.pkl",
+    "preprocess/scaler.pkl",
+    "reports/metrics.json",
+    "version/checksum.json"
+  ]
+}

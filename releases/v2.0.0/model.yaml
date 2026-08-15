@@ -1,0 +1,101 @@
+name: cropfusion_v1
+version: 2.0.0
+architecture_version: 1.0.0
+tabular:
+  numeric_dim: 5
+  categorical_cardinalities:
+  - 7
+  - 4
+  embedding_dim: 128
+  depth: 6
+  num_heads: 8
+  ff_dim: 512
+  dropout: 0.15
+  activation: gelu
+  use_cls: true
+  position_encoding: none
+  max_len: 64
+image_encoder:
+  backbone: tf_efficientnetv2_s.in1k
+  pretrained: false
+  freeze_backbone: false
+  input_size: 224
+  channel_expansion: repeat
+  drop_path_rate: 0.1
+  ndvi_backbone: null
+  evi_backbone: null
+  enable_ndvi: true
+  enable_evi: true
+image_fusion:
+  method: learnable
+  hidden_dim: null
+  dropout: 0.15
+temporal:
+  d_model: 256
+  depth: 4
+  num_heads: 8
+  ff_dim: 1024
+  dropout: 0.15
+  activation: gelu
+  use_cls: true
+  position_encoding: learned
+  max_len: 16
+  embedding_dim: 256
+cross_attention:
+  enabled: true
+  num_heads: 4
+  dropout: 0.15
+  out_dim: 256
+gated_fusion:
+  enabled: true
+  out_dim: 256
+  hidden_dim: 256
+  dropout: 0.15
+fusion:
+  residual_fusion: true
+  use_temporal_stream: false
+shared_encoder:
+  d_model: 256
+  depth: 4
+  num_heads: 8
+  ff_dim: 2048
+  dropout: 0.15
+  activation: gelu
+  out_dim: 512
+heads:
+  crop:
+    num_classes: 5
+    hidden_dim: null
+    dropout: 0.15
+    activation: relu
+  yield_prediction:
+    hidden_dim: null
+    dropout: 0.15
+    activation: relu
+    output_clamp_min: null
+loss:
+  crop_loss: focal
+  yield_loss: huber
+  crop_weight: 0.75
+  yield_weight: 0.25
+  weighting_mode: fixed
+  label_smoothing: 0.15
+  focal_gamma: 2.0
+  reduction: mean
+  log_variance_eps: 0.01
+checkpoint:
+  directory: training/artifacts/models
+  keep_last: 3
+export:
+  onnx_opset: 17
+  torchscript_mode: trace
+runtime:
+  precision: float32
+  device: null
+  compile: false
+  compile_mode: default
+  gradient_checkpointing: false
+  data_parallel: false
+  distributed: false
+  local_rank: null
+validate_inputs: true
