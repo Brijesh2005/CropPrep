@@ -1,0 +1,130 @@
+ogd_crop_name,count,model_head_match,crop_type_match,match_quality
+Betel Nuts (Areca nuts),82755,,arecanut,ENUM_ONLY
+NA Land ,48836,,,NO_MATCH
+Coconut,47755,coconut,coconut,DIRECT_HEAD
+Fallow,35644,,,NO_MATCH
+Pepper (Black),12812,pepper,,DIRECT_HEAD
+Rubber,10311,,,NO_MATCH
+Banana ,7179,,,NO_MATCH
+Paddy-H,5065,,paddy,ENUM_ONLY
+Cocoa,3955,,,NO_MATCH
+Paddy-L,3259,,paddy,ENUM_ONLY
+Cashewnuts,1940,,,NO_MATCH
+Harvest over Crop-Paddy-L,244,,,NO_MATCH
+Jackfruit,219,,,NO_MATCH
+Harvest over Crop-Betel Nuts (Areca nuts),211,,,NO_MATCH
+Teak/Saguvani,182,,,NO_MATCH
+Mangoes,179,,,NO_MATCH
+Coffee robusta,124,coffee,,DIRECT_HEAD
+Trees and Grooves,120,,,NO_MATCH
+Harvest over Crop-Coconut,107,,,NO_MATCH
+Pineapple,83,,,NO_MATCH
+Nutmeg,74,,,NO_MATCH
+Rambutan Fruit,65,,,NO_MATCH
+Grass,48,,,NO_MATCH
+Harvest over Crop-Paddy-H,47,,,NO_MATCH
+Harvest over Crop-Rubber,43,,,NO_MATCH
+Beetlvine (Pan),41,,,NO_MATCH
+Mahagani Tree,40,,,NO_MATCH
+Jasmine (Mogra/Bela),31,,,NO_MATCH
+Coffee arabica,29,coffee,,DIRECT_HEAD
+Cardamom,29,cardamom,,DIRECT_HEAD
+Agarwood,28,,,NO_MATCH
+Harvest over Crop-Banana ,26,,,NO_MATCH
+Papaya,25,,,NO_MATCH
+Mangosteen Fruit,21,,,NO_MATCH
+Acacia,18,,,NO_MATCH
+Bamboos,14,,,NO_MATCH
+Kokum,13,,,NO_MATCH
+Breadfruits,13,,,NO_MATCH
+Chiku (Sapota),13,,,NO_MATCH
+Oil Palm,11,,,NO_MATCH
+Tapioca ,10,,,NO_MATCH
+Venilla,9,,,NO_MATCH
+Palmyra Palm,9,,,NO_MATCH
+Red Sanders (Red Sandalwood),9,,,NO_MATCH
+Turmeric,9,,,NO_MATCH
+Curry leaves,9,,,NO_MATCH
+Cloves ,9,,,NO_MATCH
+Harvest over Crop-Cashewnuts,8,,,NO_MATCH
+Lemon  ,8,,,NO_MATCH
+Ginger,8,,,NO_MATCH
+Cowpea,7,,,NO_MATCH
+Malabar Neem (Melia Dubia),6,,,NO_MATCH
+Harvest over Crop-Nursery Fruits/ other Horticulture crops,6,,,NO_MATCH
+Nursery Fruits/ other Horticulture crops,6,,,NO_MATCH
+Vegetable Cowpea,6,,,NO_MATCH
+Drumstick ,6,,,NO_MATCH
+Nacotin Rusetic,6,,,NO_MATCH
+Green Fodder,5,,,NO_MATCH
+Sandalwood,5,,,NO_MATCH
+Silver Oak,5,,,NO_MATCH
+Almond,5,,,NO_MATCH
+Harvest over Crop-Grass,5,,,NO_MATCH
+Harvest over Crop-Jowar-H,5,,,NO_MATCH
+Sweet Flag,4,,,NO_MATCH
+Harvest over Crop-Pepper (Black),4,,,NO_MATCH
+Custard apple/Ramphal,4,,,NO_MATCH
+Aonla (Amla),4,,,NO_MATCH
+Harvest over Crop-Red Chillies (Mirchie),4,,,NO_MATCH
+Eucalyptus,4,,,NO_MATCH
+Guava,4,,,NO_MATCH
+Jowar-H,4,,maize,ENUM_ONLY
+Harvest over Crop-Urad,3,,,NO_MATCH
+Tea,3,,,NO_MATCH
+Ivygourd,3,,,NO_MATCH
+Dragon Fruit,3,,,NO_MATCH
+Passion Fruit,3,,,NO_MATCH
+Harvest over Crop-Arrowroot,3,,,NO_MATCH
+Arrowroot,3,,,NO_MATCH
+Anthurium,3,,,NO_MATCH
+Harvest over Crop-Almond,3,,,NO_MATCH
+Green Chillies ,3,,,NO_MATCH
+Harvest over Crop-Baragu,3,,,NO_MATCH
+Safflower,3,,,NO_MATCH
+Sugarcane-P,3,,,NO_MATCH
+Urad,3,blackgram,,DIRECT_HEAD
+Oranges ,3,,,NO_MATCH
+Pomelo/Chakota,2,,,NO_MATCH
+Masur (Lentil),2,,,NO_MATCH
+Basella,2,,,NO_MATCH
+Ridgegourd,2,,,NO_MATCH
+Neem,2,,,NO_MATCH
+Bhendi/ Ladies Finger,2,,,NO_MATCH
+Carambola Fruit,2,,,NO_MATCH
+Fig,2,,,NO_MATCH
+Nursery-Ornamentals / Flowers,2,,,NO_MATCH
+Bittergourd ,2,,,NO_MATCH
+Yam,2,,,NO_MATCH
+Ragi -H,2,,ragi,ENUM_ONLY
+Cucumber,2,,,NO_MATCH
+Coriander Pathi,2,,,NO_MATCH
+Allspice,2,,,NO_MATCH
+Harvest over Crop-Wheat-L,2,,,NO_MATCH
+Jowar-L,1,,maize,ENUM_ONLY
+Harvest over Crop-Subabul,1,,,NO_MATCH
+Red Chillies (Mirchie),1,,,NO_MATCH
+Harvest over Crop-Sweet Flag,1,,,NO_MATCH
+Harvest over Crop-Ragi-L,1,,,NO_MATCH
+Harvest over Crop-Pineapple,1,,,NO_MATCH
+Harvest over Crop-Ivygourd,1,,,NO_MATCH
+Jamun,1,,,NO_MATCH
+Pear,1,,,NO_MATCH
+Noni,1,,,NO_MATCH
+Casuarina Tree,1,,,NO_MATCH
+Brinjal,1,,,NO_MATCH
+Ashoka,1,,,NO_MATCH
+Ragi-L,1,,ragi,ENUM_ONLY
+Tomato,1,,,NO_MATCH
+Capsicum,1,,,NO_MATCH
+Champaca,1,,,NO_MATCH
+Orchids,1,,,NO_MATCH
+Harvest over Crop-Ragi -H,1,,,NO_MATCH
+Harvest over Crop-Sugar cane ratun-P,1,,,NO_MATCH
+Potato,1,,,NO_MATCH
+Mint,1,,,NO_MATCH
+Moong (Green gram),1,,,NO_MATCH
+Garlic ,1,,,NO_MATCH
+Subabul,1,,,NO_MATCH
+Harvest over Crop-Safflower,1,,,NO_MATCH
+Harvest over Crop-Green Chillies ,1,,,NO_MATCH

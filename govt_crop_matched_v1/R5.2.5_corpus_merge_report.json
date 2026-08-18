@@ -1,0 +1,79 @@
+{
+  "audit_version": "R5.2.5",
+  "generated_at": "2026-08-17T15:39:44.821568",
+  "existing_corpus": {
+    "total": 204,
+    "crop_labeled": 74
+  },
+  "government_corpus": {
+    "total_ogd": 261906,
+    "model_head": 60752,
+    "valid": 3388
+  },
+  "merged_total": 12,
+  "overlaps": {
+    "exact": 0,
+    "new": 3388
+  },
+  "duplicate_analysis": {
+    "total_duplicates": 57147,
+    "groups_diff_coords": 2900
+  },
+  "class_distribution": {
+    "cocoa": 5,
+    "coffee": 109,
+    "cardamom": 22,
+    "pepper": 3706,
+    "arecanut": 11,
+    "ginger": 18,
+    "tea": 10,
+    "paddy": 9,
+    "groundnut": 8,
+    "blackgram": 12,
+    "cashew": 10,
+    "coconut": 6958
+  },
+  "target_classes": {
+    "coconut": 6958,
+    "pepper": 3706,
+    "coffee": 109,
+    "cardamom": 22,
+    "blackgram": 12
+  },
+  "spatial_quality": {
+    "min_km": 0.0009,
+    "median_km": 0.1463,
+    "mean_km": 0.1643,
+    "p90_km": 0.2719,
+    "p95_km": 0.3186,
+    "max_km": 1.5485
+  },
+  "temporal_quality": {
+    "years": {
+      "2020": 10092,
+      "2021": 582
+    },
+    "seasons": {
+      "Kharif": 10637,
+      "Rabi": 37
+    }
+  },
+  "multimodal_coverage": {
+    "all_available": true,
+    "tabular": 3388,
+    "ndvi": 3388,
+    "evi": 3388
+  },
+  "leakage": {
+    "detected": false,
+    "govt_in_val": 0,
+    "govt_in_test": 0
+  },
+  "rare_classes": {
+    "blackgram": 1,
+    "cardamom": 7,
+    "coffee": 32
+  },
+  "recommendation": "SUFFICIENT FOR NEXT PHASE",
+  "final_verdict": "CROP CORPUS READY FOR SPLITTING"
+}

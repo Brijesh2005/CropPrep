@@ -1,0 +1,169 @@
+{
+  "phase": "R5.2.6",
+  "part_a_rare_class_expansion": {
+    "resources_inspected": 9,
+    "resources_downloaded": 9,
+    "new_hoblis": [
+      "VENURU",
+      "SULYA",
+      "UPPINANGADI",
+      "VITLA",
+      "PUTTURU",
+      "MANGALURU B",
+      "SURATKAL",
+      "BANTVALA"
+    ],
+    "new_total_records": 10674,
+    "new_coconut": 4501,
+    "new_pepper": 2607,
+    "new_coffee": 61,
+    "new_cardamom": -7,
+    "new_blackgram": -9
+  },
+  "part_b_matching": {
+    "government_all": 199345,
+    "government_valid": 10674,
+    "class_distribution": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    }
+  },
+  "part_c_gain": {
+    "rare_class_gain": 45,
+    "assessment": "PASS"
+  },
+  "part_e_temporal": {
+    "year_distribution": {
+      "2020": {
+        "coconut": 6441,
+        "pepper": 3537,
+        "coffee": 101,
+        "cardamom": 11,
+        "blackgram": 2
+      },
+      "2021": {
+        "coconut": 424,
+        "pepper": 158
+      }
+    },
+    "season_distribution": {
+      "Kharif": {
+        "coconut": 6828,
+        "pepper": 3695,
+        "coffee": 101,
+        "cardamom": 11,
+        "blackgram": 2
+      },
+      "Rabi": {
+        "coconut": 37
+      }
+    }
+  },
+  "part_f_spatial": {
+    "taluk_distribution": {
+      "Bantwal": {
+        "coconut": 1566,
+        "pepper": 692,
+        "coffee": 9
+      },
+      "Belthangady": {
+        "coconut": 2091,
+        "pepper": 863,
+        "coffee": 20,
+        "cardamom": 2
+      },
+      "Mangalore": {
+        "coconut": 635,
+        "cardamom": 2,
+        "pepper": 44
+      },
+      "Sullia": {
+        "coconut": 1200,
+        "pepper": 1033,
+        "coffee": 51,
+        "blackgram": 2,
+        "cardamom": 5
+      },
+      "Puttur": {
+        "pepper": 1063,
+        "coconut": 1373,
+        "coffee": 21,
+        "cardamom": 2
+      }
+    },
+    "village_count": 224
+  },
+  "part_g_splits": {
+    "option1_temporal": {
+      "train": 10092,
+      "val": 0,
+      "test": 582
+    },
+    "option2_spatial": {
+      "train": 6116,
+      "val": 2267,
+      "test": 2291
+    },
+    "option3_spatio_temporal": {
+      "train": 7955,
+      "val": 428,
+      "test": 2291
+    },
+    "option4_stratified": {
+      "train": 7480,
+      "val": 1503,
+      "test": 1691
+    }
+  },
+  "part_h_feasibility": {
+    "coconut": {
+      "total": 6865,
+      "villages": 224,
+      "taluks": 5,
+      "years": 2,
+      "seasons": 2,
+      "feasibility": "LIMITED"
+    },
+    "pepper": {
+      "total": 3695,
+      "villages": 182,
+      "taluks": 5,
+      "years": 2,
+      "seasons": 1,
+      "feasibility": "LIMITED"
+    },
+    "coffee": {
+      "total": 101,
+      "villages": 41,
+      "taluks": 4,
+      "years": 1,
+      "seasons": 1,
+      "feasibility": "INSUFFICIENT"
+    },
+    "cardamom": {
+      "total": 11,
+      "villages": 9,
+      "taluks": 4,
+      "years": 1,
+      "seasons": 1,
+      "feasibility": "INSUFFICIENT"
+    },
+    "blackgram": {
+      "total": 2,
+      "villages": 2,
+      "taluks": 1,
+      "years": 1,
+      "seasons": 1,
+      "feasibility": "INSUFFICIENT"
+    }
+  },
+  "part_i_evaluation_policy": "Spatial leave-one-taluk-out CV",
+  "part_j_rare_class_strategy": {
+    "blackgram": "EXCLUDE from evaluation, class-weighted loss in training",
+    "cardamom": "INCLUDE with caveat, class-weighted loss",
+    "coffee": "INCLUDE in all metrics, class-weighted loss"
+  }
+}

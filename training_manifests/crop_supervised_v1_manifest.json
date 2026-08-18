@@ -1,0 +1,162 @@
+{
+  "dataset_version": "crop_supervised_v1.1",
+  "creation_timestamp": "2026-08-17T16:02:06.653645",
+  "source_datasets": {
+    "government_ogd": {
+      "name": "Karnataka Crop Survey OGD",
+      "api": "kodi.karnataka.gov.in",
+      "hoblis": 14,
+      "taluki": 5,
+      "years": [
+        "2020",
+        "2021"
+      ],
+      "seasons": [
+        "Kharif",
+        "Rabi"
+      ],
+      "total_raw_records": 199345,
+      "valid_matched_records": 10674
+    }
+  },
+  "total_samples": 10674,
+  "train_samples": 6116,
+  "validation_samples": 2267,
+  "test_samples": 2291,
+  "class_mapping": {
+    "coconut": 4,
+    "pepper": 6,
+    "coffee": 7,
+    "cardamom": 8,
+    "blackgram": 9
+  },
+  "class_counts": {
+    "overall": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "train": {
+      "coconut": 4099,
+      "pepper": 1970,
+      "coffee": 41,
+      "cardamom": 6
+    },
+    "validation": {
+      "coconut": 1566,
+      "pepper": 692,
+      "coffee": 9
+    },
+    "test": {
+      "coconut": 1200,
+      "pepper": 1033,
+      "coffee": 51,
+      "blackgram": 2,
+      "cardamom": 5
+    }
+  },
+  "class_weights": {
+    "coconut": {
+      "class_id": 4,
+      "training_count": 4099,
+      "weight": 0.298414
+    },
+    "pepper": {
+      "class_id": 6,
+      "training_count": 1970,
+      "weight": 0.620914
+    },
+    "coffee": {
+      "class_id": 7,
+      "training_count": 41,
+      "weight": 29.834146
+    },
+    "cardamom": {
+      "class_id": 8,
+      "training_count": 6,
+      "weight": 203.866667
+    },
+    "blackgram": {
+      "class_id": 9,
+      "training_count": 0,
+      "weight": 0.0
+    }
+  },
+  "split_strategy": "spatial_leave_one_taluk_out",
+  "split_groups": {
+    "train_taluk": [
+      "Belthangady",
+      "Mangalore",
+      "Puttur"
+    ],
+    "validation_taluk": "Bantwal",
+    "test_taluk": "Sullia"
+  },
+  "excluded_classes": [],
+  "evaluation_policy": {
+    "blackgram": "EXCLUDE from per-class evaluation (insufficient support)",
+    "cardamom": "INCLUDE with low-support warning",
+    "coffee": "INCLUDE normally with support annotation",
+    "coconut": "normal metrics",
+    "pepper": "normal metrics"
+  },
+  "feature_schema": {
+    "tabular": [
+      "NDVI",
+      "EVI",
+      "Kharif_NDVI",
+      "Rabi_NDVI",
+      "Kharif_EVI",
+      "Rabi_EVI"
+    ],
+    "satellite": "sentinel2",
+    "temporal": [
+      "year",
+      "season"
+    ],
+    "spatial": [
+      "lat",
+      "lon",
+      "village",
+      "taluk",
+      "district"
+    ]
+  },
+  "image_schema": {
+    "platform": "sentinel2",
+    "resolution": "10m",
+    "bands": "RGB+NIR"
+  },
+  "temporal_schema": {
+    "years": [
+      "2020",
+      "2021"
+    ],
+    "seasons": [
+      "Kharif",
+      "Rabi"
+    ]
+  },
+  "provenance_schema": {
+    "government_ogd": "Full: API -> JSON -> label normalization -> spatial matching -> temporal matching -> tabular matching -> satellite verification -> dedup"
+  },
+  "matching_configuration": {
+    "spatial_tolerance_km": 5.0,
+    "temporal_tolerance_days": 15,
+    "grid_precision": 3,
+    "grid_search_radius_cells": 10
+  },
+  "spatial_tolerance": "5.0 km",
+  "temporal_tolerance": "15 days",
+  "reproducibility": {
+    "random_seed": 42,
+    "code_version": "R5.2.7",
+    "dataset_checksums": {
+      "government_crop_stam_match.csv": "337140ce46ebb58e469677e06c2d46c3b54b41983152b245e2c0b64fbc74828b",
+      "crop_supervised_v1.csv": "239cb608972e87f4e069e27f4ab308c65141afcdcb2148e0847dcfe96ea2820d",
+      "data_season.csv": "57cdfccf559f1efa4d5898051c72a9627feea20d41bdad2b804d97d1ddeb493d"
+    }
+  }
+}

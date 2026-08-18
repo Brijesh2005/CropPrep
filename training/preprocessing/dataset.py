@@ -49,14 +49,66 @@ def split_observations(
     cfg = config or SplitConfig()
 
     if strategy == "random":
-        return _ratio_split(items, cfg, cfg.seed)
-    if strategy == "stratified":
-        return _stratified_split(items, cfg)
-    if strategy == "temporal":
-        return _temporal_split(items, cfg)
-    if strategy in {"spatial", "group"}:
-        return _group_split(items, cfg)
-    raise ValueError(f"Unknown split strategy: {strategy}")
+        splits = _ratio_split(items, cfg, cfg.seed)
+    elif strategy == "stratified":
+        splits = _stratified_split(items, cfg)
+    elif strategy == "temporal":
+        splits = _temporal_split(items, cfg)
+    elif strategy in {"spatial", "group"}:
+        splits = _group_split(items, cfg)
+    else:
+        raise ValueError(f"Unknown split strategy: {strategy}")
+
+    # R5.2 Task 6: surface degenerate holdout sets (no crop labels, constant
+    # yield, or constant tabular input) so a split that cannot yield meaningful
+    # crop/regression metrics is never silently used.
+    _diagnose_split_composition(items, splits, cfg, strategy)
+    return splits
+
+
+def _split_diagnostic(name: str, part: Sequence[Any]) -> list[str]:
+    issues: list[str] = []
+    n = len(part)
+    if n == 0:
+        return [f"{name} is EMPTY"]
+    crop_labeled = sum(1 for obs in part if getattr(obs, "crop", None) is not None)
+    if crop_labeled == 0:
+        issues.append(
+            f"{name} has ZERO crop-labeled samples ({n} total) — crop metrics "
+            "are undefined on this split"
+        )
+    yields = [float(obs.yield_value) for obs in part
+              if getattr(obs, "yield_value", None) is not None]
+    if yields:
+        vals = set(round(v, 4) for v in yields)
+        if len(vals) == 1:
+            issues.append(
+                f"{name} yields are a single constant value ({yields[0]:.4g}) — "
+                "regression metrics (e.g. R2) are meaningless on this split"
+            )
+        elif len(vals) <= max(2, n // 10):
+            issues.append(
+                f"{name} yields collapse to only {len(vals)} distinct values "
+                f"over {n} samples — regression metrics (e.g. R2) are "
+                "near-meaningless on this split"
+            )
+    return issues
+
+
+def _diagnose_split_composition(
+    items: Sequence[Any],
+    splits: tuple[Sequence[Any], Sequence[Any], Sequence[Any]],
+    cfg: SplitConfig,
+    strategy: str,
+) -> None:
+    """Log warnings for degenerate holdout splits (R5.2 Task 6)."""
+    for name, part in zip(("train", "val", "test"), splits):
+        if name == "train":
+            continue
+        for issue in _split_diagnostic(name, part):
+            logger.warning(
+                "degenerate %s split (%s): %s", strategy, name, issue
+            )
 
 
 def _ratio_split(

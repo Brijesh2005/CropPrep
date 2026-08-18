@@ -1,0 +1,85 @@
+{
+  "criteria": {
+    "A": {
+      "name": "Image Branch Verification",
+      "status": "PENDING_KAGGLE",
+      "reason": "Requires Kaggle GPU + imagery mount. Script exists: True",
+      "acceptance": "Run verify_image_tensors_full.py on Kaggle",
+      "pass": null
+    },
+    "B": {
+      "name": "AMP Stability",
+      "status": "PENDING_KAGGLE",
+      "reason": "Requires GPU. Script exists: True",
+      "acceptance": "Run amp_stability_test.py on Kaggle; verify fp16_amp is stable",
+      "pass": null
+    },
+    "C": {
+      "name": "Numerical Stability",
+      "status": "PASS",
+      "reason": "Config check on local machine",
+      "details": {
+        "training.yaml.amp_dtype": "float16",
+        "performance.yaml.dtype": "fp16",
+        "nan_policy": "stop",
+        "gradient_clip": 1.0
+      },
+      "issues": [],
+      "pass": true
+    },
+    "D": {
+      "name": "Training Data Contract",
+      "status": "FAIL",
+      "crop_training_samples": 74,
+      "yield_training_samples": 275,
+      "yield_unit": "npp_proxy",
+      "yield_source": "DK_Features_2018.csv, DK_Features_2019.csv, DK_Features_2020.csv, DK_Features_2021.csv, DK_Features_2022.csv, DK_Features_2023.csv, data_season.csv",
+      "errors": [
+        "yield target mixes incompatible units: kg/ha, npp_proxy across 275 yield-labelled samples \u2014 train the regression head on ONE unit only"
+      ],
+      "warnings": [
+        "201/275 training samples are UNLABELLED for crop (-1 sentinel); the crop head is trained only on the 74 labelled ones"
+      ],
+      "pass": false
+    },
+    "E": {
+      "name": "Evaluation Split Quality",
+      "status": "FAIL",
+      "split_strategy": "temporal",
+      "train_crop_labeled": 74,
+      "val_crop_labeled": 0,
+      "test_crop_labeled": 0,
+      "total_crop_labeled": 74,
+      "issues": [
+        "val split has ZERO crop-labeled samples",
+        "test split has ZERO crop-labeled samples",
+        "ALL crop-labeled samples in train (val/test have none)"
+      ],
+      "pass": false
+    },
+    "F": {
+      "name": "Multimodal Tensor Flow",
+      "status": "PENDING_KAGGLE",
+      "reason": "Requires GPU. Script exists: True",
+      "acceptance": "Run verify_multimodal_tensors.py on Kaggle",
+      "pass": null
+    },
+    "G": {
+      "name": "GPU Smoke Test",
+      "status": "PENDING_KAGGLE",
+      "reason": "Requires GPU. Script exists: True",
+      "acceptance": "Run gpu_smoke_test.py on Kaggle (2 epochs, batch_size=4)",
+      "pass": null
+    }
+  },
+  "overall": "BLOCKED",
+  "reason": "local criteria failed",
+  "decided_count": 3,
+  "passed_count": 1,
+  "failed_count": 2,
+  "pending_count": 4,
+  "local_blockers": [
+    "D. Training Data Contract: ['yield target mixes incompatible units: kg/ha, npp_proxy across 275 yield-labelled samples \u2014 train the regression head on ONE unit only']",
+    "E. Evaluation Split Quality: ['val split has ZERO crop-labeled samples', 'test split has ZERO crop-labeled samples', 'ALL crop-labeled samples in train (val/test have none)']"
+  ]
+}

@@ -64,6 +64,44 @@ def test_save_load(tmp_path):
     assert loaded.inverse_crop([1]) == ["Coconut"]
 
 
+def test_yield_scale_diagnostics_flag_mixed_units():
+    """R5.2 Task 5/7: a mixed-unit yield target must be flagged at fit time."""
+    pipeline = LabelPipeline(LabelConfig(yield_scaler="standard")).fit(
+        [_Obs("Coconut", 62), _Obs("Coconut", 73730), _Obs("Coconut", 0.53),
+         _Obs("Coconut", 1.5)]
+    )
+    stats = pipeline.yield_scale_stats
+    assert stats is not None
+    assert stats["dynamic_range_ratio"] > 1e3
+    assert any("mixed units" in w for w in pipeline.warnings)
+    # scaler mean is dominated by the kg/ha scale
+    assert pipeline.yield_scaler.mean_[0] > 100
+    assert "yield_scale_stats" in pipeline.summary()
+    assert "warnings" in pipeline.summary()
+
+
+def test_yield_scale_diagnostics_no_warning_clean_target():
+    pipeline = LabelPipeline(LabelConfig(yield_scaler="standard")).fit(
+        [_Obs("Coconut", 5000), _Obs("Coconut", 6000), _Obs("Coconut", 5500)]
+    )
+    assert pipeline.yield_scale_stats is not None
+    assert pipeline.warnings == []
+    assert pipeline.yield_scale_stats["dynamic_range_ratio"] < 10
+
+
+def test_yield_scale_diagnostics_constant_collapse():
+    """A target whose scaled values collapse to a single point must be flagged.
+
+    Mirrors the real defect: 201 district samples all scale to -0.3877.
+    """
+    pipeline = LabelPipeline(LabelConfig(yield_scaler="standard")).fit(
+        [_Obs("Coconut", 1.0), _Obs("Coconut", 1.0), _Obs("Coconut", 1.0)]
+    )
+    assert pipeline.yield_scale_stats is not None
+    assert pipeline.yield_scale_stats["scaled_distinct_values"] <= 1
+    assert any("collapse" in w for w in pipeline.warnings)
+
+
 def torch_int64():
     import torch
 

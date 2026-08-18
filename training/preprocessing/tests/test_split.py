@@ -2,8 +2,15 @@
 
 from __future__ import annotations
 
+import logging
+
+import pytest
+
 from training.preprocessing.config import SplitConfig
-from training.preprocessing.dataset import split_observations
+from training.preprocessing.dataset import (
+    _split_diagnostic,
+    split_observations,
+)
 
 
 class _Temporal:
@@ -178,3 +185,59 @@ def test_stratified_preserves_classes():
     assert len(train) == 7  # 70% of 10
     assert len(test) >= 1
     assert len(train) + len(val) + len(test) == len(obs)
+
+
+# ---------------------------------------------------------------------------
+# R5.2 Task 6: degenerate-split diagnostics
+# ---------------------------------------------------------------------------
+
+
+class _YieldObs(_Obs):
+    def __init__(self, year=2020, crop="Rice", yield_value=5000.0):
+        super().__init__(year=year, crop=crop)
+        self.yield_value = yield_value
+
+
+def test_split_diagnostic_flags_zero_crop_labels():
+    issues = _split_diagnostic("test", [_YieldObs(crop=None) for _ in range(5)])
+    assert any("ZERO crop-labeled" in issue for issue in issues)
+
+
+def test_split_diagnostic_flags_constant_yield():
+    issues = _split_diagnostic(
+        "test", [_YieldObs(yield_value=1.0) for _ in range(5)]
+    )
+    assert any("single constant value" in issue for issue in issues)
+
+
+def test_split_diagnostic_clean_split_no_issues():
+    obs = [
+        _YieldObs(year=2018, crop="Rice", yield_value=5000.0),
+        _YieldObs(year=2018, crop="Coconut", yield_value=6000.0),
+        _YieldObs(year=2019, crop="Rice", yield_value=5500.0),
+        _YieldObs(year=2019, crop="Coconut", yield_value=6500.0),
+    ]
+    issues = _split_diagnostic("test", obs)
+    assert issues == []
+
+
+def test_split_diagnostic_flags_empty_split():
+    issues = _split_diagnostic("test", [])
+    assert any("EMPTY" in issue for issue in issues)
+
+
+def test_temporal_split_logs_degenerate_holdout(caplog):
+    """A temporal split whose holdout has no crop labels must warn."""
+    obs = [
+        _YieldObs(year=2018, crop="Rice", yield_value=5000.0),
+        _YieldObs(year=2018, crop="Coconut", yield_value=6000.0),
+        _YieldObs(year=2019, crop="Rice", yield_value=5500.0),
+        _YieldObs(year=2019, crop="Coconut", yield_value=6500.0),
+        _YieldObs(year=2020, crop=None, yield_value=0.7),
+        _YieldObs(year=2020, crop=None, yield_value=0.8),
+    ]
+    with caplog.at_level(logging.WARNING, logger="training.preprocessing.dataset"):
+        split_observations(obs, SplitConfig(strategy="temporal", seed=1))
+    joined = "\n".join(r.message for r in caplog.records)
+    assert "ZERO crop-labeled" in joined
+    assert "degenerate" in joined

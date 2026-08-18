@@ -119,6 +119,8 @@ def _persist_pipeline(preprocessor: Any, out_dir: Path) -> dict[str, Any]:
         "num_features": len(feature_order),
         "num_classes": int(label.num_classes),
         "crop_classes": list(label.crop_encoder.classes_),
+        "yield_scale_stats": getattr(label, "yield_scale_stats", None),
+        "warnings": list(getattr(label, "warnings", [])),
     }
 
 

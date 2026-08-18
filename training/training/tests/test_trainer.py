@@ -191,6 +191,49 @@ def test_nan_policy_skip_does_not_crash(tabular_model):
     assert result.steps >= 0
 
 
+def test_nan_policy_default_is_stop(tabular_model):
+    """R5.2: NaN must fail loudly by default, not be silently skipped."""
+    config = TrainingConfig(name="nan-default")
+    assert config.general.nan_policy == "stop"
+
+
+def test_nan_policy_stop_raises_with_diagnostics(tabular_model):
+    """R5.2: with the default ``stop`` policy a NaN step must abort training
+    and the exception must carry per-tensor NaN diagnostics."""
+    from training.training import Trainer
+    from training.training.exceptions import TrainingRunError
+
+    model = copy.deepcopy(tabular_model)
+
+    class NanLoader:
+        def __len__(self) -> int:
+            return 2
+
+        def __iter__(self):
+            nan_batch = {"tabular": torch.full((8, 5), float("nan")),
+                         "crop_label": torch.randint(0, 3, (8,)),
+                         "yield_label": torch.randn(8, 1)}
+            return iter([nan_batch])
+
+    config = TrainingConfig(
+        name="nan-stop",
+        general={"device": "cpu", "seed": 42, "nan_detection": True,
+                 "nan_policy": "stop"},
+        train={"epochs": 1, "early_stopping_patience": 3},
+        logging={"console": False},
+        checkpoint={"save_best": False, "save_latest": False},
+    )
+    trainer = Trainer(model, NanLoader(), config)
+    with pytest.raises(TrainingRunError) as excinfo:
+        trainer.train()
+    detail = excinfo.value.detail or {}
+    assert "loss" in detail
+    assert "inputs" in detail
+    assert "tabular" in detail["inputs"]
+    assert detail["inputs"]["tabular"]["nan"] > 0
+    assert trainer.nan_steps >= 1
+
+
 def test_resume_continues_from_checkpoint(tabular_model, train_config):
     from training.training import Trainer
 

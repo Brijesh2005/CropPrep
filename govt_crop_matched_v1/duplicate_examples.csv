@@ -1,0 +1,21 @@
+group_key_village,group_key_year,group_key_season,group_key_crop,group_key_survey_date,n_records,differing_fields,sample_record_hobli,sample_record_lat,sample_record_lon,sample_record_source_crop,sample_record_distance_km,sample_record_crop_status
+beltangadi,belthangady,2020,Kharif,coconut,5,lat|distance_km|lon,BELTANGADI,12.9893123,75.2650412,Coconut,0.204,exact
+charmadi,belthangady,2020,Kharif,coconut,6,lat|distance_km|lon,BELTANGADI,13.0514652,75.4118862,Coconut,0.3066,exact
+charmadi,belthangady,2020,Kharif,coconut,21,lat|distance_km|lon,BELTANGADI,13.0585733,75.4294483,Coconut,0.1042,exact
+charmadi,belthangady,2020,Kharif,coconut,6,lat|distance_km|lon,BELTANGADI,13.0483667,75.4183725,Coconut,0.3369,exact
+beltangadi,belthangady,2020,Kharif,coconut,6,lat|distance_km|lon,BELTANGADI,12.9921203,75.2771544,Coconut,0.0652,exact
+charmadi,belthangady,2020,Kharif,coconut,8,lat|distance_km|lon,BELTANGADI,13.0483376,75.4220762,Coconut,0.0745,exact
+beltangadi,belthangady,2020,Kharif,coconut,5,lat|distance_km|lon,BELTANGADI,12.9850459,75.2621205,Coconut,0.1701,exact
+indabettu,belthangady,2020,Kharif,coconut,13,lat|distance_km|lon,BELTANGADI,13.0766317,75.350385,Coconut,0.1717,exact
+kadirudyavara,belthangady,2020,Kharif,coconut,16,lat|distance_km|lon,BELTANGADI,13.052201,75.3703596,Coconut,0.0741,exact
+kadirudyavara,belthangady,2020,Kharif,coconut,43,lat|distance_km|lon,BELTANGADI,13.0472673,75.3707688,Coconut,0.1383,exact
+kalmanja,belthangady,2020,Kharif,pepper,6,lat|distance_km|lon,BELTANGADI,12.9916141,75.3751485,Pepper (Black),0.0622,alias
+kalmanja,belthangady,2020,Kharif,coconut,7,lat|distance_km|lon,BELTANGADI,12.9915681,75.3751873,Coconut,0.0568,exact
+kalmanja,belthangady,2020,Kharif,pepper,12,lat|distance_km|lon,BELTANGADI,12.9869061,75.3763633,Pepper (Black),0.0886,alias
+kalmanja,belthangady,2020,Kharif,coconut,9,lat|distance_km|lon,BELTANGADI,12.987032,75.3763967,Coconut,0.0972,exact
+charmadi,belthangady,2020,Kharif,coconut,28,lat|distance_km|lon,BELTANGADI,13.0539548,75.4212236,Coconut,0.1985,exact
+beltangadi,belthangady,2020,Kharif,pepper,3,lat|distance_km|lon,BELTANGADI,12.9855709,75.2619567,Pepper (Black),0.1612,alias
+beltangadi,belthangady,2020,Kharif,coconut,14,lat|distance_km|lon,BELTANGADI,12.9869134,75.2712059,Coconut,0.0472,exact
+charmadi,belthangady,2020,Kharif,coconut,12,lat|distance_km|lon,BELTANGADI,13.0482967,75.4082155,Coconut,0.2839,exact
+kalmanja,belthangady,2020,Kharif,coconut,5,lat|distance_km|lon,BELTANGADI,12.995495,75.36442,Coconut,0.1892,exact
+beltangadi,belthangady,2020,Kharif,coconut,6,lat|distance_km|lon,BELTANGADI,12.993075,75.2637683,Coconut,0.0462,exact

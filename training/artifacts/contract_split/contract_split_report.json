@@ -1,0 +1,109 @@
+{
+  "task_d_contract": {
+    "d1_full_corpus": {
+      "crop_training_samples": 74,
+      "yield_training_samples": 275,
+      "yield_unit": "kg/ha",
+      "yield_source": "DK_Features_2018.csv, DK_Features_2019.csv, DK_Features_2020.csv, DK_Features_2021.csv, DK_Features_2022.csv, DK_Features_2023.csv, data_season.csv",
+      "image_samples": 275,
+      "tabular_samples": 275,
+      "valid": false,
+      "errors": [
+        "yield target mixes incompatible units: kg/ha, npp_proxy across 275 yield-labelled samples \u2014 train the regression head on ONE unit only"
+      ],
+      "warnings": [
+        "201/275 training samples are UNLABELLED for crop (-1 sentinel); the crop head is trained only on the 74 labelled ones"
+      ]
+    },
+    "d2_empty_corpus": {
+      "crop_training_samples": 0,
+      "yield_training_samples": 0,
+      "yield_unit": null,
+      "yield_source": null,
+      "image_samples": 0,
+      "tabular_samples": 0,
+      "valid": false,
+      "errors": [
+        "training corpus is EMPTY"
+      ],
+      "warnings": []
+    },
+    "d3_unlabeled_only": {
+      "crop_training_samples": 0,
+      "yield_training_samples": 201,
+      "yield_unit": "npp_proxy",
+      "yield_source": "DK_Features_2018.csv, DK_Features_2019.csv, DK_Features_2020.csv, DK_Features_2021.csv, DK_Features_2022.csv, DK_Features_2023.csv",
+      "image_samples": 201,
+      "tabular_samples": 201,
+      "valid": false,
+      "errors": [
+        "crop classifier enabled but NO training sample carries a crop label \u2014 do not train the final crop classifier on unlabeled -1 observations"
+      ],
+      "warnings": []
+    },
+    "contract_valid": false,
+    "contract_errors": [
+      "yield target mixes incompatible units: kg/ha, npp_proxy across 275 yield-labelled samples \u2014 train the regression head on ONE unit only"
+    ],
+    "contract_warnings": [
+      "201/275 training samples are UNLABELLED for crop (-1 sentinel); the crop head is trained only on the 74 labelled ones"
+    ]
+  },
+  "task_e_split": {
+    "split_strategy": "temporal",
+    "split_config": {
+      "train_ratio": 0.7,
+      "val_ratio": 0.15,
+      "test_ratio": 0.15
+    },
+    "train": {
+      "total": 187,
+      "crop_labeled": 74,
+      "yield_values": 187,
+      "has_paired_images": 187,
+      "yield_unique": 28,
+      "years": [
+        2018,
+        2019,
+        2020,
+        2021
+      ]
+    },
+    "val": {
+      "total": 40,
+      "crop_labeled": 0,
+      "yield_values": 40,
+      "has_paired_images": 40,
+      "yield_unique": 5,
+      "years": [
+        2022
+      ]
+    },
+    "test": {
+      "total": 48,
+      "crop_labeled": 0,
+      "yield_values": 48,
+      "has_paired_images": 48,
+      "yield_unique": 5,
+      "years": [
+        2023
+      ]
+    },
+    "val_no_crop_labels": true,
+    "test_no_crop_labels": true,
+    "train_has_all_crop_labels": true,
+    "yield_constant_in_train": false,
+    "crop_eval_ready": false,
+    "total_crop_labeled": 74,
+    "issues": [
+      "val/test have zero crop labels",
+      "all crop labels in train",
+      null
+    ]
+  },
+  "issues": [
+    "Data contract INVALID",
+    "Val/test have zero crop labels",
+    "Cannot evaluate crop classifier on val/test"
+  ]
+}

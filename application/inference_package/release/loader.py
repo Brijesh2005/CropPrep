@@ -51,6 +51,7 @@ class ReleasePackage:
     model_kind: str  # "torchscript" | "state_dict"
     scaler: Any
     label_encoder: Any
+    yield_scaler: Any
     model_config: dict[str, Any]
     inference_config: dict[str, Any]
     historical_context: pd.DataFrame
@@ -94,6 +95,7 @@ class ReleasePackageLoader:
         model, model_kind = self._load_model(model_config)
         scaler = self._load_pickle("preprocess/scaler.pkl")
         label_encoder = self._load_pickle("preprocess/label_encoder.pkl")
+        yield_scaler = self._load_optional_pickle("preprocess/yield_scaler.pkl")
 
         historical_context = pd.read_parquet(self._path("metadata/historical_context.parquet"))
         location_index = pd.read_parquet(self._path("metadata/location_index.parquet"))
@@ -105,6 +107,7 @@ class ReleasePackageLoader:
             model_kind=model_kind,
             scaler=scaler,
             label_encoder=label_encoder,
+            yield_scaler=yield_scaler,
             model_config=model_config,
             inference_config=inference_config,
             historical_context=historical_context,
@@ -192,6 +195,13 @@ class ReleasePackageLoader:
 
     def _load_pickle(self, rel_path: str) -> Any:
         with self._path(rel_path).open("rb") as fh:
+            return pickle.load(fh)
+
+    def _load_optional_pickle(self, rel_path: str) -> Any:
+        path = self._path(rel_path)
+        if not path.exists():
+            return None
+        with path.open("rb") as fh:
             return pickle.load(fh)
 
     def _load_json(self, rel_path: str) -> dict[str, Any]:

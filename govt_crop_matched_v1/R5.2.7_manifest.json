@@ -1,0 +1,95 @@
+{
+  "phase": "R5.2.7",
+  "final_corpus_count": 10674,
+  "source_breakdown": {
+    "government_ogd": 10674
+  },
+  "class_distribution": {
+    "overall": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "train": {
+      "coconut": 4099,
+      "pepper": 1970,
+      "coffee": 41,
+      "cardamom": 6
+    },
+    "validation": {
+      "coconut": 1566,
+      "pepper": 692,
+      "coffee": 9
+    },
+    "test": {
+      "coconut": 1200,
+      "pepper": 1033,
+      "coffee": 51,
+      "blackgram": 2,
+      "cardamom": 5
+    }
+  },
+  "split": {
+    "train": 6116,
+    "validation": 2267,
+    "test": 2291
+  },
+  "class_weights": {
+    "coconut": {
+      "class_id": 4,
+      "training_count": 4099,
+      "weight": 0.298414
+    },
+    "pepper": {
+      "class_id": 6,
+      "training_count": 1970,
+      "weight": 0.620914
+    },
+    "coffee": {
+      "class_id": 7,
+      "training_count": 41,
+      "weight": 29.834146
+    },
+    "cardamom": {
+      "class_id": 8,
+      "training_count": 6,
+      "weight": 203.866667
+    },
+    "blackgram": {
+      "class_id": 9,
+      "training_count": 0,
+      "weight": 0.0
+    }
+  },
+  "spatial_split": {
+    "train_taluk": [
+      "Belthangady",
+      "Mangalore",
+      "Puttur"
+    ],
+    "validation_taluk": "Bantwal",
+    "test_taluk": "Sullia"
+  },
+  "leakage_check": {
+    "status": "PASS"
+  },
+  "validation_results": {
+    "schema": true,
+    "provenance": true,
+    "class_labels": true,
+    "multimodal": true,
+    "split": true,
+    "leakage": true,
+    "class_weights": true,
+    "manifest_reproducibility": true,
+    "yield_separation": true
+  },
+  "manifest_path": "D:/CropPrep/training_manifests\\crop_supervised_v1_manifest.json",
+  "checksums": {
+    "government_crop_stam_match.csv": "337140ce46ebb58e469677e06c2d46c3b54b41983152b245e2c0b64fbc74828b",
+    "crop_supervised_v1.csv": "239cb608972e87f4e069e27f4ab308c65141afcdcb2148e0847dcfe96ea2820d",
+    "data_season.csv": "57cdfccf559f1efa4d5898051c72a9627feea20d41bdad2b804d97d1ddeb493d"
+  }
+}

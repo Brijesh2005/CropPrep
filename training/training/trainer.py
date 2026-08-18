@@ -57,6 +57,8 @@ class TrainingResult:
     stopped_early: bool = False
     duration_seconds: float = 0.0
     best_epoch: int | None = None
+    nan_steps: int = 0
+    nan_diagnostics: list[dict[str, Any]] = field(default_factory=list)
 
     def summary(self) -> dict[str, Any]:
         return {
@@ -67,13 +69,19 @@ class TrainingResult:
             "stopped_early": self.stopped_early,
             "duration_seconds": self.duration_seconds,
             "best_epoch": self.best_epoch,
+            "nan_steps": self.nan_steps,
+            "nan_diagnostics": self.nan_diagnostics,
         }
 
 
 def _default_input_map(
     batch: Mapping[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Split a Phase 4 batch into model inputs and task targets."""
+    """Split a Phase 4 batch into model inputs and task targets.
+
+    R5.2.2: passes ``yield_unit_mask`` through to targets so the yield loss
+    only receives physical kg/ha observations (NPP-proxy excluded).
+    """
     inputs = {k: batch[k] for k in ("tabular", "ndvi", "evi", "temporal_mask")
               if k in batch}
     targets: dict[str, Any] = {}
@@ -81,6 +89,8 @@ def _default_input_map(
         targets["crop"] = batch["crop_label"]
     if "yield_label" in batch:
         targets["yield"] = batch["yield_label"]
+    if "yield_unit_mask" in batch:
+        targets["yield_unit_mask"] = batch["yield_unit_mask"]
     return inputs, targets
 
 
@@ -99,6 +109,17 @@ def _outputs_to_dict(out: Any) -> dict[str, torch.Tensor]:
 
 def _has_nan_or_inf(value: torch.Tensor) -> bool:
     return bool(torch.isnan(value).any().item() or torch.isinf(value).any().item())
+
+
+def _nan_attrs(value: torch.Tensor) -> dict[str, Any]:
+    """Per-tensor NaN/Inf counts (for diagnostics)."""
+    value = value.detach().float()
+    return {
+        "nan": int(torch.isnan(value).sum().item()),
+        "inf": int(torch.isinf(value).sum().item()),
+        "min": float(value.nan_to_num(nan=0.0, posinf=0.0, neginf=0.0).min().item()),
+        "max": float(value.nan_to_num(nan=0.0, posinf=0.0, neginf=0.0).max().item()),
+    }
 
 
 class Trainer:
@@ -203,6 +224,7 @@ class Trainer:
                 amp=self.amp,
                 amp_dtype=config.general.amp_dtype,
                 input_map=self.input_map,
+                nan_policy=config.general.nan_policy,
             )
             if val_loader is not None
             else None
@@ -229,6 +251,10 @@ class Trainer:
         self.epoch = 0
         self.global_step = 0
         self.history: list[dict[str, Any]] = []
+        # NaN diagnostics (R5.2): every detected NaN step is recorded with its
+        # source tensors so instability is never silently hidden by ``skip``.
+        self.nan_steps = 0
+        self.nan_diagnostics: list[dict[str, Any]] = []
 
     # ------------------------------------------------------------------ #
     # Setup
@@ -452,15 +478,26 @@ class Trainer:
             # NaN / Inf detection.
             nan_detected = general.nan_detection and self._nan_in_state(total.detach())
             if nan_detected:
+                diagnostics = self._collect_nan_diagnostics(
+                    epoch, batch_index, total, per_task, inputs, targets
+                )
+                self.nan_steps += 1
+                self.nan_diagnostics.append(diagnostics)
                 if general.nan_policy == "stop":
                     self._fire("on_exception", TrainingRunError("NaN detected in training state"))
                     raise TrainingRunError(
                         "NaN detected in training state; aborting (nan_policy=stop)",
-                        detail={"epoch": epoch, "step": batch_index},
+                        detail=diagnostics,
                     )
                 if self.logger is not None:
-                    self.logger.warning("NaN detected; skipping step",
-                                        epoch=epoch, step=batch_index)
+                    self.logger.warning(
+                        "NaN detected; skipping step",
+                        epoch=epoch,
+                        step=batch_index,
+                        nan_steps=self.nan_steps,
+                        **{k: v for k, v in diagnostics.items() if k in
+                           ("loss", "per_task_losses", "inputs", "grad_params")},
+                    )
 
             last_batch = batch_index == num_batches - 1
             if nan_detected and general.nan_policy in ("warn", "skip"):
@@ -547,6 +584,42 @@ class Trainer:
                 return True
         return False
 
+    def _collect_nan_diagnostics(
+        self,
+        epoch: int,
+        step: int,
+        total: torch.Tensor,
+        per_task: Mapping[str, torch.Tensor],
+        inputs: Mapping[str, Any],
+        targets: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Capture which tensor went non-finite and the surrounding context."""
+        diagnostics: dict[str, Any] = {
+            "epoch": epoch,
+            "step": step,
+            "loss": _nan_attrs(total),
+            "per_task_losses": {
+                name: _nan_attrs(value) for name, value in per_task.items()
+            },
+            "inputs": {
+                key: _nan_attrs(value)
+                for key, value in inputs.items()
+                if isinstance(value, torch.Tensor)
+            },
+            "targets": {
+                key: _nan_attrs(value)
+                for key, value in targets.items()
+                if isinstance(value, torch.Tensor)
+            },
+            "grad_params": [],
+        }
+        for name, param in named_enabled_parameters(self.raw_model):
+            if param.grad is not None and _has_nan_or_inf(param.grad):
+                diagnostics["grad_params"].append(
+                    {"name": name, **_nan_attrs(param.grad)}
+                )
+        return diagnostics
+
     def _current_lr(self) -> float:
         if self.scheduler_handle is not None:
             try:
@@ -597,6 +670,8 @@ class Trainer:
             stopped_early=stopped_early,
             duration_seconds=duration,
             best_epoch=best_epoch,
+            nan_steps=self.nan_steps,
+            nan_diagnostics=list(self.nan_diagnostics),
         )
 
     # ------------------------------------------------------------------ #

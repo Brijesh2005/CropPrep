@@ -1,0 +1,93 @@
+{
+  "observations": 275,
+  "tabular": {
+    "numeric_features": [
+      "Area",
+      "Rainfall",
+      "Temperature",
+      "Humidity",
+      "price"
+    ],
+    "categorical_features": [
+      "Soil type",
+      "Irrigation"
+    ],
+    "feature_names": [
+      "Area",
+      "Rainfall",
+      "Temperature",
+      "Humidity",
+      "price",
+      "Soil type",
+      "Irrigation"
+    ],
+    "feature_count": 7,
+    "missing_columns": [],
+    "dropped_constant": [],
+    "missing_fill": {
+      "Area": 10294.554054054053,
+      "Rainfall": 1598.1229729729728,
+      "Temperature": 44.65945945945946,
+      "Humidity": 55.46621621621622,
+      "price": 84200.52702702703
+    },
+    "matrix_shape": [
+      275,
+      7
+    ],
+    "unique_vectors": 13,
+    "finite_rows": 275,
+    "per_source_count": {
+      "data_season.csv": 74,
+      "DK_Features_2018.csv": 25,
+      "DK_Features_2019.csv": 27,
+      "DK_Features_2020.csv": 40,
+      "DK_Features_2021.csv": 21,
+      "DK_Features_2022.csv": 40,
+      "DK_Features_2023.csv": 48
+    }
+  },
+  "label": {
+    "num_classes": 5,
+    "classes": [
+      "Coconut",
+      "Blackgram",
+      "Coffee",
+      "Cardamum",
+      "Pepper"
+    ],
+    "yield_scaler": {
+      "name": "standard",
+      "mean": [
+        7940.863844727274
+      ],
+      "scale": [
+        20481.182305254246
+      ]
+    },
+    "yield_scale_stats": {
+      "n": 275,
+      "min": 0.5314,
+      "max": 73730.0,
+      "mean": 7940.863844727274,
+      "std": 20481.182305254246,
+      "dynamic_range_ratio": 138746.7068121942,
+      "scaled_distinct_values": 14,
+      "scaled_distinct_ratio": 0.0509
+    },
+    "warnings": [
+      "yield target raw dynamic range 1.4e+05 (min=0.5314, max=7.373e+04) \u2014 mixed units (e.g. kg/ha vs a normalized proxy) distort the regression target",
+      "yield target collapses to only 14 distinct scaled values over 275 samples \u2014 the bulk regresses to a constant"
+    ],
+    "crop_distribution": {
+      "Coconut": 64,
+      "Blackgram": 7,
+      "null": 201,
+      "Coffee": 1,
+      "Cardamum": 1,
+      "Pepper": 1
+    },
+    "yield_min": 0.5314,
+    "yield_max": 73730.0
+  }
+}

@@ -1,0 +1,45 @@
+R5.2.3 GOVERNMENT CROP SURVEY AUDIT REPORT (FINAL)
+============================================================
+
+Data Source: OGD Platform India (data.gov.in)
+District: Dakshina Kannada, Karnataka
+
+EXECUTIVE SUMMARY
+----------------------------------------
+Total OGD Records: 261,906
+Hoblis Downloaded: 6 of ~20+ in DK
+Unique Crop Names: 129
+Years: 2020-2021, 2021-2022
+Seasons: Kharif, Rabi
+Sentinel-2 Compatible: YES (all data 2020-2022)
+
+MODEL HEAD CLASS OVERLAP
+----------------------------------------
+  coconut: 47,755 records
+  blackgram: 3 records
+  coffee: 153 records
+  cardamom: 29 records
+  pepper: 12,812 records
+  TOTAL IN HEAD: 60,752 / 261,906
+
+KEY FINDING
+----------------------------------------
+  pepper, coffee, cardamom are model head classes
+  MISSING from CropType enum in shared/enums/__init__.py
+  Consider adding: pepper, coffee, cardamom, blackgram
+
+POTENTIAL SUPERVISED OBSERVATIONS
+----------------------------------------
+  coconut: 44,525 new observations
+  blackgram: 3 new observations
+  coffee: 153 new observations
+  cardamom: 27 new observations
+  pepper: 12,810 new observations
+  TOTAL: 57,518
+
+RECOMMENDATION
+----------------------------------------
+1. Add pepper, coffee, cardamom, blackgram to CropType enum
+2. Convert 57,518 observations to STAM format
+3. Download remaining ~14 hobli resources for full DK coverage
+4. Run STAM matching with 5km/15d tolerances

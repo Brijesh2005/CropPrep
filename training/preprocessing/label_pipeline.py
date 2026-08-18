@@ -36,6 +36,11 @@ class LabelPipeline(Pipeline):
         self.fitted = False
         self.crop_encoder: LabelEncoder | None = None
         self.yield_scaler: Transformer | None = None
+        # R5.2 Task 5/7: scale-consistency diagnostics captured at fit time so
+        # a mixed-unit yield target (e.g. kg/ha vs a normalized proxy) is
+        # surfaced instead of silently distorting the regression target.
+        self.yield_scale_stats: dict[str, Any] | None = None
+        self.warnings: list[str] = []
 
     # ------------------------------------------------------------------ #
     # Fit
@@ -57,6 +62,7 @@ class LabelPipeline(Pipeline):
                 self.yield_scaler = MinMaxScaler().fit(matrix)
             else:
                 self.yield_scaler = None
+            self._diagnose_yield_scale(yields)
 
         self.fitted = True
         logger.info(
@@ -64,6 +70,50 @@ class LabelPipeline(Pipeline):
             extra={"num_classes": self.crop_encoder.num_classes if self.crop_encoder else 0},
         )
         return self
+
+    def _diagnose_yield_scale(self, yields: list[float]) -> None:
+        """Record scale-consistency diagnostics for the yield regression target.
+
+        R5.2 Task 5/7: flag a target whose raw values span several orders of
+        magnitude (classic mixed-units signature, e.g. kg/ha village yields
+        mixed with a normalized per-district proxy) or whose scaled values
+        collapse to a handful of distinct points (the model cannot regress
+        anything beyond a constant for the bulk of the corpus).
+        """
+        values = np.asarray(yields, dtype="float64")
+        stats: dict[str, Any] = {
+            "n": int(len(values)),
+            "min": float(values.min()),
+            "max": float(values.max()),
+            "mean": float(values.mean()),
+            "std": float(values.std()),
+            "dynamic_range_ratio": float(values.max() / max(values.min(), 1e-9)),
+        }
+        if stats["dynamic_range_ratio"] > 1e3:
+            self.warnings.append(
+                f"yield target raw dynamic range {stats['dynamic_range_ratio']:.1e} "
+                f"(min={stats['min']:.4g}, max={stats['max']:.4g}) — mixed units "
+                "(e.g. kg/ha vs a normalized proxy) distort the regression target"
+            )
+        if self.yield_scaler is not None:
+            scaled = self.yield_scaler.transform(values.reshape(-1, 1))[:, 0]
+            distinct = int(len(set(round(float(v), 4) for v in scaled)))
+            stats["scaled_distinct_values"] = distinct
+            stats["scaled_distinct_ratio"] = round(distinct / max(len(values), 1), 4)
+            if distinct <= 1:
+                self.warnings.append(
+                    "yield target collapses to a SINGLE scaled value for the "
+                    "entire corpus — the regression target carries no signal"
+                )
+            elif distinct <= max(2, len(values) // 10):
+                self.warnings.append(
+                    f"yield target collapses to only {distinct} distinct scaled "
+                    f"values over {len(values)} samples — the bulk regresses to "
+                    "a constant"
+                )
+        self.yield_scale_stats = stats
+        for warning in self.warnings:
+            logger.warning(warning)
 
     # ------------------------------------------------------------------ #
     # Transform
@@ -126,6 +176,8 @@ class LabelPipeline(Pipeline):
             "num_classes": self.num_classes,
             "classes": self.crop_encoder.classes_ if self.crop_encoder else [],
             "yield_scaler": self.config.yield_scaler,
+            "yield_scale_stats": self.yield_scale_stats,
+            "warnings": list(self.warnings),
         }
 
     def save(self, directory: str | Path) -> Path:

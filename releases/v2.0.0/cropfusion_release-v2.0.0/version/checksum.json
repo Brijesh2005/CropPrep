@@ -1,10 +1,15 @@
 {
   "files": {
-    "configs/inference.yaml": "2e019f494d6f7989811fff30566055d565cfe9cfcc54b952b925bdd475fd8b7f",
-    "configs/model.yaml": "4a462a91857111fdcc16f6ce4a8073590ee1d31ee49d1813f01970c75a830bb7",
+    "configs/inference.yaml": "0a2c6b0941543af7039de6940c84b2a7ed120e2b3f6c0b42daf61700f12a8d40",
+    "configs/model.yaml": "2d3cab7a6aa7bd281fcfa67b8bbb0982a7bbdd3ab10426aa95643dc5bf9af540",
+    "metadata/historical_context.parquet": "b252c721e8862b10c46ff00b188ff575010e934a9514ae97d7afc08cdae59fca",
+    "metadata/location_index.parquet": "0f01815651fe271ac83d90589ec3a1e969ad8a9fda1d258d226d40316b14a68f",
+    "metadata/metadata.db": "9591cd93ef9f3131b84af5f42efa4fa9ed293b983f47870b49b86b691918b781",
+    "metadata/village_metadata.parquet": "3ea45fea5897b75eae88604bab3fd1befdabe7e1e25f54ab8b45dfdb261c3a4f",
     "model/cropfusion.pt": "ad85f7170067331eeb432de66905dff193cac4ec3b833a674516c10ea48a0f3c",
     "preprocess/label_encoder.pkl": "a8229bc33f2a8a834710ad701f334d8cc7b252acae54ef326826af01fed57415",
     "preprocess/scaler.pkl": "5eaa00ed05695deebaf82994403bd89536f596c77ecb047a706242dc9d1d4fb2",
-    "reports/metrics.json": "f8dd5d073bf5afaa70141d8385f1c9c3b302d63e96a6cfa3cc437acd751bf83f"
+    "preprocess/yield_scaler.pkl": "908a2aede099213e320057bd8234cb5395689784de159680544e514529c3f1f5",
+    "reports/metrics.json": "6cfc0f0a69ff91944e5377458015bdebcec3cbb907f89fd86f4eed35d36a9154"
   }
 }

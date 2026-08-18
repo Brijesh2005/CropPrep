@@ -88,13 +88,27 @@ class ModelRegistry:
         try:
             import torch
 
-            input_dim = int(self.package.model_config.get("input_dim", 0))
+            inference_config = self.package.inference_config or {}
+            model_config = self.package.model_config or {}
+            input_dim = int(
+                inference_config.get("input_dim")
+                or model_config.get("input_dim")
+                or 0
+            )
+            image_size = int(
+                inference_config.get("image_size")
+                or (model_config.get("image_encoder") or {}).get("input_size")
+                or 224
+            )
             if input_dim <= 0:
-                logger.info("warmup skipped: model.yaml has no input_dim")
+                logger.info("warmup skipped: inference.yaml has no input_dim")
                 return
-            dummy = torch.zeros((1, input_dim), device=self.device)
+            tabular = torch.zeros((1, input_dim), device=self.device)
+            ndvi = torch.zeros((1, 1, 1, image_size, image_size), device=self.device)
+            evi = torch.zeros((1, 1, 1, image_size, image_size), device=self.device)
+            temporal_mask = torch.ones((1, 1), device=self.device)
             with torch.no_grad():
-                self.model(dummy)
+                self.model(tabular, ndvi, evi, temporal_mask)
             logger.info("model warmup complete")
         except Exception as exc:  # pragma: no cover - best effort
             logger.warning("model warmup failed ({})", exc)

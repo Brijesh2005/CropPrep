@@ -1,0 +1,3542 @@
+{
+  "total_records": 837069,
+  "unique_hoblis": 14,
+  "hobli_totals": {
+    "Beltangadi": 76821,
+    "Kokkada": 78562,
+    "Mangaluru A": 413,
+    "Mulki": 56182,
+    "Panemangaluru": 4601,
+    "Panja": 45327,
+    "Venuru": 2151,
+    "Sulya": 114629,
+    "Uppinangadi": 45240,
+    "Vitla": 101737,
+    "Putturu": 124848,
+    "Mangaluru B": 37430,
+    "Suratkal": 61146,
+    "Bantvala": 68436
+  },
+  "crop_distribution": {
+    "NA Land": 163999,
+    "Betel Nuts (Areca nuts)": 269185,
+    "Fallow": 98472,
+    "Coconut": 151694,
+    "Harvest over Crop-Betel Nuts (Areca nuts)": 1173,
+    "Paddy-L": 8235,
+    "Rubber": 21668,
+    "Harvest over Crop-Coconut": 480,
+    "Harvest over Crop-Paddy-L": 767,
+    "Jowar-L": 1,
+    "Harvest over Crop-Rubber": 62,
+    "Pepper (Black)": 47278,
+    "Banana": 26483,
+    "Cocoa": 16851,
+    "Cashewnuts": 13683,
+    "Jackfruit": 978,
+    "Malabar Neem (Melia Dubia)": 11,
+    "Mahagani Tree": 139,
+    "Mangoes": 855,
+    "Kokum": 24,
+    "Breadfruits": 26,
+    "Teak/Saguvani": 484,
+    "Harvest over Crop-Banana": 81,
+    "Harvest over Crop-Urad": 7,
+    "Coffee robusta": 270,
+    "Venilla": 29,
+    "Pineapple": 139,
+    "Sweet Flag": 17,
+    "Harvest over Crop-Pepper (Black)": 7,
+    "Harvest over Crop-Subabul": 1,
+    "Harvest over Crop-Cashewnuts": 32,
+    "Pomelo/Chakota": 4,
+    "Red Chillies (Mirchie)": 7,
+    "Masur (Lentil)": 3,
+    "Trees and Grooves": 2978,
+    "Cowpea": 32,
+    "Rambutan Fruit": 96,
+    "Tea": 8,
+    "Grass": 131,
+    "Basella": 9,
+    "Harvest over Crop-Nursery Fruits/ other Horticulture crops": 7,
+    "Papaya": 94,
+    "Beetlvine (Pan)": 117,
+    "Coffee arabica": 60,
+    "Paddy-H": 7988,
+    "Harvest over Crop-Sweet Flag": 2,
+    "Acacia": 277,
+    "Ridgegourd": 4,
+    "Ivygourd": 15,
+    "Neem": 3,
+    "Nursery Fruits/ other Horticulture crops": 10,
+    "Tapioca": 20,
+    "Harvest over Crop-Ragi-L": 1,
+    "Harvest over Crop-Paddy-H": 383,
+    "Vegetable Cowpea": 26,
+    "Custard apple/Ramphal": 14,
+    "Bhendi/ Ladies Finger": 25,
+    "Agarwood": 81,
+    "Chiku (Sapota)": 92,
+    "Palmyra Palm": 45,
+    "Green Fodder": 24,
+    "Mangosteen Fruit": 25,
+    "Jasmine (Mogra/Bela)": 91,
+    "Red Sanders (Red Sandalwood)": 18,
+    "Drumstick": 13,
+    "Turmeric": 18,
+    "Sandalwood": 21,
+    "Dragon Fruit": 3,
+    "Aonla (Amla)": 14,
+    "Lemon": 19,
+    "Carambola Fruit": 5,
+    "Fig": 5,
+    "Cardamom": 38,
+    "Bamboos": 19,
+    "Passion Fruit": 3,
+    "Nursery-Ornamentals / Flowers": 4,
+    "Nutmeg": 306,
+    "Harvest over Crop-Arrowroot": 8,
+    "Ginger": 12,
+    "Bittergourd": 2,
+    "Harvest over Crop-Pineapple": 4,
+    "Arrowroot": 11,
+    "Harvest over Crop-Ivygourd": 1,
+    "Jamun": 8,
+    "Pear": 7,
+    "Yam": 9,
+    "Oil Palm": 103,
+    "Noni": 5,
+    "Anthurium": 3,
+    "Casuarina Tree": 6,
+    "Ragi -H": 4,
+    "Brinjal": 6,
+    "Harvest over Crop-Red Chillies (Mirchie)": 7,
+    "Harvest over Crop-Almond": 3,
+    "Ashoka": 4,
+    "Ragi-L": 1,
+    "Curry leaves": 12,
+    "Tomato": 2,
+    "Capsicum": 1,
+    "Champaca": 5,
+    "Green Chillies": 12,
+    "Orchids": 1,
+    "Nacotin Rusetic": 7,
+    "Harvest over Crop-Baragu": 3,
+    "Silver Oak": 8,
+    "Almond": 7,
+    "Eucalyptus": 8,
+    "Cucumber": 8,
+    "Harvest over Crop-Ragi -H": 1,
+    "Harvest over Crop-Sugar cane ratun-P": 1,
+    "Harvest over Crop-Grass": 18,
+    "Safflower": 4,
+    "Cloves": 18,
+    "Sugarcane-P": 54,
+    "Potato": 1,
+    "Guava": 29,
+    "Coriander Pathi": 2,
+    "Mint": 1,
+    "Moong (Green gram)": 4,
+    "Garlic": 2,
+    "Subabul": 1,
+    "Allspice": 3,
+    "Harvest over Crop-Wheat-L": 5,
+    "Urad": 5,
+    "Jowar-H": 6,
+    "Harvest over Crop-Jowar-H": 5,
+    "Harvest over Crop-Safflower": 1,
+    "Oranges": 14,
+    "Harvest over Crop-Green Chillies": 1,
+    "Coriander (Dhaniya)(Cilantro)": 4,
+    "Harvest over Crop-Tobacco - Beedi": 3,
+    "Haraka": 7,
+    "Sweet Potato": 1,
+    "Nursery-Vegetables": 14,
+    "Tamarind": 20,
+    "Harvest over Crop-Bhendi/ Ladies Finger": 4,
+    "Rose (Gulab)": 1,
+    "Harvest over Crop-Palmyra Palm": 1,
+    "Harvest over Crop-Eucalyptus": 3,
+    "Alocasia": 1,
+    "Horsegram": 2,
+    "Sugar cane ratun-P": 4,
+    "Harvest over Crop-Turmeric": 1,
+    "Butter Fruit": 2,
+    "Baragu": 1,
+    "Gherkins": 4,
+    "Harvest over Crop-Cowpea": 2,
+    "Tobacco": 128,
+    "Jatropha": 9,
+    "Groundnut": 1,
+    "Cinnamon(Dalchini)": 2,
+    "Harvest over Crop-Mangoes": 7,
+    "Harvest over Crop-Tur (Arhar)(Red Gram)": 1,
+    "Gongura": 2,
+    "Harvest over Crop-Vegetable Cowpea": 4,
+    "Periwinkle": 2,
+    "Maize-L": 3,
+    "Harvest over Crop-Elephantfoot Yam": 1,
+    "Jasmine pubescens": 2,
+    "Pumpkin": 2,
+    "Hibiscus": 3,
+    "Sugarcane-H": 1,
+    "Makkachari": 3,
+    "Lotus (Kamal)": 1,
+    "Elephantfoot Yam": 9,
+    "Rose Wood": 9,
+    "Harvest over Crop-Green Fodder": 2,
+    "Harvest over Crop-Sweet Potato": 1,
+    "Harvest over Crop-Linseed": 4,
+    "Mosambi": 1,
+    "Wheat-H": 1,
+    "Harvest over Crop-Alocasia": 1,
+    "Cotton - L": 1,
+    "Lemon Grass": 3,
+    "Pomegranate": 1,
+    "Apple": 2,
+    "Harvest over Crop-Sugarcane-P": 3,
+    "Bajra-L": 2,
+    "Harvest over Crop-Tobacco": 15,
+    "Tur (Arhar)(Red Gram)": 2,
+    "Harvest over Crop-Jackfruit": 2,
+    "Harvest over Crop-Nursery-Vegetables": 1,
+    "Litchi": 2,
+    "Harvest over Crop-Brinjal": 1,
+    "Bottle gourd (Lauki)": 2,
+    "Harvest over Crop-Radish": 1,
+    "Mulberry Fruit": 1,
+    "Harvest over Crop-Onion": 1,
+    "Wheat-L": 1,
+    "Watermelon": 1,
+    "Harvest over Crop-Haraka": 1,
+    "Tobacco - Beedi": 1,
+    "Snakegourd": 1,
+    "Harvest over Crop-Cotton - L": 1,
+    "Harvest over Crop-Navane": 1,
+    "Pongemia Tree": 2,
+    "Harvest over Crop-Saffron (Kesar)": 1,
+    "Indigo": 1
+  },
+  "rare_classes": {
+    "coffee": 330,
+    "cardamom": 38
+  },
+  "rare_class_details": {
+    "coffee": [
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9933647",
+        "lon": "75.3669496"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9927391",
+        "lon": "75.3703842"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "13.0550001",
+        "lon": "75.4205695"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "13.1220144",
+        "lon": "75.375445"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1720991",
+        "lon": "75.340393"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1720991",
+        "lon": "75.340393"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1720991",
+        "lon": "75.340393"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1715295",
+        "lon": "75.3397412"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1715713",
+        "lon": "75.3396581"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1714743",
+        "lon": "75.3395429"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1714743",
+        "lon": "75.3395429"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1714743",
+        "lon": "75.3395429"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1714058",
+        "lon": "75.3393968"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1691609",
+        "lon": "75.3386465"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1692215",
+        "lon": "75.3386511"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1692215",
+        "lon": "75.3386511"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1692229",
+        "lon": "75.3386167"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1596559",
+        "lon": "75.335334"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1598033",
+        "lon": "75.3355342"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1618496",
+        "lon": "75.3360999"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1618656",
+        "lon": "75.3360843"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1618583",
+        "lon": "75.3361433"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1618821",
+        "lon": "75.3361114"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1618466",
+        "lon": "75.3361429"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1618463",
+        "lon": "75.3361397"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1620675",
+        "lon": "75.3362993"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1620675",
+        "lon": "75.3362993"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1620675",
+        "lon": "75.3362993"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1621611",
+        "lon": "75.336191"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1641007",
+        "lon": "75.3371984"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1651789",
+        "lon": "75.338383"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1654997",
+        "lon": "75.3388576"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1654997",
+        "lon": "75.3388576"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.165966",
+        "lon": "75.3374074"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.165966",
+        "lon": "75.3374074"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.165966",
+        "lon": "75.3374074"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1693587",
+        "lon": "75.3409417"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1695964",
+        "lon": "75.3416664"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1696926",
+        "lon": "75.3417456"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1711528",
+        "lon": "75.3428995"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.169284",
+        "lon": "75.3382761"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1693577",
+        "lon": "75.3382795"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1689953",
+        "lon": "75.3380206"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1689761",
+        "lon": "75.3380141"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1680522",
+        "lon": "75.3373539"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.168007",
+        "lon": "75.3373571"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.168007",
+        "lon": "75.3373571"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1680345",
+        "lon": "75.3373359"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1677556",
+        "lon": "75.3371205"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1693042",
+        "lon": "75.3363684"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1786221",
+        "lon": "75.3433301"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1720119",
+        "lon": "75.3460074"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1704281",
+        "lon": "75.3458332"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1704281",
+        "lon": "75.3458332"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1690271",
+        "lon": "75.3455513"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1690271",
+        "lon": "75.3455513"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1698523",
+        "lon": "75.3499794"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1698523",
+        "lon": "75.3499794"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1698523",
+        "lon": "75.3499794"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1698609",
+        "lon": "75.3499831"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1738986",
+        "lon": "75.3449199"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1738537",
+        "lon": "75.3449108"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1738685",
+        "lon": "75.3449144"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1784464",
+        "lon": "75.3444784"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1784262",
+        "lon": "75.3444733"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1783982",
+        "lon": "75.3445113"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.178373",
+        "lon": "75.3444936"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.178373",
+        "lon": "75.3444936"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1783748",
+        "lon": "75.3445399"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1783748",
+        "lon": "75.3445399"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1784003",
+        "lon": "75.3445013"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1784091",
+        "lon": "75.3444922"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1784091",
+        "lon": "75.3444922"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1784091",
+        "lon": "75.3444922"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1784091",
+        "lon": "75.3444922"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.1338435",
+        "lon": "75.3682782"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.0338117",
+        "lon": "75.323645"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "13.0077142",
+        "lon": "75.4480027"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9629099",
+        "lon": "75.3903133"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9629033",
+        "lon": "75.390205"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9628121",
+        "lon": "75.390397"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9627934",
+        "lon": "75.3904119"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9829204",
+        "lon": "75.3868946"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.8963743",
+        "lon": "75.3093699"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.9017667",
+        "lon": "75.3005609"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.8681283",
+        "lon": "75.450935"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.8790539",
+        "lon": "75.4341836"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.8790539",
+        "lon": "75.4341836"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9824348",
+        "lon": "75.3871726"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9079317",
+        "lon": "75.2366983"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.8861849",
+        "lon": "75.4884734"
+      },
+      {
+        "hobli": "Kokkada",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.8940593",
+        "lon": "75.2278566"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6193675",
+        "lon": "75.5297249"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.61216",
+        "lon": "75.5261617"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6120833",
+        "lon": "75.5260233"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6343065",
+        "lon": "75.5383094"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6423003",
+        "lon": "75.5133253"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6423079",
+        "lon": "75.5133234"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6423367",
+        "lon": "75.5133297"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6416641",
+        "lon": "75.5149054"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6416319",
+        "lon": "75.5148422"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6415916",
+        "lon": "75.5149558"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6203286",
+        "lon": "75.5236593"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6483533",
+        "lon": "75.43344"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6483617",
+        "lon": "75.4334357"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6484318",
+        "lon": "75.4334206"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6580587",
+        "lon": "75.4334129"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6469583",
+        "lon": "75.4385967"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.646968",
+        "lon": "75.438608"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.646968",
+        "lon": "75.438608"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.647195",
+        "lon": "75.438145"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6472451",
+        "lon": "75.4381919"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6472546",
+        "lon": "75.4381948"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6471333",
+        "lon": "75.4374633"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6471445",
+        "lon": "75.4374316"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6469309",
+        "lon": "75.4371067"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6469229",
+        "lon": "75.4371104"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6581381",
+        "lon": "75.4333319"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6581368",
+        "lon": "75.4333307"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6961525",
+        "lon": "75.4077383"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6486157",
+        "lon": "75.429679"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6485791",
+        "lon": "75.4296928"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6484718",
+        "lon": "75.4300047"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.648473",
+        "lon": "75.4300036"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6504761",
+        "lon": "75.4345218"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6504799",
+        "lon": "75.4345238"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6498007",
+        "lon": "75.4329767"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6498281",
+        "lon": "75.433023"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6488102",
+        "lon": "75.4289326"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6462044",
+        "lon": "75.4384037"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6462044",
+        "lon": "75.4384019"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6462035",
+        "lon": "75.4384032"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6462445",
+        "lon": "75.4384742"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6462775",
+        "lon": "75.4384476"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6463533",
+        "lon": "75.4384139"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6465375",
+        "lon": "75.4384244"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6465375",
+        "lon": "75.4384244"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6465375",
+        "lon": "75.4384244"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6464157",
+        "lon": "75.4387419"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6464124",
+        "lon": "75.4387523"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6464081",
+        "lon": "75.4387703"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6462207",
+        "lon": "75.4384573"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6462151",
+        "lon": "75.438459"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6462116",
+        "lon": "75.4384657"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6457077",
+        "lon": "75.438781"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6457077",
+        "lon": "75.438781"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6456985",
+        "lon": "75.4387817"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6459829",
+        "lon": "75.4387541"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6459844",
+        "lon": "75.4387532"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6459844",
+        "lon": "75.4387532"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6571733",
+        "lon": "75.4394117"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6571694",
+        "lon": "75.4394533"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6571358",
+        "lon": "75.4394631"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6101556",
+        "lon": "75.3990261"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6097582",
+        "lon": "75.3990396"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6181381",
+        "lon": "75.380453"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6260812",
+        "lon": "75.3856146"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6260389",
+        "lon": "75.3855852"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6197276",
+        "lon": "75.3993314"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6123346",
+        "lon": "75.3859085"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6371578",
+        "lon": "75.4354309"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6008385",
+        "lon": "75.4433247"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6273021",
+        "lon": "75.4302648"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6273287",
+        "lon": "75.4302693"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6159313",
+        "lon": "75.4528802"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5289655",
+        "lon": "75.4415568"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.545697",
+        "lon": "75.4953616"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6819752",
+        "lon": "75.3851581"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6829102",
+        "lon": "75.3834027"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6826257",
+        "lon": "75.3830958"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.5431429",
+        "lon": "75.5133851"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.5424437",
+        "lon": "75.5143675"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6488734",
+        "lon": "75.3700913"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6489491",
+        "lon": "75.3699487"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6489895",
+        "lon": "75.3697053"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6489505",
+        "lon": "75.3696953"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6541266",
+        "lon": "75.3647134"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6448997",
+        "lon": "75.36838"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.644994",
+        "lon": "75.3685996"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6450418",
+        "lon": "75.368755"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6450078",
+        "lon": "75.3688327"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6642055",
+        "lon": "75.4059835"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6641434",
+        "lon": "75.4059796"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6640628",
+        "lon": "75.4052528"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6640681",
+        "lon": "75.4052486"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6545381",
+        "lon": "75.3691242"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6546273",
+        "lon": "75.3692238"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6544607",
+        "lon": "75.3665124"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6553959",
+        "lon": "75.3659228"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6541833",
+        "lon": "75.3648952"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6510952",
+        "lon": "75.3848159"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6522464",
+        "lon": "75.383574"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6526027",
+        "lon": "75.3830508"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6525195",
+        "lon": "75.3829343"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6524439",
+        "lon": "75.382892"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6526559",
+        "lon": "75.3823898"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6529292",
+        "lon": "75.3820516"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6703868",
+        "lon": "75.3738143"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.5954385",
+        "lon": "75.359531"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.5953509",
+        "lon": "75.3603825"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.5958245",
+        "lon": "75.360956"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.668902",
+        "lon": "75.3757293"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.5950125",
+        "lon": "75.3579765"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6678208",
+        "lon": "75.372687"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6679558",
+        "lon": "75.3729667"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6680515",
+        "lon": "75.3755722"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6678577",
+        "lon": "75.3748093"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6696147",
+        "lon": "75.3757142"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6699623",
+        "lon": "75.3730006"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6699637",
+        "lon": "75.3730008"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6704181",
+        "lon": "75.3735957"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.670509",
+        "lon": "75.3733879"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6706903",
+        "lon": "75.3732151"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.673791",
+        "lon": "75.3703947"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6732143",
+        "lon": "75.3702912"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6705136",
+        "lon": "75.3734384"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.568835",
+        "lon": "75.3338318"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5688215",
+        "lon": "75.3338308"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5690959",
+        "lon": "75.3393187"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5664264",
+        "lon": "75.3417149"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.5663239",
+        "lon": "75.3417302"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5696299",
+        "lon": "75.3390293"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5698964",
+        "lon": "75.4731645"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.5127644",
+        "lon": "75.5324594"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5577345",
+        "lon": "75.5000938"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.558407",
+        "lon": "75.5050787"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5573676",
+        "lon": "75.5046842"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.5571012",
+        "lon": "75.5046701"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.557907",
+        "lon": "75.4745384"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5578946",
+        "lon": "75.4745204"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5579222",
+        "lon": "75.4745524"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5580265",
+        "lon": "75.4745279"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5578558",
+        "lon": "75.474578"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5025287",
+        "lon": "75.5364633"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5552805",
+        "lon": "75.4966788"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.555324",
+        "lon": "75.4958672"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5528487",
+        "lon": "75.496498"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5527336",
+        "lon": "75.4965328"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5529589",
+        "lon": "75.4967092"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5522595",
+        "lon": "75.5038384"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5522266",
+        "lon": "75.5038174"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5522705",
+        "lon": "75.5038346"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5529705",
+        "lon": "75.4967047"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5530116",
+        "lon": "75.4967116"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5530669",
+        "lon": "75.4966825"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5526954",
+        "lon": "75.4965491"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5522234",
+        "lon": "75.5089641"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5522622",
+        "lon": "75.5089822"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5523567",
+        "lon": "75.5089022"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.4953205",
+        "lon": "75.5600059"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5545101",
+        "lon": "75.5046534"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5544393",
+        "lon": "75.5050722"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5544422",
+        "lon": "75.5050692"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5544833",
+        "lon": "75.5050707"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5544839",
+        "lon": "75.5050711"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5524615",
+        "lon": "75.5069497"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5523349",
+        "lon": "75.5069994"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5523349",
+        "lon": "75.5069994"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.4977875",
+        "lon": "75.5549251"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5002499",
+        "lon": "75.5527092"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5003264",
+        "lon": "75.5527165"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5568236",
+        "lon": "75.5057963"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5563211",
+        "lon": "75.5053002"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5562944",
+        "lon": "75.5052424"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.556317",
+        "lon": "75.5052624"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5563004",
+        "lon": "75.5052373"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5163279",
+        "lon": "75.5143277"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.4964225",
+        "lon": "75.5457678"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.496517",
+        "lon": "75.5464171"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.5112627",
+        "lon": "75.5345448"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.4961302",
+        "lon": "75.5528528"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.4961374",
+        "lon": "75.5528427"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.8134983",
+        "lon": "75.2010844"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.8123693",
+        "lon": "75.2011194"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.80903",
+        "lon": "75.2000572"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.8171811",
+        "lon": "75.1988806"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.7834867",
+        "lon": "75.1336235"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7975567",
+        "lon": "75.1338233"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7678993",
+        "lon": "75.0902071"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6942422",
+        "lon": "75.16061"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6942369",
+        "lon": "75.1606021"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.706225",
+        "lon": "75.1702164"
+      },
+      {
+        "hobli": "Vitla",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7062254",
+        "lon": "75.1702172"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7523738",
+        "lon": "75.1780162"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7523673",
+        "lon": "75.177923"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7523846",
+        "lon": "75.1779052"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.752398",
+        "lon": "75.1779495"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7523648",
+        "lon": "75.1778904"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.752345",
+        "lon": "75.1778841"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7523663",
+        "lon": "75.1778737"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7524467",
+        "lon": "75.1778939"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7406274",
+        "lon": "75.1732985"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7418636",
+        "lon": "75.172737"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7249431",
+        "lon": "75.1779358"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7250091",
+        "lon": "75.1779264"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7344063",
+        "lon": "75.1849242"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.734393",
+        "lon": "75.1849366"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.734388",
+        "lon": "75.1849349"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.66508",
+        "lon": "75.1802983"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6651551",
+        "lon": "75.1802415"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7135848",
+        "lon": "75.2412143"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6373188",
+        "lon": "75.2619642"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.637154",
+        "lon": "75.255014"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6371641",
+        "lon": "75.2549577"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6371536",
+        "lon": "75.2550283"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.637178",
+        "lon": "75.2550017"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6644133",
+        "lon": "75.264984"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.6643567",
+        "lon": "75.2649483"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7259708",
+        "lon": "75.2550845"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7238959",
+        "lon": "75.2621733"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.723696",
+        "lon": "75.2623392"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7236956",
+        "lon": "75.2623395"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7242412",
+        "lon": "75.2619074"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.7487204",
+        "lon": "75.2905684"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.7487145",
+        "lon": "75.2905907"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6628636",
+        "lon": "75.2063684"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6628622",
+        "lon": "75.2063747"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6628662",
+        "lon": "75.20638"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6785147",
+        "lon": "75.2398962"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6849543",
+        "lon": "75.2175002"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7037599",
+        "lon": "75.2312905"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7038903",
+        "lon": "75.23162"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.64633",
+        "lon": "75.16391"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6080703",
+        "lon": "75.2143465"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.6253862",
+        "lon": "75.1686486"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7252018",
+        "lon": "75.2773228"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.7251991",
+        "lon": "75.2773176"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.7751698",
+        "lon": "75.2647901"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee arabica",
+        "lat": "12.7751753",
+        "lon": "75.2647903"
+      },
+      {
+        "hobli": "Bantvala",
+        "taluk": "Bantwal",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Coffee robusta",
+        "lat": "12.9681123",
+        "lon": "75.1074893"
+      }
+    ],
+    "cardamom": [
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.961753",
+        "lon": "75.2051787"
+      },
+      {
+        "hobli": "Beltangadi",
+        "taluk": "Belthangady",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.9758994",
+        "lon": "75.1879022"
+      },
+      {
+        "hobli": "Mangaluru A",
+        "taluk": "Mangalore",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.8591614",
+        "lon": "74.8896493"
+      },
+      {
+        "hobli": "Mulki",
+        "taluk": "Mangalore",
+        "season": "Kharif",
+        "years": "2021-22",
+        "cropname": "Cardamom",
+        "lat": "13.0935388",
+        "lon": "74.7873733"
+      },
+      {
+        "hobli": "Mulki",
+        "taluk": "Mangalore",
+        "season": "Kharif",
+        "years": "2021-22",
+        "cropname": "Cardamom",
+        "lat": "13.0935468",
+        "lon": "74.7873799"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6574992",
+        "lon": "75.4322035"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.657513",
+        "lon": "75.432188"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6575434",
+        "lon": "75.4321789"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6469853",
+        "lon": "75.4433847"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6471082",
+        "lon": "75.4431387"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.647136",
+        "lon": "75.4433614"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6462085",
+        "lon": "75.4383143"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.64621",
+        "lon": "75.4383176"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6462142",
+        "lon": "75.4383205"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.646223",
+        "lon": "75.4383069"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6462187",
+        "lon": "75.4383141"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6462179",
+        "lon": "75.4383012"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6465417",
+        "lon": "75.4383875"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6464942",
+        "lon": "75.4384063"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6464965",
+        "lon": "75.4384129"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6465711",
+        "lon": "75.4387856"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6465696",
+        "lon": "75.4387852"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6465723",
+        "lon": "75.4388044"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6463732",
+        "lon": "75.4383282"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6463714",
+        "lon": "75.4383241"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6462953",
+        "lon": "75.4383456"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.645015",
+        "lon": "75.45451"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6449745",
+        "lon": "75.4544788"
+      },
+      {
+        "hobli": "Panja",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6450848",
+        "lon": "75.4545184"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.5311431",
+        "lon": "75.4607433"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.528932",
+        "lon": "75.4417934"
+      },
+      {
+        "hobli": "Sulya",
+        "taluk": "Sullia",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6772255",
+        "lon": "75.3472458"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6379459",
+        "lon": "75.3229135"
+      },
+      {
+        "hobli": "Putturu",
+        "taluk": "Puttur",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.6303184",
+        "lon": "75.171575"
+      },
+      {
+        "hobli": "Mangaluru B",
+        "taluk": "Mangalore",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.7949505",
+        "lon": "74.8629208"
+      },
+      {
+        "hobli": "Mangaluru B",
+        "taluk": "Mangalore",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.7950012",
+        "lon": "74.862889"
+      },
+      {
+        "hobli": "Mangaluru B",
+        "taluk": "Mangalore",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.7951489",
+        "lon": "74.8628514"
+      },
+      {
+        "hobli": "Mangaluru B",
+        "taluk": "Mangalore",
+        "season": "Kharif",
+        "years": "2020-21",
+        "cropname": "Cardamom",
+        "lat": "12.7941453",
+        "lon": "74.8613992"
+      }
+    ]
+  }
+}

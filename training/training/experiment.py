@@ -97,6 +97,7 @@ class Experiment:
         self.model_config_overrides = dict(model_config_overrides or {})
         self.run_name = run_name or training_config.name
         self.run_dir = Path(run_dir or (training_config.general.output_dir / self.run_name))
+        self._data_contract: dict[str, Any] | None = None
 
         self.device = torch.device("cpu")
         if training_config.general.device == "auto":
@@ -111,7 +112,24 @@ class Experiment:
     # ------------------------------------------------------------------ #
 
     def run(self) -> ExperimentReport:
-        """Execute the experiment (hold-out or cross-validation)."""
+        """Execute the experiment (hold-out or cross-validation).
+
+        The training-data contract is validated up front: a corpus mixing yield
+        units or enabling a crop classifier without crop labels is refused
+        before any training happens (R5.2.1 Task D).
+        """
+        if self.config.data_contract.enabled:
+            contract = self._assess_data_contract()
+            if self.config.data_contract.strict and not contract.valid:
+                from .exceptions import ValidationError
+
+                raise ValidationError(
+                    "training-data contract violated: "
+                    + "; ".join(contract.errors),
+                    detail=contract.to_dict(),
+                )
+            self._data_contract = contract.to_dict()
+
         strategy = self.config.validation.strategy
         if strategy == "holdout":
             report = self._run_holdout()
@@ -167,6 +185,7 @@ class Experiment:
             "run_name": self.run_name,
             "run_dir": str(self.run_dir),
             "training_config": self.config.model_dump(),
+            "data_contract": self._data_contract,
             "artifacts": {k: str(v) for k, v in artifacts.items()},
         }
         return report
@@ -241,6 +260,7 @@ class Experiment:
         report.config_snapshot = {
             "validation_strategy": self.config.validation.strategy,
             "k_folds": self.config.validation.k_folds,
+            "data_contract": self._data_contract,
             "fold_metrics": fold_metrics,
             "aggregate": agg,
         }
@@ -255,8 +275,17 @@ class Experiment:
     # Steps
     # ------------------------------------------------------------------ #
 
+    def _assess_data_contract(self) -> Any:
+        """Assess the training-data contract for the whole corpus (R5.2.1)."""
+        if self.preprocessor is not None:
+            return self.preprocessor.data_contract_report(self.observations)
+        from training.preprocessing import assess_training_data_contract
+
+        return assess_training_data_contract(self.observations)
+
     def _holdout_split(self) -> tuple[list[Any], list[Any], list[Any]]:
         if self.config.validation.strategy != "holdout":
+            raise ValidationError("_holdout_split called for a non-holdout strategy")
             raise ValidationError("_holdout_split called for a non-holdout strategy")
         # Split config lives on the preprocessor (Phase 4); default temporal.
         split_config = None

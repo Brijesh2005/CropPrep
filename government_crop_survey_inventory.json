@@ -1,0 +1,78 @@
+{
+  "audit_version": "R5.2.3-FINAL",
+  "data_source": "OGD Platform India - Karnataka Agriculture Department",
+  "total_ogd_records": 261906,
+  "total_unique_crops": 129,
+  "hoblis_downloaded": 6,
+  "hobli_details": {
+    "ogd_beltangadi_kharif_2020_21.json": {
+      "hobli": "BELTANGADI",
+      "taluk": "Belthangady",
+      "records": 76821
+    },
+    "ogd_kokkada_kharif_2020_21.json": {
+      "hobli": "KOKKADA",
+      "taluk": "Belthangady",
+      "records": 78562
+    },
+    "ogd_mangaluru_a_kharif_2020_2021.json": {
+      "hobli": "MANGALURU A",
+      "taluk": "Mangalore",
+      "records": 413
+    },
+    "ogd_mulki_kharif_2021_22.json": {
+      "hobli": "MULKI",
+      "taluk": "Mangalore",
+      "records": 56182
+    },
+    "ogd_panemangaluru_rabi_2021_2022.json": {
+      "hobli": "PANEMANGALURU",
+      "taluk": "Bantwal",
+      "records": 4601
+    },
+    "ogd_panja_kharif_2020_21.json": {
+      "hobli": "PANJA",
+      "taluk": "Sullia",
+      "records": 45327
+    }
+  },
+  "season_distribution": {
+    "Kharif": 257305,
+    "Rabi": 4601
+  },
+  "year_distribution": {
+    "2020-2021": 201123,
+    "2021-2022": 60783
+  },
+  "sentinel2_compatible_years": [
+    "2020-2021",
+    "2021-2022"
+  ],
+  "coordinate_stats": {
+    "valid_count": 261906,
+    "within_dk_bounds": 249750
+  },
+  "data_fields": [
+    "Survey_id",
+    "District_code",
+    "District_Name",
+    "Taluk_code",
+    "Taluk_Name",
+    "Hobli_code",
+    "Hobli_Name",
+    "Village_code",
+    "Village_Name",
+    "Year_code",
+    "Years",
+    "Season_code",
+    "Season",
+    "Cropname",
+    "Crop_Extent",
+    "CropSurveyDate",
+    "Month",
+    "Weekname",
+    "Latitude",
+    "Longtitude",
+    "Image_url"
+  ]
+}

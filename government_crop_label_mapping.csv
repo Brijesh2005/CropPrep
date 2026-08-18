@@ -1,0 +1,130 @@
+source_crop,normalized_crop,crop_type,class_id,status,reason,record_count
+Betel Nuts (Areca nuts),betel nuts (areca nuts),arecanut,,alias,Alias 'Betel Nuts (Areca nuts)' -> CropType.ARECANUT,82755
+NA Land ,na land,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),48836
+Coconut,coconut,coconut,,exact,Exact match to CropType.COCONUT,47755
+Fallow,fallow,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),35644
+Pepper (Black),pepper (black),pepper,,alias,Alias 'Pepper (Black)' -> CropType.PEPPER,12812
+Rubber,rubber,unknown,,unmapped,No alias entry for 'rubber' in crop taxonomy,10311
+Banana ,banana,unknown,,unmapped,No alias entry for 'banana' in crop taxonomy,7179
+Paddy-H,paddy-h,paddy,,alias,Alias 'Paddy-H' -> CropType.PADDY,5065
+Cocoa,cocoa,unknown,,unmapped,No alias entry for 'cocoa' in crop taxonomy,3955
+Paddy-L,paddy-l,paddy,,alias,Alias 'Paddy-L' -> CropType.PADDY,3259
+Cashewnuts,cashewnuts,unknown,,unmapped,No alias entry for 'cashewnuts' in crop taxonomy,1940
+Harvest over Crop-Paddy-L,harvest over crop-paddy-l,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),244
+Jackfruit,jackfruit,unknown,,unmapped,No alias entry for 'jackfruit' in crop taxonomy,219
+Harvest over Crop-Betel Nuts (Areca nuts),harvest over crop-betel nuts (areca nuts),unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),211
+Teak/Saguvani,teak/saguvani,unknown,,unmapped,No alias entry for 'teak/saguvani' in crop taxonomy,182
+Mangoes,mangoes,unknown,,unmapped,No alias entry for 'mangoes' in crop taxonomy,179
+Coffee robusta,coffee robusta,coffee,,alias,Alias 'Coffee robusta' -> CropType.COFFEE,124
+Trees and Grooves,trees and grooves,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),120
+Harvest over Crop-Coconut,harvest over crop-coconut,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),107
+Pineapple,pineapple,unknown,,unmapped,No alias entry for 'pineapple' in crop taxonomy,83
+Nutmeg,nutmeg,unknown,,unmapped,No alias entry for 'nutmeg' in crop taxonomy,74
+Rambutan Fruit,rambutan fruit,unknown,,unmapped,No alias entry for 'rambutan fruit' in crop taxonomy,65
+Grass,grass,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),48
+Harvest over Crop-Paddy-H,harvest over crop-paddy-h,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),47
+Harvest over Crop-Rubber,harvest over crop-rubber,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),43
+Beetlvine (Pan),beetlvine (pan),unknown,,unmapped,No alias entry for 'beetlvine (pan)' in crop taxonomy,41
+Mahagani Tree,mahagani tree,unknown,,unmapped,No alias entry for 'mahagani tree' in crop taxonomy,40
+Jasmine (Mogra/Bela),jasmine (mogra/bela),unknown,,unmapped,No alias entry for 'jasmine (mogra/bela)' in crop taxonomy,31
+Coffee arabica,coffee arabica,coffee,,alias,Alias 'Coffee arabica' -> CropType.COFFEE,29
+Cardamom,cardamom,cardamom,,exact,Exact match to CropType.CARDAMOM,29
+Agarwood,agarwood,unknown,,unmapped,No alias entry for 'agarwood' in crop taxonomy,28
+Harvest over Crop-Banana ,harvest over crop-banana,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),26
+Papaya,papaya,unknown,,unmapped,No alias entry for 'papaya' in crop taxonomy,25
+Mangosteen Fruit,mangosteen fruit,unknown,,unmapped,No alias entry for 'mangosteen fruit' in crop taxonomy,21
+Acacia,acacia,unknown,,unmapped,No alias entry for 'acacia' in crop taxonomy,18
+Bamboos,bamboos,unknown,,unmapped,No alias entry for 'bamboos' in crop taxonomy,14
+Kokum,kokum,unknown,,unmapped,No alias entry for 'kokum' in crop taxonomy,13
+Breadfruits,breadfruits,unknown,,unmapped,No alias entry for 'breadfruits' in crop taxonomy,13
+Chiku (Sapota),chiku (sapota),unknown,,unmapped,No alias entry for 'chiku (sapota)' in crop taxonomy,13
+Oil Palm,oil palm,unknown,,unmapped,No alias entry for 'oil palm' in crop taxonomy,11
+Tapioca ,tapioca,unknown,,ambiguous,Ambiguous: maps to multiple potential CropType members,10
+Venilla,venilla,unknown,,unmapped,No alias entry for 'venilla' in crop taxonomy,9
+Palmyra Palm,palmyra palm,unknown,,unmapped,No alias entry for 'palmyra palm' in crop taxonomy,9
+Red Sanders (Red Sandalwood),red sanders (red sandalwood),unknown,,unmapped,No alias entry for 'red sanders (red sandalwood)' in crop taxonomy,9
+Turmeric,turmeric,unknown,,unmapped,No alias entry for 'turmeric' in crop taxonomy,9
+Curry leaves,curry leaves,unknown,,unmapped,No alias entry for 'curry leaves' in crop taxonomy,9
+Cloves ,cloves,unknown,,unmapped,No alias entry for 'cloves' in crop taxonomy,9
+Harvest over Crop-Cashewnuts,harvest over crop-cashewnuts,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),8
+Lemon  ,lemon,unknown,,unmapped,No alias entry for 'lemon' in crop taxonomy,8
+Ginger,ginger,unknown,,unmapped,No alias entry for 'ginger' in crop taxonomy,8
+Cowpea,cowpea,unknown,,unmapped,No alias entry for 'cowpea' in crop taxonomy,7
+Malabar Neem (Melia Dubia),malabar neem (melia dubia),unknown,,unmapped,No alias entry for 'malabar neem (melia dubia)' in crop taxonomy,6
+Harvest over Crop-Nursery Fruits/ other Horticulture crops,harvest over crop-nursery fruits/ other horticulture crops,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),6
+Nursery Fruits/ other Horticulture crops,nursery fruits/ other horticulture crops,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),6
+Vegetable Cowpea,vegetable cowpea,unknown,,unmapped,No alias entry for 'vegetable cowpea' in crop taxonomy,6
+Drumstick ,drumstick,unknown,,unmapped,No alias entry for 'drumstick' in crop taxonomy,6
+Nacotin Rusetic,nacotin rusetic,unknown,,unmapped,No alias entry for 'nacotin rusetic' in crop taxonomy,6
+Green Fodder,green fodder,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),5
+Sandalwood,sandalwood,unknown,,unmapped,No alias entry for 'sandalwood' in crop taxonomy,5
+Silver Oak,silver oak,unknown,,unmapped,No alias entry for 'silver oak' in crop taxonomy,5
+Almond,almond,unknown,,unmapped,No alias entry for 'almond' in crop taxonomy,5
+Harvest over Crop-Grass,harvest over crop-grass,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),5
+Harvest over Crop-Jowar-H,harvest over crop-jowar-h,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),5
+Sweet Flag,sweet flag,unknown,,unmapped,No alias entry for 'sweet flag' in crop taxonomy,4
+Harvest over Crop-Pepper (Black),harvest over crop-pepper (black),unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),4
+Custard apple/Ramphal,custard apple/ramphal,unknown,,unmapped,No alias entry for 'custard apple/ramphal' in crop taxonomy,4
+Aonla (Amla),aonla (amla),unknown,,unmapped,No alias entry for 'aonla (amla)' in crop taxonomy,4
+Harvest over Crop-Red Chillies (Mirchie),harvest over crop-red chillies (mirchie),unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),4
+Eucalyptus,eucalyptus,unknown,,unmapped,No alias entry for 'eucalyptus' in crop taxonomy,4
+Guava,guava,unknown,,unmapped,No alias entry for 'guava' in crop taxonomy,4
+Jowar-H,jowar-h,maize,,alias,Alias 'Jowar-H' -> CropType.MAIZE,4
+Harvest over Crop-Urad,harvest over crop-urad,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),3
+Tea,tea,unknown,,unmapped,No alias entry for 'tea' in crop taxonomy,3
+Ivygourd,ivygourd,unknown,,unmapped,No alias entry for 'ivygourd' in crop taxonomy,3
+Dragon Fruit,dragon fruit,unknown,,unmapped,No alias entry for 'dragon fruit' in crop taxonomy,3
+Passion Fruit,passion fruit,unknown,,unmapped,No alias entry for 'passion fruit' in crop taxonomy,3
+Harvest over Crop-Arrowroot,harvest over crop-arrowroot,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),3
+Arrowroot,arrowroot,unknown,,unmapped,No alias entry for 'arrowroot' in crop taxonomy,3
+Anthurium,anthurium,unknown,,unmapped,No alias entry for 'anthurium' in crop taxonomy,3
+Harvest over Crop-Almond,harvest over crop-almond,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),3
+Green Chillies ,green chillies,unknown,,unmapped,No alias entry for 'green chillies' in crop taxonomy,3
+Harvest over Crop-Baragu,harvest over crop-baragu,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),3
+Safflower,safflower,unknown,,unmapped,No alias entry for 'safflower' in crop taxonomy,3
+Sugarcane-P,sugarcane-p,unknown,,ambiguous,Ambiguous: maps to multiple potential CropType members,3
+Urad,urad,blackgram,,alias,Alias 'Urad' -> CropType.BLACKGRAM,3
+Oranges ,oranges,unknown,,unmapped,No alias entry for 'oranges' in crop taxonomy,3
+Pomelo/Chakota,pomelo/chakota,unknown,,unmapped,No alias entry for 'pomelo/chakota' in crop taxonomy,2
+Masur (Lentil),masur (lentil),unknown,,unmapped,No alias entry for 'masur (lentil)' in crop taxonomy,2
+Basella,basella,unknown,,unmapped,No alias entry for 'basella' in crop taxonomy,2
+Ridgegourd,ridgegourd,unknown,,unmapped,No alias entry for 'ridgegourd' in crop taxonomy,2
+Neem,neem,unknown,,unmapped,No alias entry for 'neem' in crop taxonomy,2
+Bhendi/ Ladies Finger,bhendi/ ladies finger,unknown,,unmapped,No alias entry for 'bhendi/ ladies finger' in crop taxonomy,2
+Carambola Fruit,carambola fruit,unknown,,unmapped,No alias entry for 'carambola fruit' in crop taxonomy,2
+Fig,fig,unknown,,unmapped,No alias entry for 'fig' in crop taxonomy,2
+Nursery-Ornamentals / Flowers,nursery-ornamentals / flowers,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),2
+Bittergourd ,bittergourd,unknown,,unmapped,No alias entry for 'bittergourd' in crop taxonomy,2
+Yam,yam,unknown,,unmapped,No alias entry for 'yam' in crop taxonomy,2
+Ragi -H,ragi -h,ragi,,alias,Alias 'Ragi -H' -> CropType.RAGI,2
+Cucumber,cucumber,unknown,,unmapped,No alias entry for 'cucumber' in crop taxonomy,2
+Coriander Pathi,coriander pathi,unknown,,unmapped,No alias entry for 'coriander pathi' in crop taxonomy,2
+Allspice,allspice,unknown,,unmapped,No alias entry for 'allspice' in crop taxonomy,2
+Harvest over Crop-Wheat-L,harvest over crop-wheat-l,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),2
+Jowar-L,jowar-l,maize,,alias,Alias 'Jowar-L' -> CropType.MAIZE,1
+Harvest over Crop-Subabul,harvest over crop-subabul,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),1
+Red Chillies (Mirchie),red chillies (mirchie),unknown,,unmapped,No alias entry for 'red chillies (mirchie)' in crop taxonomy,1
+Harvest over Crop-Sweet Flag,harvest over crop-sweet flag,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),1
+Harvest over Crop-Ragi-L,harvest over crop-ragi-l,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),1
+Harvest over Crop-Pineapple,harvest over crop-pineapple,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),1
+Harvest over Crop-Ivygourd,harvest over crop-ivygourd,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),1
+Jamun,jamun,unknown,,unmapped,No alias entry for 'jamun' in crop taxonomy,1
+Pear,pear,unknown,,unmapped,No alias entry for 'pear' in crop taxonomy,1
+Noni,noni,unknown,,unmapped,No alias entry for 'noni' in crop taxonomy,1
+Casuarina Tree,casuarina tree,unknown,,unmapped,No alias entry for 'casuarina tree' in crop taxonomy,1
+Brinjal,brinjal,unknown,,unmapped,No alias entry for 'brinjal' in crop taxonomy,1
+Ashoka,ashoka,unknown,,unmapped,No alias entry for 'ashoka' in crop taxonomy,1
+Ragi-L,ragi-l,ragi,,alias,Alias 'Ragi-L' -> CropType.RAGI,1
+Tomato,tomato,unknown,,unmapped,No alias entry for 'tomato' in crop taxonomy,1
+Capsicum,capsicum,unknown,,unmapped,No alias entry for 'capsicum' in crop taxonomy,1
+Champaca,champaca,unknown,,unmapped,No alias entry for 'champaca' in crop taxonomy,1
+Orchids,orchids,unknown,,unmapped,No alias entry for 'orchids' in crop taxonomy,1
+Harvest over Crop-Ragi -H,harvest over crop-ragi -h,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),1
+Harvest over Crop-Sugar cane ratun-P,harvest over crop-sugar cane ratun-p,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),1
+Potato,potato,unknown,,unmapped,No alias entry for 'potato' in crop taxonomy,1
+Mint,mint,unknown,,unmapped,No alias entry for 'mint' in crop taxonomy,1
+Moong (Green gram),moong (green gram),unknown,,unmapped,No alias entry for 'moong (green gram)' in crop taxonomy,1
+Garlic ,garlic,unknown,,unmapped,No alias entry for 'garlic' in crop taxonomy,1
+Subabul,subabul,unknown,,unmapped,No alias entry for 'subabul' in crop taxonomy,1
+Harvest over Crop-Safflower,harvest over crop-safflower,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),1
+Harvest over Crop-Green Chillies ,harvest over crop-green chillies,unknown,,out_of_scope,Non-crop record (matches out-of-scope pattern),1

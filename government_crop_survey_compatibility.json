@@ -1,0 +1,41 @@
+{
+  "model_head_classes": [
+    "coconut",
+    "blackgram",
+    "coffee",
+    "cardamom",
+    "pepper"
+  ],
+  "model_head_overlap_counts": {
+    "coconut": 47755,
+    "pepper": 12812,
+    "coffee": 153,
+    "cardamom": 29,
+    "blackgram": 3
+  },
+  "model_head_overlap_total": 60752,
+  "model_head_gap_classes": [],
+  "crop_type_enum_overlap_counts": {
+    "arecanut": 82755,
+    "coconut": 47755,
+    "paddy": 8324,
+    "maize": 5,
+    "ragi": 3
+  },
+  "crop_type_enum_gap_classes": [
+    "rice",
+    "other",
+    "unknown"
+  ],
+  "key_finding": "pepper (12,812), coffee (153), cardamom (29) are model head classes MISSING from CropType enum",
+  "potential_new_supervised_by_crop": {
+    "coconut": 44525,
+    "pepper": 12810,
+    "coffee": 153,
+    "cardamom": 27,
+    "blackgram": 3
+  },
+  "potential_new_supervised_total": 57518,
+  "sentinel2_overlap": "YES - years 2020-2022 all Sentinel-2 compatible",
+  "integration_status": "READY - 60,802 potential supervised observations for 4 of 5 head classes"
+}

@@ -147,9 +147,14 @@ class InferenceEngine:
 
             model = self.registry.model
             with torch.no_grad():
-                output = model(model_input.tensor)
+                output = model(
+                    model_input.tabular,
+                    model_input.ndvi,
+                    model_input.evi,
+                    model_input.temporal_mask,
+                )
 
-            crop_logits, yield_pred = self._unpack_output(output)
+            crop_logits, yield_pred, _shared = self._unpack_output(output)
             probs = torch.softmax(crop_logits.float(), dim=-1)[0]
             top_indices = torch.topk(probs, k=min(TOP_K, probs.shape[0])).indices.tolist()
 
@@ -162,7 +167,7 @@ class InferenceEngine:
             recommended_crop = top3[0]["crop"]
             confidence = top3[0]["probability"]
 
-            expected_yield = float(yield_pred.item()) if yield_pred is not None else None
+            expected_yield = self._inverse_yield(yield_pred)
 
             inference_time_ms = (time.perf_counter() - timer_start) * 1000
 
@@ -198,18 +203,36 @@ class InferenceEngine:
             raise PredictionError("inference pipeline failed", detail=str(exc)) from exc
 
     @staticmethod
-    def _unpack_output(output: Any) -> tuple[torch.Tensor, torch.Tensor | None]:
-        """Supports either a (crop_logits, yield_pred) tuple, a namedtuple/dataclass
-        with those attributes, or a dict — whatever shape the exporter produced."""
+    def _unpack_output(
+        output: Any,
+    ) -> tuple[torch.Tensor, torch.Tensor | None, torch.Tensor | None]:
+        """Supports a (crop_logits, yield_pred[, shared]) tuple, a
+        namedtuple/dataclass with those attributes, or a dict — whatever shape
+        the exporter produced."""
         if isinstance(output, tuple):
             crop_logits = output[0]
             yield_pred = output[1] if len(output) > 1 else None
-            return crop_logits, yield_pred
+            shared = output[2] if len(output) > 2 else None
+            return crop_logits, yield_pred, shared
         if isinstance(output, dict):
-            return output["crop_logits"], output.get("yield_pred")
+            return output["crop_logits"], output.get("yield_pred"), output.get("shared_representation")
         crop_logits = getattr(output, "crop_logits")
         yield_pred = getattr(output, "yield_pred", None)
-        return crop_logits, yield_pred
+        shared = getattr(output, "shared_representation", None)
+        return crop_logits, yield_pred, shared
+
+    def _inverse_yield(self, yield_pred: torch.Tensor | None) -> float | None:
+        """Map the model's scaled yield back to the corpus's original units."""
+        if yield_pred is None:
+            return None
+        value = float(yield_pred.item())
+        scaler = getattr(self.registry.package, "yield_scaler", None)
+        if scaler is not None and hasattr(scaler, "inverse_transform"):
+            try:
+                return float(scaler.inverse_transform([[value]])[0][0])
+            except Exception:
+                return value
+        return value
 
     @staticmethod
     def _crop_name(classes: Any, index: int) -> str:

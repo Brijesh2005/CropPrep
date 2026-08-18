@@ -10,4 +10,9 @@ feature_order:
 - Temperature
 - Humidity
 - price
-input_dim: 5
+input_dim: 7
+categorical_features:
+- soil_type
+- irrigation
+image_size: 224
+temporal_observations: 1

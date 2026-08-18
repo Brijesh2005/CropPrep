@@ -65,7 +65,13 @@ class ValidationStatus(str, enum.Enum):
 
 
 class CropType(str, enum.Enum):
-    """Canonical crop types used by prediction and training metadata."""
+    """Canonical crop types used by prediction and training metadata.
+
+    Class IDs are assigned by the :class:`~training.preprocessing.transforms.LabelEncoder`
+    at data-fit time (first-seen order), **not** by enum member order.  New
+    members may be appended without shifting existing integer class IDs or
+    invalidating checkpoints / label_encoder.pkl artifacts.
+    """
 
     RICE = "rice"
     PADDY = "paddy"
@@ -73,6 +79,10 @@ class CropType(str, enum.Enum):
     MAIZE = "maize"
     COCONUT = "coconut"
     ARECANUT = "arecanut"
+    PEPPER = "pepper"
+    COFFEE = "coffee"
+    CARDAMOM = "cardamom"
+    BLACKGRAM = "blackgram"
     OTHER = "other"
     UNKNOWN = "unknown"
 

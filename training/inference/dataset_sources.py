@@ -93,6 +93,14 @@ def persist_dataset_sources(
 
 
 def _resolve_db_path(manager: Any) -> str | None:
+    """Best-effort resolution of the manager's ``metadata.db``.
+
+    R5.2 Task 9: ``DatasetManager`` exposes ``metadata_db_path()`` publicly;
+    older / third-party managers may only expose the path via
+    ``settings.metadata_db_path()`` or ``metadata_repository.db_path``, so
+    those are tried as fallbacks before giving up.
+    """
+    candidates: list[str] = []
     for attr in ("metadata_db_path", "metadata_db"):
         method = getattr(manager, attr, None)
         if callable(method):
@@ -101,10 +109,28 @@ def _resolve_db_path(manager: Any) -> str | None:
             except Exception:
                 continue
             if value is not None:
-                return str(value)
+                candidates.append(str(value))
         elif method is not None:
-            return str(method)
-    return None
+            candidates.append(str(method))
+    settings = getattr(manager, "settings", None)
+    if settings is not None:
+        resolver = getattr(settings, "metadata_db_path", None)
+        if callable(resolver):
+            try:
+                value = resolver()
+            except Exception:
+                value = None
+            if value is not None:
+                candidates.append(str(value))
+    repo = getattr(manager, "metadata_repository", None)
+    if repo is not None:
+        path = getattr(repo, "db_path", None)
+        if path is not None:
+            candidates.append(str(path))
+    for candidate in candidates:
+        if candidate and Path(candidate).exists():
+            return candidate
+    return candidates[0] if candidates else None
 
 
 def _persist_location_index(manager: Any, path: Path) -> None:

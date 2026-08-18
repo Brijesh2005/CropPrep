@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import contextlib
+import math
 import random
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -72,6 +73,7 @@ class Validator:
         amp_dtype: str = "float16",
         input_map: Callable[[Mapping[str, Any]], tuple[dict[str, Any], dict[str, Any]]]
         | None = None,
+        nan_policy: str = "stop",
     ) -> None:
         self.model = model
         self.loss_module = loss_module
@@ -80,6 +82,7 @@ class Validator:
         self.amp = amp and torch.cuda.is_available()
         self.amp_dtype = amp_dtype
         self.input_map = input_map or self._default_input_map
+        self.nan_policy = nan_policy
 
     # -- batch mapping ------------------------------------------------------ #
 
@@ -159,6 +162,24 @@ class Validator:
             metrics["val_per_task_loss"] = {
                 name: total / loss_counts for name, total in per_task_sum.items()
             }
+
+        # R5.2: surface NaN / Inf validation LOSS instead of silently writing
+        # it into the run history (mirrors the trainer's fail-loudly NaN
+        # handling). Per-metric NaN (e.g. R² on constant targets) is a
+        # legitimate artifact and is NOT treated as a training failure.
+        loss_bad = {
+            name: value
+            for name, value in metrics.items()
+            if (name in ("val_loss",) or name.startswith("val_per_task_loss"))
+            and isinstance(value, float)
+            and not math.isfinite(value)
+        }
+        if loss_bad and getattr(self, "nan_policy", "stop") == "stop":
+            raise ValidationError(
+                "NaN/Inf in validation loss",
+                detail={"epoch": epoch, "metrics": loss_bad},
+            )
+
         return ValidationResult(
             metrics=metrics,
             loss=metrics.get("val_loss", 0.0),

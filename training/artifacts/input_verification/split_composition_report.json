@@ -1,0 +1,67 @@
+{
+  "split_config": {
+    "strategy": "temporal",
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "test_ratio": 0.15,
+    "test_years": [],
+    "val_years": []
+  },
+  "splits": {
+    "train": {
+      "n": 187,
+      "years": [
+        2018,
+        2019,
+        2020,
+        2021
+      ],
+      "crop_labeled": 74,
+      "yield_present": 187,
+      "matched_levels": {
+        "village": 74,
+        "district": 113
+      },
+      "yield_min": 0.5314,
+      "yield_max": 73730.0,
+      "yield_std": 23942.7114,
+      "yield_distinct": 28,
+      "yield_near_constant": false
+    },
+    "val": {
+      "n": 40,
+      "years": [
+        2022
+      ],
+      "crop_labeled": 0,
+      "yield_present": 40,
+      "matched_levels": {
+        "district": 40
+      },
+      "yield_min": 0.7077,
+      "yield_max": 1.5356,
+      "yield_std": 0.3512,
+      "yield_distinct": 5,
+      "yield_near_constant": false
+    },
+    "test": {
+      "n": 48,
+      "years": [
+        2023
+      ],
+      "crop_labeled": 0,
+      "yield_present": 48,
+      "matched_levels": {
+        "district": 48
+      },
+      "yield_min": 0.6316,
+      "yield_max": 1.4232,
+      "yield_std": 0.361,
+      "yield_distinct": 5,
+      "yield_near_constant": false
+    }
+  },
+  "n_train": 187,
+  "n_val": 40,
+  "n_test": 48
+}

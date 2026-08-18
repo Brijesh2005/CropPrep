@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "failures": [],
+  "dataset": {
+    "accepted": 275
+  },
+  "split": {
+    "train": 187,
+    "val": 40,
+    "test": 48
+  },
+  "model": {
+    "tabular_feature_dim": 7,
+    "num_classes": 5,
+    "image_branch": false
+  },
+  "eval": {
+    "test_loss": 0.1822265386581421,
+    "yield_rmse": 0.6036994925592403,
+    "yield_r2": -1603426107.0319493,
+    "yield_support": 48,
+    "crop_support": 0,
+    "crop_accuracy": null,
+    "multi_task_score": 0.5
+  },
+  "validator": {
+    "val_loss": 0.1822265386581421,
+    "samples": 48
+  }
+}

@@ -51,3 +51,15 @@ class ShapeMismatchError(PreprocessingError):
     """Raised when tensors do not match the expected pipeline shapes."""
 
     code = "PP-SHAPE-001"
+
+
+class DataContractViolationError(PreprocessingError):
+    """Raised when a training corpus violates the training-data contract.
+
+    R5.2.1 Task D: a corpus that mixes yield units (e.g. kg/ha village yields
+    with a normalized district NPP proxy) or that would train a crop classifier
+    on unlabeled ``-1`` observations is rejected up front instead of silently
+    distorting the regression / classification targets.
+    """
+
+    code = "PP-DATA-CONTRACT-001"

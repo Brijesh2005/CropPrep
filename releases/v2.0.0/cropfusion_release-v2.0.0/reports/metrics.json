@@ -1,5 +1,64 @@
 {
-  "model_version": "unknown",
+  "model_version": "2.0.0",
   "dataset_version": "1.0.0",
-  "metrics": {}
+  "metrics": {
+    "crop/accuracy": 0.9090909361839294,
+    "crop/top5_accuracy": 1.0,
+    "crop/precision": 0.6666666666666666,
+    "crop/recall": 0.5555555555555555,
+    "crop/f1": 0.6,
+    "crop/roc_auc": null,
+    "crop/confusion_matrix": [
+      [
+        8,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        2,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "crop/support": 11,
+    "yield/mse": 0.021603712812066078,
+    "yield/rmse": 0.14698201526739957,
+    "yield/mae": 0.09661600738763809,
+    "yield/r2": 0.9748087453898245,
+    "yield/mape": 9.116672385822643,
+    "yield/support": 11,
+    "test_loss": 0.0
+  },
+  "registered": {
+    "run_name": "cropfusion_training",
+    "stage": "best",
+    "version": "v1",
+    "epoch": null,
+    "created_at": "2026-08-11T10:16:31.255928+00:00"
+  }
 }

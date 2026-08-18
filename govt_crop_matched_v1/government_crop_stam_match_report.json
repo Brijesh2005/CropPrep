@@ -1,0 +1,110 @@
+{
+  "audit_version": "R5.2.4",
+  "generated_at": "2026-08-17T15:31:53.793869",
+  "config": {
+    "spatial_tolerance_km": 5.0,
+    "temporal_tolerance_days": 15
+  },
+  "data_summary": {
+    "total_ogd": 837069,
+    "model_head": 199345,
+    "valid_samples": 10674,
+    "duplicates": 187934
+  },
+  "spatial": {
+    "tolerance_km": 5.0,
+    "min_km": 0.00023397193139124516,
+    "median_km": 0.14619046526722884,
+    "mean_km": 0.166,
+    "p90_km": 0.2714148718509949,
+    "p95_km": 0.32326386993817446,
+    "max_km": 1.5899710112072623,
+    "inf_count": 15978,
+    "status": {
+      "MATCHED": 182408,
+      "NO_MATCH": 16937
+    }
+  },
+  "temporal": {
+    "tolerance_days": 15,
+    "status": {
+      "EXACT_SEASON": 199199,
+      "WITHIN_TOLERANCE": 136,
+      "OUTSIDE_TOLERANCE": 10
+    }
+  },
+  "tabular": {
+    "district_grid": 199345
+  },
+  "satellite": {
+    "FULL": 182408,
+    "NOT_AVAILABLE": 16937
+  },
+  "rejections": {
+    "duplicate": 187934,
+    "spatial_NO_MATCH": 16937,
+    "no_satellite": 16937,
+    "temporal_OUTSIDE_TOLERANCE": 10
+  },
+  "class_dist": {
+    "current": {
+      "coconut": 1458,
+      "cocoa": 60,
+      "coffee": 150,
+      "cardamum": 150,
+      "pepper": 146,
+      "arecanut": 150,
+      "ginger": 281,
+      "tea": 150,
+      "paddy": 150,
+      "groundnut": 146,
+      "blackgram": 150,
+      "cashew": 146,
+      "cotton": 21
+    },
+    "govt_raw": {
+      "coconut": 151694,
+      "pepper": 47278,
+      "coffee": 330,
+      "cardamom": 38,
+      "blackgram": 5
+    },
+    "govt_matched": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "combined": {
+      "coconut": 8323,
+      "cocoa": 60,
+      "coffee": 251,
+      "cardamum": 150,
+      "pepper": 3841,
+      "arecanut": 150,
+      "ginger": 281,
+      "tea": 150,
+      "paddy": 150,
+      "groundnut": 146,
+      "blackgram": 152,
+      "cashew": 146,
+      "cotton": 21,
+      "cardamom": 11
+    }
+  },
+  "tolerance_sensitivity": {
+    "spatial": {
+      "1.0": 174380,
+      "2.0": 175084,
+      "5.0": 175084,
+      "10.0": 175084
+    },
+    "temporal": {
+      "7": 199320,
+      "15": 199335,
+      "30": 199335
+    }
+  },
+  "recommendation": "A. SUFFICIENT — proceed to integration"
+}

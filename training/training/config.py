@@ -87,7 +87,9 @@ class GeneralConfig(BaseModel):
     #: Detect NaN / Inf losses and gradients.
     nan_detection: bool = True
     #: ``warn`` | ``skip`` (skip the step) | ``stop`` (halt training).
-    nan_policy: str = Field(default="skip", pattern="^(warn|skip|stop)$")
+    #: ``stop`` is the default so NaN / Inf instability is never silently
+    #: skipped — it surfaces as a hard failure with diagnostics (R5.2).
+    nan_policy: str = Field(default="stop", pattern="^(warn|skip|stop)$")
     #: Log training metrics every N optimizer steps.
     log_every: int = Field(default=1, ge=1)
     #: Run validation every N epochs.
@@ -418,6 +420,23 @@ class CurriculumConfig(BaseModel):
     log_transitions: bool = True
 
 
+class DataContractConfig(BaseModel):
+    """Training-data contract gate (R5.2.1 Task D).
+
+    A training run is refused up front when the corpus violates the contract
+    (mixed yield units, or a crop classifier enabled without crop labels)
+    instead of silently training on an invalid target. Disabling the gate is
+    allowed only for explicit diagnostics runs.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: Validate the training corpus against the data contract before training.
+    enabled: bool = True
+    #: ``True`` = raise on hard violations; ``False`` = log a warning only.
+    strict: bool = True
+
+
 class TrainingConfig(BaseModel):
     """Root training configuration."""
 
@@ -434,6 +453,7 @@ class TrainingConfig(BaseModel):
     metrics: MetricsConfig = Field(default_factory=MetricsConfig)
     logging: LoggingConfig = Field(default_factory=LoggingConfig)
     validation: ValidationConfig = Field(default_factory=ValidationConfig)
+    data_contract: DataContractConfig = Field(default_factory=DataContractConfig)
     curriculum: CurriculumConfig = Field(default_factory=CurriculumConfig)
     ablation: AblationConfig = Field(default_factory=AblationConfig)
     benchmark: BenchmarkConfig = Field(default_factory=BenchmarkConfig)

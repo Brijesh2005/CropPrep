@@ -17,7 +17,7 @@ general:
   gradient_accumulation_steps: 1
   gradient_checkpointing: true
   nan_detection: true
-  nan_policy: skip
+  nan_policy: stop
   log_every: 10
   validation_frequency: 1
 
@@ -93,6 +93,12 @@ validation:
   seed: 42
   group_column: village
   temporal_column: year
+
+# R5.2.1 Task D: refuse training on a corpus that mixes yield units or that
+# would train a crop classifier without crop labels.
+data_contract:
+  enabled: true
+  strict: true
 
 ablation:
   enabled: false

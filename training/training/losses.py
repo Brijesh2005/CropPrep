@@ -56,6 +56,30 @@ def _drop_unknown_targets(
     return inputs, flat
 
 
+def _drop_non_kg_ha_targets(
+    inputs: torch.Tensor,
+    targets: torch.Tensor,
+    mask: torch.Tensor | None = None,
+) -> tuple[torch.Tensor, torch.Tensor] | None:
+    """Drop samples whose yield target is NOT physical kg/ha (R5.2.2).
+
+    NPP-proxy observations must not contribute to the kg/ha regression loss.
+    When a ``yield_unit_mask`` tensor is provided (``True`` = kg/ha,
+    ``False`` = NPP-proxy or unknown), only kg/ha samples are kept.
+
+    Returns ``None`` when no valid sample remains so the caller can emit a
+    zero loss instead of crashing on an empty tensor.
+    """
+    if mask is None:
+        return inputs, targets
+    flat_mask = mask.reshape(-1).bool()
+    if bool(flat_mask.sum().item()) == 0:
+        return None
+    if inputs.dim() >= 1 and inputs.shape[0] == flat_mask.numel():
+        return inputs[flat_mask], targets[flat_mask]
+    return inputs, targets
+
+
 class MAELoss(nn.Module):
     """Mean absolute error for yield regression."""
 
@@ -358,8 +382,13 @@ class MultiTaskLoss(nn.Module):
 
         Classification tasks (integer targets) honour the ``-1`` unknown-crop
         sentinel: samples without a crop label are masked out so those
-        observations train only the yield head. When every sample in the batch
-        is unknown the task loss is zero.
+        observations train only the yield head.
+
+        Regression tasks (yield) honour the ``yield_unit_mask``: only
+        observations with physical kg/ha yield contribute to the regression
+        loss. NPP-proxy observations are excluded (R5.2.2).
+
+        When every sample in the batch is excluded the task loss is zero.
         """
         per_task: dict[str, torch.Tensor] = {}
         for name, criterion in self.tasks.items():
@@ -375,6 +404,17 @@ class MultiTaskLoss(nn.Module):
                     per_task[name] = task_input.new_zeros(())
                     continue
                 task_input, task_target = masked
+            elif name == "yield":
+                # R5.2.2: only kg/ha observations for regression loss
+                yield_mask = targets.get("yield_unit_mask")
+                if yield_mask is not None:
+                    masked = _drop_non_kg_ha_targets(
+                        task_input, task_target, yield_mask
+                    )
+                    if masked is None:
+                        per_task[name] = task_input.new_zeros(())
+                        continue
+                    task_input, task_target = masked
             per_task[name] = criterion(task_input, task_target)
         return per_task
 

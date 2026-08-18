@@ -29,6 +29,11 @@ from training.stam.observation import AgriculturalObservation
 
 from .augmentations import ImageAugmentation
 from .config import PreprocessingConfig, load_preprocessing_config
+from .data_contract import (
+    TrainingDataContract,
+    assess_training_data_contract,
+    validate_training_data_contract,
+)
 from .exceptions import FitError, PreprocessingError, SampleRejectedError
 from .image_pipeline import ImagePipeline
 from .label_pipeline import LabelPipeline
@@ -88,6 +93,35 @@ class Preprocessor:
 
     def filter_one(self, observation: Any) -> FilterDecision:
         return filter_observation(observation, self.config.quality)
+
+    # ------------------------------------------------------------------ #
+    # Training-data contract
+    # ------------------------------------------------------------------ #
+
+    def data_contract_report(
+        self,
+        train_observations: Sequence[Any],
+        *,
+        crop_head_enabled: bool = True,
+    ) -> TrainingDataContract:
+        """Assess the training-data contract for a corpus (never raises)."""
+        return assess_training_data_contract(
+            train_observations, crop_head_enabled=crop_head_enabled
+        )
+
+    def validate_data_contract(
+        self,
+        train_observations: Sequence[Any],
+        *,
+        crop_head_enabled: bool = True,
+        strict: bool = True,
+    ) -> TrainingDataContract:
+        """Validate the training-data contract (raises on hard violations)."""
+        return validate_training_data_contract(
+            train_observations,
+            crop_head_enabled=crop_head_enabled,
+            strict=strict,
+        )
 
     # ------------------------------------------------------------------ #
     # Fit / transform

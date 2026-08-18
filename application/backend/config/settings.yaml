@@ -1,0 +1,35 @@
+# CropFusion backend settings — Prediction Platform (R6).
+# Loaded via BACKEND_CONFIG_FILE (see app/core/config.py).
+#
+# model.checkpoint_path points at the exported cropfusion_release/ directory
+# built by training/kaggle/scripts/build_release.py (backfilled locally with
+# training/kaggle/scripts/backfill_release.py).
+
+environment: development
+debug: true
+application_mode: farmer
+
+database:
+  url: "sqlite+aiosqlite:///./cropfusion.db"
+
+model:
+  checkpoint_path: "D:/CropPrep/releases/v2.0.0/cropfusion_release-v2.0.0"
+  device: cpu
+  warmup: true
+
+inference:
+  queue_size: 100
+  max_workers: 2
+  timeout_seconds: 60.0
+  cache_ttl_seconds: 3600
+  enable_cache: true
+  enable_fallback: false
+
+dataset:
+  validate_on_startup: false
+
+seed:
+  on_startup: false
+
+log:
+  json_logs: false

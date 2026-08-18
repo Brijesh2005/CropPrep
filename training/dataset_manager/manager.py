@@ -213,7 +213,7 @@ class DatasetManager:
         self.tabular_provider = self._registered_provider("git_repository_tabular")
         self.image_provider = self._registered_provider("kaggle_hub_image")
 
-        # -- R2.2 extended metadata repository (same metadata.db) ----------------- #
+    # -- R2.2 extended metadata repository (same metadata.db) ----------------- #
         self.metadata_repository = MetadataRepository(self.settings.metadata_db_path())
 
         # -- R2.2 spatial index (auto-built from tabular location data) ----------- #
@@ -484,6 +484,15 @@ class DatasetManager:
             inventory.root, inventory, force=force
         )
         return len(records)
+
+    def metadata_db_path(self) -> Path:
+        """Resolve the on-disk ``metadata.db`` for this manager.
+
+        Public accessor so downstream consumers (e.g. the inference package's
+        dataset-source snapshot) can resolve the database without reaching
+        into ``settings`` or ``metadata_repository`` internals (R5.2 Task 9).
+        """
+        return self.settings.metadata_db_path()
 
     # ------------------------------------------------------------------ #
     # Discovery

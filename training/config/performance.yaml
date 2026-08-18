@@ -44,7 +44,7 @@ dataloader:
 
 mixed_precision:
   enabled: true
-  dtype: bf16              # fp16 | bf16 | auto (auto picks bf16 if supported, else fp16)
+  dtype: fp16              # fp16 | bf16 | auto — NOTE: P100/T4/V100 do NOT support bf16
   automatic_fallback: true   # fall back to fp32 if AMP is unstable/unsupported
   grad_scaler: true          # only meaningful for fp16
 

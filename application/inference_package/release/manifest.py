@@ -65,6 +65,12 @@ RELEASE_PACKAGE_FILES: tuple[ReleaseArtifact, ...] = (
     ),
     ReleaseArtifact("preprocess/scaler.pkl", "serialized", description="Fitted feature scaler"),
     ReleaseArtifact("preprocess/label_encoder.pkl", "serialized", description="Fitted crop label encoder"),
+    ReleaseArtifact(
+        "preprocess/yield_scaler.pkl",
+        "serialized",
+        required=False,
+        description="Fitted yield scaler (optional; inverse-scales the yield head)",
+    ),
     ReleaseArtifact("configs/model.yaml", "config", description="Model architecture configuration"),
     ReleaseArtifact("configs/inference.yaml", "config", description="Inference-time configuration"),
     ReleaseArtifact("version/manifest.json", "version", description="Package file manifest"),

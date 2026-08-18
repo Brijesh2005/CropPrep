@@ -1,0 +1,853 @@
+{
+  "total_records": 60752,
+  "duplicate_count": 57147,
+  "non_duplicate_count": 3605,
+  "unique_duplicate_keys": 3605,
+  "multi_record_groups": 3097,
+  "fields_differing": {
+    "lat": 997,
+    "lon": 998,
+    "distance_km": 994
+  },
+  "coord_different_groups": 2900,
+  "group_size_distribution": {
+    "2": 391,
+    "3": 358,
+    "4": 244,
+    "5": 161,
+    "6": 180,
+    "7": 87,
+    "8": 111,
+    "9": 115,
+    "10": 99,
+    "11": 75,
+    "12": 86,
+    "13": 47,
+    "14": 66,
+    "15": 52,
+    "16": 78,
+    "17": 39,
+    "18": 53,
+    "19": 28,
+    "20": 60,
+    "21": 27,
+    "22": 46,
+    "23": 24,
+    "24": 36,
+    "25": 28,
+    "26": 34,
+    "27": 22,
+    "28": 26,
+    "29": 19,
+    "30": 18,
+    "31": 16,
+    "32": 11,
+    "33": 11,
+    "34": 16,
+    "35": 7,
+    "36": 20,
+    "37": 4,
+    "38": 14,
+    "39": 17,
+    "40": 18,
+    "41": 11,
+    "42": 18,
+    "43": 7,
+    "44": 16,
+    "45": 6,
+    "46": 14,
+    "47": 4,
+    "48": 7,
+    "49": 6,
+    "50": 13,
+    "51": 6,
+    "52": 10,
+    "53": 7,
+    "54": 6,
+    "55": 4,
+    "56": 7,
+    "57": 2,
+    "58": 5,
+    "59": 4,
+    "60": 6,
+    "61": 2,
+    "62": 7,
+    "63": 7,
+    "64": 5,
+    "65": 3,
+    "66": 9,
+    "67": 2,
+    "68": 4,
+    "69": 2,
+    "70": 3,
+    "71": 1,
+    "72": 5,
+    "73": 2,
+    "74": 2,
+    "76": 2,
+    "77": 5,
+    "78": 2,
+    "79": 2,
+    "80": 2,
+    "81": 2,
+    "82": 3,
+    "84": 4,
+    "85": 2,
+    "86": 7,
+    "87": 4,
+    "89": 1,
+    "90": 1,
+    "92": 2,
+    "94": 3,
+    "95": 2,
+    "96": 3,
+    "97": 1,
+    "98": 4,
+    "99": 3,
+    "100": 4,
+    "101": 3,
+    "103": 1,
+    "104": 4,
+    "105": 2,
+    "106": 1,
+    "107": 1,
+    "108": 2,
+    "109": 1,
+    "110": 1,
+    "111": 2,
+    "112": 3,
+    "113": 4,
+    "114": 1,
+    "115": 3,
+    "116": 1,
+    "119": 1,
+    "123": 1,
+    "124": 1,
+    "125": 1,
+    "126": 1,
+    "127": 1,
+    "128": 1,
+    "131": 2,
+    "132": 1,
+    "133": 1,
+    "136": 1,
+    "137": 1,
+    "138": 2,
+    "142": 1,
+    "152": 1,
+    "154": 1,
+    "156": 1,
+    "160": 1,
+    "163": 1,
+    "164": 1,
+    "167": 1,
+    "174": 3,
+    "175": 1,
+    "176": 2,
+    "180": 1,
+    "182": 1,
+    "190": 1,
+    "202": 1,
+    "238": 1,
+    "269": 1,
+    "279": 1,
+    "290": 1,
+    "292": 1,
+    "293": 1,
+    "306": 1,
+    "312": 1,
+    "333": 1,
+    "336": 1,
+    "378": 1,
+    "396": 1,
+    "409": 1,
+    "438": 1,
+    "444": 1,
+    "460": 1,
+    "564": 1,
+    "654": 1
+  },
+  "sample_diffs": [
+    {
+      "group_key": [
+        "beltangadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-09-04"
+      ],
+      "n_records": 5,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.9869053,
+        12.9896609
+      ],
+      "lon_range": [
+        75.2524036,
+        75.2738651
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0286,
+        0.2677
+      ]
+    },
+    {
+      "group_key": [
+        "charmadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-08-26"
+      ],
+      "n_records": 6,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        13.0500377,
+        13.0516144
+      ],
+      "lon_range": [
+        75.4118862,
+        75.4138823
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0587,
+        0.3066
+      ]
+    },
+    {
+      "group_key": [
+        "charmadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-10-10"
+      ],
+      "n_records": 21,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        13.0583444,
+        13.0620467
+      ],
+      "lon_range": [
+        75.42531,
+        75.4294483
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0407,
+        0.2546
+      ]
+    },
+    {
+      "group_key": [
+        "charmadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-08-27"
+      ],
+      "n_records": 6,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        13.0483057,
+        13.0484594
+      ],
+      "lon_range": [
+        75.4182046,
+        75.4183725
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.3161,
+        0.3369
+      ]
+    },
+    {
+      "group_key": [
+        "beltangadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-08-19"
+      ],
+      "n_records": 6,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.9905964,
+        12.9923867
+      ],
+      "lon_range": [
+        75.2771544,
+        75.2780114
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0313,
+        0.1774
+      ]
+    },
+    {
+      "group_key": [
+        "charmadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-10-12"
+      ],
+      "n_records": 8,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        13.0479353,
+        13.0483376
+      ],
+      "lon_range": [
+        75.4220762,
+        75.4222512
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0745,
+        0.1148
+      ]
+    },
+    {
+      "group_key": [
+        "beltangadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-09-05"
+      ],
+      "n_records": 5,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.9720031,
+        12.9857357
+      ],
+      "lon_range": [
+        75.2616694,
+        75.2677883
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.1429,
+        0.3276
+      ]
+    },
+    {
+      "group_key": [
+        "indabettu",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-09-30"
+      ],
+      "n_records": 13,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        13.0646294,
+        13.08309
+      ],
+      "lon_range": [
+        75.350245,
+        75.358845
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.1212,
+        0.2342
+      ]
+    },
+    {
+      "group_key": [
+        "kadirudyavara",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-10-04"
+      ],
+      "n_records": 16,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        13.046778,
+        13.0598024
+      ],
+      "lon_range": [
+        75.3563248,
+        75.3809831
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0732,
+        0.2247
+      ]
+    },
+    {
+      "group_key": [
+        "kadirudyavara",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-10-05"
+      ],
+      "n_records": 43,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        13.0470458,
+        13.1052725
+      ],
+      "lon_range": [
+        75.3562578,
+        75.373075
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0062,
+        0.2407
+      ]
+    },
+    {
+      "group_key": [
+        "kalmanja",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "pepper",
+        "2020-09-25"
+      ],
+      "n_records": 6,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.9885395,
+        12.9916141
+      ],
+      "lon_range": [
+        75.3746359,
+        75.3802077
+      ],
+      "source_crops": [
+        "Pepper (Black)"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0622,
+        0.241
+      ]
+    },
+    {
+      "group_key": [
+        "kalmanja",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-09-25"
+      ],
+      "n_records": 7,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.98846,
+        12.9915681
+      ],
+      "lon_range": [
+        75.3750115,
+        75.3800753
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0568,
+        0.2255
+      ]
+    },
+    {
+      "group_key": [
+        "kalmanja",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "pepper",
+        "2020-09-26"
+      ],
+      "n_records": 12,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.9865179,
+        13.0028552
+      ],
+      "lon_range": [
+        75.3762511,
+        75.3849754
+      ],
+      "source_crops": [
+        "Pepper (Black)"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0475,
+        0.1781
+      ]
+    },
+    {
+      "group_key": [
+        "kalmanja",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-09-26"
+      ],
+      "n_records": 9,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.987032,
+        13.0027233
+      ],
+      "lon_range": [
+        75.3711683,
+        75.3849772
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0459,
+        0.3307
+      ]
+    },
+    {
+      "group_key": [
+        "charmadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-10-13"
+      ],
+      "n_records": 28,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        13.0400762,
+        13.059375
+      ],
+      "lon_range": [
+        75.4152151,
+        75.4212236
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0193,
+        0.2633
+      ]
+    },
+    {
+      "group_key": [
+        "beltangadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "pepper",
+        "2020-09-05"
+      ],
+      "n_records": 3,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.9719859,
+        12.9855709
+      ],
+      "lon_range": [
+        75.2619567,
+        75.2675591
+      ],
+      "source_crops": [
+        "Pepper (Black)"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0732,
+        0.1612
+      ]
+    },
+    {
+      "group_key": [
+        "beltangadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-08-20"
+      ],
+      "n_records": 14,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.9757943,
+        12.9910831
+      ],
+      "lon_range": [
+        75.264677,
+        75.278084
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0472,
+        0.2412
+      ]
+    },
+    {
+      "group_key": [
+        "charmadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-10-14"
+      ],
+      "n_records": 12,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        13.0435052,
+        13.0482967
+      ],
+      "lon_range": [
+        75.4082155,
+        75.4135829
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.1016,
+        0.2839
+      ]
+    },
+    {
+      "group_key": [
+        "kalmanja",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-09-27"
+      ],
+      "n_records": 5,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.9889181,
+        13.0031579
+      ],
+      "lon_range": [
+        75.3624083,
+        75.3776361
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0547,
+        0.2071
+      ]
+    },
+    {
+      "group_key": [
+        "beltangadi",
+        "belthangady",
+        "2020",
+        "Kharif",
+        "coconut",
+        "2020-08-21"
+      ],
+      "n_records": 6,
+      "differing_fields": [
+        "lat",
+        "distance_km",
+        "lon"
+      ],
+      "lat_range": [
+        12.9896183,
+        12.993075
+      ],
+      "lon_range": [
+        75.2637683,
+        75.2761832
+      ],
+      "source_crops": [
+        "Coconut"
+      ],
+      "hoblis": [
+        "BELTANGADI"
+      ],
+      "distance_range": [
+        0.0462,
+        0.1923
+      ]
+    }
+  ],
+  "assessment": "MANY_GROUPS_HAVE_DIFFERENT_COORDS"
+}

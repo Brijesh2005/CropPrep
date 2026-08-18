@@ -105,4 +105,4 @@ feature_order:
 - Temperature
 - Humidity
 - price
-input_dim: 5
+input_dim: 7

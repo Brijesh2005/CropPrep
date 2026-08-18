@@ -52,10 +52,17 @@ from .config import (
     save_preprocessing_template,
 )
 from .dataloader import build_dataloader, collate_samples
+from .data_contract import (
+    TrainingDataContract,
+    assess_training_data_contract,
+    infer_yield_unit,
+    validate_training_data_contract,
+)
 from .dataset import CropFusionDataset, split_observations
 from .exceptions import (
     ArtifactError,
     ConfigurationError,
+    DataContractViolationError,
     FitError,
     MissingDependencyError,
     PreprocessingError,
@@ -93,6 +100,10 @@ __all__ = [
     "split_observations",
     "build_dataloader",
     "collate_samples",
+    "TrainingDataContract",
+    "assess_training_data_contract",
+    "validate_training_data_contract",
+    "infer_yield_unit",
     "DatasetStatistics",
     "StatisticsReport",
     "ImageAugmentation",
@@ -123,4 +134,5 @@ __all__ = [
     "FitError",
     "ArtifactError",
     "ShapeMismatchError",
+    "DataContractViolationError",
 ]

@@ -1,0 +1,144 @@
+[
+  {
+    "key": "24431191",
+    "hobli": "UPPINANGADI",
+    "taluk": "Puttur",
+    "district": "Dakshina Kannada",
+    "season": "Kharif",
+    "years": "2021-2022",
+    "count": 45240,
+    "crops": [
+      "Coconut",
+      "NA Land ",
+      "Betel Nuts (Areca nuts)",
+      "Fallow",
+      "Cocoa",
+      "Banana ",
+      "Pepper (Black)",
+      "Cashewnuts",
+      "Rubber"
+    ],
+    "truncated": false
+  },
+  {
+    "key": "24121181",
+    "hobli": "MANGALURU B",
+    "taluk": "Mangalore",
+    "district": "Dakshina kannada",
+    "season": "Kharif",
+    "years": "2020-2021",
+    "count_estimate": 51839,
+    "truncated": true,
+    "response_size": 10367815
+  },
+  {
+    "key": "24131181",
+    "hobli": "SURATKAL",
+    "taluk": "Mangalore",
+    "district": "Dakshina kannada",
+    "season": "Kharif",
+    "years": "2020-2021",
+    "count_estimate": 116070,
+    "truncated": true,
+    "response_size": 23214039
+  },
+  {
+    "key": "24211181",
+    "hobli": "BANTVALA",
+    "taluk": "Bantwal",
+    "district": "Dakshina kannada",
+    "season": "Kharif",
+    "years": "2020-2021",
+    "count_estimate": 100492,
+    "truncated": true,
+    "response_size": 20098599
+  },
+  {
+    "key": "24231181",
+    "hobli": "VITLA",
+    "taluk": "Bantwal",
+    "district": "Dakshina kannada",
+    "season": "Kharif",
+    "years": "2020-2021",
+    "count_estimate": 31180,
+    "truncated": true,
+    "response_size": 6236191
+  },
+  {
+    "key": "24331191",
+    "hobli": "VENURU",
+    "taluk": "Belthangady",
+    "district": "Dakshina Kannada",
+    "season": "Kharif",
+    "years": "2021-2022",
+    "count_estimate": 129588,
+    "truncated": true,
+    "response_size": 25917679
+  },
+  {
+    "key": "24511181",
+    "hobli": "SULYA",
+    "taluk": "Sullia",
+    "district": "Dakshina kannada",
+    "season": "Kharif",
+    "years": "2020-2021",
+    "count_estimate": 72398,
+    "truncated": true,
+    "response_size": 14479743
+  },
+  {
+    "key": "24421181",
+    "hobli": "PUTTURU",
+    "taluk": "Puttur",
+    "district": "Dakshina kannada",
+    "season": "Kharif",
+    "years": "2020-2021",
+    "count_estimate": 108173,
+    "truncated": true,
+    "response_size": 21634711
+  },
+  {
+    "key": "24431181",
+    "hobli": "UPPINANGADI",
+    "taluk": "Puttur",
+    "district": "Dakshina kannada",
+    "season": "Kharif",
+    "years": "2020-2021",
+    "count_estimate": 110580,
+    "truncated": true,
+    "response_size": 22116135
+  },
+  {
+    "key": "24421191",
+    "hobli": "PUTTURU",
+    "taluk": "Puttur",
+    "district": "Dakshina Kannada",
+    "season": "Kharif",
+    "years": "2021-2022",
+    "count_estimate": 162450,
+    "truncated": true,
+    "response_size": 32490103
+  },
+  {
+    "key": "24331181",
+    "hobli": "VENURU",
+    "taluk": "Belthangady",
+    "district": "Dakshina kannada",
+    "season": "Kharif",
+    "years": "2020-2021",
+    "count_estimate": 18053,
+    "truncated": true,
+    "response_size": 3610672
+  },
+  {
+    "key": "24521191",
+    "hobli": "PANJA",
+    "taluk": "Sullia",
+    "district": "Dakshina Kannada",
+    "season": "Kharif",
+    "years": "2021-2022",
+    "count_estimate": 67975,
+    "truncated": true,
+    "response_size": 13595007
+  }
+]
