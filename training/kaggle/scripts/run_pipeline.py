@@ -64,6 +64,10 @@ from training.kaggle.config import (  # noqa: E402
     load_paths_config,
     WorkspaceLayout,
 )
+from training.kaggle.frozen_corpus import (  # noqa: E402
+    FrozenCorpusError,
+    FrozenCorpusLoader,
+)
 from training.kaggle.environment import EnvironmentManager  # noqa: E402
 from training.kaggle.logging import TrainingLogger  # noqa: E402
 from training.kaggle.validation import TrainingValidator  # noqa: E402
@@ -165,6 +169,22 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Resolve the corpus but do not run the Experiment",
     )
+    parser.add_argument(
+        "--frozen-crop-csv",
+        default=None,
+        help="Path to the frozen supervised crop CSV (bypasses ObservationResolver)",
+    )
+    parser.add_argument(
+        "--frozen-manifest",
+        default=None,
+        help="Path to the frozen corpus manifest JSON (validates + stamps provenance)",
+    )
+    parser.add_argument(
+        "--verify-contract",
+        action="store_true",
+        default=True,
+        help="Verify the frozen corpus data contract before training (default: True)",
+    )
     args = parser.parse_args(argv)
 
     repo_root = Path(args.repo_root).resolve()
@@ -253,31 +273,91 @@ def main(argv: list[str] | None = None) -> int:
             "season_calendar": stam.season_resolver.source,
         }
 
-        # 6. Corpus (DatasetManager → STAM → ObservationResolver).
-        resolver = ObservationResolver(stam)
-        plan = resolver.plan(
-            years=_parse_csv_ints(args.years),
-            seasons=_parse_csv_strs(args.seasons),
-            max_locations=args.max_locations,
-        )
-        if args.max_cells and plan.total > args.max_cells:
-            plan = plan.model_copy(update={"cells": plan.cells[: args.max_cells]})
-        corpus = resolver.resolve(plan)
-        corpus_path = workspace.output_path("reports", "corpus.json")
-        corpus.save(corpus_path)
-        report["corpus"] = {
-            **corpus.summary(),
-            "path": str(corpus_path),
-            "plan": plan.counts(),
-        }
-        logger.log_experiment(
-            "corpus_resolved",
-            total=corpus.total,
-            **corpus.status_counts(),
-        )
+        # 6. Corpus — frozen CSV or ObservationResolver.
+        frozen_csv = args.frozen_crop_csv
+        frozen_manifest = args.frozen_manifest
+        use_frozen = frozen_csv is not None
+
+        if use_frozen:
+            # Frozen corpus path (R5.2.7 supervised crop training).
+            frozen_loader = FrozenCorpusLoader(
+                csv_path=frozen_csv,
+                manifest_path=frozen_manifest or str(
+                    _REPO_ROOT / "training_manifests" / "crop_supervised_v1_manifest.json"
+                ),
+            )
+            frozen_loader.validate()
+            train_obs, val_obs, test_obs = frozen_loader.build(stam)
+            accepted = train_obs + val_obs + test_obs
+            corpus_path = workspace.output_path("reports", "frozen_corpus.json")
+
+            # Data contract printout + verification (Kaggle stop-on-mismatch).
+            contract = frozen_loader.data_contract_printout(
+                train_obs, val_obs, test_obs
+            )
+            contract_passed, contract_errors = frozen_loader.verify_contract(
+                contract, train_obs, val_obs, test_obs
+            )
+            if not contract_passed:
+                report["training"] = {
+                    "status": "skipped",
+                    "reason": "frozen corpus data contract FAILED verification",
+                    "contract_errors": contract_errors,
+                    "accepted_observations": len(accepted),
+                }
+                print("\n[FATAL] Frozen corpus data contract verification FAILED:")
+                for err in contract_errors:
+                    print(f"  - {err}")
+                print("Training aborted.\n")
+                return 1
+
+            report["corpus"] = {
+                "type": "frozen_crop_supervised_v1",
+                "version": contract.get("version"),
+                "manifest_checksum": contract.get("manifest_checksum"),
+                "total": len(accepted),
+                "train": len(train_obs),
+                "val": len(val_obs),
+                "test": len(test_obs),
+                "class_counts": contract.get("overall_class_counts"),
+                "split_strategy": contract.get("split_strategy"),
+                "split_groups": contract.get("split_groups"),
+                "path": str(corpus_path),
+            }
+            logger.log_experiment(
+                "frozen_corpus_loaded",
+                total=len(accepted),
+                train=len(train_obs),
+                val=len(val_obs),
+                test=len(test_obs),
+            )
+        else:
+            # Standard path: ObservationResolver builds the corpus.
+            resolver = ObservationResolver(stam)
+            plan = resolver.plan(
+                years=_parse_csv_ints(args.years),
+                seasons=_parse_csv_strs(args.seasons),
+                max_locations=args.max_locations,
+            )
+            if args.max_cells and plan.total > args.max_cells:
+                plan = plan.model_copy(update={"cells": plan.cells[: args.max_cells]})
+            corpus = resolver.resolve(plan)
+            corpus_path = workspace.output_path("reports", "corpus.json")
+            corpus.save(corpus_path)
+            report["corpus"] = {
+                **corpus.summary(),
+                "path": str(corpus_path),
+                "plan": plan.counts(),
+            }
+            logger.log_experiment(
+                "corpus_resolved",
+                total=corpus.total,
+                **corpus.status_counts(),
+            )
+            accepted = corpus.accepted_observations()
+            train_obs = val_obs = test_obs = None
 
         # 7. Experiment (skipped without accepted observations or by flag).
-        accepted = corpus.accepted_observations()
         if args.skip_training or not accepted:
             report["training"] = {
                 "status": "skipped",
@@ -289,6 +369,11 @@ def main(argv: list[str] | None = None) -> int:
             }
         else:
             run_dir = workspace.run_output(training_cfg.name)
+            pre_split = (
+                (train_obs, val_obs, test_obs)
+                if use_frozen and train_obs is not None
+                else None
+            )
             experiment = Experiment(
                 training_cfg,
                 accepted,
@@ -297,6 +382,7 @@ def main(argv: list[str] | None = None) -> int:
                 preprocessor=preprocessing_cfg,
                 run_dir=run_dir,
                 run_name=training_cfg.name,
+                pre_split=pre_split,
             )
             result = experiment.run()
             report["training"] = {
@@ -331,11 +417,17 @@ def main(argv: list[str] | None = None) -> int:
         encoding="utf-8",
     )
     print(f"[run_pipeline] wrote pipeline report -> {target}")
-    print(
-        f"[run_pipeline] corpus summary -> total={corpus.total} "
-        f"accepted={len(corpus.accepted())} rejected={len(corpus.rejected())} "
-        f"errors={len(corpus.errors())}"
-    )
+    if use_frozen:
+        print(
+            f"[run_pipeline] frozen corpus -> total={len(accepted)} "
+            f"train={len(train_obs)} val={len(val_obs)} test={len(test_obs)}"
+        )
+    else:
+        print(
+            f"[run_pipeline] corpus summary -> total={corpus.total} "
+            f"accepted={len(corpus.accepted())} rejected={len(corpus.rejected())} "
+            f"errors={len(corpus.errors())}"
+        )
     return 0
 
 

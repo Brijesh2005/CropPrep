@@ -16,10 +16,13 @@ one run so callers can compare runs (e.g. ablations).
 
 from __future__ import annotations
 
+import logging
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping, Sequence
+
+logger = logging.getLogger(__name__)
 
 import torch
 
@@ -88,6 +91,7 @@ class Experiment:
         model_config_overrides: Mapping[str, Any] | None = None,
         run_dir: str | Path | None = None,
         run_name: str | None = None,
+        pre_split: tuple[Sequence[Any], Sequence[Any], Sequence[Any]] | None = None,
     ) -> None:
         self.config = training_config
         self.observations = list(observations)
@@ -98,6 +102,11 @@ class Experiment:
         self.run_name = run_name or training_config.name
         self.run_dir = Path(run_dir or (training_config.general.output_dir / self.run_name))
         self._data_contract: dict[str, Any] | None = None
+        self._pre_split = (
+            (list(pre_split[0]), list(pre_split[1]), list(pre_split[2]))
+            if pre_split is not None
+            else None
+        )
 
         self.device = torch.device("cpu")
         if training_config.general.device == "auto":
@@ -286,7 +295,16 @@ class Experiment:
     def _holdout_split(self) -> tuple[list[Any], list[Any], list[Any]]:
         if self.config.validation.strategy != "holdout":
             raise ValidationError("_holdout_split called for a non-holdout strategy")
-            raise ValidationError("_holdout_split called for a non-holdout strategy")
+        # Frozen corpus: use pre-assigned split (R5.2.7 spatial split).
+        if self._pre_split is not None:
+            train, val, test = self._pre_split
+            logger.info(
+                "Using pre-split (frozen corpus)",
+                train=len(train),
+                val=len(val),
+                test=len(test),
+            )
+            return train, val, test
         # Split config lives on the preprocessor (Phase 4); default temporal.
         split_config = None
         if self.preprocessor is not None:
