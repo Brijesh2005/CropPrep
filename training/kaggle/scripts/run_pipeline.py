@@ -78,7 +78,11 @@ from training.models.config import (  # noqa: E402
 from training.preprocessing import Preprocessor  # noqa: E402
 from training.stam import STAM  # noqa: E402
 from training.stam.config import load_stam_config  # noqa: E402
-from training.stam.observation_resolver import ObservationResolver  # noqa: E402
+from training.stam.observation_resolver import (  # noqa: E402
+    ObservationCorpus,
+    ObservationResolver,
+    ResolvedSample,
+)
 from training.training import Experiment  # noqa: E402
 from training.training.config import (  # noqa: E402
     load_training_config as load_training_cfg,
@@ -290,6 +294,28 @@ def main(argv: list[str] | None = None) -> int:
             train_obs, val_obs, test_obs = frozen_loader.build(stam)
             accepted = train_obs + val_obs + test_obs
             corpus_path = workspace.output_path("reports", "frozen_corpus.json")
+
+            # Persist the frozen corpus in ObservationCorpus JSON format so
+            # the post-training verification scripts (verify_multimodal_tensors,
+            # verify_split_composition) can load it via --corpus.
+            ObservationCorpus(
+                samples=[
+                    ResolvedSample(
+                        location_id=o.provenance.get("record_id")
+                        or str(o.observation_id),
+                        name=o.crop or "unknown",
+                        lon=o.location.lon,
+                        lat=o.location.lat,
+                        year=o.temporal.year or 0,
+                        season=o.temporal.season or "unknown",
+                        status="accepted",
+                        quality_score=o.quality.overall_score,
+                        observation=o,
+                    )
+                    for o in accepted
+                ],
+                config={"source": "frozen_crop_supervised_v1"},
+            ).save(corpus_path)
 
             # Data contract printout + verification (Kaggle stop-on-mismatch).
             contract = frozen_loader.data_contract_printout(

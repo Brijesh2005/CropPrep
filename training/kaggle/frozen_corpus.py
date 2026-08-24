@@ -522,6 +522,22 @@ class FrozenCorpusLoader:
                     corpus_version=corpus_version,
                     manifest_checksum=manifest_checksum,
                 )
+                if len(obs.sequence.pairs) == 0:
+                    # Zero NDVI/EVI pairs would be rejected by the
+                    # preprocessing quality gate (min_observations >= 1)
+                    # mid-epoch, crashing the DataLoader. Exclude here.
+                    errors += 1
+                    log_dict(
+                        logger,
+                        logging.WARNING,
+                        "Empty imagery sequence — sample excluded",
+                        record_id=row.get("record_id"),
+                        lon=row.get("lon"),
+                        lat=row.get("lat"),
+                        year=row.get("year"),
+                        season=row.get("season"),
+                    )
+                    continue
                 split = obs.provenance.get("split", "unknown")
                 if split == "train":
                     train.append(obs)

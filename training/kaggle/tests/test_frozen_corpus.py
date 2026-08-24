@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import csv
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
@@ -31,9 +32,15 @@ from training.kaggle.frozen_corpus import (
     validate_manifest,
 )
 from training.stam.observation import (
+    ImagePairRef,
     QualityReport,
     SequenceInfo,
 )
+
+
+def _pair_sequence() -> SequenceInfo:
+    """A minimal valid sequence with one NDVI/EVI pair."""
+    return SequenceInfo(pairs=[ImagePairRef(date=date(2020, 7, 1))])
 
 
 # --------------------------------------------------------------------------- #
@@ -160,9 +167,9 @@ def csv_path(tmp_path: Path) -> Path:
 
 @pytest.fixture()
 def mock_stam() -> MagicMock:
-    """A mock STAM instance that returns empty sequences."""
+    """A mock STAM instance that returns single-pair sequences."""
     stam = MagicMock()
-    stam.resolve_sequence.return_value = SequenceInfo(pairs=[])
+    stam.resolve_sequence.return_value = _pair_sequence()
     return stam
 
 
@@ -406,6 +413,28 @@ class TestFrozenCorpusLoader:
         train, val, test = loader.build(mock_stam)
         for obs in train + val + test:
             assert obs.provenance.get("corpus") == "crop_supervised_v1"
+
+    def test_build_excludes_empty_sequences(
+        self, csv_path: Path, manifest_path: Path, mock_stam: MagicMock
+    ) -> None:
+        """Rows resolving to zero NDVI/EVI pairs must be dropped at build
+        time — otherwise the preprocessing quality gate rejects them
+        mid-epoch and crashes the DataLoader."""
+        loader = FrozenCorpusLoader(csv_path, manifest_path)
+        calls = {"n": 0}
+
+        def resolve(lon: float, lat: float, **kwargs: Any) -> SequenceInfo:
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return SequenceInfo(pairs=[])
+            return _pair_sequence()
+
+        mock_stam.resolve_sequence.side_effect = resolve
+
+        train, val, test = loader.build(mock_stam)
+        all_obs = train + val + test
+        assert len(all_obs) == 9
+        assert all(o.num_observations() >= 1 for o in all_obs)
 
     def test_data_contract_printout(
         self, csv_path: Path, manifest_path: Path, mock_stam: MagicMock
