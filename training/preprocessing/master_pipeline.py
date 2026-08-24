@@ -350,7 +350,7 @@ class Preprocessor:
                 extra={
                     "path": path,
                     "lon": lon, "lat": lat,
-                    "observation_id": observation.id,
+                    "observation_id": str(observation.observation_id),
                 },
             )
             return None

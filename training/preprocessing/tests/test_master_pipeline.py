@@ -8,6 +8,30 @@ from training.preprocessing import Preprocessor
 from training.preprocessing.validators import filter_observations
 
 
+def test_extract_patch_out_of_bounds_returns_none(
+    observations, preprocessing_config
+):
+    """A patch outside the raster becomes a missing band, not a crash.
+
+    Regression: the PatchOutOfBoundsError handler logged
+    ``observation.id`` (nonexistent attribute), so the handler itself
+    raised AttributeError and killed the DataLoader worker (R5.3 v6).
+    """
+    from training.stam.exceptions import PatchOutOfBoundsError
+
+    pre = Preprocessor(preprocessing_config)
+    pre.fit(observations[:1], extractor=lambda *a, **k: None)
+    obs = observations[0]
+
+    def boom(path, lon, lat, size=None):
+        raise PatchOutOfBoundsError(
+            f"Patch is entirely outside the raster: {path}",
+            detail={"lon": lon, "lat": lat},
+        )
+
+    assert pre._extract_patch(boom, "r.tif", 74.8, 13.1, 32, obs) is None
+
+
 def test_fit_transform_shapes(observations, extractor, preprocessing_config):
     accepted, _ = filter_observations(observations, preprocessing_config.quality)
     assert len(accepted) == len(observations)
