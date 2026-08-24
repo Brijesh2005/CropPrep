@@ -312,7 +312,7 @@ def cmd_prepare(args: argparse.Namespace) -> int:
     if not username:
         print("  [ERROR] Cannot determine Kaggle username. Set KAGGLE_USERNAME or run kaggle config view.")
         return 1
-        kernel_id = f"{username}/r5-3-cropfusion-multimodal-training"
+    kernel_id = f"{username}/r5-3-cropfusion-multimodal-training"
 
     # Generate kernel-metadata.json
     metadata = {
