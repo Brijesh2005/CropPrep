@@ -45,7 +45,9 @@ from training.stam.observation import (
 
 import logging
 
-logger = logging.getLogger("cropfusion.training.frozen_corpus")
+from shared.logging import get_logger, log_dict
+
+logger = get_logger("training.frozen_corpus")
 
 
 # --------------------------------------------------------------------------- #
@@ -178,7 +180,9 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
     if not split_groups.get("test_taluk"):
         raise FrozenCorpusError("split_groups.test_taluk is missing")
 
-    logger.info(
+    log_dict(
+        logger,
+        logging.INFO,
         "Manifest validated",
         version=version,
         total=total,
@@ -216,7 +220,7 @@ def _load_csv(csv_path: Path) -> list[dict[str, Any]]:
     if not rows:
         raise FrozenCorpusError("CSV contains zero data rows")
 
-    logger.info("CSV loaded", path=str(csv_path), rows=len(rows))
+    log_dict(logger, logging.INFO, "CSV loaded", path=str(csv_path), rows=len(rows))
     return rows
 
 
@@ -293,7 +297,9 @@ def _resolve_imagery(
         )
         return observation.sequence
     except Exception as exc:  # noqa: BLE001
-        logger.warning(
+        log_dict(
+            logger,
+            logging.WARNING,
             "Imagery resolution failed — returning empty sequence",
             record_id=row.get("record_id"),
             error=str(exc),
@@ -464,7 +470,9 @@ class FrozenCorpusLoader:
                     f"CSV taluk assignment={actual}, manifest={expected}"
                 )
 
-        logger.info(
+        log_dict(
+            logger,
+            logging.INFO,
             "Frozen corpus validated",
             csv_rows=csv_count,
             manifest_total=manifest_total,
@@ -520,7 +528,9 @@ class FrozenCorpusLoader:
                 elif split == "test":
                     test.append(obs)
                 else:
-                    logger.warning(
+                    log_dict(
+                        logger,
+                        logging.WARNING,
                         "Unknown split — assigning to train",
                         record_id=row.get("record_id"),
                         taluk=row.get("location_taluk"),
@@ -528,14 +538,18 @@ class FrozenCorpusLoader:
                     train.append(obs)
             except Exception as exc:  # noqa: BLE001
                 errors += 1
-                logger.warning(
+                log_dict(
+                    logger,
+                    logging.WARNING,
                     "Failed to build observation",
                     record_id=row.get("record_id"),
                     error=str(exc),
                 )
 
             if progress_every and index % progress_every == 0:
-                logger.info(
+                log_dict(
+                    logger,
+                    logging.INFO,
                     "Corpus build progress",
                     built=index,
                     total=len(rows),
@@ -545,7 +559,9 @@ class FrozenCorpusLoader:
                     test=len(test),
                 )
 
-        logger.info(
+        log_dict(
+            logger,
+            logging.INFO,
             "Frozen corpus built",
             total=len(rows),
             errors=errors,
