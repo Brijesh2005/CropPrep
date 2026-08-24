@@ -312,7 +312,7 @@ def cmd_prepare(args: argparse.Namespace) -> int:
     if not username:
         print("  [ERROR] Cannot determine Kaggle username. Set KAGGLE_USERNAME or run kaggle config view.")
         return 1
-    kernel_id = f"{username}/cropfusion-r5-3-train"
+        kernel_id = f"{username}/r5-3-cropfusion-multimodal-training"
 
     # Generate kernel-metadata.json
     metadata = {
@@ -510,7 +510,7 @@ def cmd_train(args: argparse.Namespace) -> int:
         _print_section("ABOUT TO START KAGGLE TRAINING")
         manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
         username = _get_kaggle_username() or "unknown"
-        kernel_id = f"{username}/cropfusion-r5-3-train"
+        kernel_id = f"{username}/r5-3-cropfusion-multimodal-training"
 
         _print_row("GPU", "Tesla P100 (16GB)")
         _print_row("Dataset", DATASET_ID)

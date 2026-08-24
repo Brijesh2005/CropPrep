@@ -31,7 +31,6 @@ from training.kaggle.frozen_corpus import (
     validate_manifest,
 )
 from training.stam.observation import (
-    AgriculturalObservation,
     QualityReport,
     SequenceInfo,
 )
@@ -163,14 +162,7 @@ def csv_path(tmp_path: Path) -> Path:
 def mock_stam() -> MagicMock:
     """A mock STAM instance that returns empty sequences."""
     stam = MagicMock()
-    stam.build_observation.return_value = AgriculturalObservation(
-        location={"lon": 75.0, "lat": 12.0},
-        temporal={"year": 2020, "season": "Kharif"},
-        tabular={"fields": {}},
-        sequence={"pairs": []},
-        quality={"passed": True, "overall_score": 100.0},
-        crop=None,
-    )
+    stam.resolve_sequence.return_value = SequenceInfo(pairs=[])
     return stam
 
 

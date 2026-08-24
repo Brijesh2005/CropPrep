@@ -282,9 +282,14 @@ def _resolve_imagery(
 ) -> SequenceInfo:
     """Use STAM to resolve NDVI/EVI imagery for this point.
 
-    This calls the matcher's image resolution without going through
-    the full build_observation pipeline (which would override the
-    frozen crop label with tabular matching).
+    Uses :meth:`STAM.resolve_sequence`, which builds the image sequence
+    directly from imagery coverage — it never consults the spatial location
+    index or tabular chain. Frozen-corpus rows are village GPS points that
+    frequently sit farther than ``max_search_radius_km`` (5 km) from the
+    nearest indexed dataset location, which made the full
+    ``build_observation`` path fail with ``LocationNotFoundError`` for the
+    majority of samples even though their imagery is pre-validated
+    (``satellite_status=FULL``).
     """
     lon = float(row["lon"])
     lat = float(row["lat"])
@@ -292,10 +297,7 @@ def _resolve_imagery(
     season = row.get("season")
 
     try:
-        observation = stam.build_observation(
-            lon, lat, year=year, season=season, use_cache=True
-        )
-        return observation.sequence
+        return stam.resolve_sequence(lon, lat, year=year, season=season)
     except Exception as exc:  # noqa: BLE001
         log_dict(
             logger,

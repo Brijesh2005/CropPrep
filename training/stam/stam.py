@@ -43,6 +43,7 @@ from .observation import (
     AgriculturalObservation,
     LocationInfo,
     QualityReport,
+    SequenceInfo,
     TemporalInfo,
 )
 from .patch_generator import RasterPatch, SpatialPatchGenerator
@@ -368,6 +369,35 @@ class STAM:
         )
         ndvi, evi = self._filter_images_for_point(lon, lat, ndvi, evi)
         return self.sequence_builder.build(ndvi, evi, resolution=resolution)
+
+    def resolve_sequence(
+        self,
+        lon: float,
+        lat: float,
+        *,
+        year: int,
+        season: str | None = None,
+        reference_date: date | None = None,
+        resolution: str | None = None,
+    ) -> SequenceInfo:
+        """NDVI/EVI sequence for a point — no spatial or tabular matching.
+
+        Unlike :meth:`build_observation`, this never consults the spatial
+        location index (ST-SPATIAL-001) or the tabular record chain, so it
+        works for arbitrary GPS points that sit inside imagery coverage but
+        far from any indexed dataset location. Intended for the frozen
+        corpus path where labels and locations come from the corpus itself.
+
+        Returns:
+            The built :class:`~training.stam.observation.SequenceInfo`.
+        """
+        self._require_initialized()
+        context = self.matcher.resolve_temporal(
+            year=year, season=season, reference_date=reference_date
+        )
+        return self._build_sequence_with_fallback(
+            lon, lat, context=context, resolution=resolution
+        ).sequence
 
     def get_patch(
         self,

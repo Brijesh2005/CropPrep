@@ -78,7 +78,7 @@ class TestMetadataGeneration:
         assert "/" in kid, f"Kernel ID must contain /, got {kid}"
         parts = kid.split("/")
         assert len(parts) == 2, f"Kernel ID must be owner/name, got {kid}"
-        assert parts[1] == "cropfusion-r5-3-train"
+        assert parts[1] == "r5-3-cropfusion-multimodal-training"
 
 
 # ---------------------------------------------------------------------------
