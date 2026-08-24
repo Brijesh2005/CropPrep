@@ -375,7 +375,9 @@ def cmd_push(args: argparse.Namespace) -> int:
     if result.stderr:
         print(result.stderr)
 
-    if result.returncode == 0:
+    # The Kaggle CLI can exit 0 while still reporting a push failure
+    # (e.g. "Kernel push error: Maximum batch GPU session count reached").
+    if result.returncode == 0 and "Kernel push error" not in result.stdout:
         _print_row("Status", "PUSHED")
         return 0
     else:
