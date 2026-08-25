@@ -82,7 +82,9 @@ def _collect_class_counts(loader: Any, num_classes: int | None) -> torch.Tensor:
         observed = int(label.max().item()) + 1
         if observed > counts.numel():
             counts = F.pad(counts, (0, observed - counts.numel()))
-        counts += torch.bincount(label, minlength=observed).float()[:observed]
+        counts += torch.bincount(label, minlength=counts.numel()).float()[
+            : counts.numel()
+        ]
     return counts
 
 

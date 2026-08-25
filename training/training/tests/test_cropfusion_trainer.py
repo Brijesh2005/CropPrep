@@ -168,3 +168,38 @@ def test_cropfusion_trainer_manual_loss_module(tmp_path):
     assert trainer.loss_module is manual
     result = trainer.train()
     assert result.epochs == 1
+
+
+def test_collect_class_counts_fewer_labels_than_num_classes():
+    """_collect_class_counts must not crash when a batch has fewer distinct
+    labels than num_classes (the bincount-result was smaller than counts)."""
+    from training.training.cropfusion_trainer import _collect_class_counts
+
+    # Simulate a loader with 2 batches: first has labels [0,1], second has [0,1,2]
+    # but num_classes=5 (counts tensor is size 5).
+    class _FakeLoader:
+        def __init__(self):
+            self._batches = [
+                {"crop_label": torch.tensor([0, 0, 1, 1])},
+                {"crop_label": torch.tensor([0, 1, 2])},
+            ]
+            self._idx = 0
+
+        def __iter__(self):
+            self._idx = 0
+            return self
+
+        def __next__(self):
+            if self._idx >= len(self._batches):
+                raise StopIteration
+            batch = self._batches[self._idx]
+            self._idx += 1
+            return batch
+
+    counts = _collect_class_counts(_FakeLoader(), num_classes=5)
+    assert counts.shape == (5,)
+    assert counts[0].item() == 3  # label 0 appears 3 times
+    assert counts[1].item() == 3  # label 1 appears 3 times
+    assert counts[2].item() == 1  # label 2 appears 1 time
+    assert counts[3].item() == 0
+    assert counts[4].item() == 0

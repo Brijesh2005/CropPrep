@@ -763,8 +763,16 @@ class SpatialTemporalMatcher:
 
         if season is not None:
             contains = self.calendar.contains
-            ndvi = [r for r in ndvi if r.observation_date and contains(season, r.observation_date)]
-            evi = [r for r in evi if r.observation_date and contains(season, r.observation_date)]
+            ndvi = [
+                r for r in ndvi
+                if (r.observation_date and contains(season, r.observation_date))
+                or (r.observation_date is None and r.year == year)
+            ]
+            evi = [
+                r for r in evi
+                if (r.observation_date and contains(season, r.observation_date))
+                or (r.observation_date is None and r.year == year)
+            ]
         else:
             ndvi = [r for r in ndvi if r.year == year]
             evi = [r for r in evi if r.year == year]
