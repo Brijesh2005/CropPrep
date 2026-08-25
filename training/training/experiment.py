@@ -399,6 +399,7 @@ class Experiment:
         run_dir: str | Path,
     ) -> TrainingResult:
         from .checkpoint import TrainingCheckpointManager
+        from .cropfusion_trainer import CropFusionTrainer
 
         history = HistoryRecorder()
         # Scope checkpoints under the run/fold directory so every experiment's
@@ -407,7 +408,7 @@ class Experiment:
             Path(run_dir) / "checkpoints",
             keep_last=self.config.checkpoint.keep_last,
         )
-        trainer = Trainer(
+        trainer = CropFusionTrainer(
             model,
             train_loader,
             self.config,

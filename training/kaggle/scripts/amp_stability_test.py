@@ -193,7 +193,7 @@ def _run_precision_experiment(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="cropfusion-amp-stability-test")
-    parser.add_argument("--corpus", required=True)
+    parser.add_argument("--corpus", default=None, help="Path to corpus JSON (optional; skip if not provided)")
     parser.add_argument("--output", default=None)
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--config", default=str(_REPO_ROOT / "training" / "config" / "preprocessing.yaml"))
@@ -208,6 +208,10 @@ def main(argv: list[str] | None = None) -> int:
     print(f"CUDA available: {hardware['cuda_available']}")
 
     device = torch.device("cuda" if hardware["cuda_available"] else "cpu")
+
+    if not args.corpus:
+        print("\n=== SKIPPED: --corpus not provided (run run_pipeline.py first) ===")
+        return 0
 
     # Load corpus
     raw = json.loads(Path(args.corpus).read_text(encoding="utf-8"))

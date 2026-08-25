@@ -50,7 +50,7 @@ def main(argv: list[str] | None = None) -> int:
         prog="cropfusion-gpu-smoke-test",
         description="R5.2.1 Task G: GPU smoke test on real data",
     )
-    parser.add_argument("--corpus", required=True)
+    parser.add_argument("--corpus", default=None, help="Path to corpus JSON (optional; skip if not provided)")
     parser.add_argument("--output", default=None)
     parser.add_argument("--epochs", type=int, default=2)
     parser.add_argument("--batch-size", type=int, default=4)
@@ -65,6 +65,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  GPU: {torch.cuda.get_device_name(0)}")
         print(f"  Compute capability: {torch.cuda.get_device_capability(0)}")
         print(f"  Memory: {torch.cuda.get_device_properties(0).total_mem / (1024**3):.1f} GB")
+
+    if not args.corpus:
+        print("\n=== SKIPPED: --corpus not provided (run run_pipeline.py first) ===")
+        return 0
 
     # Load observations
     raw = json.loads(Path(args.corpus).read_text(encoding="utf-8"))

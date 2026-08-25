@@ -36,6 +36,7 @@ from .utils import (
     apply_gradient_checkpointing,
     broadcast_dict,
     configure_determinism,
+    get_world_size,
     is_distributed,
     is_primary,
     named_enabled_parameters,
