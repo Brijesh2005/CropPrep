@@ -63,7 +63,7 @@ def _check_hardware() -> dict[str, Any]:
         info["compute_capability"] = f"{cap[0]}.{cap[1]}"
         info["bf16_supported"] = cap[0] >= 8  # Ampere+
         info["fp16_supported"] = cap[0] >= 6  # Pascal+
-        info["total_memory_mb"] = round(torch.cuda.get_device_properties(0).total_mem / (1024**2))
+        info["total_memory_mb"] = round(torch.cuda.get_device_properties(0).total_memory / (1024**2))
     else:
         info["bf16_supported"] = False
         info["fp16_supported"] = False
