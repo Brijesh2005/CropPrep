@@ -393,9 +393,10 @@ class MultiTaskLoss(nn.Module):
         per_task: dict[str, torch.Tensor] = {}
         for name, criterion in self.tasks.items():
             if name not in inputs or name not in targets:
-                raise LossBuildError(
-                    f"task {name!r} requires both an input and a target"
-                )
+                # Task head disabled in model (e.g. yield_prediction=None
+                # for classification-only corpus) — skip silently so
+                # the multi-task loss still composes the active tasks.
+                continue
             task_input = inputs[name]
             task_target = targets[name]
             if not task_target.is_floating_point():
@@ -618,7 +619,7 @@ class GradNormController:
     def load_state_dict(self, state: Mapping[str, Any]) -> None:
         self._initial_losses = dict(state.get("initial_losses", {}))
         if state.get("weight_optimizer") is not None:
-            self._weight_optimizer().load_state_dict(state["weight_optimizer"])
+            self._get_weight_optimizer().load_state_dict(state["weight_optimizer"])
 
 
 # --------------------------------------------------------------------------- #

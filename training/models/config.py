@@ -446,6 +446,14 @@ class ModelConfig(BaseModel):
             getattr(preprocessor.config.temporal, "max_observations", 8)
         )
 
+        # If the preprocessor never fitted a yield scaler (all yield values
+        # were None, e.g. the frozen classification corpus), disable the
+        # yield head to avoid training on meaningless all-zero targets.
+        has_yield = getattr(label_pipeline, "yield_scaler", None) is not None
+        heads_override: dict[str, Any] = {"crop": {"num_classes": num_classes}}
+        if not has_yield:
+            heads_override["yield_prediction"] = None
+
         return {
             "tabular": {
                 "numeric_dim": numeric_dim,
@@ -453,7 +461,7 @@ class ModelConfig(BaseModel):
             },
             "image_encoder": {"input_size": image_size},
             "temporal": {"max_len": max(16, max_observations)},
-            "heads": {"crop": {"num_classes": num_classes}},
+            "heads": heads_override,
         }
 
     @classmethod

@@ -336,21 +336,23 @@ class Preprocessor:
         size: int,
         observation: Any,
     ) -> Any | None:
-        """Extract a patch; return None when the point is outside the raster.
+        """Extract a patch; return None on any extraction failure.
 
         Defensive net behind the sequence-level spatial filter: if the point
-        still misses a raster (projection/metadata drift), the band is treated
-        as missing instead of aborting the whole sample.
+        still misses a raster (projection/metadata drift) or the imagery file
+        is missing/corrupt, the band is treated as missing instead of
+        aborting the whole sample (which would crash the DataLoader worker).
         """
         try:
             return extractor(path, lon, lat, size=size)
-        except PatchOutOfBoundsError:
+        except Exception as exc:  # noqa: BLE001
             logger.warning(
-                "Patch out of bounds; band treated as missing",
+                "Patch extraction failed; band treated as missing",
                 extra={
                     "path": path,
                     "lon": lon, "lat": lat,
                     "observation_id": str(observation.observation_id),
+                    "error": str(exc),
                 },
             )
             return None
