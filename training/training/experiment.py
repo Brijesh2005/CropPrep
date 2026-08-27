@@ -155,8 +155,15 @@ class Experiment:
         logger = ExperimentLogger(self.run_dir, name=self.run_name)
 
         train, val, test = self._holdout_split()
-        if not train or not test:
-            raise ValidationError("hold-out split produced empty train/test sets")
+        if not train or not val or not test:
+            raise ValidationError(
+                "hold-out split produced empty train/val/test sets",
+                detail={
+                    "train": len(train),
+                    "val": len(val),
+                    "test": len(test),
+                },
+            )
 
         preprocessor = self._ensure_fitted(train)
         model_config = self._resolve_model_config(preprocessor)

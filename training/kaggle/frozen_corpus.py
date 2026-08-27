@@ -504,6 +504,9 @@ class FrozenCorpusLoader:
         self.manifest_path = Path(manifest_path)
         self._manifest: dict[str, Any] | None = None
         self._rows: list[dict[str, Any]] | None = None
+        #: Populated by :meth:`build` — ``{rows, excluded, train, val, test,
+        #: accepted}`` from the last corpus build.
+        self.last_build_stats: dict[str, int] | None = None
 
     def validate(self) -> dict[str, Any]:
         """Validate manifest + CSV schema without building observations.
@@ -670,7 +673,75 @@ class FrozenCorpusLoader:
             test=len(test),
         )
 
+        self.last_build_stats = {
+            "rows": len(rows),
+            "excluded": errors,
+            "train": len(train),
+            "val": len(val),
+            "test": len(test),
+            "accepted": len(train) + len(val) + len(test),
+        }
+
         return train, val, test
+
+    def imagery_summary(
+        self,
+        train: Sequence[AgriculturalObservation],
+        val: Sequence[AgriculturalObservation],
+        test: Sequence[AgriculturalObservation],
+        *,
+        max_observations: int | None = None,
+    ) -> dict[str, Any]:
+        """Aggregate observation-level imagery coverage across the split.
+
+        Produces the observation / coverage / temporal part of the imagery
+        summary block:
+
+        * per-split and overall accepted counts (``train/val/test``),
+        * fully-paired vs partial NDVI/EVI sequences,
+        * observation-count (sequence length) distribution against the
+          configured ``max_observations`` cap,
+        * ``autopatch``-style patch size when present on the observations.
+
+        Frame-level real-vs-zero-filled and tensor shapes are measured in the
+        Phase 4 first-batch diagnostic (:func:`ai.training.diagnostics.profile_batch`),
+        since patch tensors materialize only at extraction time.
+        """
+        stats = {
+            "train": len(train),
+            "val": len(val),
+            "test": len(test),
+            "accepted": len(train) + len(val) + len(test),
+        }
+        total = train + val + test
+        if not total:
+            return stats
+
+        stats["fully_paired"] = sum(1 for obs in total if obs.has_paired_images)
+        stats["partial_pairs"] = sum(
+            1 for obs in total if not obs.has_paired_images and len(obs.sequence.pairs) > 0
+        )
+
+        lengths = [len(obs.sequence.pairs) for obs in total]
+        stats["observations_min"] = min(lengths)
+        stats["observations_mean"] = round(sum(lengths) / len(lengths), 2)
+        stats["observations_max"] = max(lengths)
+        if max_observations:
+            stats["at_max_cap"] = sum(1 for length in lengths if length >= max_observations)
+
+        patch_sizes = {obs.patch_size for obs in total if obs.patch_size}
+        stats["patch_sizes"] = sorted(patch_sizes)
+
+        build = getattr(self, "last_build_stats", None)
+        if build is not None:
+            stats.setdefault("rows", build["rows"])
+            stats.setdefault("excluded", build["excluded"])
+            stats.setdefault("accepted", build["accepted"])
+        else:
+            stats.setdefault("rows", None)
+            stats.setdefault("excluded", None)
+
+        return stats
 
     def data_contract_printout(
         self,

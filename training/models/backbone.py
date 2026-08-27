@@ -119,7 +119,41 @@ class TimmImageEncoder(ImageEncoder):
             for param in self.backbone.parameters():
                 param.requires_grad_(False)
 
+        #: Per-timestep activation checkpointing (active only while training).
+        #: Keeps the peak activation memory bounded to ``B`` frames instead of
+        #: ``B * T`` so long sequences do not blow up GPU memory.
+        self._checkpoint_timesteps = False
+
     # -- nn.Module ---------------------------------------------------------- #
+
+    def set_gradient_checkpointing(self, enabled: bool) -> None:
+        """Toggle per-timestep activation checkpointing (train mode only)."""
+        self._checkpoint_timesteps = bool(enabled)
+
+    def _expand_and_resize(self, flat: torch.Tensor) -> torch.Tensor:
+        """Channel-expand (C=1 -> 3) + resize for a flat ``[N, C, H, W]`` batch."""
+        channels = flat.size(1)
+        if channels == 1:
+            if self.channel_expansion == "repeat":
+                flat = flat.expand(-1, 3, -1, -1)
+            else:
+                flat = self.expand_conv(flat)
+        elif channels != 3:
+            raise ShapeMismatchError(
+                f"TimmImageEncoder expects C=1 (or C=3), got C={channels}"
+            )
+        if (flat.size(2), flat.size(3)) != self.input_size:
+            flat = F.interpolate(
+                flat,
+                size=self.input_size,
+                mode="bilinear",
+                align_corners=False,
+            )
+        return flat
+
+    def _encode_frames(self, flat: torch.Tensor) -> torch.Tensor:
+        """Full encode of a flat batch: expand -> resize -> backbone features."""
+        return self.backbone(self._expand_and_resize(flat))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore[override]
         """Encode a single-channel image sequence.
@@ -137,25 +171,31 @@ class TimmImageEncoder(ImageEncoder):
                 f"TimmImageEncoder expects [B, T, C, H, W], got {tuple(x.shape)}"
             )
         batch, timesteps, channels, height, width = x.shape
-        flat = x.reshape(batch * timesteps, channels, height, width)
-
-        if channels == 1:
-            if self.channel_expansion == "repeat":
-                flat = flat.expand(-1, 3, -1, -1)
-            else:
-                flat = self.expand_conv(flat)
-        elif channels != 3:
+        if timesteps == 0:
             raise ShapeMismatchError(
-                f"TimmImageEncoder expects C=1 (or C=3), got C={channels}"
+                f"TimmImageEncoder received an empty sequence (T=0)"
             )
 
-        if (height, width) != self.input_size:
-            flat = F.interpolate(
-                flat,
-                size=self.input_size,
-                mode="bilinear",
-                align_corners=False,
+        # Fast path (eval / export / checkpointing disabled): encode the whole
+        # batch in one shot — identical behaviour to previous versions.
+        if timesteps == 1 or not (self.training and self._checkpoint_timesteps):
+            flat = self._expand_and_resize(
+                x.reshape(batch * timesteps, channels, height, width)
             )
+            features = self.backbone(flat)  # [B*T, feature_dim]
+            return features.reshape(batch, timesteps, self.feature_dim)
 
-        features = self.backbone(flat)  # [B*T, feature_dim]
-        return features.reshape(batch, timesteps, self.feature_dim)
+        # Memory-safe path: checkpoint each timestep's backbone forward so only
+        # ``B`` frames hold live activations at any moment (recomputed on the
+        # backward pass). The temporal mask already relies on per-timestep
+        # independence, so this decomposition is exact.
+        frame_features: list[torch.Tensor] = []
+        for t in range(timesteps):
+            flat_t = self._expand_and_resize(x[:, t])  # [B, 3, H, W]
+            features_t = torch.utils.checkpoint.checkpoint(
+                self._encode_frames,
+                flat_t,
+                use_reentrant=False,
+            )  # [B, feature_dim]
+            frame_features.append(features_t)
+        return torch.stack(frame_features, dim=1)

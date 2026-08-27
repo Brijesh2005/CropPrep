@@ -415,6 +415,55 @@ class TestFrozenCorpusLoader:
         for obs in train + val + test:
             assert obs.provenance.get("corpus") == "crop_supervised_v1"
 
+    def test_build_records_build_stats(
+        self, csv_path: Path, manifest_path: Path, mock_stam: MagicMock
+    ) -> None:
+        loader = FrozenCorpusLoader(csv_path, manifest_path)
+        loader.build(mock_stam)
+        assert loader.last_build_stats == {
+            "rows": 10,
+            "excluded": 0,
+            "train": 6,
+            "val": 2,
+            "test": 2,
+            "accepted": 10,
+        }
+
+    def test_build_splits_all_non_empty(
+        self, csv_path: Path, manifest_path: Path, mock_stam: MagicMock
+    ) -> None:
+        """Regression: R5.2 requires every split to be non-empty. An empty
+        val split (the 8601/0/1518 contradiction) must never reach Phase 4 —
+        the hold-out guard in Experiment now fails loudly."""
+        loader = FrozenCorpusLoader(csv_path, manifest_path)
+        train, val, test = loader.build(mock_stam)
+        assert train and val and test
+        assert loader.last_build_stats["accepted"] == (
+            loader.last_build_stats["train"]
+            + loader.last_build_stats["val"]
+            + loader.last_build_stats["test"]
+        )
+
+    def test_imagery_summary_structure(
+        self, csv_path: Path, manifest_path: Path, mock_stam: MagicMock
+    ) -> None:
+        loader = FrozenCorpusLoader(csv_path, manifest_path)
+        train, val, test = loader.build(mock_stam)
+        summary = loader.imagery_summary(train, val, test, max_observations=8)
+        assert summary["train"] == 6
+        assert summary["val"] == 2
+        assert summary["test"] == 2
+        assert summary["accepted"] == 10
+        # mock sequences carry one pair each but no NDVI/EVI refs -> partial.
+        assert summary["partial_pairs"] == 10
+        assert summary["fully_paired"] == 0
+        assert summary["observations_min"] == 1
+        assert summary["observations_max"] == 1
+        assert summary["at_max_cap"] == 0
+        assert summary["rows"] == 10
+        assert summary["excluded"] == 0
+        assert summary["patch_sizes"] == []
+
     def test_build_excludes_empty_sequences(
         self, csv_path: Path, manifest_path: Path, mock_stam: MagicMock
     ) -> None:

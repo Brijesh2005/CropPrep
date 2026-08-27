@@ -23,6 +23,7 @@ import torch
 from torch import nn
 
 from .config import MetricsConfig, ValidationConfig
+from .diagnostics import assert_image_batch_shape, nan_source_hooks
 from .exceptions import ValidationError
 from .interfaces import FoldGenerator
 from .metrics import MetricsTracker
@@ -43,6 +44,8 @@ class ValidationResult:
     per_task_losses: dict[str, float] = field(default_factory=dict)
     duration_seconds: float = 0.0
     samples: int = 0
+    #: First-batch multimodal fingerprint + NaN source attribution (R5.2).
+    first_batch: dict[str, Any] = field(default_factory=dict)
 
     @property
     def val_loss(self) -> float:
@@ -83,6 +86,10 @@ class Validator:
         self.amp_dtype = amp_dtype
         self.input_map = input_map or self._default_input_map
         self.nan_policy = nan_policy
+        # R5.2: first-batch multimodal diagnostic (once per validation pass).
+        self._first_batch_traced = False
+        self._first_batch_profile: dict[str, Any] | None = None
+        self._nan_sources_first_batch: list[dict[str, Any]] = []
 
     # -- batch mapping ------------------------------------------------------ #
 
@@ -134,8 +141,20 @@ class Validator:
             batch_size = self._batch_size(batch)
             batch = self._to_device(batch)
             inputs, targets = self.input_map(batch)
-            with autocast:
-                out = model(inputs)
+
+            # First batch of the (first) validation pass: fingerprint the
+            # tensor contract and attribute any NaN/Inf to the module that
+            # produced it. Shape violations fail loudly as ValidationError.
+            if not self._first_batch_traced:
+                self._first_batch_profile = self._profile_first_batch(inputs)
+                with nan_source_hooks(model) as sources:
+                    with autocast:
+                        out = model(inputs)
+                self._nan_sources_first_batch = list(sources)
+                self._first_batch_traced = True
+            else:
+                with autocast:
+                    out = model(inputs)
             out_dict = self._outputs_to_dict(out)
 
             if self.loss_module is not None:
@@ -177,8 +196,16 @@ class Validator:
         if loss_bad and getattr(self, "nan_policy", "stop") == "stop":
             raise ValidationError(
                 "NaN/Inf in validation loss",
-                detail={"epoch": epoch, "metrics": loss_bad},
+                detail={
+                    "epoch": epoch,
+                    "metrics": loss_bad,
+                    "first_batch": self._first_batch_profile,
+                    "nan_sources": self._nan_sources_first_batch,
+                },
             )
+
+        metrics["first_batch"] = self._first_batch_profile
+        metrics["nan_sources"] = self._nan_sources_first_batch
 
         return ValidationResult(
             metrics=metrics,
@@ -186,6 +213,10 @@ class Validator:
             per_task_losses=metrics.get("val_per_task_loss", {}),
             duration_seconds=duration,
             samples=samples,
+            first_batch={
+                "profile": self._first_batch_profile,
+                "nan_sources": self._nan_sources_first_batch,
+            },
         )
 
     # -- helpers ------------------------------------------------------------ #
@@ -222,6 +253,26 @@ class Validator:
             elif isinstance(value, torch.Tensor) and value.dim() > 0 and value.numel() > 0:
                 result[key] = value
         return result
+
+    def _expected_image_hw(self) -> int | None:
+        for attr in ("ndvi_encoder", "evi_encoder"):
+            encoder = getattr(self.model, attr, None)
+            if encoder is not None and getattr(encoder, "input_size", None):
+                return int(encoder.input_size[0])
+        return None
+
+    def _profile_first_batch(self, inputs: Mapping[str, Any]) -> dict[str, Any]:
+        try:
+            return assert_image_batch_shape(
+                inputs,
+                self._expected_image_hw(),
+                error_type=ValidationError,
+                detail="first validation batch image contract",
+            )
+        except ValidationError:
+            if getattr(self, "_logger", None) is not None:
+                self._logger.error("invalid first validation batch", profile=inputs)
+            raise
 
 
 # --------------------------------------------------------------------------- #

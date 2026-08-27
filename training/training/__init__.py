@@ -77,6 +77,12 @@ from .curriculum import (
     build_curriculum,
     stage_for,
 )
+from .diagnostics import (
+    assert_image_batch_shape,
+    nan_source_hooks,
+    profile_batch,
+    tensor_stats,
+)
 from .evaluator import EvaluationResult, Evaluator
 from .exceptions import (
     AblationError,
@@ -279,6 +285,11 @@ __all__ = [
     "get_environment_info",
     "apply_gradient_checkpointing",
     "compute_grad_norm",
+    # Diagnostics
+    "profile_batch",
+    "assert_image_batch_shape",
+    "nan_source_hooks",
+    "tensor_stats",
     # Exceptions
     "TrainingError",
     "TrainingConfigurationError",

@@ -293,6 +293,24 @@ def main(argv: list[str] | None = None) -> int:
             frozen_loader.validate()
             train_obs, val_obs, test_obs = frozen_loader.build(stam)
             accepted = train_obs + val_obs + test_obs
+
+            # R5.2 guard: every split must be non-empty before Phase 4 runs.
+            if not (train_obs and val_obs and test_obs):
+                report["training"] = {
+                    "status": "skipped",
+                    "reason": "frozen corpus produced an empty split",
+                    "train": len(train_obs),
+                    "val": len(val_obs),
+                    "test": len(test_obs),
+                    "build_stats": getattr(frozen_loader, "last_build_stats", None),
+                }
+                print("\n[FATAL] Frozen corpus produced an empty split:")
+                print(
+                    f"  train={len(train_obs)} val={len(val_obs)} test={len(test_obs)}"
+                )
+                print("Training aborted.\n")
+                return 1
+
             corpus_path = workspace.output_path("reports", "frozen_corpus.json")
 
             # Persist the frozen corpus in ObservationCorpus JSON format so
@@ -350,6 +368,13 @@ def main(argv: list[str] | None = None) -> int:
                 "split_groups": contract.get("split_groups"),
                 "path": str(corpus_path),
             }
+            report["corpus"]["build_stats"] = getattr(
+                frozen_loader, "last_build_stats", None
+            )
+            report["corpus"]["imagery"] = frozen_loader.imagery_summary(
+                train_obs, val_obs, test_obs,
+                max_observations=preprocessing_cfg.config.temporal.max_observations,
+            )
             logger.log_experiment(
                 "frozen_corpus_loaded",
                 total=len(accepted),

@@ -24,6 +24,7 @@ from torch import nn
 from .callbacks import HistoryRecorder
 from .checkpoint import TrainingCheckpointManager
 from .config import TrainingConfig
+from .diagnostics import nan_source_hooks
 from .exceptions import TrainingRunError
 from .interfaces import Callback, SchedulerHandle
 from .logger import ExperimentLogger
@@ -60,6 +61,11 @@ class TrainingResult:
     best_epoch: int | None = None
     nan_steps: int = 0
     nan_diagnostics: list[dict[str, Any]] = field(default_factory=list)
+    #: First-batch multimodal fingerprint (B / T / C / H / W + zero-fill
+    #: counts) proving the exact tensor contract that reached the model.
+    first_batch: dict[str, Any] | None = None
+    #: First forward-pass NaN/Inf source attribution (module outputs).
+    nan_sources: list[dict[str, Any]] = field(default_factory=list)
 
     def summary(self) -> dict[str, Any]:
         return {
@@ -72,6 +78,8 @@ class TrainingResult:
             "best_epoch": self.best_epoch,
             "nan_steps": self.nan_steps,
             "nan_diagnostics": self.nan_diagnostics,
+            "first_batch": self.first_batch,
+            "nan_sources": self.nan_sources,
         }
 
 
@@ -256,6 +264,10 @@ class Trainer:
         # source tensors so instability is never silently hidden by ``skip``.
         self.nan_steps = 0
         self.nan_diagnostics: list[dict[str, Any]] = []
+        # First-batch multimodal diagnostic (R5.2): run once per training loop.
+        self._first_batch_traced = False
+        self._first_batch_profile: dict[str, Any] | None = None
+        self._nan_sources_first_batch: list[dict[str, Any]] = []
 
     # ------------------------------------------------------------------ #
     # Setup
@@ -453,9 +465,28 @@ class Trainer:
             batch = to_device(batch, self.device)
             inputs, targets = self.input_map(batch)
 
+            # First batch: fingerprint the exact tensor contract and attribute
+            # any NaN/Inf to the module that produced it. Diagnostics only —
+            # the fail-loudly NaN policy below is unchanged.
+            if not self._first_batch_traced:
+                self._first_batch_profile = self._profile_first_train_batch(inputs)
+                with nan_source_hooks(self.raw_model) as sources:
+                    with autocast:
+                        out = model(inputs)
+                self._nan_sources_first_batch = list(sources)
+                self._first_batch_traced = True
+                if self.logger is not None:
+                    self.logger.info(
+                        "first-batch diagnostic",
+                        profile=self._first_batch_profile,
+                        nan_sources=self._nan_sources_first_batch,
+                    )
+            else:
+                with autocast:
+                    out = model(inputs)
+
+            out_dict = _outputs_to_dict(out)
             with autocast:
-                out = model(inputs)
-                out_dict = _outputs_to_dict(out)
                 if self.gradnorm is not None:
                     per_task = self.loss_module.per_task_losses(out_dict, targets)
                     self.gradnorm.apply(per_task)
@@ -577,6 +608,34 @@ class Trainer:
                 return int(value.size(0))
         return 1
 
+    def _expected_image_hw(self) -> int | None:
+        for attr in ("ndvi_encoder", "evi_encoder"):
+            encoder = getattr(self.raw_model, attr, None)
+            if encoder is not None and getattr(encoder, "input_size", None):
+                return int(encoder.input_size[0])
+        return None
+
+    def _profile_first_train_batch(self, inputs: Mapping[str, Any]) -> dict[str, Any]:
+        """Assert the first training batch matches ``[B, T, C, H, W]`` etc.
+
+        Fail-loudly (raised as :class:`TrainingRunError`) on any violation —
+        the mandated pre-training shape guarantee, never suppressed.
+        """
+        from .diagnostics import assert_image_batch_shape
+
+        try:
+            profile = assert_image_batch_shape(
+                inputs,
+                self._expected_image_hw(),
+                error_type=TrainingRunError,
+                detail="first training batch image contract",
+            )
+        except TrainingRunError:
+            if self.logger is not None:
+                self.logger.error("invalid first training batch", profile=inputs)
+            raise
+        return profile
+
     def _nan_in_state(self, loss: torch.Tensor) -> bool:
         if _has_nan_or_inf(loss):
             return True
@@ -673,6 +732,8 @@ class Trainer:
             best_epoch=best_epoch,
             nan_steps=self.nan_steps,
             nan_diagnostics=list(self.nan_diagnostics),
+            first_batch=dict(self._first_batch_profile or {}),
+            nan_sources=list(self._nan_sources_first_batch),
         )
 
     # ------------------------------------------------------------------ #

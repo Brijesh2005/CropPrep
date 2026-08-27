@@ -234,6 +234,63 @@ def test_nan_policy_stop_raises_with_diagnostics(tabular_model):
     assert trainer.nan_steps >= 1
 
 
+def test_first_batch_shape_contract_enforced(full_config):
+    """R5.2: the first training batch must match [B, T, 1, H, W]@input_size;
+    violations fail loudly as TrainingRunError before any forward runs."""
+    from training.models import ModelFactory
+    from training.training import Trainer
+    from training.training.exceptions import TrainingRunError
+
+    model = ModelFactory.create(full_config)
+
+    class BadLoader:
+        def __len__(self) -> int:
+            return 1
+
+        def __iter__(self):
+            batch = {
+                "tabular": torch.randn(2, 3),
+                "ndvi": torch.rand(2, 2, 1, 32, 32),
+                "evi": torch.rand(2, 2, 1, 64, 64),  # spatial mismatch vs ndvi
+                "temporal_mask": torch.ones(2, 2, dtype=torch.bool),
+                "crop_label": torch.tensor([0, 1]),
+                "yield_label": torch.rand(2, 1),
+            }
+            return iter([batch])
+
+    config = TrainingConfig(
+        name="shape-guard",
+        general={"device": "cpu", "seed": 42},
+        train={"epochs": 1, "early_stopping_patience": 3},
+        logging={"console": False},
+        checkpoint={"save_best": False, "save_latest": False},
+    )
+    trainer = Trainer(model, BadLoader(), config)
+    with pytest.raises(TrainingRunError, match="differ|image stream must be"):
+        trainer.train()
+
+
+def test_first_batch_profile_recorded_in_result(tabular_model):
+    """The mandated first-batch multimodal profile lands on TrainingResult."""
+    from training.training import Trainer
+
+    model = copy.deepcopy(tabular_model)
+    config = TrainingConfig(
+        name="first-batch",
+        general={"device": "cpu", "seed": 42},
+        train={"epochs": 1, "early_stopping_patience": 3},
+        logging={"console": False},
+        checkpoint={"save_best": False, "save_latest": False},
+    )
+    trainer = Trainer(model, make_fake_loader(n=8, batch_size=4), config)
+    result = trainer.train()
+    assert result.first_batch is not None
+    assert result.first_batch["image_assert_passed"] is True
+    assert result.first_batch["batch_size"] == 4
+    assert result.first_batch["tabular"]["finite"] is True
+    assert result.nan_sources == []
+
+
 def test_resume_continues_from_checkpoint(tabular_model, train_config):
     from training.training import Trainer
 

@@ -78,3 +78,52 @@ def test_gradient_flows():
     out = enc(torch.randn(2, 2, 1, 32, 32))
     out.sum().backward()
     assert any(p.grad is not None for p in enc.backbone.parameters())
+
+
+# --------------------------------------------------------------------------- #
+# Per-timestep gradient checkpointing (OOM fix for B*T multi-frame batches)
+# --------------------------------------------------------------------------- #
+
+
+def test_checkpointing_forward_shape_parity():
+    """Checkpointed vs non-checkpointed forwards produce the same [B, T, D].
+
+    Non-reentrant per-timestep checkpointing must be a pure memory optimisation:
+    the output tensor contract and the computed values are unchanged. The
+    backbone is put in eval() so batch-norm running parts are deterministic and
+    dropout is off, while the encoder stays in train() so the checkpoint path
+    (self.training) is exercised.
+    """
+    enc = _encoder()
+    enc.train()
+    enc.backbone.eval()
+    x = torch.randn(2, 4, 1, 32, 32)
+
+    out_plain = enc(x)
+    enc.set_gradient_checkpointing(True)
+    out_ckpt = enc(x)
+
+    assert out_plain.shape == (2, 4, enc.feature_dim)
+    assert out_ckpt.shape == (2, 4, enc.feature_dim)
+    assert torch.allclose(out_plain, out_ckpt, atol=1e-4, rtol=1e-4)
+
+
+def test_checkpointing_gradients_flow_finite():
+    """Per-timestep checkpointing still back-propagates finite gradients."""
+    enc = _encoder()
+    enc.train()
+    enc.backbone.eval()
+    enc.set_gradient_checkpointing(True)
+
+    out = enc(torch.randn(2, 4, 1, 32, 32))
+    out.sum().backward()
+
+    grads = [p.grad for p in enc.backbone.parameters() if p.grad is not None]
+    assert grads, "no backbone gradients flowed"
+    assert all(torch.isfinite(g).all().item() for g in grads)
+    assert any(g.abs().sum().item() > 0 for g in grads)
+
+
+def test_checkpointing_disabled_flag_absent_by_default():
+    enc = _encoder()
+    assert enc._checkpoint_timesteps is False

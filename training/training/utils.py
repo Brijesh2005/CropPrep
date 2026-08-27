@@ -351,37 +351,26 @@ class MovingAverage:
 
 
 def apply_gradient_checkpointing(model: nn.Module, enabled: bool) -> None:
-    """Wrap the memory-heavy encoder forwards with ``torch.utils.checkpoint``.
+    """Toggle activation checkpointing across every supported submodule.
 
-    The CropFusion image encoders (NDVI / EVI timm backbones) hold the bulk of
-    the activation memory; recomputing their forward during the backward pass
-    trades a small amount of compute for a large reduction in peak memory.
+    Modules expose a ``set_gradient_checkpointing`` setter:
 
-    Wrapping is applied only when ``enabled`` and is idempotent (a second call
-    leaves already-wrapped modules untouched).
+    * :class:`~ai.models.backbone.TimmImageEncoder` (NDVI / EVI) checkpoints
+      **per timestep**, so the peak activation memory is bounded by one
+      ``batch_size``-sized frame forward instead of ``B * T`` frames — the
+      memory-dominant path in long image sequences.
+    * The TabTransformer, TemporalTransformer and shared encoder checkpoint
+      their transformer blocks the same way.
+
+    Checkpointing only activates in training mode; eval / export are
+    unaffected. Recursion over ``model.modules()`` also covers the encoder
+    subclasses (:class:`~ai.models.ndvi_encoder.NdviEncoder` /
+    :class:`~ai.models.evi_encoder.EviEncoder`).
     """
-    if not enabled:
-        return
-
-    def _wrap(module: nn.Module) -> None:
-        if getattr(module, "_cropfusion_checkpointed", False):
-            return
-        original_forward = module.forward
-
-        def checkpointed_forward(*args: Any, **kwargs: Any) -> Any:
-            # ``original_forward`` is the bound method; the first positional
-            # arg is the real input tensor.
-            return torch.utils.checkpoint.checkpoint(
-                original_forward, *args, **kwargs, use_reentrant=False
-            )
-
-        module.forward = checkpointed_forward  # type: ignore[method-assign]
-        module._cropfusion_checkpointed = True  # type: ignore[attr-defined]
-
-    for name in ("ndvi_encoder", "evi_encoder", "tab_encoder"):
-        sub = getattr(model, name, None)
-        if sub is not None and hasattr(sub, "forward"):
-            _wrap(sub)
+    for module in model.modules():
+        setter = getattr(module, "set_gradient_checkpointing", None)
+        if callable(setter):
+            setter(bool(enabled))
 
 
 # --------------------------------------------------------------------------- #

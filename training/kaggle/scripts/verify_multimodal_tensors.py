@@ -14,16 +14,38 @@ Traces tensors at every boundary in the CropFusion forward pass:
 
 Reports: shape, dtype, min/max, mean, NaN/Inf counts, gradient norm per component.
 
-Run from Kaggle training kernel (needs imagery)::
+The script fixes the R5.2 review findings on the earlier verify script:
+
+* **Real split** — the batch is drawn from the **frozen taluk train split**
+  recorded in each observation's provenance (``provenance.split``), never a
+  re-split of the whole accepted corpus.
+* **Real patches** — imagery tensors come from the real patch extractor
+  (``STAM.get_patch`` through the Phase 4 preprocessor), not ``randn`` stubs.
+  When imagery is unavailable the script **aborts loudly** (exit 2) instead of
+  silently substituting fake tensors.
+* **Fitted class counts** — loss class weights are built from the fitted label
+  encoder counts over the train split, not the hard-coded ``[64, 7, 1, 1, 1]``.
+* **Temporal length** — the sequence length is ``temporal.max_observations``
+  (8 per config), not the model's ``max_len`` (16).
+* **Checkpointing** — gradient checkpointing is enabled via the unified
+  ``apply_gradient_checkpointing`` path so the OOM-avoiding per-timestep
+  checkpointing is what the trace exercises.
+
+Run from Kaggle training kernel (imagery attached)::
 
     python training/kaggle/scripts/verify_multimodal_tensors.py \
         --corpus training/kaggle/outputs/reports/corpus.json \
         --output training/artifacts/multimodal_trace
+
+Run on a research box with no imagery to confirm the loud downgrade::
+
+    python training/kaggle/scripts/verify_multimodal_tensors.py --corpus <path>
 """
 
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -35,12 +57,16 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(_REPO_ROOT))
 
 from training.models.config import ModelConfig  # noqa: E402
-from training.models.factory import ModelFactory  # noqa: E402
 from training.models.cropfusion import CropFusionModel  # noqa: E402
-from training.preprocessing import Preprocessor, load_preprocessing_config, split_observations  # noqa: E402
+from training.models.factory import ModelFactory  # noqa: E402
+from training.preprocessing import Preprocessor, load_preprocessing_config  # noqa: E402
+from training.preprocessing.dataset import CropFusionDataset  # noqa: E402
+from training.preprocessing.dataloader import build_dataloader  # noqa: E402
 from training.stam.observation import AgriculturalObservation  # noqa: E402
 from training.training.config import load_training_config  # noqa: E402
+from training.training.diagnostics import assert_image_batch_shape, profile_batch  # noqa: E402
 from training.training.losses import MultiTaskLoss, build_class_weights  # noqa: E402
+from training.training.utils import apply_gradient_checkpointing  # noqa: E402
 
 
 def _stats(t: torch.Tensor, name: str) -> dict[str, Any]:
@@ -61,7 +87,7 @@ def _stats(t: torch.Tensor, name: str) -> dict[str, Any]:
     }
 
 
-def _trace_forward(model: CropFusionModel, inputs: dict[str, Any]) -> dict[str, Any]:
+def _trace_forward(model: CropFusionModel, inputs: dict[str, Any]) -> tuple[dict[str, Any], Any]:
     """Trace through each component of CropFusionModel."""
     trace: dict[str, Any] = {}
     hooks: dict[str, torch.Tensor] = {}
@@ -189,6 +215,121 @@ def _trace_backward(
     }
 
 
+def _load_observations(corpus_path: Path) -> list[AgriculturalObservation]:
+    """Load accepted observations from an ObservationCorpus JSON."""
+    raw = json.loads(Path(corpus_path).read_text(encoding="utf-8"))
+    return [
+        AgriculturalObservation.model_validate(s["observation"])
+        for s in raw["samples"]
+        if s["status"] == "accepted" and s.get("observation")
+    ]
+
+
+def _split_from_provenance(
+    observations: list[AgriculturalObservation],
+) -> tuple[list[AgriculturalObservation], list[AgriculturalObservation], list[AgriculturalObservation]]:
+    """Use the frozen taluk split recorded in ``provenance.split``.
+
+    This is the authoritative split: the corpus was built from the frozen CSV
+    with a location-aware (taluk) train/val/test split. Re-splitting at verify
+    time (the old behaviour) produced the 8601/0/1518 contradiction and would
+    let train/val leak across the still-served 2025 images.
+    """
+    train: list[AgriculturalObservation] = []
+    val: list[AgriculturalObservation] = []
+    test: list[AgriculturalObservation] = []
+    for obs in observations:
+        split = obs.provenance.get("split", "unknown")
+        if split == "train":
+            train.append(obs)
+        elif split == "val":
+            val.append(obs)
+        elif split == "test":
+            test.append(obs)
+        else:
+            train.append(obs)
+    return train, val, test
+
+
+def _resolve_extractor(args: argparse.Namespace) -> Any:
+    """Resolve the real patch extractor (STAM.get_patch) or raise loudly."""
+    if args.extractor_module:
+        module = importlib.import_module(args.extractor_module)
+        extractor = module.build_extractor()  # type: ignore[attr-defined]
+        print(f"Extractor from module: {args.extractor_module}")
+        return extractor
+
+    try:
+        from training.dataset_manager import DatasetManager, load_settings
+        from training.stam import STAM
+        from training.stam.config import load_stam_config
+    except ImportError as exc:  # pragma: no cover
+        print(
+            "\n[FATAL] Cannot import DatasetManager/STAM for the patch extractor:\n"
+            f"  {exc}\n"
+            "  A patch extractor is REQUIRED for real image tensors.\n"
+            "  Provide --extractor-module or run with imagery available.\n"
+        )
+        raise SystemExit(2)
+
+    manager = DatasetManager(load_settings(Path(args.dataset_config)))
+    stam = STAM(manager, load_stam_config(Path(args.stam_config)))
+    stam.initialize()
+    print(
+        f"Extractor: STAM.get_patch (matcher={stam.matcher.spatial_stats()}, "
+        f"seasons={stam.season_resolver.names()})"
+    )
+    return stam.get_patch
+
+
+def _fit_class_counts(pre: Preprocessor, train_obs: list[AgriculturalObservation],
+                     num_classes: int) -> torch.Tensor:
+    """Fitted class counts from the train split (label-encoder order)."""
+    counts = torch.zeros(num_classes, dtype=torch.float32)
+    for obs in train_obs:
+        crop, _yield = pre.label.transform(obs)
+        counts[int(crop)] += 1.0
+    return counts
+
+
+def _build_first_batch(
+    pre: Preprocessor,
+    train_obs: list[AgriculturalObservation],
+    extractor: Any,
+    batch_size: int,
+    device: torch.device,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Build the first real train batch exactly as the training loop would.
+
+    Uses ``split="val"`` so no train augmentation is applied to the trace.
+    Image tensors come from the real patch extractor through
+    ``preprocessor.transform`` — no random stubs.
+    """
+    dataset = CropFusionDataset.build(
+        pre, train_obs, split="val", extractor=extractor
+    )
+    loader = build_dataloader(
+        dataset,
+        pre.config,
+        split="val",
+        batch_size=batch_size,
+        workers=0,
+        shuffle=False,
+        drop_last=False,
+    )
+    batch = next(iter(loader))
+
+    inputs = {
+        key: batch[key].to(device, non_blocking=True)
+        for key in ("tabular", "ndvi", "evi", "temporal_mask")
+    }
+    targets = {
+        "crop": batch["crop_label"].to(device, non_blocking=True),
+        "yield": batch["yield_label"].to(device, non_blocking=True),
+    }
+    return inputs, targets, profile_batch(batch)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="cropfusion-verify-multimodal-tensors",
@@ -199,34 +340,48 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--config",
                         default=str(_REPO_ROOT / "training" / "config" / "preprocessing.yaml"))
+    parser.add_argument("--dataset-config",
+                        default=str(_REPO_ROOT / "training" / "config" / "dataset.yaml"))
+    parser.add_argument("--stam-config",
+                        default=str(_REPO_ROOT / "training" / "config" / "stam.yaml"))
+    parser.add_argument("--extractor-module", default=None,
+                        help="Python module exposing build_extractor() -> callable")
+    parser.add_argument("--no-checkpointing", action="store_true",
+                        help="disable gradient checkpointing (default: enabled)")
     args = parser.parse_args(argv)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"=== MULTIMODAL TENSOR TRACE (device={device}) ===")
 
-    # Load observations
-    raw = json.loads(Path(args.corpus).read_text(encoding="utf-8"))
-    obs = [
-        AgriculturalObservation.model_validate(s["observation"])
-        for s in raw["samples"]
-        if s["status"] == "accepted" and s.get("observation")
-    ]
-    print(f"Loaded {len(obs)} accepted observations")
+    # Load observations + authoritative frozen split.
+    observations = _load_observations(Path(args.corpus))
+    train_obs, val_obs, test_obs = _split_from_provenance(observations)
+    print(f"Frozen split (provenance): train={len(train_obs)} "
+          f"val={len(val_obs)} test={len(test_obs)}")
+    if not train_obs:
+        print("\n[FATAL] The frozen train split is empty — refusing to continue.\n")
+        return 2
 
-    # Preprocessor
+    # Preprocessor fit on the TRAIN split only.
     pre = Preprocessor(load_preprocessing_config(args.config))
-    train_obs, _, _ = split_observations(obs, pre.config.split)
-    accepted, _ = pre.filter(train_obs)
-    pre.fit(accepted)
+    if pre.config.image.normalize == "standard":
+        extractor = _resolve_extractor(args)
+        pre.fit(train_obs, extractor=extractor)
+    else:
+        pre.fit(train_obs)
 
-    # Model
+    # Model.
     mc = ModelConfig.from_preprocessor(pre)
     model = ModelFactory.create(mc)
     model.to(device)
+    if not args.no_checkpointing:
+        apply_gradient_checkpointing(model, True)
+        print(f"Gradient checkpointing: enabled (per-timestep encoders)")
 
-    # Loss
+    # Loss with fitted class counts (real distribution, not a stub).
     cfg = load_training_config(str(_REPO_ROOT / "training" / "config" / "training.yaml"))
-    counts = torch.tensor([64.0, 7.0, 1.0, 1.0, 1.0])
+    counts = _fit_class_counts(pre, train_obs, mc.heads.crop.num_classes)
+    print(f"Fitted class counts (train): {counts.tolist()}")
     loss_fn = MultiTaskLoss(
         cfg.loss,
         class_weights={
@@ -235,27 +390,35 @@ def main(argv: list[str] | None = None) -> int:
     )
     loss_fn.to(device)
 
-    # Build batch
-    batch_samples = accepted[: args.batch_size]
-    tabular = torch.stack([pre.tabular.transform(o).float() for o in batch_samples]).to(device)
-    labels = [pre.label.transform(o) for o in batch_samples]
-    crops = torch.stack([c for c, _y in labels]).to(device)
-    yields = torch.stack([y for _c, y in labels]).to(device)
-
-    # Image tensors (random for tabular-only; real with imagery on Kaggle)
+    # Real batch + mandated shape assertion.
     if mc.uses_image:
-        seq_len = mc.temporal.max_len
-        img_size = mc.image_encoder.input_size or 224
-        ndvi = torch.randn(args.batch_size, seq_len, 1, img_size, img_size, device=device) * 0.1
-        evi = torch.randn(args.batch_size, seq_len, 1, img_size, img_size, device=device) * 0.1
-        mask = torch.ones(args.batch_size, seq_len, device=device)
-        if seq_len > 1:
-            mask[:, -1] = 0.0
-        inputs = {"tabular": tabular, "ndvi": ndvi, "evi": evi, "temporal_mask": mask}
+        extractor = _resolve_extractor(args)
+        inputs, targets, batch_profile = _build_first_batch(
+            pre, train_obs, extractor, args.batch_size, device
+        )
+        # R5.2 mandate: every image tensor is [B, T, C, 224, 224]; assert it.
+        assert_image_batch_shape(
+            inputs,
+            mc.image_encoder.input_size or 224,
+            error_type=AssertionError,
+            detail="verify_multimodal_tensors first batch",
+        )
+        print("\n--- First-Batch Multimodal Profile ---")
+        print(f"  T (max_observations) = {pre.config.temporal.max_observations}")
+        for key in ("tabular", "ndvi", "evi", "temporal_mask", "crop_label", "yield_label"):
+            if key in batch_profile:
+                print(f"  {key:16s} {batch_profile[key]}")
+        print(f"  ndvi_frames: {batch_profile.get('ndvi_frames')}")
+        print(f"  evi_frames:  {batch_profile.get('evi_frames')}")
     else:
+        # Tabular-only model: no imagery involved.
+        tabular = torch.stack([pre.tabular.transform(o).float() for o in train_obs[: args.batch_size]]).to(device)
+        labels = [pre.label.transform(o) for o in train_obs[: args.batch_size]]
+        crops = torch.stack([c for c, _y in labels]).to(device)
+        yields = torch.stack([y for _c, y in labels]).to(device)
         inputs = {"tabular": tabular}
-
-    targets = {"crop": crops, "yield": yields}
+        targets = {"crop": crops, "yield": yields}
+        batch_profile = {"tabular": {"shape": list(tabular.shape), "finite": True}}
 
     # Phase 1: Forward trace
     print("\n--- Phase 1: Forward Trace ---")
@@ -269,6 +432,7 @@ def main(argv: list[str] | None = None) -> int:
     zero_grad_components = [k for k, v in grad_trace["gradient_norms"].items() if v["norm"] == 0]
 
     print(f"\n=== SUMMARY ===")
+    print(f"  Frozen split: train={len(train_obs)} val={len(val_obs)} test={len(test_obs)}")
     print(f"  Components with NaN/Inf: {nan_components or 'NONE'}")
     print(f"  Components with zero gradients: {zero_grad_components or 'NONE'}")
     print(f"  Gradient NaN detected: {grad_trace['any_nan_grads']}")
@@ -279,6 +443,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"\n  RESULT: {'PASS' if all_pass else 'FAIL'}")
 
     report = {
+        "split": {"train": len(train_obs), "val": len(val_obs), "test": len(test_obs),
+                  "source": "provenance.split (frozen taluk split)"},
+        "batch_profile": batch_profile,
+        "class_counts": counts.tolist(),
+        "sequence_len": str(pre.config.temporal.max_observations),
+        "checkpointing": not args.no_checkpointing,
         "forward_trace": forward_trace,
         "gradient_trace": grad_trace,
         "nan_components": nan_components,

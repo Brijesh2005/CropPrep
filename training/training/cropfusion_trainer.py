@@ -211,6 +211,10 @@ class CropFusionTrainer(Trainer):
             stopped_early=result.stopped_early,
             duration_seconds=result.duration_seconds,
             best_epoch=result.best_epoch,
+            nan_steps=result.nan_steps,
+            nan_diagnostics=result.nan_diagnostics,
+            first_batch=result.first_batch,
+            nan_sources=result.nan_sources,
             stages=stages,
             reports={},
         )
