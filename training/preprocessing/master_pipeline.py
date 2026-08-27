@@ -183,8 +183,9 @@ class Preprocessor:
         )
 
         # -- Temporal ------------------------------------------------------ #
+        _patch_size = observation.patch_size or self.config.image.size
         ndvi_seq, evi_seq, temporal_mask = self.temporal.transform_sequence(
-            ndvi_tensors, evi_tensors, dates
+            ndvi_tensors, evi_tensors, dates, patch_size=_patch_size,
         )
 
         # -- Augmentation (train only) ------------------------------------ #

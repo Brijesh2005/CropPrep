@@ -66,6 +66,8 @@ class TemporalPipeline(Pipeline):
         ndvi_tensors: Sequence[Any],
         evi_tensors: Sequence[Any],
         dates: Sequence[Any],
+        *,
+        patch_size: int | None = None,
     ) -> tuple[Any, Any, Any]:
         """Assemble ordered, padded NDVI/EVI sequences + a temporal mask.
 
@@ -74,6 +76,9 @@ class TemporalPipeline(Pipeline):
                 zero-fill).
             evi_tensors: Per-date ``[1, H, W]`` tensors.
             dates: Parallel observation dates.
+            patch_size: Expected spatial size for zero-fill tensors when no
+                real patches are available (``ref`` is None).  Falls back to
+                128 if omitted.
 
         Returns:
             ``(ndvi_seq, evi_seq, mask)`` with shapes
@@ -114,8 +119,9 @@ class TemporalPipeline(Pipeline):
         ref = next(
             (t for t in [*ndvi_tensors, *evi_tensors] if t is not None), None
         )
-        ndvi_items = [p[0] if p[0] is not None else _zeros_like(ref) for p in pairs]
-        evi_items = [p[1] if p[1] is not None else _zeros_like(ref) for p in pairs]
+        fallback_size = patch_size or 128
+        ndvi_items = [p[0] if p[0] is not None else _zeros_like(ref, fallback_size) for p in pairs]
+        evi_items = [p[1] if p[1] is not None else _zeros_like(ref, fallback_size) for p in pairs]
 
         ndvi_seq, _ = pad_sequence_tensors(
             ndvi_items, max_len, pad_value=self.config.pad_value,
@@ -199,13 +205,18 @@ def _date_key(value: Any) -> str:
     return str(value)
 
 
-def _zeros_like(reference: Any) -> Any:
-    """A zero tensor matching the shape of a reference tensor."""
+def _zeros_like(reference: Any, fallback_size: int = 128) -> Any:
+    """A zero tensor matching the shape of a reference tensor.
+
+    When *reference* is ``None`` (all patches failed extraction), returns a
+    ``[1, H, W]`` zero tensor using *fallback_size* so the spatial dims are
+    consistent with normal patch tensors produced by ``transform_patch``.
+    """
     import torch
 
     if reference is not None:
         return torch.zeros_like(reference)
-    return torch.zeros(1, 1, 1, 1)
+    return torch.zeros(1, fallback_size, fallback_size)
 
 
 def _build_mask(count: int, max_len: int, pad_side: str) -> Any:
