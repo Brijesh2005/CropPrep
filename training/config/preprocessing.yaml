@@ -14,8 +14,12 @@ tabular:
   handle_missing: mean
   outlier_method: iqr
   categorical_encoding: ordinal
-  numeric_features: [Area, Rainfall, Temperature, Humidity, price]
-  categorical_features: [Soil type, Irrigation]
+  # NOTE: feature lists MUST match columns actually present per observation.
+  # The frozen R5.2.7 supervised corpus carries no weather/soil/price columns
+  # (see manifest feature_schema), so we expose only the real per-row values
+  # that vary between observations. Populated in frozen_corpus.build_observation.
+  numeric_features: [lat, lon, spatial_match_distance_km]
+  categorical_features: [season]
   exclude_columns: []
 
 image:

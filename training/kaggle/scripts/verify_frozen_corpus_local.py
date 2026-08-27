@@ -29,6 +29,7 @@ import csv
 import hashlib
 import json
 import sys
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -194,7 +195,11 @@ def main() -> int:
 
     # -- 7. Observation construction ------------------------------------ #
     print("\n[7] Observation construction (CSV -> AgriculturalObservation)")
-    from training.stam.observation import AgriculturalObservation
+    from training.stam.observation import (
+        AgriculturalObservation,
+        ImagePairRef,
+        SequenceInfo,
+    )
     from training.kaggle.frozen_corpus import (
         build_observation,
         _determine_split,
@@ -202,13 +207,10 @@ def main() -> int:
     from unittest.mock import MagicMock
 
     mock_stam = MagicMock()
-    mock_stam.build_observation.return_value = AgriculturalObservation(
-        location={"lon": 75.0, "lat": 12.0},
-        temporal={"year": 2020, "season": "Kharif"},
-        tabular={"fields": {}},
-        sequence={"pairs": []},
-        quality={"passed": True, "overall_score": 100.0},
-        crop=None,
+    # build_observation resolves imagery via sto.resolve_sequence() (the
+    # frozen-corpus path), so the mock must return a real SequenceInfo there.
+    mock_stam.resolve_sequence.return_value = SequenceInfo(
+        pairs=[ImagePairRef(date=date(2020, 7, 1))],
     )
 
     manifest_checksum = _sha256_file(manifest_path)

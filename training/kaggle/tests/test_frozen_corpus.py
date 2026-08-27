@@ -33,6 +33,7 @@ from training.kaggle.frozen_corpus import (
 )
 from training.stam.observation import (
     ImagePairRef,
+    ImageRecordRef,
     QualityReport,
     SequenceInfo,
 )
@@ -760,3 +761,172 @@ def _minimal_row(taluk: str, crop_label: str, crop_class_id: int) -> dict[str, s
         "evi_available": "True",
         "satellite_status": "FULL",
     }
+
+
+# --------------------------------------------------------------------------- #
+# Root-cause regression tests (ERROR 1 / ERROR 3)
+# --------------------------------------------------------------------------- #
+
+
+def _real_pair_sequence(n_dates: int = 2) -> SequenceInfo:
+    """A sequence with real NDVI/EVI record refs so patches can be read."""
+    import numpy as np
+
+    pairs = []
+    for i in range(n_dates):
+        day = 1 + i
+        pairs.append(
+            ImagePairRef(
+                date=date(2020, 6, day),
+                ndvi=ImageRecordRef(
+                    path=f"/img/ndvi_{day}.tif",
+                    relative_path=f"ndvi_{day}.tif",
+                    index_type="NDVI",
+                    resolution="R10m",
+                ),
+                evi=ImageRecordRef(
+                    path=f"/img/evi_{day}.tif",
+                    relative_path=f"evi_{day}.tif",
+                    index_type="EVI",
+                    resolution="R10m",
+                ),
+            )
+        )
+    del np
+    return SequenceInfo(pairs=pairs, resolution="R10m", crs="EPSG:4326")
+
+
+class TestFrozenPreprocessorShapes:
+    """ERROR 1: image patches + zero-fill must share the config (224) size.
+
+    The frozen corpus previously hard-coded ``patch_size=128`` while the
+    preprocessing config uses 224, so real patches (resized to 224) and the
+    zero-fill fallback (128) collided in ``collate_samples`` -> torch.stack.
+    """
+
+    def _fit_obs(self, rows: dict[str, str] | list[dict[str, str]], pairs: SequenceInfo) -> Any:
+        import numpy as np
+        from training.preprocessing.master_pipeline import Preprocessor
+
+        row_list = rows if isinstance(rows, list) else [rows]
+        stam = MagicMock()
+        stam.resolve_sequence.return_value = pairs
+        objs = [
+            build_observation(
+                r,
+                stam,
+                corpus_version="crop_supervised_v1.1",
+                manifest_checksum="abc123",
+            )
+            for r in row_list
+        ]
+
+        def extractor(path, lon, lat, size=224):
+            from training.stam.patch_generator import RasterPatch
+
+            return RasterPatch(
+                path=path,
+                array=np.full((size, size), 0.42, dtype="float32"),
+                mask=np.ones((size, size), dtype=bool),
+                requested_size=size,
+                window=(0, 0, size, size),
+                bounds=(lon - 1, lat - 1, lon + 1, lat + 1),
+                crs="EPSG:4326",
+            )
+
+        cfg = Preprocessor.from_config(
+            Path(__file__).resolve().parents[3] / "training" / "config" / "preprocessing.yaml"
+        )
+        pre = cfg.fit(objs, extractor=extractor)
+        return pre, objs
+
+    def test_real_patch_shape_is_config_size(self) -> None:
+        """Real patches -> [T,1,224,224], never [T,1,128,128]."""
+        import numpy as np
+        from training.stam.patch_generator import RasterPatch
+
+        row = _minimal_row("Belthangady", "coconut", 4)
+        pre, objs = self._fit_obs(row, _real_pair_sequence())
+
+        def extractor(path, lon, lat, size=224):
+            return RasterPatch(
+                path=path,
+                array=np.full((size, size), 0.42, dtype="float32"),
+                mask=np.ones((size, size), dtype=bool),
+                requested_size=size,
+                window=(0, 0, size, size),
+                bounds=(lon - 1, lat - 1, lon + 1, lat + 1),
+                crs="EPSG:4326",
+            )
+
+        sample = pre.transform(objs[0], extractor=extractor)
+        assert sample["ndvi"].shape[0] == pre.config.temporal.max_observations
+        assert sample["ndvi"].shape[1:] == (1, pre.config.image.size, pre.config.image.size)
+        assert sample["evi"].shape == sample["ndvi"].shape
+
+    def test_zero_fill_fallback_shape_matches_config(self) -> None:
+        """When all patches fail, zero-fill must be [T,1,224,224], not 128."""
+        from training.preprocessing.master_pipeline import Preprocessor
+
+        row = _minimal_row("Mangalore", "pepper", 6)
+        stam = MagicMock()
+        stam.resolve_sequence.return_value = _real_pair_sequence()
+
+        def boom_extractor(path, lon, lat, size=224):
+            raise ValueError("no imagery mounted")
+
+        pre = Preprocessor.from_config(
+            Path(__file__).resolve().parents[3] / "training" / "config" / "preprocessing.yaml"
+        )
+        obs = build_observation(
+            row, stam,
+            corpus_version="crop_supervised_v1.1",
+            manifest_checksum="abc123",
+        )
+        pre.fit([obs], extractor=boom_extractor)
+        sample = pre.transform(obs, extractor=boom_extractor)
+        assert sample["ndvi"].shape[1:] == (1, pre.config.image.size, pre.config.image.size)
+        assert sample["evi"].shape == sample["ndvi"].shape
+
+    def test_tabular_features_vary_per_row(self) -> None:
+        """ERROR 3: tabular vectors must differ between distinct rows."""
+        row_a = _minimal_row("Belthangady", "coconut", 4)
+        row_b = dict(_minimal_row("Puttur", "pepper", 6))
+        row_b["lat"] = "13.100"
+        row_b["lon"] = "75.900"
+        row_b["spatial_match_distance_km"] = "2.3"
+        row_b["season"] = "Rabi"
+
+        stam = MagicMock()
+        stam.resolve_sequence.return_value = _real_pair_sequence()
+        from training.preprocessing.master_pipeline import Preprocessor
+        import numpy as np
+        from training.stam.patch_generator import RasterPatch
+
+        def extractor(path, lon, lat, size=224):
+            return RasterPatch(
+                path=path,
+                array=np.full((size, size), 0.42, dtype="float32"),
+                mask=np.ones((size, size), dtype=bool),
+                requested_size=size,
+                window=(0, 0, size, size),
+                bounds=(lon - 1, lat - 1, lon + 1, lat + 1),
+                crs="EPSG:4326",
+            )
+
+        pre = Preprocessor.from_config(
+            Path(__file__).resolve().parents[3] / "training" / "config" / "preprocessing.yaml"
+        )
+        objs = [
+            build_observation(
+                r, stam,
+                corpus_version="crop_supervised_v1.1",
+                manifest_checksum="abc123",
+            )
+            for r in (row_a, row_b)
+        ]
+        pre.fit(objs, extractor=extractor)
+        va = pre.transform(objs[0], extractor=extractor)["tabular"]
+        vb = pre.transform(objs[1], extractor=extractor)["tabular"]
+        assert int(va.numel()) > 0, "tabular branch must be non-empty"
+        assert not bool((va == vb).all().item()), "tabular vector must not be constant across rows"

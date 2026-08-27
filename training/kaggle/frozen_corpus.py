@@ -241,6 +241,16 @@ def _parse_date(date_str: str | None) -> Any:
         return None
 
 
+def _safe_float(value: Any) -> float | None:
+    """Parse a value as float, returning None on failure/missing."""
+    if value is None or str(value).strip() == "":
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def _build_location(row: dict[str, Any]) -> LocationInfo:
     """Construct LocationInfo from a frozen corpus CSV row."""
     admin = AdminLocation(
@@ -297,7 +307,16 @@ def _resolve_imagery(
     season = row.get("season")
 
     try:
-        return stam.resolve_sequence(lon, lat, year=year, season=season)
+        sequence = stam.resolve_sequence(lon, lat, year=year, season=season)
+        if len(getattr(sequence, "pairs", ())) == 0:
+            # Diagnostic: attribute the empty sequence to one of two
+            # root causes so a Kaggle run can be triaged without digging
+            # through per-sample logs:
+            #   * zero season-window imagery records, or
+            #   * records present but filtered out by point-coverage
+            #     (CRS / bounds mismatch on the mounted GeoTIFFs).
+            _log_empty_sequence_diagnostics(stam, row, lon, lat, year, season)
+        return sequence
     except Exception as exc:  # noqa: BLE001
         log_dict(
             logger,
@@ -307,6 +326,48 @@ def _resolve_imagery(
             error=str(exc),
         )
         return SequenceInfo()
+
+
+def _log_empty_sequence_diagnostics(
+    stam: Any, row: dict[str, Any], lon: float, lat: float, year: int, season: str | None
+) -> None:
+    """Best-effort diagnostics for an empty imagery sequence (never raises).
+
+    Uses the STAM internal matcher to distinguish ``no season-window records``
+    from ``records dropped by point coverage`` — the two root causes of
+    empty sequences on the Kaggle imagery mount.
+    """
+    try:
+        matcher = getattr(stam, "matcher", None)
+        if matcher is None or not hasattr(matcher, "resolve_temporal"):
+            return
+        context = matcher.resolve_temporal(year=year, season=season)
+        window_ndvi, window_evi = matcher.match_images(
+            year=year, season=context.season, resolution=None
+        )
+        covered_ndvi, covered_evi = getattr(stam, "_filter_images_for_point", lambda *a, **k: (a[2], a[3]))(
+            lon, lat, window_ndvi, window_evi
+        )
+        log_dict(
+            logger,
+            logging.WARNING,
+            "Empty imagery sequence diagnostics",
+            record_id=row.get("record_id"),
+            year=year,
+            season=season,
+            resolved_season=context.season.name if getattr(context, "season", None) else None,
+            window_ndvi=len(window_ndvi),
+            window_evi=len(window_evi),
+            covered_ndvi=len(covered_ndvi),
+            covered_evi=len(covered_evi),
+            start_hint=(
+                "no season-window records"
+                if not (window_ndvi or window_evi)
+                else "records dropped by point coverage (CRS/bounds)"
+            ),
+        )
+    except Exception:  # noqa: BLE001 - diagnostics are best-effort
+        return
 
 
 def _determine_split(row: dict[str, Any]) -> str:
@@ -344,10 +405,26 @@ def build_observation(
     sequence = _resolve_imagery(stam, row)
 
     # Tabular features — crop label from frozen CSV, no yield (classification).
+    #
+    # The frozen CSV has NO independent yield/weather/soil/rainfall columns
+    # beyond the labels and geometry already consumed by STAM imagery.  We
+    # therefore expose only the REAL per-row columns that actually vary
+    # between observations (location geometry + survey metadata) so the
+    # tabular encoder gets a genuine, non-constant vector — no features are
+    # fabricated to satisfy the tabular branch.  Feature absence is
+    # documented in the manifest's ``feature_schema`` rather than invented.
+    season_value = (row.get("season") or "").strip() or None
     tabular = TabularFeatures(
         crop=crop_label,
         yield_value=None,
-        fields={},
+        fields={
+            "lat": _safe_float(row.get("lat")),
+            "lon": _safe_float(row.get("lon")),
+            "spatial_match_distance_km": _safe_float(
+                row.get("spatial_match_distance_km")
+            ),
+            "season": season_value,
+        },
         source_path=None,
         matched_level="frozen_corpus",
     )
@@ -369,7 +446,12 @@ def build_observation(
         quality=quality,
         crop=crop_label,
         yield_value=None,
-        patch_size=128,
+        # patch_size=0 (falsy) keeps the preprocessing image size (224)
+        # authoritative: master_pipeline uses ``observation.patch_size or
+        # config.image.size``.  A hard-coded 128 here previously made the
+        # zero-fill fallback emit [1,128,128] while real patches were
+        # resized to [1,224,224], crashing torch.stack in collate_samples.
+        patch_size=0,
         provenance={
             "corpus": "crop_supervised_v1",
             "corpus_version": corpus_version,

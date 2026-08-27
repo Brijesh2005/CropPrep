@@ -85,7 +85,7 @@ def test_repo_preprocessing_config():
     assert config.image.size == 224
     assert config.tabular.categorical_encoding == "ordinal"
     assert config.tabular.numeric_features == [
-        "Area", "Rainfall", "Temperature", "Humidity", "price",
+        "lat", "lon", "spatial_match_distance_km",
     ]
-    assert config.tabular.categorical_features == ["Soil type", "Irrigation"]
+    assert config.tabular.categorical_features == ["season"]
     assert config.augmentation.enabled is True
