@@ -35,6 +35,7 @@ from .losses import MultiTaskLoss, build_class_weights
 from .reports import default_reports_dir, generate_reports
 from .trainer import Trainer, TrainingResult
 from .validator import Validator
+from .callbacks import StagedFineTuning
 
 
 @dataclass
@@ -152,10 +153,17 @@ class CropFusionTrainer(Trainer):
         )
         self.curriculum = curriculum
         self.curriculum_callback: CurriculumCallback | None = None
+        # -- Staged backbone fine-tuning (R5.4) ----------------------------- #
+        self.fine_tuning_callback: StagedFineTuning | None = None
         extra_callbacks: list[Callback] = []
         if config.curriculum.enabled:
             self.curriculum_callback = CurriculumCallback(curriculum)
             extra_callbacks.append(self.curriculum_callback)
+        if config.fine_tuning.enabled:
+            self.fine_tuning_callback = StagedFineTuning(
+                [stage.model_dump() for stage in config.fine_tuning.schedule]
+            )
+            extra_callbacks.append(self.fine_tuning_callback)
         extra_callbacks.extend(list(callbacks or []))
 
         super().__init__(
@@ -202,6 +210,8 @@ class CropFusionTrainer(Trainer):
             if self.curriculum_callback is not None
             else []
         )
+        if self.fine_tuning_callback is not None:
+            stages.extend(self.fine_tuning_callback.stages_log)
         return CropFusionTrainingResult(
             epochs=result.epochs,
             steps=result.steps,

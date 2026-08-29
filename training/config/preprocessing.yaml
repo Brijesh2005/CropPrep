@@ -36,9 +36,13 @@ augmentation:
   rotation_degrees: [0, 90, 180, 270]
   random_crop: false
   crop_fraction: 0.9
-  brightness_jitter: 0.2
-  contrast_jitter: 0.2
-  noise_std: 0.02
+  # NDVI / EVI are scientific measurements — only physically reasonable,
+  # geometry-preserving augmentations (flips / 90-degree rotations). Photometric
+  # jitter and additive noise would corrupt reflectance-derived vegetation
+  # indices, so they stay disabled (brightness_jitter / contrast_jitter / noise_std = 0).
+  brightness_jitter: 0.0
+  contrast_jitter: 0.0
+  noise_std: 0.0
 
 split:
   strategy: temporal

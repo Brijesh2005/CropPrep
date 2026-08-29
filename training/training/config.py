@@ -146,6 +146,12 @@ class OptimizerConfig(BaseModel):
     #: Lion betas (only used when ``name == lion``).
     lion_beta1: float = Field(default=0.9, ge=0.0, le=1.0)
     lion_beta2: float = Field(default=0.99, ge=0.0, le=1.0)
+    #: Discriminative LR: image-backbone parameters train at
+    #: ``lr * backbone_lr_multiplier`` while heads / fusion train at ``lr``
+    #: (R5.4). ``None`` (default) = a single uniform parameter group. Only
+    #: applies to models exposing ``ndvi_encoder`` / ``evi_encoder``
+    #: backbones (CropFusionModel).
+    backbone_lr_multiplier: float | None = Field(default=None, gt=0.0, le=1.0)
 
 
 class SchedulerConfig(BaseModel):
@@ -398,6 +404,40 @@ class VisualizationConfig(BaseModel):
 # --------------------------------------------------------------------------- #
 
 
+class FineTuningStage(BaseModel):
+    """One progressive-unfreeze step of the image backbone.
+
+    At ``epoch`` the parameters whose full dotted names match one of
+    ``prefixes`` are unfrozen (``requires_grad_`` True). Prefixes match a
+    module segment, e.g. ``blocks.6`` unfreezes ``ndvi_encoder.backbone.
+    blocks.6.*`` and ``evi_encoder.backbone.blocks.6.*``. A stage listing an
+    empty ``prefixes`` list is documented-only (freeze-everything stage).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    epoch: int = Field(ge=0)
+    prefixes: list[str] = Field(default_factory=list)
+
+
+class FineTuningConfig(BaseModel):
+    """Staged backbone fine-tuning (R5.4, EfficientNet blocks).
+
+    Complements (and is independent of) the ``curriculum``:
+    :class:`Curriculum` freezes whole *modalities* (tabular / image /
+    temporal / fusion) by training stage, while fine-tuning here progressively
+    unfreezes the pretrained image backbones by epoch. When both are enabled
+    the fine-tuning stage callback only starts unfreezing once the curriculum
+    has reached a stage where the image branch is trainable; to avoid clashes
+    we recommend enabling either ``curriculum`` *or* ``fine_tuning`` per run.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool = False
+    schedule: list[FineTuningStage] = Field(default_factory=list)
+
+
 class CurriculumConfig(BaseModel):
     """Five-stage curriculum training settings.
 
@@ -465,6 +505,7 @@ class TrainingConfig(BaseModel):
     validation: ValidationConfig = Field(default_factory=ValidationConfig)
     data_contract: DataContractConfig = Field(default_factory=DataContractConfig)
     curriculum: CurriculumConfig = Field(default_factory=CurriculumConfig)
+    fine_tuning: FineTuningConfig = Field(default_factory=FineTuningConfig)
     ablation: AblationConfig = Field(default_factory=AblationConfig)
     benchmark: BenchmarkConfig = Field(default_factory=BenchmarkConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)

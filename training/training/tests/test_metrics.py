@@ -51,7 +51,12 @@ def test_classification_metrics_ignore_unknown_crop():
     result = compute_classification_metrics(logits, targets, MetricsConfig(top_k=2))
     assert result["support"] == 2
     assert result["accuracy"] == 1.0
-    assert result["f1"] == 1.0
+    # R5.4: ``macro`` averages over the FULL class set. Class 1 has zero true
+    # samples here, so its per-class F1 is 0 -> macro-F1 = 0.5, not 1.0. Unknown
+    # crop labels are still excluded from support / accuracy.
+    assert result["f1"] == 0.5
+    assert result["macro_f1"] == 0.5
+    assert result["balanced_accuracy"] == 0.5
 
 
 def test_classification_metrics_all_unknown_crop():

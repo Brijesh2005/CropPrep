@@ -90,6 +90,25 @@ def _trainable_params(model: nn.Module) -> Iterator[nn.Parameter]:
             yield param
 
 
+def _backbone_param_ids(model: nn.Module) -> set[int] | None:
+    """Ids of the image-backbone parameters (``ndvi_encoder`` / ``evi_encoder``).
+
+    ``None`` when the model exposes no recognisable image encoders. The whole
+    encoder module (backbone + channel-expansion conv) forms the low-LR group
+    so head / fusion layers train faster than the pretrained trunk.
+    """
+    ids: set[int] = set()
+    if not isinstance(model, nn.Module):
+        return None
+    for name, module in model.named_modules():
+        if name not in ("ndvi_encoder", "evi_encoder"):
+            continue
+        if not hasattr(module, "backbone"):
+            continue
+        ids.update(id(p) for p in module.parameters())
+    return ids if ids else None
+
+
 def build_optimizer(
     model: nn.Module,
     config: OptimizerConfig | None = None,
@@ -103,31 +122,62 @@ def build_optimizer(
         config: Validated :class:`OptimizerConfig`.
         params: Explicit parameter iterable (overrides ``model.parameters()``).
 
+    When ``config.backbone_lr_multiplier`` is set and no explicit ``params``
+    were given, parameters are split into two groups: image-backbone params at
+    ``lr * backbone_lr_multiplier`` (first group) and everything else at
+    ``lr`` (second group). Schedulers scale every group's learning rate, so
+    warmup / cosine decay preserve the backbone discount throughout the run.
+
     Raises:
         OptimizerBuildError: On an unknown optimizer name.
     """
     config = config or OptimizerConfig()
-    param_iter = params if params is not None else _trainable_params(model)
     name = (config.name or "adamw").strip().lower()
+
+    groups: list[dict[str, Any]]
+    if params is not None:
+        groups = [{"params": list(params)}]
+    elif config.backbone_lr_multiplier is not None:
+        backbone_ids = _backbone_param_ids(model)
+        backbone: list[nn.Parameter] = []
+        other: list[nn.Parameter] = []
+        for param in _trainable_params(model):
+            (backbone if backbone_ids and id(param) in backbone_ids else other).append(param)
+        groups = []
+        if backbone:
+            groups.append(
+                {"params": backbone, "lr": config.lr * config.backbone_lr_multiplier}
+            )
+        if other:
+            groups.append({"params": other, "lr": config.lr})
+        if not groups:
+            raise OptimizerBuildError(
+                "no trainable parameters for optimizer "
+                f"(backbone_lr_multiplier={config.backbone_lr_multiplier})"
+            )
+    else:
+        groups = [{"params": list(_trainable_params(model))}]
 
     if name == "adamw":
         return torch.optim.AdamW(
-            param_iter, lr=config.lr, betas=config.betas,
+            groups, lr=config.lr, betas=config.betas,
             weight_decay=config.weight_decay, eps=config.eps,
         )
     if name == "sgd":
         return torch.optim.SGD(
-            param_iter, lr=config.lr, momentum=config.momentum,
+            groups, lr=config.lr, momentum=config.momentum,
             weight_decay=config.weight_decay, nesterov=config.nesterov,
         )
     if name == "radam":
         return torch.optim.RAdam(
-            param_iter, lr=config.lr, betas=config.betas,
+            groups, lr=config.lr, betas=config.betas,
             weight_decay=config.weight_decay, eps=config.eps,
         )
     if name == "lion":
         return Lion(
-            param_iter, lr=config.lr, betas=(config.lion_beta1, config.lion_beta2),
+            groups,
+            lr=config.lr,
+            betas=(config.lion_beta1, config.lion_beta2),
             weight_decay=config.weight_decay,
         )
     raise OptimizerBuildError(f"unknown optimizer {config.name!r}")

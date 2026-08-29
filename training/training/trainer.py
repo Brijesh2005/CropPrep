@@ -16,6 +16,7 @@ from __future__ import annotations
 import contextlib
 import math
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
 
 import torch
@@ -401,11 +402,18 @@ class Trainer:
                     val_result = self.validator.validate(self.val_loader, epoch=epoch)
                     epoch_logs.update(val_result.metrics)
                     epoch_logs["val_duration"] = val_result.duration_seconds
-                    if self.scheduler_handle is not None and self.scheduler_handle.requires_metric:
-                        metric = epoch_logs.get(self.scheduler_handle.monitor_metric)
-                        if metric is None:
-                            metric = val_result.loss
-                        self.scheduler_handle.step(metric)
+                    if self.scheduler_handle is not None:
+                        if self.scheduler_handle.requires_metric:
+                            metric = epoch_logs.get(self.scheduler_handle.monitor_metric)
+                            if metric is None:
+                                metric = val_result.loss
+                            self.scheduler_handle.step(metric)
+                        elif self.scheduler_handle.step_period == "epoch":
+                            # R5.4: epoch-period schedulers (cosine /
+                            # warmup_cosine) must advance even when validation
+                            # ran this epoch — otherwise the LR is frozen at
+                            # its initial value for the whole run.
+                            self.scheduler_handle.step()
                 elif self.scheduler_handle is not None and self.scheduler_handle.step_period == "epoch":
                     self.scheduler_handle.step()
 
@@ -429,6 +437,16 @@ class Trainer:
             raise
 
         duration = timer.stop()
+        # R5.4: restore the best-metric weights into the model after training so
+        # downstream consumers (final evaluation, export, visualization) score
+        # the checkpoint selected by the monitor, not the last epoch's weights.
+        restored_best = self._restore_best_weights()
+        if self.logger is not None:
+            self.logger.info(
+                "post-training state",
+                restored_best_weights=restored_best,
+                stopped_early=stopped_early,
+            )
         self._fire("on_train_end")
 
         result = self._finalize_result(
@@ -437,6 +455,39 @@ class Trainer:
             best_epoch=best_epoch,
         )
         return result
+
+    def _restore_best_weights(self) -> bool:
+        """Load the best-metric checkpoint weights back into the model.
+
+        The ``ModelCheckpoint`` callback records the best weights during
+        training but the model object itself keeps the last epoch's weights —
+        without this, the final test evaluation would silently report
+        last-epoch (not best) performance. Gated by ``train.
+        restore_best_on_stop`` and ``checkpoint.save_best``; a missing or
+        unreadable checkpoint degrades gracefully to the current weights.
+        """
+        cfg = self.config
+        if not (cfg.train.restore_best_on_stop and cfg.checkpoint.save_best):
+            return False
+        best_path: Any | None = None
+        for callback in self.callbacks:
+            if callback.__class__.__name__ == "ModelCheckpoint":
+                best_path = callback.best_path
+                break
+        if best_path is None or not Path(str(best_path)).exists():
+            return False
+        try:
+            self.checkpoint_manager.restore(best_path, model=self.raw_model)
+        except Exception as exc:  # never let a restore failure mask training
+            if self.logger is not None:
+                self.logger.warning(
+                    "best-weights restore failed; keeping current weights",
+                    error=str(exc),
+                )
+            return False
+        if self.logger is not None:
+            self.logger.info("restored best weights", path=str(best_path))
+        return True
 
     # ------------------------------------------------------------------ #
     # One epoch
@@ -689,10 +740,12 @@ class Trainer:
     def _current_lr(self) -> float:
         if self.scheduler_handle is not None:
             try:
-                return float(self.scheduler_handle.get_last_lr()[0])
+                # Discriminative-LR runs use multiple param groups; report the
+                # driving (max) learning rate so epoch logs stay comparable.
+                return max(float(lr) for lr in self.scheduler_handle.get_last_lr())
             except Exception:
                 pass
-        return float(self.optimizer.param_groups[0]["lr"])
+        return max(float(group["lr"]) for group in self.optimizer.param_groups)
 
     def _early_stopping(self):
         for callback in self.callbacks:

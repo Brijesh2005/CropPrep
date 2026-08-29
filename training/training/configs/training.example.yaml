@@ -34,6 +34,10 @@ optimizer:
   nesterov: false
   lion_beta1: 0.9
   lion_beta2: 0.99
+  # R5.4 discriminative LR: image-backbone params train at lr * multiplier
+  # (e.g. 0.3 -> 3e-5), heads / fusion / embeddings at the full lr. Set to
+  # null (default) to train every parameter at the same learning rate.
+  backbone_lr_multiplier: null
 scheduler:
   name: cosine
   step: epoch
@@ -66,11 +70,27 @@ loss:
   log_variance_eps: 0.01
 train:
   epochs: 100
-  early_stopping_metric: val_loss
-  early_stopping_mode: min
+  early_stopping_metric: crop/macro_f1
+  early_stopping_mode: max
   early_stopping_patience: 10
   early_stopping_min_delta: 0.0
   restore_best_on_stop: true
+# R5.4 staged backbone fine-tuning: the image backbones start fully frozen,
+# then the listed blocks are progressively unfrozen at the scheduled epochs
+# (prefixes are matched against backbone.module names, e.g. "blocks.6").
+fine_tuning:
+  enabled: false
+  schedule:
+  - epoch: 0
+    prefixes: []
+  - epoch: 10
+    prefixes:
+    - blocks.6
+    - blocks.5
+  - epoch: 20
+    prefixes:
+    - blocks.4
+    - blocks.3
 checkpoint:
   directory: artifacts/training/checkpoints
   keep_last: 3

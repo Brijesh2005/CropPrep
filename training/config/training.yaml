@@ -36,11 +36,14 @@ optimizer:
   weight_decay: 0.0001
   betas: [0.9, 0.999]
   eps: 1.0e-08
+  # Discriminative LR (R5.4): image-backbone params train at 3e-5, heads /
+  # fusion / embeddings at the full 1e-4.
+  backbone_lr_multiplier: 0.3
 
 scheduler:
-  name: cosine
+  name: warmup_cosine
   step: epoch
-  warmup_epochs: 3
+  warmup_epochs: 2
   warmup_ratio: 0.0
   t_max: null
   eta_min: 0.0
@@ -60,9 +63,9 @@ loss:
 
 train:
   epochs: 30
-  early_stopping_metric: val_loss
-  early_stopping_mode: min
-  early_stopping_patience: 15
+  early_stopping_metric: crop/macro_f1
+  early_stopping_mode: max
+  early_stopping_patience: 5
   early_stopping_min_delta: 0.0
   restore_best_on_stop: true
 
@@ -99,6 +102,20 @@ validation:
 data_contract:
   enabled: true
   strict: true
+
+# R5.4 staged backbone fine-tuning (EfficientNet): the image backbones start
+# fully frozen (stage 0 — only fusion / heads / embeddings train), then the
+# top blocks are progressively unfrozen so the pretrained trunk is adapted
+# from the head down at a low LR while early blocks stay frozen.
+fine_tuning:
+  enabled: true
+  schedule:
+    - epoch: 0
+      prefixes: []
+    - epoch: 10
+      prefixes: [blocks.6, blocks.5]
+    - epoch: 20
+      prefixes: [blocks.4, blocks.3]
 
 ablation:
   enabled: false

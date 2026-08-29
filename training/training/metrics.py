@@ -74,6 +74,17 @@ def compute_classification_metrics(
         "precision": None,
         "recall": None,
         "f1": None,
+        # Explicit aggregation keys. ``macro_f1`` is the primary crop
+        # objective: unlike ``f1`` (which follows ``config.average``) it is
+        # ALWAYS macro over the full fixed class set ``[0, num_classes)``, so
+        # minority classes that are absent from a batch score 0 instead of
+        # silently dropping out of the average. This keeps the metric
+        # comparable across epochs / runs (R5.4 optimization).
+        "macro_f1": None,
+        "macro_precision": None,
+        "macro_recall": None,
+        "weighted_f1": None,
+        "balanced_accuracy": None,
         "roc_auc": None,
         "confusion_matrix": None,
         "support": int(labels.numel()),
@@ -107,9 +118,14 @@ def compute_classification_metrics(
 
     n_classes_present = int(np.unique(labels_np).size)
     if n_classes_present >= 1:
+        all_classes = list(range(num_classes))
         try:
             precision, recall, f1, _ = precision_recall_fscore_support(
-                labels_np, pred_np, average=config.average, zero_division=0
+                labels_np,
+                pred_np,
+                average=config.average,
+                zero_division=0,
+                labels=all_classes,
             )
             result["precision"] = float(precision)
             result["recall"] = float(recall)
@@ -117,9 +133,28 @@ def compute_classification_metrics(
         except Exception:
             pass
         try:
+            m_prec, m_rec, m_f1, _ = precision_recall_fscore_support(
+                labels_np, pred_np, average="macro", zero_division=0, labels=all_classes
+            )
+            result["macro_precision"] = float(m_prec)
+            result["macro_recall"] = float(m_rec)
+            result["macro_f1"] = float(m_f1)
+        except Exception:
+            pass
+        try:
+            w_f1 = precision_recall_fscore_support(
+                labels_np, pred_np, average="weighted", zero_division=0, labels=all_classes
+            )[2]
+            result["weighted_f1"] = float(w_f1)
+        except Exception:
+            pass
+        try:
             result["confusion_matrix"] = _confusion_matrix(
-                labels_np, pred_np, labels=list(range(num_classes))
+                labels_np, pred_np, labels=all_classes
             ).tolist()
+            result["balanced_accuracy"] = _balanced_accuracy(
+                np.asarray(result["confusion_matrix"], dtype=np.float64)
+            )
         except Exception:
             pass
 
@@ -147,6 +182,26 @@ def _top_k_accuracy(probs: torch.Tensor, labels: torch.Tensor, k: int) -> float:
     k = min(k, probs.size(1))
     top_k = probs.topk(k, dim=-1).indices
     return (top_k == labels.unsqueeze(1)).any(dim=-1).float().mean().item()
+
+
+def _balanced_accuracy(confusion: np.ndarray) -> float:
+    """Per-class recall averaged over the FULL class set.
+
+    Uses the ``[C, C]`` confusion matrix so classes with zero true support
+    contribute 0 recall — the metric is defined over all ``C`` classes, not
+    just the ones observed in the batch (mirrors the fixed-label ``macro_f1``).
+    """
+    if confusion.ndim != 2 or confusion.shape[0] == 0:
+        return 0.0
+    true_counts = confusion.sum(axis=1)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        per_class_recall = np.divide(
+            np.diag(confusion),
+            true_counts,
+            out=np.zeros_like(true_counts, dtype=np.float64),
+            where=true_counts > 0,
+        )
+    return float(per_class_recall.mean())
 
 
 # --------------------------------------------------------------------------- #

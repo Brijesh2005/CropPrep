@@ -43,6 +43,7 @@ optimizer:
   nesterov: false
   lion_beta1: 0.9
   lion_beta2: 0.99
+  backbone_lr_multiplier: null   # discriminative LR: backbone = lr * mult
 
 scheduler:
   name: cosine            # none | cosine | onecycle | reduce_on_plateau | polynomial | warmup_cosine | warmup_polynomial
@@ -78,11 +79,26 @@ loss:
 
 train:
   epochs: 100
-  early_stopping_metric: val_loss
-  early_stopping_mode: min
+  early_stopping_metric: crop/macro_f1   # macro-F1 over the full class set
+  early_stopping_mode: max
   early_stopping_patience: 10
   early_stopping_min_delta: 0.0
-  restore_best_on_stop: true
+  restore_best_on_stop: true             # load best.pt weights at the last epoch
+
+# R5.4 staged backbone fine-tuning. The image backbones start fully frozen;
+# at each schedule epoch the listed block prefixes are unfrozen so the
+# pretrained trunk is adapted from the prediction head down. Early blocks
+# (stem / blocks.0-2) are typically never unfrozen. Prefixes are matched
+# against backbone module names ("blocks.6" -> both backbone.blocks.6).
+fine_tuning:
+  enabled: false
+  schedule:
+  - epoch: 0
+    prefixes: []
+  - epoch: 10
+    prefixes: [blocks.6, blocks.5]
+  - epoch: 20
+    prefixes: [blocks.4, blocks.3]
 
 checkpoint:
   directory: artifacts/training/checkpoints
@@ -168,12 +184,15 @@ TRN_VALIDATION__K_FOLDS=10
 | Setting | Value |
 |---------|-------|
 | Optimizer | AdamW, lr 1e-4, weight_decay 1e-4 |
-| Scheduler | cosine with 5 warmup epochs (per SDD) |
+| Discriminative LR | backbone_lr_multiplier 0.3 (backbone ≈3e-5, heads 1e-4) |
+| Scheduler | warmup_cosine, 2 warmup epochs + cosine decay to 0 |
 | Batch size | 32 (scale with GPUs / gradient accumulation) |
-| Loss weights | crop 0.7 / yield 0.3 |
+| Loss weights | crop 0.7 / yield 0.3 (yield inert without a yield scaler) |
 | Precision | fp16 mixed precision on CUDA |
-| Early stopping | monitor val_loss, patience 10 |
+| Early stopping | monitor crop/macro_f1 (max), patience 5-10 |
+| Best-weights restore | restore_best_on_stop: true (best.pt, not last epoch) |
 | Image backbone | efficientnetv2_s (default), input_size 128+ |
+| Staged fine-tuning | freeze stem, unfreeze blocks.6→3 from epoch 10/20 |
 | Transformer depth | temporal 2, shared 2 (raise with data size) |
 | Dropout | 0.1 (raise on overfit) |
 | Seed | 42 (fix for reproducibility) |
