@@ -131,7 +131,7 @@ def _get_kernel_id() -> str | None:
                 title = k.get("title", "")
                 ref = k.get("ref", "")
                 # Match R5.4 training kernel by title
-                if "r5.3" in title.lower() and "multimodal" in title.lower():
+                if "r5.4" in title.lower() and "multimodal" in title.lower():
                     return ref
             # Fallback: match by slug pattern
             for k in kernels:
