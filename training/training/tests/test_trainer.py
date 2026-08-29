@@ -291,6 +291,47 @@ def test_first_batch_profile_recorded_in_result(tabular_model):
     assert result.nan_sources == []
 
 
+def test_multimodal_train_val_finite_with_checkpointing(full_config, tmp_path):
+    """R5.3 representative gate: forward -> loss -> backward -> validation over
+    a multimodal CropFusion model WITH gradient checkpointing enabled must
+    produce finite train AND validation losses.
+
+    Not NaN-proof on its own (NaN here would surface the R5.2 TR-VAL-001 bug),
+    but a NaN in train_loss would make this fail loudly.
+    """
+    import math
+
+    from training.models import ModelFactory
+    from training.training import Trainer
+
+    model = ModelFactory.create(full_config)
+    config = TrainingConfig(
+        name="ckpt-finite",
+        general={"device": "cpu", "seed": 42, "gradient_checkpointing": True},
+        train={"epochs": 1, "early_stopping_patience": 3},
+        checkpoint={"directory": str(tmp_path / "ckpt"), "save_best": False,
+                    "save_latest": False},
+        logging={"console": False},
+    )
+    loader = make_fake_loader(n=8, batch_size=4, feature_dim=4,
+                              multimodal=True, input_size=32)
+    val_loader = make_fake_loader(n=8, batch_size=8, feature_dim=4,
+                                  multimodal=True, input_size=32)
+    trainer = Trainer(model, loader, config, val_loader=val_loader)
+    result = trainer.train()
+
+    assert trainer.amp is False  # CPU run
+    from training.training.utils import apply_gradient_checkpointing
+
+    assert model.ndvi_encoder._checkpoint_timesteps  # encoders checkpointed
+    hist = result.history[-1]
+    assert math.isfinite(hist["train_loss"]), "train_loss is NaN/Inf"
+    assert math.isfinite(hist["val_loss"]), "val_loss is NaN/Inf"
+    assert result.first_batch is not None
+    assert result.first_batch["ndvi"]["finite"] is True
+    assert result.first_batch["evi"]["finite"] is True
+
+
 def test_resume_continues_from_checkpoint(tabular_model, train_config):
     from training.training import Trainer
 

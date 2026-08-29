@@ -71,3 +71,49 @@ def test_docs_exist() -> None:
     docs = Path(__file__).resolve().parents[1] / "docs"
     for name in ("SETUP", "KAGGLE", "BOOTSTRAP", "WORKSPACE", "CONFIGURATION"):
         assert (docs / f"{name}.md").exists(), f"missing docs/{name}.md"
+
+
+def test_verify_multimodal_shape_formatter() -> None:
+    """Regression: the tensor trace formatter must not format a raw list with
+    a width spec (``TypeError: unsupported format string passed to
+    list.__format__``) — stringify before aligning."""
+    from training.kaggle.scripts.verify_multimodal_tensors import _shape_str
+
+    shape = [4, 8, 1, 224, 224]
+    rendered = _shape_str(shape)
+    assert rendered == "[4, 8, 1, 224, 224]"
+    assert "224" in rendered
+    # The exact render the trace uses must not raise.
+    line = f"  {'ndvi_encoder':30s} shape={rendered:26s}"
+    assert line.startswith("  ndvi_encoder")
+    with pytest.raises(TypeError):
+        f"{list(shape):30s}"  # the old, broken pattern
+
+
+def test_verify_split_uses_frozen_provenance_split() -> None:
+    """Regression: verify_split_composition must consume the frozen
+    provenance.split (train=5561/val=2267/test=2291), never re-split the
+    accepted corpus temporally into the invalid 8601/0/1518 composition."""
+    import sys
+    from unittest.mock import Mock
+
+    import training.kaggle.scripts.verify_split_composition as mod
+
+    obs = []
+    for i, split in enumerate(("train", "val", "test")):
+        o = Mock()
+        o.provenance = {"split": split, "record_id": f"r{i}"}
+        o.location = Mock()
+        o.location.admin = Mock()
+        o.location.admin.taluk = split
+        obs.append(o)
+
+    train, val, test, unknown = mod._split_from_provenance(obs)
+    assert [len(train), len(val), len(test), len(unknown)] == [1, 1, 1, 0]
+
+    obs.append(Mock(provenance={"split": "who_knows"}, location=Mock(admin=Mock(taluk="X"))))
+    train, val, test, unknown = mod._split_from_provenance(obs)
+    assert len(unknown) == 1
+    assert len(train) == 1  # no silent train assignment
+
+    assert mod.__doc__ and "provenance.split" in mod.__doc__

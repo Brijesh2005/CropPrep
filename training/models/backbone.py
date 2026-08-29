@@ -151,10 +151,6 @@ class TimmImageEncoder(ImageEncoder):
             )
         return flat
 
-    def _encode_frames(self, flat: torch.Tensor) -> torch.Tensor:
-        """Full encode of a flat batch: expand -> resize -> backbone features."""
-        return self.backbone(self._expand_and_resize(flat))
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore[override]
         """Encode a single-channel image sequence.
 
@@ -192,10 +188,30 @@ class TimmImageEncoder(ImageEncoder):
         frame_features: list[torch.Tensor] = []
         for t in range(timesteps):
             flat_t = self._expand_and_resize(x[:, t])  # [B, 3, H, W]
+            if not flat_t.is_contiguous():
+                # The ``repeat`` path materialises a zero-stride broadcast view
+                # (``expand``). Feeding that view to the cuDNN conv stack makes
+                # the implicit contiguity copy / algorithm selection differ
+                # between the checkpointed forward and its backward recompute,
+                # which can trip ``torch.utils.checkpoint.CheckpointError``
+                # ("different number of tensors saved") under FP16 AMP on GPU.
+                flat_t = flat_t.contiguous()
             features_t = torch.utils.checkpoint.checkpoint(
-                self._encode_frames,
+                self._predict,
+                self.backbone,
                 flat_t,
                 use_reentrant=False,
             )  # [B, feature_dim]
             frame_features.append(features_t)
         return torch.stack(frame_features, dim=1)
+
+    @staticmethod
+    def _predict(backbone: nn.Module, flat: torch.Tensor) -> torch.Tensor:
+        """Stateless encode of one flat frame: ``backbone(flat)``.
+
+        Kept pure (no ``self`` reads/writes, no expansion or resize) so the
+        non-reentrant checkpoint recomputation replays an *identical*
+        computation — a requirement for ``torch.utils.checkpoint``'s
+        saved-tensor consistency check.
+        """
+        return backbone(flat)

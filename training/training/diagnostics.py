@@ -207,7 +207,10 @@ def nan_source_hooks(model: nn.Module) -> Iterator[list[dict[str, Any]]]:
     ``{"module", "shape", "nan", "inf"}`` for the first tensor that broke.
 
     The trace is diagnostic-only: it never raises, never mutates the graph and
-    is safe under ``no_grad`` / autocast.
+    is safe under ``no_grad`` / autocast. The finiteness checks themselves run
+    under ``no_grad`` so the hooks add no autograd nodes to the traced forward
+    (essential under gradient checkpointing, where the operator graph of the
+    original forward must match the recomputation).
     """
     results: list[dict[str, Any]] = []
     handles: list[Any] = []
@@ -234,14 +237,19 @@ def nan_source_hooks(model: nn.Module) -> Iterator[list[dict[str, Any]]]:
             for tensor in tensors:
                 if tensor is None or not tensor.dtype.is_floating_point:
                     continue
-                if not bool(torch.isfinite(tensor).all().item()):
+                with torch.no_grad():
+                    finite = bool(torch.isfinite(tensor).all().item())
+                if not finite:
+                    with torch.no_grad():
+                        nan_count = int(torch.isnan(tensor).count_nonzero().item())
+                        inf_count = int(torch.isinf(tensor).count_nonzero().item())
                     results.append(
                         {
                             "module": name,
                             "type": type(_module).__name__,
                             "shape": [int(size) for size in tensor.shape],
-                            "nan": int(torch.isnan(tensor).count_nonzero().item()),
-                            "inf": int(torch.isinf(tensor).count_nonzero().item()),
+                            "nan": nan_count,
+                            "inf": inf_count,
                         }
                     )
                     state["hit"] = True

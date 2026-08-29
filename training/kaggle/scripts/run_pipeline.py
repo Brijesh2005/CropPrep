@@ -375,6 +375,26 @@ def main(argv: list[str] | None = None) -> int:
                 train_obs, val_obs, test_obs,
                 max_observations=preprocessing_cfg.config.temporal.max_observations,
             )
+            # Corpus-level real-vs-zero-filled slot statistics (R5.3): proves
+            # every accepted split carries real NDVI/EVI frames and quantifies
+            # the zero-fill padding within the fixed temporal window.
+            imagery_frames = frozen_loader.corpus_imagery_diagnostics(
+                train_obs, val_obs, test_obs,
+                max_observations=preprocessing_cfg.config.temporal.max_observations,
+            )
+            report["corpus"]["imagery"]["frames"] = imagery_frames
+            print("\n--- Corpus Imagery (real vs zero-filled slots) ---")
+            for part in ("train", "val", "test", "overall"):
+                block = imagery_frames[part]
+                print(f"  {part:8s} samples={block['samples']}")
+                for stream in ("ndvi", "evi"):
+                    s = block["streams"][stream]
+                    print(
+                        f"    {stream:5s} slots={s['total_slots']} "
+                        f"real={s['real_slots']} zero_fill={s['zero_filled_slots']} "
+                        f"real_frac={s['real_frac']:.1%} "
+                        f"samples_no_imagery={s['samples_without_imagery']}"
+                    )
             logger.log_experiment(
                 "frozen_corpus_loaded",
                 total=len(accepted),

@@ -464,6 +464,47 @@ class TestFrozenCorpusLoader:
         assert summary["excluded"] == 0
         assert summary["patch_sizes"] == []
 
+    def test_corpus_imagery_diagnostics_slot_counts(
+        self, csv_path: Path, manifest_path: Path
+    ) -> None:
+        """R5.3: slot-level real-vs-zero-filled statistics match the sequence
+        lengths: 10 samples x 8 slots, one real NDVI/EVI ref pair each ->
+        10 real slots and 70 zero-filled window slots per stream, never a
+        sample trained entirely on zero-fill."""
+        loader = FrozenCorpusLoader(csv_path, manifest_path)
+        stam = MagicMock()
+        stam.resolve_sequence.return_value = _real_pair_sequence(1)
+        train, val, test = loader.build(stam)
+        diag = loader.corpus_imagery_diagnostics(
+            train, val, test, max_observations=8
+        )
+        assert diag["max_observations"] == 8
+        for part in ("train", "val", "test"):
+            assert part in diag
+        overall = diag["overall"]
+        assert overall["samples"] == 10
+        for stream in ("ndvi", "evi"):
+            s = overall["streams"][stream]
+            assert s["total_slots"] == 80
+            assert s["real_slots"] == 10
+            assert s["zero_filled_slots"] == 70
+            assert s["real_frac"] == pytest.approx(0.125)
+            assert s["samples_with_real_imagery"] == 10
+            assert s["samples_without_imagery"] == 0
+
+    def test_corpus_imagery_diagnostics_flags_all_zero_samples(self) -> None:
+        """A sample with an empty imagery sequence surfaces as
+        ``samples_without_imagery`` instead of being silently zero-filled."""
+        loader = object.__new__(FrozenCorpusLoader)
+        obs = MagicMock()
+        obs.sequence = SequenceInfo(pairs=[])
+        diag = loader.corpus_imagery_diagnostics([obs], [], [], max_observations=4)
+        s = diag["overall"]["streams"]["ndvi"]
+        assert s["total_slots"] == 4
+        assert s["real_slots"] == 0
+        assert s["samples_without_imagery"] == 1
+        assert diag["overall"]["streams"]["evi"]["samples_without_imagery"] == 1
+
     def test_build_excludes_empty_sequences(
         self, csv_path: Path, manifest_path: Path, mock_stam: MagicMock
     ) -> None:

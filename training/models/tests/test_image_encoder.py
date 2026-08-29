@@ -127,3 +127,85 @@ def test_checkpointing_gradients_flow_finite():
 def test_checkpointing_disabled_flag_absent_by_default():
     enc = _encoder()
     assert enc._checkpoint_timesteps is False
+
+
+def test_checkpointed_frames_are_contiguous():
+    """Regression: the checkpointed per-timestep frame must be a materialised
+    contiguous tensor, never the zero-stride ``expand`` view of the ``repeat``
+    path. A broadcast view fed to the cuDNN conv stack under FP16 AMP can make
+    the implicit contiguity copy / algorithm selection differ between the
+    checkpointed forward and its backward recompute, which trips
+    ``torch.utils.checkpoint.CheckpointError`` ("different number of tensors
+    saved") on GPU."""
+    enc = _encoder(channel_expansion="repeat")
+    enc.train()
+    enc.backbone.eval()
+    enc.set_gradient_checkpointing(True)
+
+    captured: dict[str, bool] = {}
+    original_checkpoint = torch.utils.checkpoint.checkpoint
+
+    def spy(*args, **kwargs):
+        flat = args[2] if len(args) > 2 else None
+        captured["contiguous"] = flat is not None and flat.is_contiguous()
+        return original_checkpoint(*args, **kwargs)
+
+    torch.utils.checkpoint.checkpoint = spy
+    try:
+        enc(torch.randn(2, 4, 1, 32, 32))
+    finally:
+        torch.utils.checkpoint.checkpoint = original_checkpoint
+
+    assert captured.get("contiguous") is True
+
+
+def test_checkpointing_train_mode_backward_finite_repeat_expansion():
+    """Real config regression (R5.3 CheckpointError): efficientnetv2_s with
+    ``repeat`` channel expansion, stochastic depth and the backbone LEFT in
+    train mode must survive a forward+backward pass with per-timestep
+    checkpointing enabled and yield finite, non-zero gradients."""
+    enc = NdviEncoder(
+        "efficientnetv2_s",
+        input_size=64,
+        channel_expansion="repeat",
+        drop_path_rate=0.1,
+    )
+    enc.train()
+    enc.set_gradient_checkpointing(True)
+    x = torch.randn(2, 4, 1, 64, 64)
+
+    out = enc(x)
+    assert out.shape == (2, 4, enc.feature_dim)
+    assert torch.isfinite(out).all().item(), "checkpointed forward is not finite"
+    out.sum().backward()
+
+    grads = [p.grad for p in enc.backbone.parameters() if p.grad is not None]
+    assert grads, "no backbone gradients flowed"
+    assert all(torch.isfinite(g).all().item() for g in grads)
+    assert any(g.abs().sum().item() > 0 for g in grads)
+
+
+def test_checkpointing_grads_match_non_checkpointed():
+    """Recomputation parity: with BN eval'd (deterministic) and drop out
+    disabled, checkpointed backward gradients must match the plain backward —
+    i.e. recomputation replays exactly the saved forward computation."""
+    torch.manual_seed(0)
+    x = torch.randn(2, 3, 1, 32, 32)
+
+    def grads(enabled: bool):
+        torch.manual_seed(123)
+        enc = _encoder()
+        enc.train()
+        enc.backbone.eval()
+        enc.set_gradient_checkpointing(enabled)
+        out = enc(x)
+        out.sum().backward()
+        return [p.grad.clone() for p in enc.backbone.parameters() if p.grad is not None]
+
+    g_plain = grads(enabled=False)
+    g_ckpt = grads(enabled=True)
+    assert len(g_plain) == len(g_ckpt)
+    for a, b in zip(g_plain, g_ckpt):
+        assert torch.allclose(a, b, atol=1e-5, rtol=1e-5), (
+            "checkpointed recomputation drifted from the plain backward"
+        )

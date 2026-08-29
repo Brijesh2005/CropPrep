@@ -684,6 +684,87 @@ class FrozenCorpusLoader:
 
         return train, val, test
 
+    def corpus_imagery_diagnostics(
+        self,
+        train: Sequence[AgriculturalObservation],
+        val: Sequence[AgriculturalObservation],
+        test: Sequence[AgriculturalObservation],
+        *,
+        max_observations: int,
+    ) -> dict[str, Any]:
+        """Corpus-level real-vs-zero-filled imagery statistics per split.
+
+        Counts, per split and overall, the temporal slots that will be backed
+        by a REAL extracted patch vs zero-filled padding within the fixed
+        ``T = max_observations`` window:
+
+        * ``total_slots`` — ``samples * max_observations``,
+        * ``real_slots`` — slots with a real NDVI/EVI record (each sequence
+          pair contributes one real NDVI frame and one real EVI frame, capped
+          at the window),
+        * ``zero_filled_slots`` — the remainder,
+        * ``real_frac`` — real slots as a share of total slots,
+        * ``samples_with_real_imagery`` vs ``samples_without_imagery`` (all
+          slots zero-filled).
+
+        ``samples_without_imagery`` is expected to be 0: the corpus build
+        excludes observations whose imagery sequence resolves empty (see
+        :meth:`build`), so every accepted sample carries at least one real
+        pair. This is the data-backed justification for the missing-imagery
+        policy — kept samples are never trained entirely on zero-fill.
+        """
+        def _stream_counts(obs: AgriculturalObservation) -> tuple[int, int]:
+            pairs = obs.sequence.pairs or ()
+            ndvi_real = 0
+            evi_real = 0
+            for pair in pairs:
+                if getattr(pair, "ndvi", None) is not None:
+                    ndvi_real += 1
+                if getattr(pair, "evi", None) is not None:
+                    evi_real += 1
+            return (
+                min(max_observations, ndvi_real),
+                min(max_observations, evi_real),
+            )
+
+        def _split_block(obs_list: Sequence[AgriculturalObservation]) -> dict[str, Any]:
+            samples = len(obs_list)
+            stream = {}
+            for stream_name in ("ndvi", "evi"):
+                total_slots = samples * max_observations
+                real_slots = 0
+                samples_with_real = 0
+                for obs in obs_list:
+                    ndvi_real, evi_real = _stream_counts(obs)
+                    real = ndvi_real if stream_name == "ndvi" else evi_real
+                    real_slots += real
+                    if real > 0:
+                        samples_with_real += 1
+                stream[stream_name] = {
+                    "total_slots": total_slots,
+                    "real_slots": real_slots,
+                    "zero_filled_slots": max(0, total_slots - real_slots),
+                    "real_frac": round(real_slots / total_slots, 4)
+                        if total_slots > 0 else 0.0,
+                    "samples_with_real_imagery": samples_with_real,
+                    "samples_without_imagery": samples - samples_with_real,
+                }
+            return {"samples": samples, "streams": stream}
+
+        diagnostics = {
+            "max_observations": int(max_observations),
+            "policy": (
+                "accepted samples always carry >=1 real imagery pair (build "
+                "excludes zero-pair sequences); zero-fill pads only the "
+                "remaining slots inside the fixed window"
+            ),
+            "train": _split_block(train),
+            "val": _split_block(val),
+            "test": _split_block(test),
+            "overall": _split_block(list(train) + list(val) + list(test)),
+        }
+        return diagnostics
+
     def imagery_summary(
         self,
         train: Sequence[AgriculturalObservation],

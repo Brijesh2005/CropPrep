@@ -17,10 +17,16 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from itertools import count
 from pathlib import Path
 from typing import Any
 
 from shared.versioning import SemanticVersion
+
+#: Monotonic insertion sequence so "newest first" ordering is unambiguous
+#: even when several entries share the same wall-clock timestamp (fast,
+#: sub-tick registration loops).
+_SEQUENCE = count()
 
 
 @dataclass(slots=True)
@@ -31,6 +37,7 @@ class CheckpointEntry:
     stage: str = "checkpoint"
     version: str = "v1"
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    seq: int = field(default_factory=lambda: next(_SEQUENCE))
     epoch: int | None = None
     metrics: dict[str, Any] = field(default_factory=dict)
     path: str | None = None
@@ -42,6 +49,7 @@ class CheckpointEntry:
             "stage": self.stage,
             "version": self.version,
             "created_at": self.created_at,
+            "seq": self.seq,
             "epoch": self.epoch,
             "metrics": self.metrics,
             "path": self.path,
@@ -55,6 +63,7 @@ class CheckpointEntry:
             stage=data.get("stage", "checkpoint"),
             version=data.get("version", "v1"),
             created_at=data.get("created_at", ""),
+            seq=data.get("seq") if data.get("seq") is not None else next(_SEQUENCE),
             epoch=data.get("epoch"),
             metrics=data.get("metrics", {}),
             path=data.get("path"),
@@ -117,7 +126,7 @@ class CheckpointManager:
         entries = self._read()
         if run_name is not None:
             entries = [e for e in entries if e.run_name == run_name]
-        entries = sorted(entries, key=lambda e: e.created_at, reverse=True)
+        entries = sorted(entries, key=lambda e: (e.created_at, e.seq), reverse=True)
         return [e.to_dict() for e in entries]
 
     def latest(self, run_name: str | None = None) -> dict[str, Any] | None:
@@ -148,7 +157,7 @@ class CheckpointManager:
         entries = self._read()
         if run_name is not None:
             entries = [e for e in entries if e.run_name == run_name]
-        for entry in sorted(entries, key=lambda e: e.created_at, reverse=True):
+        for entry in sorted(entries, key=lambda e: (e.created_at, e.seq), reverse=True):
             if entry.resume:
                 return entry.to_dict()
         return self.latest(run_name)
@@ -179,7 +188,7 @@ class CheckpointManager:
             same_run = [e for e in entries if e.run_name == run_name]
             if len(same_run) > self.keep_last:
                 keep = {id(e) for e in sorted(
-                    same_run, key=lambda e: e.created_at, reverse=True
+                    same_run, key=lambda e: (e.created_at, e.seq), reverse=True
                 )[: self.keep_last]}
                 entries = [e for e in entries if e.run_name != run_name or id(e) in keep]
         self._write(entries)

@@ -48,6 +48,7 @@ import argparse
 import importlib
 import json
 import sys
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Any
 
@@ -69,6 +70,16 @@ from training.training.losses import MultiTaskLoss, build_class_weights  # noqa:
 from training.training.utils import apply_gradient_checkpointing  # noqa: E402
 
 
+def _shape_str(shape: Any) -> str:
+    """Render a tensor shape list as ``[4, 8, 1, 224, 224]`` for format columns.
+
+    A list must be stringified BEFORE an alignment width spec — applying
+    ``:30s`` to a raw ``list`` raises ``TypeError: unsupported format string
+    passed to list.__format__`` (the R5.3 formatter bug).
+    """
+    return "[" + ", ".join(str(int(d)) for d in shape) + "]"
+
+
 def _stats(t: torch.Tensor, name: str) -> dict[str, Any]:
     t_f = t.detach().float()
     return {
@@ -88,7 +99,7 @@ def _stats(t: torch.Tensor, name: str) -> dict[str, Any]:
 
 
 def _trace_forward(model: CropFusionModel, inputs: dict[str, Any]) -> tuple[dict[str, Any], Any]:
-    """Trace through each component of CropFusionModel."""
+    """Trace through each component of CropFusionModel (no autograd graph)."""
     trace: dict[str, Any] = {}
     hooks: dict[str, torch.Tensor] = {}
 
@@ -126,24 +137,26 @@ def _trace_forward(model: CropFusionModel, inputs: dict[str, Any]) -> tuple[dict
         registered.append(model.shared_encoder.register_forward_hook(_hook("shared_encoder")))
 
     # Forward
-    with torch.enable_grad():
-        out = model(inputs)
+    out = model(inputs)
 
     # Record stats for each hook
     for name, tensor in hooks.items():
         trace[name] = _stats(tensor, name)
-        print(f"  {name:30s} shape={list(tensor.shape):30s} "
+        shape_str = _shape_str(tensor.shape)
+        print(f"  {name:30s} shape={shape_str:26s} "
               f"nan={trace[name]['nan']} inf={trace[name]['inf']} "
               f"min={trace[name]['min']:.6g} max={trace[name]['max']:.6g}")
 
     # Record output heads
     if out.crop_logits is not None:
         trace["crop_logits"] = _stats(out.crop_logits, "crop_logits")
-        print(f"  {'crop_logits':30s} shape={list(out.crop_logits.shape):30s} "
+        shape_str = _shape_str(out.crop_logits.shape)
+        print(f"  {'crop_logits':30s} shape={shape_str:26s} "
               f"nan={trace['crop_logits']['nan']} inf={trace['crop_logits']['inf']}")
     if out.yield_pred is not None:
         trace["yield_pred"] = _stats(out.yield_pred, "yield_pred")
-        print(f"  {'yield_pred':30s} shape={list(out.yield_pred.shape):30s} "
+        shape_str = _shape_str(out.yield_pred.shape)
+        print(f"  {'yield_pred':30s} shape={shape_str:26s} "
               f"nan={trace['yield_pred']['nan']} inf={trace['yield_pred']['inf']}")
     if out.shared_representation is not None:
         trace["shared_repr"] = _stats(out.shared_representation, "shared_repr")
@@ -161,13 +174,28 @@ def _trace_backward(
     targets: dict[str, Any],
     loss_fn: MultiTaskLoss,
     device: torch.device,
+    *,
+    use_amp: bool = False,
 ) -> dict[str, Any]:
-    """Run forward + backward and report gradient norms per component."""
+    """Run forward + backward and report gradient norms per component.
+
+    ``use_amp`` mirrors the R5.2 trainer's FP16 GradScaler path on CUDA — the
+    exact environment where per-timestep checkpointing + cuDNN interplay matter
+    — so the gradient trace exercises the same precision/casting conditions as
+    a real training step.
+    """
     print("\n--- Gradient Flow Trace ---")
     model.train()
     grad_norms: dict[str, Any] = {}
 
-    with torch.enable_grad():
+    autocast_ctx = (
+        torch.autocast("cuda", dtype=torch.float16)
+        if use_amp and device.type == "cuda"
+        else nullcontext()
+    )
+    scaler = torch.amp.GradScaler("cuda", enabled=use_amp and device.type == "cuda")
+
+    with autocast_ctx:
         out = model(inputs)
         out_dict = {}
         if out.crop_logits is not None:
@@ -175,7 +203,7 @@ def _trace_backward(
         if out.yield_pred is not None:
             out_dict["yield"] = out.yield_pred
         total, per_task = loss_fn(out_dict, targets)
-        total.backward()
+        scaler.scale(total).backward()
 
     # Collect gradient norms per component
     components = {
@@ -420,12 +448,41 @@ def main(argv: list[str] | None = None) -> int:
         targets = {"crop": crops, "yield": yields}
         batch_profile = {"tabular": {"shape": list(tabular.shape), "finite": True}}
 
-    # Phase 1: Forward trace
-    print("\n--- Phase 1: Forward Trace ---")
-    forward_trace, _ = _trace_forward(model, inputs)
+    # Phase 1: Forward trace (inference mode — no activation graph retained,
+    # so the measured memory is the peak of a real inference batch).
+    print("\n--- Phase 1: Forward Trace (inference_mode) ---")
+    with torch.inference_mode():
+        forward_trace, _ = _trace_forward(model, inputs)
 
-    # Phase 2: Gradient trace
-    grad_trace = _trace_backward(model, inputs, targets, loss_fn, device)
+    # Phase 2: Gradient trace (autograd graph; FP16 AMP on CUDA mirrors the
+    # trainer so per-timestep checkpointing is exercised under the same
+    # precision/casting conditions as a real training step).
+    use_amp = device.type == "cuda"
+    if use_amp:
+        print("\n[AMP] FP16 autocast + GradScaler active for the gradient trace "
+              "(mirrors trainer config.general.amp)")
+    grad_trace = _trace_backward(
+        model, inputs, targets, loss_fn, device, use_amp=use_amp
+    )
+
+    # GPU memory report (no duplicate model instances were created).
+    memory: dict[str, Any] = {}
+    if device.type == "cuda":
+        torch.cuda.synchronize()
+        memory = {
+            "device": torch.cuda.get_device_name(0),
+            "total_mb": round(torch.cuda.get_device_properties(0).total_memory / 2 ** 20, 1),
+            "peek_reserved_mb": round(torch.cuda.max_memory_reserved() / 2 ** 20, 1),
+            "peek_allocated_mb": round(torch.cuda.max_memory_allocated() / 2 ** 20, 1),
+            "batch_size": args.batch_size,
+        }
+        print("\n--- GPU Memory ---")
+        print(f"  device:      {memory['device']}")
+        print(f"  total:       {memory['total_mb']} MB")
+        print(f"  peak resvd:  {memory['peek_reserved_mb']} MB")
+        print(f"  peak alloc:  {memory['peek_allocated_mb']} MB")
+        print(f"  batch:       {memory['batch_size']}")
+        torch.cuda.empty_cache()
 
     # Summary
     nan_components = [k for k, v in forward_trace.items() if isinstance(v, dict) and not v.get("finite", True)]
@@ -449,6 +506,8 @@ def main(argv: list[str] | None = None) -> int:
         "class_counts": counts.tolist(),
         "sequence_len": str(pre.config.temporal.max_observations),
         "checkpointing": not args.no_checkpointing,
+        "amp_enabled_trace": use_amp,
+        "gpu_memory": memory,
         "forward_trace": forward_trace,
         "gradient_trace": grad_trace,
         "nan_components": nan_components,

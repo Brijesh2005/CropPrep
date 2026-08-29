@@ -195,6 +195,44 @@ def test_nan_source_hooks_clean_model_records_nothing():
     assert sources == []
 
 
+def test_nan_source_hooks_graph_neutral_under_gradient_checkpointing():
+    model = _TangledModel()
+    apply_gradient_checkpointing(model, True)
+    model.train()
+    images = torch.rand(2, 2, 1, 32, 32)
+
+    with nan_source_hooks(model) as sources:
+        out = model.ndvi_encoder(images)
+
+    assert sources == []
+    try:
+        out.sum().backward()
+    except Exception as exc:  # pragma: no cover - failure assertion path
+        pytest.fail(
+            "checkpointed backward must be unaffected by NaN hooks, "
+            f"got {type(exc).__name__}: {exc}"
+        )
+    grads = [p.grad for p in model.ndvi_encoder.parameters() if p.grad is not None]
+    assert grads
+    assert all(torch.isfinite(g).all().item() for g in grads)
+
+
+def test_nan_source_hooks_still_attributes_nan_with_grad_enabled_forward():
+    model = _TangledModel()
+    with torch.no_grad():
+        for tensor in model.ndvi_encoder.parameters():
+            if tensor.ndim >= 2:
+                tensor[0, 0] = float("nan")
+                break
+    model.train()
+
+    with nan_source_hooks(model) as sources:
+        out = model.ndvi_encoder(torch.rand(2, 1, 1, 32, 32))
+
+    assert len(sources) >= 1
+    assert sources[0]["nan"] > 0
+
+
 # --------------------------------------------------------------------------- #
 # apply_gradient_checkpointing — setter-based wiring (OOM fix)
 # --------------------------------------------------------------------------- #

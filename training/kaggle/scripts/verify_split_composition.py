@@ -1,20 +1,20 @@
-"""R5.2 Task 6: temporal-split composition diagnostics.
+"""R5.2 Task 6: split-composition diagnostics over the frozen corpus.
 
-Verifies the actual train/val/test composition produced by the REAL
-``split_observations`` (temporal strategy, config from preprocessing.yaml) over
-the accepted corpus: year ranges, crop-label support, yield-label support,
-constant-tabular/constant-yield detection per split.
+Verifies the actual train/val/test composition carried by the FROZEN corpus:
+the taluk-level spatial split recorded in each observation's
+``provenance.split`` (train Belthangady+Mangalore+Puttur / val Bantwal /
+test Sullia), NOT a re-split of the accepted corpus at verify time.
 
-The concern: all 74 crop-labeled samples are data_season (2018-2019) -> the
-temporal split places them all in train; val/test (2022/2023) are exclusively
-DK district-level samples with no crop labels, identical mean-filled tabular
-vectors, and constant yields. This makes crop metrics undefined and yield R2
-meaningless on val/test.
+Why: re-splitting with the temporal strategy at verify time produced the
+8601/0/1518 contradiction (all crop-labelled 2018–2019 samples land in train,
+val/test are exclusively DK district-level rows), while the frozen corpus ships
+5561/2267/2291. The provenance split is authoritative: it is the split the
+corpus was built with, and the same one the training loop consumes.
 
 Run from repo root::
 
     python training/kaggle/scripts/verify_split_composition.py \\
-        --corpus kaggle_runs/train-dk-bridge/reports/CropPrep/training/kaggle/outputs/reports/corpus.json \\
+        --corpus training/kaggle/outputs/reports/corpus.json \\
         --output training/artifacts/input_verification
 """
 
@@ -23,37 +23,14 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
-
-def _add_repo_root(repo_root: Path) -> None:
-    repo_root = repo_root.resolve()
-    root = str(repo_root)
-    while root in sys.path:
-        sys.path.remove(root)
-    sys.path.insert(0, root)
-    repo_training = (repo_root / "training").resolve()
-    for entry in list(sys.path):
-        if entry == root or entry == "":
-            continue
-        shadow = Path(entry) / "training"
-        if shadow.exists() and shadow.resolve() != repo_training:
-            print(f"[verify_split] removing shadowing sys.path entry: {entry}")
-            sys.path.remove(entry)
-
-
-_add_repo_root(_REPO_ROOT)
-
-from training.preprocessing import (  # noqa: E402
-    Preprocessor,
-    load_preprocessing_config,
-    split_observations,
-)
 from training.stam.observation import AgriculturalObservation  # noqa: E402
 
 
@@ -64,6 +41,31 @@ def _load_observations(path: Path) -> list[AgriculturalObservation]:
         if sample["status"] == "accepted" and sample.get("observation") is not None:
             accepted.append(AgriculturalObservation.model_validate(sample["observation"]))
     return accepted
+
+
+def _split_from_provenance(
+    observations: list[AgriculturalObservation],
+) -> tuple[list[AgriculturalObservation], list[AgriculturalObservation], list[AgriculturalObservation]]:
+    """Split by the frozen taluk split recorded in ``provenance.split``.
+
+    This is the authoritative split (see module docstring). Unknown splits are
+    reported separately — they must never be silently merged into train.
+    """
+    train: list[AgriculturalObservation] = []
+    val: list[AgriculturalObservation] = []
+    test: list[AgriculturalObservation] = []
+    unknown: list[AgriculturalObservation] = []
+    for obs in observations:
+        split = obs.provenance.get("split", "unknown")
+        if split == "train":
+            train.append(obs)
+        elif split == "val":
+            val.append(obs)
+        elif split == "test":
+            test.append(obs)
+        else:
+            unknown.append(obs)
+    return train, val, test, unknown
 
 
 def _split_stats(name: str, obs: list[AgriculturalObservation]) -> dict[str, Any]:
@@ -101,28 +103,36 @@ def main(argv: list[str] | None = None) -> int:
     obs = _load_observations(Path(args.corpus))
     print(f"[verify_split] accepted observations: {len(obs)}")
 
-    config = (
-        Preprocessor.from_config(args.config).config
-        if args.config
-        else load_preprocessing_config(_REPO_ROOT / "training" / "config" / "preprocessing.yaml")
-    )
-    pre = Preprocessor(config)
-    accepted, _ = pre.filter(obs)
-    print(f"[verify_split] after quality filter: {len(accepted)}")
+    # The authoritative split is the frozen taluk split in provenance. Splitting
+    # again at verify time (temporal strategy) gives the invalid 8601/0/1518
+    # composition and leaks across the still-served 2025 images.
+    train, val, test, unknown = _split_from_provenance(obs)
+    print(f"[verify_split] frozen provenance split: "
+          f"train={len(train)} val={len(val)} test={len(test)}")
+    if unknown:
+        print(f"[verify_split] WARNING: {len(unknown)} observations have an "
+              f"unknown provenance.split — these never enter any split")
+        print(f"[verify_split] FATAL: unknown-split samples found (no silent "
+              f"train assignment)")
+        for u in unknown:
+            print(f"  - record_id={u.provenance.get('record_id')} "
+                  f"taluk={u.location.admin.taluk} split={u.provenance.get('split')}")
+        return 2
 
-    split_cfg = config.split
-    print(f"\n=== Split config: strategy={split_cfg.strategy} "
-          f"ratios=({split_cfg.train_ratio},{split_cfg.val_ratio},{split_cfg.test_ratio}) "
-          f"test_years={split_cfg.test_years} val_years={split_cfg.val_years}")
-
-    train, val, test = split_observations(accepted, split_cfg)
     for name, part in (("train", train), ("val", val), ("test", test)):
         st = _split_stats(name, part)
         print(f"\n--- {name} ---")
         for k, v in st.items():
             print(f"  {k}: {v}")
 
-    # Fit on train only (no leakage) -> transform all -> tabular uniqueness per split.
+    # Tabular uniqueness per split (fit on train only — no leakage).
+    from training.preprocessing import Preprocessor, load_preprocessing_config
+
+    pre = Preprocessor(
+        load_preprocessing_config(
+            args.config or (_REPO_ROOT / "training" / "config" / "preprocessing.yaml")
+        )
+    )
     pre.fit(train)
     for name, part in (("train", train), ("val", val), ("test", test)):
         vectors = []
@@ -134,14 +144,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\n{name}: tabular unique vectors = {unique} / {len(part)}")
 
     report = {
-        "split_config": {
-            "strategy": split_cfg.strategy,
-            "train_ratio": split_cfg.train_ratio,
-            "val_ratio": split_cfg.val_ratio,
-            "test_ratio": split_cfg.test_ratio,
-            "test_years": split_cfg.test_years,
-            "val_years": split_cfg.val_years,
-        },
+        "split_source": "provenance.split (frozen taluk-level spatial split)",
         "splits": {
             name: _split_stats(name, part)
             for name, part in (("train", train), ("val", val), ("test", test))
@@ -149,6 +152,8 @@ def main(argv: list[str] | None = None) -> int:
         "n_train": len(train),
         "n_val": len(val),
         "n_test": len(test),
+        "n_unknown": len(unknown),
+        "no_val0_contradiction": len(val) > 0 and len(test) > 0,
     }
 
     if args.output:
