@@ -77,7 +77,9 @@ from training.preprocessing import (  # noqa: E402
 )
 from training.stam import STAM  # noqa: E402
 from training.stam.config import load_stam_config  # noqa: E402
-from training.training.config import load_training_config  # noqa: E402
+from training.training.config import (  # noqa: E402
+    load_training_config as load_training_cfg,
+)
 from training.training.losses import MultiTaskLoss  # noqa: E402
 from training.training.validator import Validator  # noqa: E402
 
