@@ -30,6 +30,15 @@ from typing import Any
 import numpy as np
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
+# R5.3: ensure ``import training`` resolves to THIS repository before any
+# package import. Running the script from the repo root puts the script's own
+# directory (training/kaggle/scripts) on sys.path[0], NOT the repo root, which
+# previously raised ``ModuleNotFoundError: No module named 'training'`` on
+# Kaggle only (where CWD is also not on sys.path).
+import sys  # noqa: E402
+
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
 from training.stam.observation import AgriculturalObservation  # noqa: E402
 
@@ -68,6 +77,39 @@ def _split_from_provenance(
     return train, val, test, unknown
 
 
+def _sequence_counts(obs: AgriculturalObservation) -> dict[str, Any]:
+    """Real (paired or single-index) imagery dates for one observation.
+
+    R5.3: the frozen corpus carries exactly one survey date per record, so
+    every observation resolves to exactly one real temporal slot; the other
+    ``T - 1`` slots are zero-filled padding. This helper quantifies that per
+    split so the verifier reports imagery availability from the SAME frozen
+    corpus / provenance the training loop consumed.
+    """
+    pairs = getattr(getattr(obs, "sequence", None), "pairs", None) or []
+    ndvi = sum(1 for p in pairs if p.ndvi is not None)
+    evi = sum(1 for p in pairs if p.evi is not None)
+    return {
+        "real_ndvi": ndvi,
+        "real_evi": evi,
+        "lights": ndvi + evi,
+        "has_imagery": (ndvi + evi) > 0,
+    }
+
+
+def _imagery_stats(name: str, obs: list[AgriculturalObservation]) -> dict[str, Any]:
+    ndvi = sum(_sequence_counts(o)["real_ndvi"] for o in obs)
+    evi = sum(_sequence_counts(o)["real_evi"] for o in obs)
+    no_imagery = sum(1 for o in obs if not _sequence_counts(o)["has_imagery"])
+    return {
+        "samples": len(obs),
+        "real_ndvi_slots": ndvi,
+        "real_evi_slots": evi,
+        "real_slots_per_sample": round((ndvi + evi) / (2 * max(len(obs), 1)), 4),
+        "samples_without_imagery": no_imagery,
+    }
+
+
 def _split_stats(name: str, obs: list[AgriculturalObservation]) -> dict[str, Any]:
     years = [o.temporal.year for o in obs]
     crops = [o.crop for o in obs]
@@ -83,6 +125,7 @@ def _split_stats(name: str, obs: list[AgriculturalObservation]) -> dict[str, Any
         "matched_levels": dict(by_level),
         "yield_min": float(min(yields)) if yields else None,
         "yield_max": float(max(yields)) if yields else None,
+        "imagery": _imagery_stats(name, obs),
     }
     if yields:
         y = np.asarray(yields, dtype="float64")

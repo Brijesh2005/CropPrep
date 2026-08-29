@@ -324,6 +324,16 @@ class ValidationConfig(BaseModel):
     group_column: str = "village"
     #: Attribute used for temporal folds (e.g. "year").
     temporal_column: str = "year"
+    #: Enable fp16 autocast during validation passes. FP32 validation is the
+    #: default: the eval fast path encodes ``B * T`` frames in one backbone
+    #: forward (e.g. 16 x 8 = 128 frames), and fp16 GEMM/accumulation can go
+    #: non-finite there (R5.3 TR-VAL-001 at ``ndvi_encoder.backbone.blocks.4.2``
+    #: on P100) — training AMP is controlled separately by ``general.amp``.
+    #: Keep this ``False`` unless a numerics probe proves fp16 validation is
+    #: finite for the deployed batch size / GPU pair.
+    amp: bool = False
+    #: AMP compute dtype for validation when ``amp`` is enabled.
+    amp_dtype: str = Field(default="float16", pattern="^(float16|bfloat16)$")
 
 
 class AblationConfig(BaseModel):

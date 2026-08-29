@@ -230,8 +230,14 @@ class Trainer:
                 self.loss_module,
                 device=self.device,
                 metrics_config=config.metrics,
-                amp=self.amp,
-                amp_dtype=config.general.amp_dtype,
+                # R5.3: validation precision is decoupled from training AMP.
+                # Training stays AMP (general.amp + GradScaler); the validator
+                # runs FP32 by default so the ``B * T`` eval fast path cannot
+                # overflow under fp16 autocast (TR-VAL-001: 128-frame eval
+                # forward went Inf at blocks.4.2 on P100 while the per-timestep
+                # B=16 training path and the batch-4 diagnostic stayed finite).
+                amp=config.validation.amp,
+                amp_dtype=config.validation.amp_dtype,
                 input_map=self.input_map,
                 nan_policy=config.general.nan_policy,
             )

@@ -204,7 +204,12 @@ def nan_source_hooks(model: nn.Module) -> Iterator[list[dict[str, Any]]]:
     Registering hooks does not run a forward; wrap the *real* forward pass
     (e.g. ``with nan_source_hooks(model) as sources: out = model(batch)``) and
     inspect ``sources`` afterwards. Each entry is
-    ``{"module", "shape", "nan", "inf"}`` for the first tensor that broke.
+    ``{"module", "type", "shape", "nan", "inf", "input_finite", "origin"}`` for
+    the first tensor that broke:
+
+    * ``origin == "created"`` — the module received only finite inputs and its
+      output went non-finite first (this module is the ROOT CAUSE locus).
+    * ``origin == "propagated"`` — a non-finite input flowed straight through.
 
     The trace is diagnostic-only: it never raises, never mutates the graph and
     is safe under ``no_grad`` / autocast. The finiteness checks themselves run
@@ -219,27 +224,40 @@ def nan_source_hooks(model: nn.Module) -> Iterator[list[dict[str, Any]]]:
     # propagation of the same NaN.
     state = {"hit": False}
 
+    def _extract(tensors: Any) -> list[torch.Tensor]:
+        if isinstance(tensors, torch.Tensor):
+            return [tensors]
+        if isinstance(tensors, (tuple, list)):
+            return [t for t in tensors if isinstance(t, torch.Tensor)]
+        if isinstance(tensors, Mapping):
+            return [t for t in tensors.values() if isinstance(t, torch.Tensor)]
+        if hasattr(tensors, "__dataclass_fields__"):
+            return [
+                t for t in tensors.__dict__.values() if isinstance(t, torch.Tensor)
+            ]
+        return []
+
     def _make_hook(name: str) -> Any:
         def _hook(_module: nn.Module, _inputs: Any, output: Any) -> None:
             if state["hit"]:
                 return
-            tensors: list[torch.Tensor] = []
-            if isinstance(output, torch.Tensor):
-                tensors = [output]
-            elif isinstance(output, (tuple, list)):
-                tensors = [t for t in output if isinstance(t, torch.Tensor)]
-            elif isinstance(output, Mapping):
-                tensors = [t for t in output.values() if isinstance(t, torch.Tensor)]
-            elif hasattr(output, "__dataclass_fields__"):
-                tensors = [
-                    t for t in output.__dict__.values() if isinstance(t, torch.Tensor)
-                ]
-            for tensor in tensors:
+            for tensor in _extract(output):
                 if tensor is None or not tensor.dtype.is_floating_point:
                     continue
                 with torch.no_grad():
                     finite = bool(torch.isfinite(tensor).all().item())
                 if not finite:
+                    # Was the breakage produced HERE (finite in -> non-finite
+                    # out) or received as a non-finite input (propagated)?
+                    input_tensors = [
+                        t for t in _extract(_inputs)
+                        if t is not None and t.dtype.is_floating_point
+                    ]
+                    with torch.no_grad():
+                        input_finite = all(
+                            bool(torch.isfinite(t).all().item())
+                            for t in input_tensors
+                        )
                     with torch.no_grad():
                         nan_count = int(torch.isnan(tensor).count_nonzero().item())
                         inf_count = int(torch.isinf(tensor).count_nonzero().item())
@@ -250,6 +268,8 @@ def nan_source_hooks(model: nn.Module) -> Iterator[list[dict[str, Any]]]:
                             "shape": [int(size) for size in tensor.shape],
                             "nan": nan_count,
                             "inf": inf_count,
+                            "input_finite": bool(input_finite),
+                            "origin": "created" if input_finite else "propagated",
                         }
                     )
                     state["hit"] = True

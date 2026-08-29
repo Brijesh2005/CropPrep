@@ -101,6 +101,27 @@ def _parse_csv_strs(value: str | None) -> list[str] | None:
     return [token.strip() for token in value.split(",") if token.strip()]
 
 
+def _emit_report(
+    report: dict[str, Any], args: argparse.Namespace, workspace: Any
+) -> Path:
+    """Write the pipeline report JSON (also called on failure / skip paths).
+
+    R5.3: the report is emitted whenever the pipeline terminates — completed,
+    skipped (empty split / failed contract) or *failed* mid-training — so a
+    crashed run can never leave a stale ``pipeline.json`` (or nothing) behind
+    for the notebook's status cells to misread as "skipped".
+    """
+    output = Path(args.output) if args.output else workspace.output_path("reports")
+    output.mkdir(parents=True, exist_ok=True)
+    target = output / "pipeline.json"
+    target.write_text(
+        json.dumps(report, indent=2, default=str, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    print(f"[run_pipeline] wrote pipeline report -> {target}")
+    return target
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="cropfusion-run-pipeline",
@@ -189,6 +210,13 @@ def main(argv: list[str] | None = None) -> int:
         default=True,
         help="Verify the frozen corpus data contract before training (default: True)",
     )
+    parser.add_argument(
+        "--lightweight",
+        action="store_true",
+        help="Lightweight numerical gate: one training epoch + one validation "
+             "pass with the real corpus (the pre-full-run NaN/Inf check). "
+             "Overrides training epochs to 1 and disables benchmark/visualization.",
+    )
     args = parser.parse_args(argv)
 
     repo_root = Path(args.repo_root).resolve()
@@ -203,6 +231,19 @@ def main(argv: list[str] | None = None) -> int:
     model_cfg = load_model_cfg(Path(args.model_config))
     stam_cfg = load_stam_config(Path(args.stam_config))
     preprocessing_cfg = Preprocessor.from_config(args.preprocessing_config)
+    if args.lightweight:
+        # R5.3 lightweight numerical gate: 1 epoch, no benchmark / visualizer.
+        # Validation stays FP32 (validation.amp defaults to False) so the
+        # ``B * T`` eval fast path is numerically safe; training stays AMP.
+        training_cfg.train.epochs = 1
+        training_cfg.benchmark.enabled = False
+        training_cfg.visualization.enabled = False
+        training_cfg.checkpoint.save_best = False
+        training_cfg.checkpoint.save_latest = False
+        print(
+            "[run_pipeline] --lightweight: 1 training epoch + validation "
+            "(real corpus, FP32 validation, AMP training)"
+        )
     if (
         stam_cfg.temporal.season_file is not None
         and not stam_cfg.temporal.season_file.is_absolute()
@@ -309,6 +350,7 @@ def main(argv: list[str] | None = None) -> int:
                     f"  train={len(train_obs)} val={len(val_obs)} test={len(test_obs)}"
                 )
                 print("Training aborted.\n")
+                _emit_report(report, args, workspace)
                 return 1
 
             corpus_path = workspace.output_path("reports", "frozen_corpus.json")
@@ -353,6 +395,7 @@ def main(argv: list[str] | None = None) -> int:
                 for err in contract_errors:
                     print(f"  - {err}")
                 print("Training aborted.\n")
+                _emit_report(report, args, workspace)
                 return 1
 
             report["corpus"] = {
@@ -395,6 +438,17 @@ def main(argv: list[str] | None = None) -> int:
                         f"real_frac={s['real_frac']:.1%} "
                         f"samples_no_imagery={s['samples_without_imagery']}"
                     )
+            # R5.3: one real temporal slot per observation is BY CONSTRUCTION —
+            # each frozen CSV row carries exactly one survey_date, so STAM
+            # resolves exactly one (NDVI, EVI) pair per sample. The remaining
+            # T-1 slots are zero-filled padding, which the temporal mask
+            # correctly excludes.
+            print(
+                "  Note: exactly 1 real temporal slot per observation by "
+                "construction (each frozen CSV row has one survey_date); the "
+                "other T-1 slots are zero-filled padding excluded by the "
+                "temporal mask."
+            )
             logger.log_experiment(
                 "frozen_corpus_loaded",
                 total=len(accepted),
@@ -455,7 +509,23 @@ def main(argv: list[str] | None = None) -> int:
                 run_name=training_cfg.name,
                 pre_split=pre_split,
             )
-            result = experiment.run()
+            # R5.3: a mid-training crash (e.g. ValidationError from a
+            # non-finite validation loss) must record a truthful report instead
+            # of leaving the workspace without pipeline.json.
+            try:
+                result = experiment.run()
+            except Exception as exc:
+                report["training"] = {
+                    "status": "failed",
+                    "error": f"{type(exc).__name__}: {exc}",
+                    "accepted_observations": len(accepted),
+                    "run_dir": str(run_dir),
+                }
+                _emit_report(report, args, workspace)
+                logger.log_experiment(
+                    "training_failed", run_dir=str(run_dir), error=str(exc)
+                )
+                raise
             report["training"] = {
                 "status": "completed",
                 "accepted_observations": len(accepted),
@@ -480,14 +550,7 @@ def main(argv: list[str] | None = None) -> int:
         severity_summary=validation.by_severity(),
     )
 
-    output = Path(args.output) if args.output else workspace.output_path("reports")
-    output.mkdir(parents=True, exist_ok=True)
-    target = output / "pipeline.json"
-    target.write_text(
-        json.dumps(report, indent=2, default=str, ensure_ascii=False),
-        encoding="utf-8",
-    )
-    print(f"[run_pipeline] wrote pipeline report -> {target}")
+    _emit_report(report, args, workspace)
     if use_frozen:
         print(
             f"[run_pipeline] frozen corpus -> total={len(accepted)} "

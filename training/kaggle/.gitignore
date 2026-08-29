@@ -11,11 +11,13 @@ runs/
 lightning_logs/
 
 # Runtime workspace dirs (created by bootstrap / WorkspaceManager).
-training/kaggle/logs/
-training/kaggle/outputs/
-training/kaggle/checkpoints/
-training/kaggle/cache/
-training/kaggle/configs/*.json
+# NOTE: gitignore patterns are relative to THIS file, so use dir-local paths
+# (a `training/kaggle/...` prefix here would match nothing).
+logs/
+outputs/
+checkpoints/
+cache/
+configs/*.json
 
 # Jupyter notebooks ignore the environment; the environment.yml is at repo root.
 .env
