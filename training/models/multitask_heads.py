@@ -20,6 +20,27 @@ from .exceptions import ModelConfigurationError
 from .utils import get_activation
 
 
+def _head_forward(module: nn.Module, x: torch.Tensor, call: Any) -> torch.Tensor:
+    """Run a task head outside torch autocast (FP32 math under AMP).
+
+    R5.4 numerical-stability fix: the GradScaler scales the loss by a factor
+    of ``2**16`` *before* backward, so every weight gradient is computed at
+    ``65536 * true_grad`` magnitude. The classifier weight gradient of a
+    task head crosses fp16's 65504 limit whenever a true coordinate reaches
+    ~1.0 (observed exactly once, then inflated because neither
+    ``scaler.unscale_()`` nor ``clip_grad_norm_`` can repair a value already
+    non-finite). Task heads are tiny relative to the imaging backbone, so
+    under AMP they run in FP32 while the backbone keeps full AMP.
+    """
+    with torch.autocast(device_type=x.device.type, dtype=torch.float32, enabled=False):
+        # AMP keeps nn.Linear params FP32, so the head math runs FP32. If the
+        # model was *explicitly* cast to a fixed dtype (e.g. ``model.half()``
+        # / ``apply_precision``), mirror the head weight dtype instead.
+        dtype = next(module.parameters(), None)
+        dtype = dtype.dtype if dtype is not None else torch.float32
+        return call(x.to(dtype))
+
+
 class CropHead(nn.Module):
     """Crop recommendation head (softmax classification over crop classes).
 
@@ -55,7 +76,7 @@ class CropHead(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore[override]
         """Return ``[B, num_classes]`` logits (softmax applied at inference)."""
-        return self.classifier(self.net(x))
+        return _head_forward(self, x, lambda xi: self.classifier(self.net(xi)))
 
 
 class YieldHead(nn.Module):
@@ -89,11 +110,17 @@ class YieldHead(nn.Module):
         self.output_dim = 1
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore[override]
-        """Return ``[B, 1]`` predicted yield."""
-        out = self.net(x)
-        if self.output_clamp_min is not None:
-            out = torch.clamp(out, min=float(self.output_clamp_min))
-        return out
+        """Return ``[B, 1]`` predicted yield.
+
+        Runs in FP32 (see :func:`_head_forward` for the AMP reason).
+        """
+        def _call(xi: torch.Tensor) -> torch.Tensor:
+            out = self.net(xi)
+            if self.output_clamp_min is not None:
+                out = torch.clamp(out, min=float(self.output_clamp_min))
+            return out
+
+        return _head_forward(self, x, _call)
 
 
 class MultiTaskHeads(nn.Module):

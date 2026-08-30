@@ -564,9 +564,11 @@ class Trainer:
                     value.detach().item()
                 ) * batch_size
 
-            # NaN / Inf detection.
-            nan_detected = general.nan_detection and self._nan_in_state(total.detach())
-            if nan_detected:
+            # Non-finite LOSS (pre-unscale): a NaN/Inf loss is never
+            # repairable by unscale or gradient clip, so it stays the
+            # fail-fast signal (it also fires before accumulation waiting).
+            loss_bad = general.nan_detection and _has_nan_or_inf(total.detach())
+            if loss_bad:
                 diagnostics = self._collect_nan_diagnostics(
                     epoch, batch_index, total, per_task, inputs, targets
                 )
@@ -587,16 +589,54 @@ class Trainer:
                         **{k: v for k, v in diagnostics.items() if k in
                            ("loss", "per_task_losses", "inputs", "grad_params")},
                     )
-
-            last_batch = batch_index == num_batches - 1
-            if nan_detected and general.nan_policy in ("warn", "skip"):
                 self.optimizer.zero_grad(set_to_none=True)
                 continue
 
+            last_batch = batch_index == num_batches - 1
             if (batch_index + 1) % accum == 0 or last_batch:
-                if general.gradient_clip is not None:
+                # Unscale BEFORE inspecting gradient finiteness: the scaler's
+                # designed recovery for fp16 overflow (skip the step + halve
+                # its scale) must get a chance, and the reported magnitudes
+                # are then TRUE gradients instead of 65536-scaled fp16 space.
+                if self.scaler is not None:
+                    self.scaler.unscale_(self.optimizer)
+                if general.nan_detection and self._grads_nonfinite():
+                    diagnostics = self._collect_nan_diagnostics(
+                        epoch, batch_index, total, per_task, inputs, targets
+                    )
+                    self.nan_steps += 1
+                    self.nan_diagnostics.append(diagnostics)
+                    if general.nan_policy == "stop":
+                        self._fire(
+                            "on_exception",
+                            TrainingRunError(
+                                "Non-finite gradient detected in training state"
+                            ),
+                        )
+                        raise TrainingRunError(
+                            "Non-finite gradient detected in training state; "
+                            "aborting (nan_policy=stop)",
+                            detail=diagnostics,
+                        )
+                    if self.logger is not None:
+                        self.logger.warning(
+                            "Non-finite gradient detected; skipping step",
+                            epoch=epoch,
+                            step=batch_index,
+                            nan_steps=self.nan_steps,
+                            **{k: v for k, v in diagnostics.items() if k in
+                               ("loss", "per_task_losses", "inputs", "grad_params")},
+                        )
+                    # A non-finite true gradient never feeds clip or step;
+                    # the scaler path still runs step()+update() so an fp16
+                    # scale overflow halves its scale for the next cycle.
                     if self.scaler is not None:
-                        self.scaler.unscale_(self.optimizer)
+                        self.scaler.step(self.optimizer)
+                        self.scaler.update()
+                    self.optimizer.zero_grad(set_to_none=True)
+                    continue
+
+                if general.gradient_clip is not None:
                     params = self.raw_model.parameters()
                     if general.gradient_clip_type == "value":
                         torch.nn.utils.clip_grad_value_(
@@ -693,9 +733,12 @@ class Trainer:
             raise
         return profile
 
-    def _nan_in_state(self, loss: torch.Tensor) -> bool:
-        if _has_nan_or_inf(loss):
-            return True
+    def _grads_nonfinite(self) -> bool:
+        """True when any enabled parameter's (unscaled) gradient is non-finite.
+
+        Called after ``scaler.unscale_()`` so the values inspected are the
+        true gradients — never the 65536-scaled fp16 backward space.
+        """
         for _name, param in named_enabled_parameters(self.raw_model):
             if param.grad is not None and _has_nan_or_inf(param.grad):
                 return True

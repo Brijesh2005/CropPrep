@@ -66,6 +66,22 @@ def test_class_frequency_weights_zero_counts_stable():
     assert w[0] > w[1]  # missing class gets the highest weight
 
 
+def test_class_frequency_weights_absent_train_class_floored():
+    # Real R5.4 train-split counts: blackgram (last) never appears in train.
+    # A class absent from the split must be treated as 1 observed pseudo-sample,
+    # not ~1/sqrt(eps): the old eps=1e-6 floor exploded its weight to ~5.0
+    # while coconut/pepper (99.2% of train) collapsed to ~1e-4.
+    counts = torch.tensor([4099.0, 1970.0, 41.0, 6.0, 0.0])
+    w = class_frequency_weights(counts, "sqrt_inv")
+    assert torch.isfinite(w).all()
+    assert (w > 0).all()
+    assert w.mean().item() == pytest.approx(1.0)
+    assert (w.diff() > 0).all()          # rarer classes weigh more
+    assert w[-1].item() <= 3.3           # sane cap (preflight asserts <= 4)
+    assert w[0].item() > 1e-3            # majority classes keep real signal
+    assert w[1].item() > 1e-3
+
+
 def test_class_frequency_weights_unknown_mode():
     with pytest.raises(LossBuildError):
         class_frequency_weights(torch.tensor([1.0]), "bogus")

@@ -217,6 +217,13 @@ def main(argv: list[str] | None = None) -> int:
              "pass with the real corpus (the pre-full-run NaN/Inf check). "
              "Overrides training epochs to 1 and disables benchmark/visualization.",
     )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=None,
+        help="Override training epochs (e.g. 3 for a short numerical-stability "
+             "test on Kaggle before committing to a full 30-epoch run).",
+    )
     args = parser.parse_args(argv)
 
     repo_root = Path(args.repo_root).resolve()
@@ -253,6 +260,9 @@ def main(argv: list[str] | None = None) -> int:
         stam_cfg.temporal.season_file = (
             Path(args.stam_config).resolve().parent / stam_cfg.temporal.season_file
         )
+
+    if args.epochs is not None:
+        training_cfg.train.epochs = args.epochs
 
     # 2. Environment + logging + workspace.
     environment = EnvironmentManager(repo_root)

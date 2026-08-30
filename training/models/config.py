@@ -485,6 +485,18 @@ class ModelConfig(BaseModel):
         """
         derived = cls._derived_schema(preprocessor)
         merged = deep_merge(derived, overrides)
+        # R5.4 task-8 fix: the derived ``yield_prediction=None`` is resurrected
+        # when user architecture overrides declare a yield head (model.yaml
+        # always does), so a corpus with NO physical yield labels (yield_scaler
+        # never fitted) must have the head disabled AFTER the merge — training
+        # on fabricated all-zero targets reports meaningless yield RMSE/MAE.
+        has_yield = getattr(
+            getattr(preprocessor, "label", None), "yield_scaler", None
+        ) is not None
+        if not has_yield:
+            heads = dict(merged.get("heads") or {})
+            heads["yield_prediction"] = None
+            merged["heads"] = heads
         return cls(**merged)
 
     # -- Serialization ------------------------------------------------------ #

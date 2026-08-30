@@ -194,7 +194,11 @@ def class_frequency_weights(
         A normalised ``[C]`` weight tensor (mean weight 1).
     """
     counts = torch.as_tensor(counts, dtype=torch.float32)
-    safe = counts.clamp(min=eps)
+    # Floor pseudo-counts at 1 observed sample (never at eps=1e-6): a class
+    # absent from the training split (e.g. blackgram) must not explode to a
+    # ~1/sqrt(eps) weight while the dominant classes collapse to ~1e-4 —
+    # that starves the classifier of gradient from 99% of the corpus.
+    safe = counts.clamp(min=max(eps, 1.0))
     if mode == "balanced":
         total = safe.sum()
         weights = total / (safe.numel() * safe)

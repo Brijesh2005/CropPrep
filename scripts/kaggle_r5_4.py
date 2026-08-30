@@ -77,12 +77,24 @@ def _sha256(path: Path) -> str:
 
 
 def _run(cmd: list[str], check: bool = True, **kw: Any) -> subprocess.CompletedProcess:
-    """Run a subprocess and return the result."""
+    """Run a subprocess and return the result.
+
+    Captured output is decoded as UTF-8 with replacement so non-ASCII log
+    bytes (Kaggle kernel logs are JSON-escaped UTF-8) never raise a
+    ``UnicodeDecodeError`` / ``cp1252 'charmap'`` error while monitoring.
+    The child (the ``kaggle`` CLI) also gets UTF-8 IO so its *own* print
+    calls cannot die on the Windows console codec when dumping logs.
+    """
+    env = dict(os.environ)
+    env.setdefault("PYTHONIOENCODING", "utf-8")
     return subprocess.run(
         cmd,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         check=check,
+        env=env,
         **kw,
     )
 
@@ -294,6 +306,32 @@ def cmd_check(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 
 
+def _inject_epochs_cell(notebook_path: Path, epochs: int) -> None:
+    """Prepend a cell that pins ``R5_4_EPOCHS`` in the deployed notebook copy.
+
+    Kaggle kernels cannot receive environment variables through the push API,
+    so a short numerical-stability test run (``--test-epochs``) is shipped by
+    inserting a cell that sets the env var before the training cell reads it.
+    """
+    nb = json.loads(notebook_path.read_text(encoding="utf-8"))
+    nb.setdefault("cells", [])
+    nb["cells"].insert(
+        0,
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "import os\n",
+                f"os.environ['R5_4_EPOCHS'] = '{epochs}'\n",
+                f"print('R5.4 STABILITY-TEST MODE: pinned to {epochs} training epoch(s)')\n",
+            ],
+        },
+    )
+    notebook_path.write_text(json.dumps(nb, indent=1), encoding="utf-8")
+
+
 def cmd_prepare(args: argparse.Namespace) -> int:
     """Prepare the Kaggle deployment directory."""
     _print_section("PREPARING DEPLOYMENT DIRECTORY")
@@ -305,6 +343,15 @@ def cmd_prepare(args: argparse.Namespace) -> int:
     dst_nb = DEPLOY_DIR / "R5_4_train.ipynb"
     shutil.copy2(NOTEBOOK_SRC, dst_nb)
     _print_row("Notebook", f"Copied -> {dst_nb.name}")
+
+    # Optional short numerical-stability test (3 epochs) instead of the full
+    # 30-epoch run: inject the R5_4_EPOCHS override into the deployed copy.
+    test_epochs = getattr(args, "test_epochs", None)
+    if test_epochs is not None:
+        _inject_epochs_cell(dst_nb, int(test_epochs))
+        _print_row("Test epochs", f"{test_epochs} (injected R5_4_EPOCHS)")
+    else:
+        _print_row("Test epochs", "off (FULL 30-EPOCH RUN)")
 
     # Read manifest for metadata
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
@@ -758,7 +805,17 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", help="Available commands")
 
     sub.add_parser("check", help="Local prerequisites only")
-    sub.add_parser("prepare", help="Prepare Kaggle deployment directory")
+
+    prepare_p = sub.add_parser("prepare", help="Prepare Kaggle deployment directory")
+    prepare_p.add_argument(
+        "--test-epochs",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Deploy a short numerical-stability test: pin training to N "
+             "epochs (e.g. --test-epochs 3) instead of the full 30-epoch run.",
+    )
+
     sub.add_parser("push", help="Push/update notebook to Kaggle")
     sub.add_parser("run", help="Start remote execution")
     sub.add_parser("status", help="Show current Kaggle status")
@@ -779,6 +836,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         default=False,
         help="Confirm real training submission",
+    )
+    full_p.add_argument(
+        "--test-epochs",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Deploy a short numerical-stability test (pinned to N epochs) "
+             "instead of the full 30-epoch run.",
     )
 
     return parser
@@ -804,6 +869,13 @@ def main(argv: list[str] | None = None) -> int:
     if not args.command:
         parser.print_help()
         return 1
+
+    # Reconfigure the console streams so printing UTF-8 log dumps (e.g.
+    # `kaggle kernels logs`) never raises a cp1252 'charmap' codec error.
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
 
     fn = COMMANDS.get(args.command)
     if fn is None:

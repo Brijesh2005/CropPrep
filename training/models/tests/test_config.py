@@ -94,6 +94,38 @@ def test_derivation_from_preprocessor_onehot(preprocessor_onehot):
     assert cfg.tabular_feature_dim == len(preprocessor_onehot.tabular.feature_names)
 
 
+def _stub_preprocessor(*, has_yield: bool):
+    """Duck-typed stand-in for a fitted Preprocessor (schema-read attrs only)."""
+    from types import SimpleNamespace
+
+    yield_scaler = SimpleNamespace(mean_=[1.0], scale_=[2.0]) if has_yield else None
+    return SimpleNamespace(
+        tabular=SimpleNamespace(encoder=None, numeric_features=[],
+                                feature_names=["rainfall_mm", "village"]),
+        label=SimpleNamespace(num_classes=3, yield_scaler=yield_scaler),
+        config=SimpleNamespace(
+            image=SimpleNamespace(size=16),
+            temporal=SimpleNamespace(max_observations=8),
+        ),
+    )
+
+
+def test_from_preprocessor_forces_yield_off_without_yield_scaler():
+    """R5.4 task-8 regression: a user model config (model.yaml) declaring a
+    yield head must NOT resurrect it when the corpus has no yield labels —
+    previously deep_merge overrode the derived ``yield_prediction=None``."""
+    pre = _stub_preprocessor(has_yield=False)
+    cfg = ModelConfig.from_preprocessor(pre, heads={"yield_prediction": {}})
+    assert cfg.heads.yield_prediction is None
+    assert cfg.heads.crop.num_classes == 3
+
+
+def test_from_preprocessor_preserves_yield_with_yield_scaler():
+    pre = _stub_preprocessor(has_yield=True)
+    cfg = ModelConfig.from_preprocessor(pre, heads={"yield_prediction": {}})
+    assert cfg.heads.yield_prediction is not None
+
+
 def test_factory_requires_fitted_preprocessor():
     from training.models import ModelFactory
     from training.preprocessing import Preprocessor
