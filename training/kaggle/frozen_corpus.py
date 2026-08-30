@@ -62,6 +62,11 @@ _MANIFEST_REQUIRED = {
     "validation_samples",
     "test_samples",
     "class_mapping",
+    # R5.4 explicit class contract: supervised_classes is the crop-head output
+    # vocabulary; excluded_classes records corpus labels outside it (so an
+    # exclusion can never be silent again).
+    "supervised_classes",
+    "excluded_classes",
     "split_groups",
     "provenance_schema",
 }
@@ -179,6 +184,32 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
         raise FrozenCorpusError("split_groups.validation_taluk is missing")
     if not split_groups.get("test_taluk"):
         raise FrozenCorpusError("split_groups.test_taluk is missing")
+
+    # R5.4 explicit class contract: supervised_classes defines the crop-head
+    # output vocabulary; excluded_classes records corpus labels outside it.
+    supervised = list(raw.get("supervised_classes") or [])
+    excluded = list(raw.get("excluded_classes") or [])
+    if not supervised:
+        raise FrozenCorpusError(
+            "manifest supervised_classes is empty — the crop head would learn "
+            "nobody's vocabulary"
+        )
+    known = set(raw.get("class_mapping", {}))
+    if set(supervised) - known:
+        raise FrozenCorpusError(
+            f"supervised_classes references unknown classes: "
+            f"{sorted(set(supervised) - known)}"
+        )
+    if set(excluded) - known:
+        raise FrozenCorpusError(
+            f"excluded_classes references unknown classes: "
+            f"{sorted(set(excluded) - known)}"
+        )
+    if set(supervised) & set(excluded):
+        raise FrozenCorpusError(
+            f"classes listed in BOTH supervised_classes and excluded_classes: "
+            f"{sorted(set(supervised) & set(excluded))}"
+        )
 
     log_dict(
         logger,
@@ -507,6 +538,13 @@ class FrozenCorpusLoader:
         #: Populated by :meth:`build` — ``{rows, excluded, train, val, test,
         #: accepted}`` from the last corpus build.
         self.last_build_stats: dict[str, int] | None = None
+
+    @property
+    def manifest(self) -> dict[str, Any]:
+        """The validated manifest dict (available after :meth:`validate`)."""
+        if self._manifest is None:
+            raise FrozenCorpusError("validate() must run before reading the manifest")
+        return self._manifest
 
     def validate(self) -> dict[str, Any]:
         """Validate manifest + CSV schema without building observations.

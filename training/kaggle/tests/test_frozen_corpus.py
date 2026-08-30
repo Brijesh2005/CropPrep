@@ -73,6 +73,8 @@ def manifest_path(tmp_path: Path) -> Path:
             "cardamom": 8,
             "blackgram": 9,
         },
+        "supervised_classes": ["coconut", "pepper", "coffee"],
+        "excluded_classes": ["cardamom", "blackgram"],
         "class_counts": {
             "overall": {
                 "coconut": 5,

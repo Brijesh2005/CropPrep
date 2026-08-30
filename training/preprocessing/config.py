@@ -107,6 +107,14 @@ class LabelConfig(BaseModel):
     yield_task: str = Field(default="regression", pattern="^(regression|classification)$")
     #: Yield scaling: standard | minmax | none.
     yield_scaler: str = Field(default="standard", pattern="^(standard|minmax|none)$")
+    #: Explicit supervised crop vocabulary (from the data contract). When set,
+    #: the crop encoder uses exactly this class order instead of whatever labels
+    #: happen to appear in the training split, so a rare label (e.g. blackgram)
+    #: can no longer silently change the model's class schema.
+    declared_classes: list[str] = Field(default_factory=list)
+    #: Labels present in the corpus but explicitly excluded from supervision
+    #: (zero training support). Recorded for provenance and metrics bookkeeping.
+    excluded_classes: list[str] = Field(default_factory=list)
 
 
 class SplitConfig(BaseModel):

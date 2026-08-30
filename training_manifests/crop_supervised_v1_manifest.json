@@ -94,7 +94,19 @@
     "validation_taluk": "Bantwal",
     "test_taluk": "Sullia"
   },
-  "excluded_classes": [],
+  "supervised_classes": [
+    "coconut",
+    "pepper",
+    "coffee",
+    "cardamom"
+  ],
+  "excluded_classes": [
+    "blackgram"
+  ],
+  "class_schema": {
+    "note": "supervised_classes = crop-head output vocabulary (learnable); excluded_classes = corpus labels with zero training support, kept for provenance and matched-but-unlearnable analysis",
+    "excluded_reason": "class has zero training samples -> classifier cannot learn it; excluded explicitly (never silently)"
+  },
   "evaluation_policy": {
     "blackgram": "EXCLUDE from per-class evaluation (insufficient support)",
     "cardamom": "INCLUDE with low-support warning",

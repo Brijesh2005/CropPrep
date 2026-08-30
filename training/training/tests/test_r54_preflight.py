@@ -20,6 +20,7 @@ Covers the invariants the final Kaggle run depends on:
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -38,9 +39,24 @@ from training.training.metrics import compute_classification_metrics
 from training.training.optimizers import build_optimizer
 from training.training.tests.conftest import make_fake_loader, small_full_config
 
-# Real repository crop class counts: coconut 6468, pepper 3537, coffee 101,
-# cardamom 11, blackgram 2 (pre-normalisation class weight scale).
-REPO_COUNTS = torch.tensor([6468.0, 3537.0, 101.0, 11.0, 2.0])
+# R5.4: the crop-head vocabulary and weight order come from the MANIFEST
+# (explicit contract), never from a hard-coded local constant. Stale local
+# counts were the source of the "corpus says 5, model says 4" divergence, so
+# this test intentionally re-derives everything from the shipped manifest.
+_MANIFEST = json.loads(
+    (
+        Path(__file__).resolve().parents[2]
+        / ".."
+        / "training_manifests"
+        / "crop_supervised_v1_manifest.json"
+    ).read_text(encoding="utf-8")
+)
+SUPERVISED_CLASSES = list(_MANIFEST["supervised_classes"])
+EXCLUDED_CLASSES = list(_MANIFEST["excluded_classes"])
+TRAIN_COUNTS = torch.tensor(
+    [_MANIFEST["class_counts"]["train"][c] for c in SUPERVISED_CLASSES],
+    dtype=torch.float64,
+)
 
 
 # --------------------------------------------------------------------------- #
@@ -49,7 +65,7 @@ REPO_COUNTS = torch.tensor([6468.0, 3537.0, 101.0, 11.0, 2.0])
 
 
 def test_sqrt_inv_weights_sound_on_real_counts():
-    w = class_frequency_weights(REPO_COUNTS, "sqrt_inv")
+    w = class_frequency_weights(TRAIN_COUNTS, "sqrt_inv")
     assert torch.isfinite(w).all()
     assert (w > 0).all()
     assert w.mean().item() == pytest.approx(1.0)
@@ -322,3 +338,77 @@ def test_repo_configs_carry_r54_values():
     assert pc.augmentation.noise_std == 0.0
     assert pc.augmentation.flip_horizontal is True
     assert pc.augmentation.flip_vertical is True
+
+
+# --------------------------------------------------------------------------- #
+# 11. R5.4 explicit class contract (manifest-driven, never hard-coded)
+# --------------------------------------------------------------------------- #
+
+
+def test_manifest_class_schema_r54():
+    # The shipped contract must declare the exact supervised vocabulary that
+    # the crop head learns and MUST NOT silently drop any corpus label.
+    assert SUPERVISED_CLASSES == ["coconut", "pepper", "coffee", "cardamom"]
+    assert EXCLUDED_CLASSES == ["blackgram"]
+    mapping = _MANIFEST["class_mapping"]
+    supervised_ids = [mapping[c] for c in SUPERVISED_CLASSES]
+    excluded_ids = [mapping[c] for c in EXCLUDED_CLASSES]
+    assert all(c in mapping for c in SUPERVISED_CLASSES + EXCLUDED_CLASSES)
+    # Every corpus label is accounted for in exactly one bucket.
+    assert set(SUPERVISED_CLASSES).isdisjoint(EXCLUDED_CLASSES)
+    assert set(SUPERVISED_CLASSES) | set(EXCLUDED_CLASSES) == set(mapping)
+
+
+def test_every_declared_class_has_train_support_and_exclusion_has_none():
+    train_counts = _MANIFEST["class_counts"]["train"]
+    # cardamom (6 train rows) is the minimum-support included class.
+    for c in SUPERVISED_CLASSES:
+        assert train_counts.get(c, 0) > 0, f"{c} would be unlearnable"
+    for c in EXCLUDED_CLASSES:
+        assert train_counts.get(c, 0) == 0, f"excluded {c} surprisingly trainable"
+
+
+def test_crop_head_width_matches_declared_vocabulary():
+    # Custom-free check: the model's crop head must have one logit per declared
+    # supervised class, regardless of the corpus declaring more classes.
+    if len(SUPERVISED_CLASSES) == 4:
+        from types import SimpleNamespace
+
+        from training.models import ModelConfig
+
+        pre = SimpleNamespace(
+            tabular=SimpleNamespace(
+                encoder=None, numeric_features=[], feature_names=["ndvi", "evi"]
+            ),
+            label=SimpleNamespace(num_classes=4, yield_scaler=None),
+            config=SimpleNamespace(
+                image=SimpleNamespace(size=16),
+                temporal=SimpleNamespace(max_observations=8),
+            ),
+        )
+        cfg = ModelConfig.from_preprocessor(pre)
+        assert cfg.heads.crop.num_classes == len(SUPERVISED_CLASSES)
+        assert cfg.heads.crop.num_classes == 4
+        assert cfg.heads.yield_prediction is None
+
+
+def test_metrics_report_excluded_samples_instead_of_silent_drop():
+    torch.manual_seed(0)
+    logits = torch.tensor([[3.0, 0.0, 0.0], [0.0, 3.0, 0.0], [0.0, 0.0, 3.0]])
+    labels = torch.tensor([0, 1, -1])  # one unknown / excluded sample
+    m = compute_classification_metrics(logits, labels)
+    # R5.4: the dropped sample is counted, not hidden.
+    assert m["excluded_samples"] == 1
+    assert m["support"] == 2
+    # Class set stays the full width; the -1 label never leaks into metrics.
+    # Absent class 2 scores 0 on the fixed set -> macro = (1 + 1 + 0) / 3.
+    assert m["macro_f1"] == pytest.approx(2.0 / 3.0)
+
+
+def test_corpus_labels_are_fully_accounted():
+    overall = _MANIFEST["class_counts"]["overall"]
+    accounted = {
+        c: overall.get(c, 0)
+        for c in SUPERVISED_CLASSES + EXCLUDED_CLASSES
+    }
+    assert sum(accounted.values()) == _MANIFEST["total_samples"]

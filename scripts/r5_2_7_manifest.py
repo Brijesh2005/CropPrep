@@ -399,6 +399,15 @@ for fname in ["government_crop_stam_match.csv", "crop_supervised_v1.csv"]:
         checksums[fname] = file_checksum(fpath)
 checksums["data_season.csv"] = file_checksum("D:/CropPrep/Tabular_Datasets/data_season.csv")
 
+# R5.4: an EXPLICIT class contract. supervised_classes = the output vocabulary
+# of the crop head (classes with non-zero training support, in CSV first-appearance
+# = CROPS order); excluded_classes = labels present in the corpus but NOT learnable
+# (zero training samples -> the classifier can never see them). The pair must stay
+# consistent with the encoder, model head width, metrics and pre-flight checks, so
+# an exclusion can never happen silently again.
+supervised_classes = [c for c in CROPS if train_dist.get(c, 0) > 0]
+excluded_classes = [c for c in CROPS if train_dist.get(c, 0) == 0]
+
 manifest = {
     "dataset_version": "crop_supervised_v1.1",
     "creation_timestamp": datetime.now().isoformat(),
@@ -419,6 +428,8 @@ manifest = {
     "validation_samples": len(val_obs),
     "test_samples": len(test_obs),
     "class_mapping": class_ids,
+    "supervised_classes": list(supervised_classes),
+    "excluded_classes": list(excluded_classes),
     "class_counts": {
         "overall": dict(Counter(o["crop"] for o in final_observations)),
         "train": dict(train_dist),
@@ -432,7 +443,16 @@ manifest = {
         "validation_taluk": VAL_TALUK,
         "test_taluk": TEST_TALUK,
     },
-    "excluded_classes": [],
+    "excluded_classes": list(excluded_classes),
+    "class_schema": {
+        "note": "supervised_classes = crop-head output vocabulary (learnable); "
+                "excluded_classes = corpus labels with zero training support, "
+                "kept for provenance and matched-but-unlearnable analysis",
+        "supervised_classes": list(supervised_classes),
+        "excluded_classes": list(excluded_classes),
+        "excluded_reason": "class has zero training samples -> classifier cannot "
+                           "learn it; excluded explicitly (never silently)",
+    },
     "evaluation_policy": {
         "blackgram": "EXCLUDE from per-class evaluation (insufficient support)",
         "cardamom": "INCLUDE with low-support warning",

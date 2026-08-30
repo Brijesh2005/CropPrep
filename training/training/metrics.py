@@ -66,6 +66,11 @@ def compute_classification_metrics(
     Returns a dict of metric name -> float (``None`` when undefined).
     """
     config = config or MetricsConfig()
+    raw_labels = targets.reshape(-1)
+    # R5.4: never let excluded (unknown, target -1) samples disappear silently.
+    # Report the count alongside every computed metric so a class that drops out
+    # of the vocabulary is visible in the run log / pipeline report.
+    excluded_samples: int = int((raw_labels < 0).sum().item())
     logits, labels = _drop_unknown_labels(logits, targets)
 
     result: dict[str, Any] = {
@@ -88,6 +93,9 @@ def compute_classification_metrics(
         "roc_auc": None,
         "confusion_matrix": None,
         "support": int(labels.numel()),
+        #: Samples whose (unknown / excluded) target encoded to ``-1`` and were
+        #: dropped from every metric — surfaced instead of silently dropped.
+        "excluded_samples": int(excluded_samples),
     }
     if labels.numel() == 0:
         return result

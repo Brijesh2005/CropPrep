@@ -40,6 +40,12 @@ class LabelPipeline(Pipeline):
         # a mixed-unit yield target (e.g. kg/ha vs a normalized proxy) is
         # surfaced instead of silently distorting the regression target.
         self.yield_scale_stats: dict[str, Any] | None = None
+        # R5.4: explicit class contract — the supervised vocabulary the encoder
+        # MUST produce, labels deliberately excluded from supervision, and the
+        # per-label count of training samples that fell outside the vocabulary.
+        self.declared_classes: list[str] = []
+        self.excluded_classes: list[str] = []
+        self.excluded_counts: dict[str, int] = {}
         self.warnings: list[str] = []
 
     # ------------------------------------------------------------------ #
@@ -48,9 +54,45 @@ class LabelPipeline(Pipeline):
 
     def fit(self, samples: Sequence[Any]) -> "LabelPipeline":
         """Fit the crop label encoder and yield scaler on training samples."""
+        self.declared_classes = list(self.config.declared_classes)
+        self.excluded_classes = list(self.config.excluded_classes)
+        overlap = set(self.declared_classes) & set(self.excluded_classes)
+        if overlap:
+            raise FitError(
+                f"labels present in BOTH declared_classes and excluded_classes: "
+                f"{sorted(overlap)}"
+            )
+
         crops = [s.crop for s in samples if s.crop is not None]
         if crops:
-            self.crop_encoder = LabelEncoder().fit(crops)
+            present = set(crops)
+            if self.declared_classes:
+                # R5.4: deterministic, contract-driven vocabulary. Never let the
+                # label vocabulary emerge from whichever labels happen to appear
+                # in the training split — that is how blackgram silently dropped
+                # the model from 5 corpus classes to a 4-class crop head.
+                self.crop_encoder = LabelEncoder.from_dict(
+                    {"classes": list(self.declared_classes)}
+                )
+                missing = [c for c in self.declared_classes if c not in present]
+                if missing:
+                    self.warnings.append(
+                        f"declared supervised class(es) with ZERO training "
+                        f"samples: {missing} — the classifier cannot learn "
+                        "them; verify supervised_classes against the data contract"
+                    )
+                stray = sorted(present - set(self.declared_classes))
+                self.excluded_counts = {c: crops.count(c) for c in stray}
+                if self.excluded_counts:
+                    self.warnings.append(
+                        f"training labels outside the supervised vocabulary: "
+                        f"{self.excluded_counts} (declared excluded_classes="
+                        f"{self.excluded_classes}) — these samples are encoded "
+                        "to -1 and excluded from classification metrics"
+                    )
+            else:
+                self.crop_encoder = LabelEncoder().fit(crops)
+                self.excluded_counts = {}
 
         yields = [s.yield_value for s in samples if s.yield_value is not None]
         if yields:
@@ -175,6 +217,9 @@ class LabelPipeline(Pipeline):
             "crop_encoding": self.config.crop_encoding,
             "num_classes": self.num_classes,
             "classes": self.crop_encoder.classes_ if self.crop_encoder else [],
+            "declared_classes": list(self.declared_classes),
+            "excluded_classes": list(self.excluded_classes),
+            "excluded_sample_counts": dict(self.excluded_counts),
             "yield_scaler": self.config.yield_scaler,
             "yield_scale_stats": self.yield_scale_stats,
             "warnings": list(self.warnings),
@@ -186,6 +231,9 @@ class LabelPipeline(Pipeline):
         state = {
             "crop_encoder": self.crop_encoder.to_dict() if self.crop_encoder else None,
             "yield_scaler": self.yield_scaler.to_dict() if self.yield_scaler else None,
+            "declared_classes": list(self.declared_classes),
+            "excluded_classes": list(self.excluded_classes),
+            "excluded_counts": dict(self.excluded_counts),
         }
         (out / "label_pipeline.json").write_text(json.dumps(state, indent=2), encoding="utf-8")
         return out
@@ -203,6 +251,9 @@ class LabelPipeline(Pipeline):
                 if name == "standard"
                 else MinMaxScaler.from_dict(state["yield_scaler"])
             )
+        pipeline.declared_classes = list(state.get("declared_classes") or [])
+        pipeline.excluded_classes = list(state.get("excluded_classes") or [])
+        pipeline.excluded_counts = dict(state.get("excluded_counts") or {})
         pipeline.fitted = True
         return pipeline
 

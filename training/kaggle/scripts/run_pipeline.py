@@ -342,8 +342,48 @@ def main(argv: list[str] | None = None) -> int:
                 ),
             )
             frozen_loader.validate()
+
+            # R5.4 explicit class contract: drive the label vocabulary from the
+            # manifest instead of letting the encoder emerge from whichever
+            # labels appear in the (quality-filtered) training split. This is
+            # the guard that stops a rare label silently resizing the crop head.
+            declared = list(frozen_loader.manifest.get("supervised_classes") or [])
+            excluded = list(frozen_loader.manifest.get("excluded_classes") or [])
+            preprocessing_cfg.config.label.declared_classes = declared
+            preprocessing_cfg.config.label.excluded_classes = excluded
+            print("\n--- Class schema (explicit contract) ---")
+            print(f"  supervised_classes ({len(declared)}): {declared}")
+            print(f"  excluded_classes: {excluded or []}")
+            manifest_train_counts = frozen_loader.manifest.get(
+                "class_counts", {}
+            ).get("train", {})
+            schema_warnings = [
+                f"class '{c}' declared supervised but has ZERO train samples "
+                "(classifier cannot learn it)"
+                for c in declared
+                if not (manifest_train_counts.get(c, 0) > 0)
+            ]
+            for warn in schema_warnings:
+                print(f"  [WARN] {warn}")
+
             train_obs, val_obs, test_obs = frozen_loader.build(stam)
             accepted = train_obs + val_obs + test_obs
+
+            # Post-build class -> crop-head index -> per-split counts printout.
+            print("\n--- Class -> crop-head index -> split counts ---")
+            for idx, cls in enumerate(declared):
+                counts = {
+                    part: sum(1 for o in obs if o.crop == cls)
+                    for part, obs in (
+                        ("train", train_obs),
+                        ("val", val_obs),
+                        ("test", test_obs),
+                    )
+                }
+                print(
+                    f"  [{idx}] {cls:10s} train={counts['train']:5d} "
+                    f"val={counts['val']:4d} test={counts['test']:4d}"
+                )
 
             # R5.2 guard: every split must be non-empty before Phase 4 runs.
             if not (train_obs and val_obs and test_obs):
@@ -419,6 +459,10 @@ def main(argv: list[str] | None = None) -> int:
                 "class_counts": contract.get("overall_class_counts"),
                 "split_strategy": contract.get("split_strategy"),
                 "split_groups": contract.get("split_groups"),
+                "class_schema": {
+                    "supervised_classes": declared,
+                    "excluded_classes": excluded,
+                },
                 "path": str(corpus_path),
             }
             report["corpus"]["build_stats"] = getattr(
