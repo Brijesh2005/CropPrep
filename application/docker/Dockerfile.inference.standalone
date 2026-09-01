@@ -19,7 +19,7 @@
 #     -v "$(pwd)/application/inference_package:/app/application/inference_package:ro" \
 #     cropfusion/inference-standalone
 
-FROM python:3.12-slim AS runtime
+FROM python:3.14-slim AS runtime
 
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
