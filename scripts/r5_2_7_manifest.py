@@ -22,8 +22,11 @@ MANIFEST_DIR = "D:/CropPrep/training_manifests"
 os.makedirs(MANIFEST_DIR, exist_ok=True)
 
 CROPS = ["coconut", "pepper", "coffee", "cardamom", "blackgram"]
-TRAIN_TALUKS = ["Belthangady", "Mangalore", "Puttur"]
-VAL_TALUK = "Bantwal"
+# R5.4 Option B (data-split audit): validation holdout moved from Bantwal to
+# Puttur so the rare cardamom class is scored in validation; Sullia remains the
+# test taluk so the final cardamom/coffee evaluation is unchanged.
+TRAIN_TALUKS = ["Belthangady", "Mangalore", "Bantwal"]
+VAL_TALUK = "Puttur"
 TEST_TALUK = "Sullia"
 
 t0 = time.time()

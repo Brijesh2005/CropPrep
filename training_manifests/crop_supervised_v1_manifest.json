@@ -20,8 +20,8 @@
     }
   },
   "total_samples": 10674,
-  "train_samples": 6116,
-  "validation_samples": 2267,
+  "train_samples": 5924,
+  "validation_samples": 2459,
   "test_samples": 2291,
   "class_mapping": {
     "coconut": 4,
@@ -39,15 +39,16 @@
       "blackgram": 2
     },
     "train": {
-      "coconut": 4099,
-      "pepper": 1970,
-      "coffee": 41,
-      "cardamom": 6
+      "coconut": 4292,
+      "pepper": 1599,
+      "coffee": 29,
+      "cardamom": 4
     },
     "validation": {
-      "coconut": 1566,
-      "pepper": 692,
-      "coffee": 9
+      "coconut": 1373,
+      "pepper": 1063,
+      "coffee": 21,
+      "cardamom": 2
     },
     "test": {
       "coconut": 1200,
@@ -60,23 +61,23 @@
   "class_weights": {
     "coconut": {
       "class_id": 4,
-      "training_count": 4099,
-      "weight": 0.298414
+      "training_count": 4292,
+      "weight": 0.276048
     },
     "pepper": {
       "class_id": 6,
-      "training_count": 1970,
-      "weight": 0.620914
+      "training_count": 1599,
+      "weight": 0.740963
     },
     "coffee": {
       "class_id": 7,
-      "training_count": 41,
-      "weight": 29.834146
+      "training_count": 29,
+      "weight": 40.855172
     },
     "cardamom": {
       "class_id": 8,
-      "training_count": 6,
-      "weight": 203.866667
+      "training_count": 4,
+      "weight": 296.2
     },
     "blackgram": {
       "class_id": 9,
@@ -89,9 +90,9 @@
     "train_taluk": [
       "Belthangady",
       "Mangalore",
-      "Puttur"
+      "Bantwal"
     ],
-    "validation_taluk": "Bantwal",
+    "validation_taluk": "Puttur",
     "test_taluk": "Sullia"
   },
   "supervised_classes": [

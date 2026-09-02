@@ -82,15 +82,15 @@ def manifest_path(tmp_path: Path) -> Path:
                 "coffee": 1,
                 "cardamom": 1,
             },
-            "train": {"coconut": 3, "pepper": 2, "coffee": 1},
-            "validation": {"coconut": 1, "pepper": 1},
+            "train": {"coconut": 3, "pepper": 3},
+            "validation": {"coconut": 1, "coffee": 1},
             "test": {"coconut": 1, "cardamom": 1},
         },
         "class_weights": {},
         "split_strategy": "spatial_leave_one_taluk_out",
         "split_groups": {
-            "train_taluk": ["Belthangady", "Mangalore", "Puttur"],
-            "validation_taluk": "Bantwal",
+            "train_taluk": ["Belthangady", "Mangalore", "Bantwal"],
+            "validation_taluk": "Puttur",
             "test_taluk": "Sullia",
         },
         "excluded_classes": [],
@@ -149,12 +149,12 @@ def csv_path(tmp_path: Path) -> Path:
             [
                 ("coconut", 4, "Belthangady"),   # train
                 ("coconut", 4, "Mangalore"),      # train
-                ("coconut", 4, "Puttur"),         # train
+                ("coconut", 4, "Puttur"),         # val
                 ("pepper", 6, "Belthangady"),     # train
                 ("pepper", 6, "Mangalore"),       # train
-                ("coffee", 7, "Puttur"),          # train
-                ("coconut", 4, "Bantwal"),        # val
-                ("pepper", 6, "Bantwal"),         # val
+                ("coffee", 7, "Puttur"),          # val
+                ("coconut", 4, "Bantwal"),        # train
+                ("pepper", 6, "Bantwal"),         # train
                 ("coconut", 4, "Sullia"),         # test
                 ("cardamom", 8, "Sullia"),        # test
             ]
@@ -270,10 +270,10 @@ class TestSplitAssignment:
     def test_train_taluks(self) -> None:
         assert _determine_split({"location_taluk": "Belthangady"}) == "train"
         assert _determine_split({"location_taluk": "Mangalore"}) == "train"
-        assert _determine_split({"location_taluk": "Puttur"}) == "train"
+        assert _determine_split({"location_taluk": "Bantwal"}) == "train"
 
     def test_val_taluk(self) -> None:
-        assert _determine_split({"location_taluk": "Bantwal"}) == "val"
+        assert _determine_split({"location_taluk": "Puttur"}) == "val"
 
     def test_test_taluk(self) -> None:
         assert _determine_split({"location_taluk": "Sullia"}) == "test"
@@ -750,13 +750,13 @@ class TestSplitClassDistribution:
         assert train_classes.get("coconut", 0) > 0
         assert train_classes.get("pepper", 0) > 0
 
-    def test_val_has_only_bantwal(self, csv_path: Path) -> None:
+    def test_val_has_only_puttur(self, csv_path: Path) -> None:
         from training.kaggle.frozen_corpus import _determine_split
 
         rows = _load_csv(csv_path)
         for row in rows:
             if _determine_split(row) == "val":
-                assert row["location_taluk"] == "Bantwal"
+                assert row["location_taluk"] == "Puttur"
 
     def test_test_has_only_sullia(self, csv_path: Path) -> None:
         from training.kaggle.frozen_corpus import _determine_split

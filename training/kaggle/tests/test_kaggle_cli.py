@@ -116,11 +116,11 @@ class TestManifestValidation:
 
     def test_train_samples(self):
         m = self._load_manifest()
-        assert m["train_samples"] == 6_116
+        assert m["train_samples"] == 5_924
 
     def test_val_samples(self):
         m = self._load_manifest()
-        assert m["validation_samples"] == 2_267
+        assert m["validation_samples"] == 2_459
 
     def test_test_samples(self):
         m = self._load_manifest()

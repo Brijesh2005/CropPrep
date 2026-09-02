@@ -92,8 +92,9 @@ def test_verify_multimodal_shape_formatter() -> None:
 
 def test_verify_split_uses_frozen_provenance_split() -> None:
     """Regression: verify_split_composition must consume the frozen
-    provenance.split (train=5561/val=2267/test=2291), never re-split the
-    accepted corpus temporally into the invalid 8601/0/1518 composition."""
+    provenance.split (raw train=5924/val=2459/test=2291 under R5.4 Option B),
+    never re-split the accepted corpus temporally into the invalid
+    8601/0/1518 composition."""
     import sys
     from unittest.mock import Mock
 

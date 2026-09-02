@@ -2,13 +2,13 @@
 
 Verifies the actual train/val/test composition carried by the FROZEN corpus:
 the taluk-level spatial split recorded in each observation's
-``provenance.split`` (train Belthangady+Mangalore+Puttur / val Bantwal /
+``provenance.split`` (train Belthangady+Mangalore+Bantwal / val Puttur /
 test Sullia), NOT a re-split of the accepted corpus at verify time.
 
 Why: re-splitting with the temporal strategy at verify time produced the
 8601/0/1518 contradiction (all crop-labelled 2018–2019 samples land in train,
 val/test are exclusively DK district-level rows), while the frozen corpus ships
-5561/2267/2291. The provenance split is authoritative: it is the split the
+5924/2459/2291. The provenance split is authoritative: it is the split the
 corpus was built with, and the same one the training loop consumes.
 
 Run from repo root::

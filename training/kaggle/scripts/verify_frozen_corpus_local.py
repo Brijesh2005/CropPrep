@@ -144,8 +144,8 @@ def main() -> int:
     # -- 5. Split integrity --------------------------------------------- #
     print("\n[5] Split integrity (taluk-based)")
     TALUK_SPLIT = {
-        "Belthangady": "train", "Mangalore": "train", "Puttur": "train",
-        "Bantwal": "val", "Sullia": "test",
+        "Belthangady": "train", "Mangalore": "train", "Bantwal": "train",
+        "Puttur": "val", "Sullia": "test",
     }
     split_counts = {"train": 0, "val": 0, "test": 0}
     split_class_counts: dict[str, dict[str, int]] = {

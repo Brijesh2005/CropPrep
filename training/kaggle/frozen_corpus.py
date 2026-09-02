@@ -9,8 +9,8 @@ while still using STAM's imagery resolution for NDVI/EVI patch extraction.
 The frozen corpus guarantees:
 - **Membership**: exactly 10,674 samples (R5.2.7 snapshot).
 - **Labels**: government OGD survey crop labels (no tabular matching override).
-- **Spatial split**: taluk-level leave-one-out (Belthangady+Mangalore+Puttur
-  train / Bantwal val / Sullia test).
+- **Spatial split**: taluk-level leave-one-out (Belthangady+Mangalore+Bantwal
+  train / Puttur val / Sullia test).
 - **Quality**: all samples pre-validated (satellite_status=FULL).
 - **Provenance**: every observation stamped with corpus version, manifest
   checksum and the row-level provenance from the CSV.
@@ -86,12 +86,14 @@ _CSV_REQUIRED = {
     "satellite_status",
 }
 
-# Taluk → split mapping from R5.2.7 manifest.
+# Taluk → split mapping (R5.4 Option B: swap the validation holdout from
+# Bantwal to Puttur so the rare cardamom class has validation support; Sullia
+# stays the test taluk so the final cardamom/coffee evaluation is unchanged).
 _TALUK_SPLIT: dict[str, str] = {
     "Belthangady": "train",
     "Mangalore": "train",
-    "Puttur": "train",
-    "Bantwal": "val",
+    "Bantwal": "train",
+    "Puttur": "val",
     "Sullia": "test",
 }
 

@@ -207,8 +207,8 @@ def test_frozen_split_manifest_verification():
 
     manifest = FrozenCorpusLoader(csv_path, manifest_path).validate()
     assert manifest["total_samples"] == 10674
-    assert manifest["train_samples"] == 6116
-    assert manifest["validation_samples"] == 2267
+    assert manifest["train_samples"] == 5924
+    assert manifest["validation_samples"] == 2459
     assert manifest["test_samples"] == 2291
     assert sum(
         manifest[k]
