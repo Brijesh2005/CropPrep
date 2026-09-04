@@ -144,8 +144,13 @@ class TabularFeatures(BaseModel):
     yield_value: float | None = None
     fields: dict[str, Any] = Field(default_factory=dict)
     source_path: str | None = None
-    #: How the record matched: "village", "district" or "none".
+    source_table: str | None = None
+    #: How the record matched: "village", "taluk", "district" or "none".
     matched_level: str = "none"
+    #: Deterministic match score (level weight x name quality), 0..1.
+    match_score: float = 0.0
+    #: Coarse confidence derived from ``match_score``: high/medium/low/none.
+    confidence: str = "none"
 
     @field_validator("yield_value", mode="before")
     @classmethod

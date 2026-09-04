@@ -237,37 +237,45 @@ class DatasetManagerTabularSource(TabularSource):
         year: int,
         season: str | None,
     ) -> dict[str, Any] | None:
-        """Best record across the table chain for the location/season/year.
+        """Best *genuine* record across the table chain for location/season/year.
 
         Tables are tried in configured order. Within each table the name is
-        matched at village -> taluk -> district level and the first hit wins;
-        when no table answers exactly, the legacy behaviour of returning the
-        first row of the year/season subset is preserved (matched_level
-        ``"none"``, so ST-Q-TAB-001 still rejects it).
+        matched at village -> taluk -> district level and every matching row is
+        scored; the highest-scoring candidate for that table wins. When a table
+        has no genuine name match it is skipped and the next table is tried
+        (reject-and-try-next-source).
+
+        No fabricated record is ever produced: if no table has a genuine name
+        match for the location, ``None`` is returned (the caller then treats
+        the location as unmatched) rather than the first row of the
+        year/season subset. Every returned record carries an explicit
+        ``__matched_level`` plus a deterministic ``__match_score`` and
+        ``__confidence`` so downstream quality gates can weigh its strength.
         """
         tables = self._load_tables()
         if not tables:
             return None
 
-        fabrication: tuple[pd.DataFrame, TabularTableConfig, Path] | None = None
+        best: tuple[float, pd.Series, str, TabularTableConfig, Path] | None = None
         for table_cfg, path, frame in tables:
             if frame is None or len(frame) == 0:
                 continue
             subset = self._subset(frame, table_cfg, year, season)
             if subset is None or len(subset) == 0:
                 continue
-            matched = self._match_level(subset, table_cfg, village, taluk, district)
-            if matched is not None:
-                row, level = matched
-                return self._to_record(row, level, table_cfg, path)
-            if fabrication is None:
-                # First table with any year/season rows provides the last-resort
-                # fabricated record (flagged: it fails ST-Q-TAB-001).
-                fabrication = (subset, table_cfg, path)
-        if fabrication is not None:
-            subset, table_cfg, path = fabrication
-            return self._to_record(subset.iloc[0], "none", table_cfg, path)
-        return None
+            candidate = self._score_candidates(
+                subset, table_cfg, village, taluk, district
+            )
+            if candidate is None:
+                # No genuine name match in this table: reject and try the next.
+                continue
+            score, row, level = candidate
+            if best is None or score > best[0]:
+                best = (score, row, level, table_cfg, path)
+        if best is None:
+            return None
+        score, row, level, table_cfg, path = best
+        return self._to_record(row, level, table_cfg, path, score=score)
 
     def available_years(self) -> list[int]:
         years: list[int] = []
@@ -303,31 +311,46 @@ class DatasetManagerTabularSource(TabularSource):
             subset = _filter_contains(subset, table_cfg.season_column, season)
         return subset
 
-    def _match_level(
+    def _score_candidates(
         self,
         subset: pd.DataFrame,
         table_cfg: TabularTableConfig,
         village: str | None,
         taluk: str | None,
         district: str | None,
-    ) -> tuple[pd.Series, str] | None:
+    ) -> tuple[float, pd.Series, str] | None:
+        """Best (score, row, level) across all genuine name matches in ``subset``.
+
+        Every row that matches the location at village -> taluk -> district is
+        scored deterministically and the highest score wins. This replaces the
+        legacy "first hit" greediness with candidate scoring: when several rows
+        match the same name (a real occurrence in survey tables), the strongest
+        candidate is selected rather than whichever appears first.
+
+        Returns ``None`` when the location matches no genuine name — never a
+        fabricated first-row fallback.
+        """
         village_col = table_cfg.village_column
         taluk_col = table_cfg.taluk_column or table_cfg.village_column
         district_col = table_cfg.district_column
-        if village and village_col and village_col in subset.columns:
-            row = _first_contains(subset, village_col, village)
-            if row is not None:
-                return row, "village"
-        # Taluk-level attempt (e.g. Madikeri) before the district fallback.
-        if taluk and taluk_col and taluk_col in subset.columns and taluk != village:
-            row = _first_contains(subset, taluk_col, taluk)
-            if row is not None:
-                return row, "taluk"
-        if table_cfg.fallback_to_district and district and district_col and district_col in subset.columns:
-            row = _first_contains(subset, district_col, district)
-            if row is not None:
-                return row, "district"
-        return None
+
+        best: tuple[float, pd.Series, str] | None = None
+        for level, column, query in (
+            ("village", village_col, village),
+            ("taluk", taluk_col, taluk if taluk and taluk != village else None),
+            ("district", district_col, district),
+        ):
+            if not query or not column or column not in subset.columns:
+                continue
+            if level == "district" and not table_cfg.fallback_to_district:
+                continue
+            for row in _iter_name_hits(subset, column, query):
+                score = _name_match_score(
+                    row, column, query, village, taluk, district, level
+                )
+                if best is None or score > best[0]:
+                    best = (score, row, level)
+        return best
 
     def _to_record(
         self,
@@ -335,11 +358,15 @@ class DatasetManagerTabularSource(TabularSource):
         level: str,
         table_cfg: TabularTableConfig,
         path: Path,
+        *,
+        score: float = 1.0,
     ) -> dict[str, Any]:
         record: dict[str, Any] = {}
         for column, value in row.items():
             record[str(column)] = _json_safe(value)
         record["__matched_level"] = level
+        record["__match_score"] = round(score, 4)
+        record["__confidence"] = _confidence_from_score(score)
         record["__source_path"] = str(path)
         record["__source_table"] = table_cfg.name
         record["__feature_columns"] = list(table_cfg.feature_columns)
@@ -740,7 +767,10 @@ class SpatialTemporalMatcher:
             yield_value=yield_value,
             fields=fields,
             source_path=record.get("__source_path"),
+            source_table=record.get("__source_table"),
             matched_level=record.get("__matched_level", "none"),
+            match_score=float(record.get("__match_score", 0.0) or 0.0),
+            confidence=record.get("__confidence", "none"),
         )
 
     # -- Images --------------------------------------------------------------- #
@@ -873,6 +903,107 @@ def _first_contains(frame: pd.DataFrame, column: str, value: Any) -> pd.Series |
     if mask.any():
         return frame[mask].iloc[0]
     return None
+
+
+#: Deterministic weights for each administrative matching level.
+_LEVEL_WEIGHTS = {"village": 1.0, "taluk": 0.75, "district": 0.45}
+#: Deterministic weight for the name-match quality classification.
+_NAME_QUALITY_WEIGHTS = {"exact": 1.0, "alternate": 0.85, "contains": 0.6}
+
+
+def _normalize_name_parts(value: Any) -> str:
+    """Normalised comparison string (lowercase, stripped, collapsed spaces)."""
+    return " ".join(str(value).strip().lower().split())
+
+
+def _name_quality(candidate: str, queried: str) -> str:
+    """Classify a single candidate name vs the queried name."""
+    q = _normalize_name_parts(queried)
+    if not q:
+        return "none"
+    c = _normalize_name_parts(candidate)
+    if c == q:
+        return "exact"
+    for part in re.split(r"[/|]", c):
+        if part.strip() and _normalize_name_parts(part) == q:
+            return "alternate"
+    if q in c:
+        return "contains"
+    return "none"
+
+
+def _iter_name_hits(
+    frame: pd.DataFrame, column: str, value: Any
+) -> Iterable[pd.Series]:
+    """Yield every row whose ``column`` name matches ``value``.
+
+    Unlike :func:`_first_contains` (which returns a single row), this yields
+    *all* matching rows so candidate scoring can choose the strongest. Exact
+    matches are yielded first, then slash/pipe alternates, then substrings.
+    """
+    raw = str(value).strip() if value is not None else ""
+    if not raw:
+        return
+    norm = normalize_name(raw)
+    names = frame[column].astype(str)
+    norm_names = names.map(normalize_name) if norm else names
+    mask = pd.Series(False, index=frame.index)
+    for name in ["exact", "alternate", "contains", "raw"]:
+        if name == "exact" and norm:
+            current = norm_names == norm
+        elif name == "alternate" and norm:
+            current = norm_names.map(
+                lambda cand: any(
+                    normalize_name(part.strip()) == norm
+                    for part in re.split(r"[/|]", cand)
+                    if part.strip()
+                )
+            )
+        elif name == "contains" and norm:
+            current = norm_names.str.contains(norm, regex=False, case=False, na=False)
+        else:
+            current = names.str.contains(raw, case=False, na=False)
+        current = current & ~mask
+        if current.any():
+            for idx in frame[current].index:
+                yield frame.loc[idx]
+        mask = mask | current
+
+
+def _name_match_score(
+    row: pd.Series,
+    column: str,
+    query: str,
+    village: str | None,
+    taluk: str | None,
+    district: str | None,
+    level: str,
+) -> float:
+    """Deterministic score for a candidate row at a given level.
+
+    The score is the level weight (village > taluk > district) multiplied by
+    the name-quality weight (exact > alternate > contains). A queried name
+    that matches a higher-precedence level (e.g. the village itself appears in
+    the row) can never outrank a lower-level match at the same quality.
+    """
+    raw = str(row.get(column, "") or "")
+    quality = _name_quality(raw, query)
+    if quality == "none":
+        # Name could not be aligned — fall back to substring containment so
+        # genuinely close names still produce a defensible (low-weight) hit.
+        quality = "contains"
+    return _LEVEL_WEIGHTS.get(level, 0.0) * _NAME_QUALITY_WEIGHTS.get(quality, 0.0)
+
+
+def _confidence_from_score(score: float) -> str:
+    """Map a deterministic match score to a coarse confidence label."""
+    if score >= 0.95:
+        return "high"
+    if score >= 0.70:
+        return "medium"
+    if score > 0.0:
+        return "low"
+    return "none"
 
 
 def _normalise_boundary_frame(

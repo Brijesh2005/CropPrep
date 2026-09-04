@@ -457,6 +457,7 @@ def build_observation(
                 row.get("spatial_match_distance_km")
             ),
             "season": season_value,
+            "year": _safe_float(row.get("year")),
         },
         source_path=None,
         matched_level="frozen_corpus",
