@@ -25,7 +25,6 @@ from typing import Any
 
 import numpy as np
 import torch
-from torch import nn
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -48,12 +47,10 @@ def _add_repo_root(repo_root: Path) -> None:
 _add_repo_root(_REPO_ROOT)
 
 from training.dataset_manager import DatasetManager, load_settings  # noqa: E402
-from training.kaggle.frozen_corpus import build_all_observations  # noqa: E402
-from training.models.checkpoint import CheckpointManager  # noqa: E402
 from training.models.factory import ModelFactory  # noqa: E402
 from training.preprocessing import Preprocessor, load_preprocessing_config  # noqa: E402
 from training.preprocessing.dataloader import build_dataloader  # noqa: E402
-from training.preprocessing.dataset import CropFusionDataset  # noqa: E402
+from training.preprocessing.dataset import CropFusionDataset, split_observations  # noqa: E402
 from training.stam import STAM  # noqa: E402
 from training.stam.config import load_stam_config  # noqa: E402
 
@@ -142,15 +139,14 @@ def main(argv: list[str] | None = None) -> int:
     # ── Preprocessor fit ───────────────────────────────────────────────
     print("  fitting preprocessor on train split...")
     preprocessing_cfg = load_preprocessing_config(pre_config)
-    from training.preprocessing.dataset import split_observations
-    train_obs, val_obs, test_obs = split_observations(all_obs, preprocessing_cfg.config.split)
+    train_obs, val_obs, test_obs = split_observations(all_obs, preprocessing_cfg.split)
     if args.split == "val":
         eval_obs = val_obs
     else:
         eval_obs = test_obs
     print(f"  train={len(train_obs)}  val={len(val_obs)}  test={len(test_obs)}  eval={len(eval_obs)}")
 
-    pre = Preprocessor(preprocessing_cfg.config)
+    pre = Preprocessor(preprocessing_cfg)
     try:
         pre.fit(train_obs, extractor=extractor)
     except Exception as exc:
@@ -160,7 +156,7 @@ def main(argv: list[str] | None = None) -> int:
     # ── Build eval DataLoader ──────────────────────────────────────────
     print("  building eval DataLoader...")
     ds = CropFusionDataset.build(pre, eval_obs, split=args.split, extractor=extractor)
-    loader = build_dataloader(ds, config=preprocessing_cfg.config, split=args.split, batch_size=args.batch_size)
+    loader = build_dataloader(ds, config=preprocessing_cfg, split=args.split, batch_size=args.batch_size)
     print(f"  eval samples: {len(eval_obs)}")
 
     # ── Load model from checkpoint ─────────────────────────────────────

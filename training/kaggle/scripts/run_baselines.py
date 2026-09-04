@@ -218,10 +218,10 @@ def main(argv: list[str] | None = None) -> int:
     # ── Preprocessor fit ───────────────────────────────────────────────
     print("  fitting preprocessor...")
     preprocessing_cfg = load_preprocessing_config(pre_config)
-    train_obs, val_obs, test_obs = split_observations(all_obs, preprocessing_cfg.config.split)
+    train_obs, val_obs, test_obs = split_observations(all_obs, preprocessing_cfg.split)
     print(f"  train={len(train_obs)}  val={len(val_obs)}  test={len(test_obs)}")
 
-    pre = Preprocessor(preprocessing_cfg.config)
+    pre = Preprocessor(preprocessing_cfg)
     try:
         pre.fit(train_obs, extractor=extractor)
     except Exception as exc:
@@ -235,8 +235,8 @@ def main(argv: list[str] | None = None) -> int:
     print("  building DataLoaders...")
     train_ds = CropFusionDataset.build(pre, train_obs, split="train", extractor=extractor)
     val_ds = CropFusionDataset.build(pre, val_obs, split="val", extractor=extractor)
-    train_loader = build_dataloader(train_ds, config=preprocessing_cfg.config, split="train", batch_size=args.batch_size)
-    val_loader = build_dataloader(val_ds, config=preprocessing_cfg.config, split="val", batch_size=args.batch_size)
+    train_loader = build_dataloader(train_ds, config=preprocessing_cfg, split="train", batch_size=args.batch_size)
+    val_loader = build_dataloader(val_ds, config=preprocessing_cfg, split="val", batch_size=args.batch_size)
 
     # ── Extract features ───────────────────────────────────────────────
     print("  extracting tabular features...")
