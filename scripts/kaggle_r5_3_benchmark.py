@@ -203,6 +203,40 @@ def _imagery_env(args: argparse.Namespace) -> dict[str, str]:
     return env
 
 
+_CROP_LOSSES = ("cross_entropy", "label_smoothing", "focal")
+_WEIGHT_MODES = ("none", "balanced", "sqrt_inv", "effective_num")
+
+
+def _loss_env(args: argparse.Namespace) -> dict[str, str]:
+    """TRN_LOSS__* overrides for the R5.5 Phase 4 class-balance sweep.
+
+    Keys mirror :class:`training.training.config.LossConfig` fields. Only given
+    values are pinned; the rest fall back to ``training/config/training.yaml``.
+    """
+    env: dict[str, str] = {}
+    for flag, key in [
+        ("crop_loss", "TRN_LOSS__CROP_LOSS"),
+        ("class_weight_mode", "TRN_LOSS__CLASS_WEIGHT_MODE"),
+        ("focal_gamma", "TRN_LOSS__FOCAL_GAMMA"),
+        ("class_weight_beta", "TRN_LOSS__CLASS_WEIGHT_BETA"),
+    ]:
+        value = getattr(args, flag, None)
+        if value is not None:
+            env[key] = str(value)
+    return env
+
+
+def _add_loss_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--crop-loss", type=str, default=None, choices=list(_CROP_LOSSES),
+                        help="R5.5 Phase 4: crop loss variant (TRN_LOSS__CROP_LOSS)")
+    parser.add_argument("--class-weight-mode", type=str, default=None, choices=list(_WEIGHT_MODES),
+                        help="R5.5 Phase 4: class-weight mode (TRN_LOSS__CLASS_WEIGHT_MODE)")
+    parser.add_argument("--focal-gamma", type=float, default=None,
+                        help="R5.5 Phase 4: focal gamma when --crop-loss focal")
+    parser.add_argument("--class-weight-beta", type=float, default=None,
+                        help="R5.5 Phase 4: effective-number beta when --class-weight-mode effective_num")
+
+
 def _add_imagery_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--imagery-mode", type=str, default=None,
                         choices=["season", "window_days", "crop_year"],
@@ -241,6 +275,13 @@ def cmd_prepare(args: argparse.Namespace) -> int:
         _print_row("Imagery window", ", ".join(f"{k.split('__')[-1].lower()}={v}" for k, v in imagery_env.items()))
     else:
         _print_row("Imagery window", "notebook defaults (ST_IMAGERY__*)")
+
+    loss_env = _loss_env(args)
+    if loss_env:
+        _inject_config_cell(dst_nb, loss_env, "loss config")
+        _print_row("Loss config", ", ".join(f"{k.split('__')[-1].lower()}={v}" for k, v in loss_env.items()))
+    else:
+        _print_row("Loss config", "training.yaml defaults")
 
     username = _get_kaggle_username()
     if not username:
@@ -485,6 +526,7 @@ def main(argv: list[str] | None = None) -> int:
     p_prepare.add_argument("--test-epochs", type=int, default=None,
                            help="Short run: inject R5_3_EPOCHS=<n> into the deployed notebook")
     _add_imagery_args(p_prepare)
+    _add_loss_args(p_prepare)
     p_push = sub.add_parser("push", help="Push/update notebook to Kaggle")
     p_push.add_argument("--timeout", type=int, default=None,
                         help="Kaggle upload timeout (seconds)")
@@ -500,6 +542,7 @@ def main(argv: list[str] | None = None) -> int:
     p_train.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT_SECONDS)
     p_train.add_argument("--test-epochs", type=int, default=None)
     _add_imagery_args(p_train)
+    _add_loss_args(p_train)
 
     sub.add_parser("verify-output", help="Validate downloaded artifacts")
 
@@ -508,6 +551,7 @@ def main(argv: list[str] | None = None) -> int:
     p_full.add_argument("--poll-seconds", type=int, default=DEFAULT_POLL_SECONDS)
     p_full.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT_SECONDS)
     _add_imagery_args(p_full)
+    _add_loss_args(p_full)
 
     args = parser.parse_args(argv)
     handlers = {

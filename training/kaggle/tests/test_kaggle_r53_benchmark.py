@@ -98,6 +98,42 @@ def test_prepare_with_test_epochs_injects_override(isolated_prepare, launcher):
     assert inj_idx < print_idx
 
 
+def test_prepare_with_loss_override_injects_config(isolated_prepare, launcher):
+    args = launcher.argparse.Namespace(
+        test_epochs=None,
+        crop_loss="focal",
+        class_weight_mode="effective_num",
+        focal_gamma=2.0,
+        class_weight_beta=0.999,
+    )
+    with patch.object(launcher, "_get_kaggle_username", return_value="user"):
+        rc = launcher.cmd_prepare(args)
+
+    _, _, deploy = isolated_prepare
+    assert rc == 0
+    nb = json.loads((deploy / "R5_3_benchmark.ipynb").read_text(encoding="utf-8"))
+    sources = [json.dumps("".join(c.get("source", []))) for c in nb["cells"]]
+    assert any("TRN_LOSS__CROP_LOSS" in s and "'focal'" in s for s in sources)
+    assert any("TRN_LOSS__CLASS_WEIGHT_MODE" in s and "'effective_num'" in s for s in sources)
+    assert any("TRN_LOSS__FOCAL_GAMMA" in s and "'2.0'" in s for s in sources)
+    assert any("TRN_LOSS__CLASS_WEIGHT_BETA" in s and "'0.999'" in s for s in sources)
+    # Config cell must be injected before the run_pipeline cell.
+    print_idx = next(i for i, s in enumerate(sources) if "run_pipeline.py" in s)
+    inj_idx = next(i for i, s in enumerate(sources) if "TRN_LOSS__CROP_LOSS" in s)
+    assert inj_idx < print_idx
+
+
+def test_prepare_no_loss_override_leaves_notebook_cells(isolated_prepare, launcher):
+    args = launcher.argparse.Namespace(test_epochs=None)
+    with patch.object(launcher, "_get_kaggle_username", return_value="user"):
+        rc = launcher.cmd_prepare(args)
+
+    _, _, deploy = isolated_prepare
+    assert rc == 0
+    nb = json.loads((deploy / "R5_3_benchmark.ipynb").read_text(encoding="utf-8"))
+    assert not any("TRN_LOSS__" in "".join(c.get("source", [])) for c in nb["cells"])
+
+
 def test_inject_epochs_cell_round_trip(tmp_path, launcher):
     nb_path = tmp_path / "nb.ipynb"
     nb_path.write_text(
@@ -134,3 +170,18 @@ def test_parser_accepts_test_epochs(launcher):
     assert launcher.KERNEL_SLUG == "r5-3-cropfusion-benchmark-optimization"
     assert launcher.EXPECTED_TOTAL == 10_674
     assert launcher.EXPECTED_TRAIN == 5_924
+
+
+def test_loss_env_mapping(launcher):
+    args = launcher.argparse.Namespace(
+        crop_loss="focal", class_weight_mode="effective_num",
+        focal_gamma=1.5, class_weight_beta=0.999,
+    )
+    env = launcher._loss_env(args)
+    assert env == {
+        "TRN_LOSS__CROP_LOSS": "focal",
+        "TRN_LOSS__CLASS_WEIGHT_MODE": "effective_num",
+        "TRN_LOSS__FOCAL_GAMMA": "1.5",
+        "TRN_LOSS__CLASS_WEIGHT_BETA": "0.999",
+    }
+    assert launcher._loss_env(launcher.argparse.Namespace()) == {}
