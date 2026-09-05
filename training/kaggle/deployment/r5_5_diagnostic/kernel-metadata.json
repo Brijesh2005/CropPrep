@@ -1,0 +1,13 @@
+{
+  "id": "gojosensa/r5-5-diagnose-collapse",
+  "title": "R5.5 Classifier Collapse Diagnostic",
+  "code_file": "R5_5_diagnose_collapse.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada"
+  ]
+}
