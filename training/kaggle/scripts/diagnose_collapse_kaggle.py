@@ -351,6 +351,16 @@ def main(argv: list[str] | None = None) -> int:
     output.mkdir(parents=True, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     report: dict[str, Any] = {"device": str(device)}
+
+    def save_report(label: str) -> Path:
+        target = output / "diagnostic_r5_5.json"
+        target.write_text(
+            json.dumps(report, indent=2, default=str, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        print(f"[checkpoint:{label}] report -> {target}")
+        return target
+
     checkpoint_manager = TrainingCheckpointManager(
         output / "diagnostic_checkpoints", keep_last=2
     )
@@ -478,6 +488,7 @@ def main(argv: list[str] | None = None) -> int:
                 "per_class": img_stats,
             }
             print(json.dumps(img_stats, indent=2, default=str))
+            save_report("phase_5_9_image_stats")
 
         if not args.skip_binary:
             print("\n=== Phase 3: binary coconut vs pepper ===")
@@ -547,7 +558,7 @@ def main(argv: list[str] | None = None) -> int:
                     device=device,
                 )
                 result = trainer.train()
-                res_dict = result.to_dict()
+                res_dict = result.summary()
                 eval_block = _evaluate_binary(
                     model, bin_val_loader, device, bin_class_names
                 )
@@ -560,6 +571,7 @@ def main(argv: list[str] | None = None) -> int:
                 })
             report["binary"]["variants"] = variants_out
             print(json.dumps(report["binary"], indent=2, default=str))
+            save_report("phase_3_binary")
 
         if not args.skip_dynamics:
             print("\n=== Phase 10: first-N-step training dynamics ===")
@@ -590,6 +602,7 @@ def main(argv: list[str] | None = None) -> int:
             }
             for row in probe.rows:
                 print(json.dumps(row, default=str))
+            save_report("phase_10_dynamics")
 
         if not args.skip_tiny:
             print("\n=== Phase 11: tiny-set overfit (20 + 20) ===")
@@ -646,6 +659,7 @@ def main(argv: list[str] | None = None) -> int:
                 "steps_traced": args.tiny_steps,
             }
             print(json.dumps(report["tiny_overfit"], indent=2, default=str))
+            save_report("phase_11_tiny")
 
         if not args.skip_baselines:
             print("\n=== Phases 12-14: sklearn baselines ===")
@@ -663,12 +677,8 @@ def main(argv: list[str] | None = None) -> int:
             ])
             report["baselines_return_code"] = baseline_rc
 
-        target = output / "diagnostic_r5_5.json"
-        target.write_text(
-            json.dumps(report, indent=2, default=str, ensure_ascii=False),
-            encoding="utf-8",
-        )
-        print(f"\n[diagnose] wrote report -> {target}")
+        save_report("final")
+        print("\n[diagnose] complete")
     finally:
         manager.close()
     return 0
