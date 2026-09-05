@@ -33,7 +33,10 @@ DEPLOY_DIR = REPO_ROOT / "training" / "kaggle" / "deployment" / "r5_5_diagnostic
 OUTPUT_DIR = REPO_ROOT / "artifacts" / "r5_5_diagnostic"
 
 DATASET_ID = "shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada"
-KERNEL_SLUG = "r5-5-diagnose-collapse"
+# Title-derived slug from the notebook URL (kaggle.com/code/owner/...): Kaggle
+# resolves the slug from the title, not the metadata "id" field. Pushing under
+# "r5-5-diagnose-collapse" produced URL slug r5-5-classifier-collapse-diagnostic.
+KERNEL_SLUG = "r5-5-classifier-collapse-diagnostic"
 
 
 def _now_iso() -> str:

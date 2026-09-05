@@ -103,7 +103,7 @@ def test_prepare_copies_notebook_and_metadata(isolated_prepare, launcher):
     assert rc == 0
     assert (deploy / "nb_src.ipynb").exists()
     metadata = json.loads((deploy / "kernel-metadata.json").read_text(encoding="utf-8"))
-    assert metadata["id"] == "user/r5-5-diagnose-collapse"
+    assert metadata["id"] == "user/r5-5-classifier-collapse-diagnostic"
     assert metadata["enable_gpu"] is True
     assert metadata["kernel_type"] == "notebook"
     assert len(metadata["dataset_sources"]) == 1
@@ -117,7 +117,7 @@ def test_prepare_requires_username(isolated_prepare, launcher):
 
 
 def test_kernel_slug_stable(launcher):
-    assert launcher.KERNEL_SLUG == "r5-5-diagnose-collapse"
+    assert launcher.KERNEL_SLUG == "r5-5-classifier-collapse-diagnostic"
 
 
 def test_diagnostic_module_help_parses():
