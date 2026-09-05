@@ -1,0 +1,456 @@
+{
+  "release": "r5.5",
+  "phase": 3,
+  "title": "Matching-verification + tabular-leakage audit (frozen corpus)",
+  "manifest_sha256": "486bee061f1620872b578eee1e00e31d004e966de7e30b43bc42ebbe20dc5637",
+  "corpus": {
+    "rows": 10674,
+    "splits": {
+      "train": 5924,
+      "val": 2459,
+      "test": 2291
+    }
+  },
+  "spatial": {
+    "per_class": {
+      "coconut": {
+        "total": 6865,
+        "bands": {
+          "0-100": {
+            "count": 1993,
+            "pct_of_class": 29.03
+          },
+          "100-250": {
+            "count": 3861,
+            "pct_of_class": 56.24
+          },
+          "250-500": {
+            "count": 868,
+            "pct_of_class": 12.64
+          },
+          "500-1000": {
+            "count": 107,
+            "pct_of_class": 1.56
+          },
+          ">1000": {
+            "count": 36,
+            "pct_of_class": 0.52
+          }
+        }
+      },
+      "pepper": {
+        "total": 3695,
+        "bands": {
+          "0-100": {
+            "count": 1029,
+            "pct_of_class": 27.85
+          },
+          "100-250": {
+            "count": 2186,
+            "pct_of_class": 59.16
+          },
+          "250-500": {
+            "count": 455,
+            "pct_of_class": 12.31
+          },
+          "500-1000": {
+            "count": 16,
+            "pct_of_class": 0.43
+          },
+          ">1000": {
+            "count": 9,
+            "pct_of_class": 0.24
+          }
+        }
+      },
+      "coffee": {
+        "total": 101,
+        "bands": {
+          "0-100": {
+            "count": 29,
+            "pct_of_class": 28.71
+          },
+          "100-250": {
+            "count": 60,
+            "pct_of_class": 59.41
+          },
+          "250-500": {
+            "count": 10,
+            "pct_of_class": 9.9
+          },
+          "500-1000": {
+            "count": 2,
+            "pct_of_class": 1.98
+          },
+          ">1000": {
+            "count": 0,
+            "pct_of_class": 0.0
+          }
+        }
+      },
+      "cardamom": {
+        "total": 11,
+        "bands": {
+          "0-100": {
+            "count": 2,
+            "pct_of_class": 18.18
+          },
+          "100-250": {
+            "count": 7,
+            "pct_of_class": 63.64
+          },
+          "250-500": {
+            "count": 1,
+            "pct_of_class": 9.09
+          },
+          "500-1000": {
+            "count": 1,
+            "pct_of_class": 9.09
+          },
+          ">1000": {
+            "count": 0,
+            "pct_of_class": 0.0
+          }
+        }
+      },
+      "blackgram": {
+        "total": 2,
+        "bands": {
+          "0-100": {
+            "count": 0,
+            "pct_of_class": 0.0
+          },
+          "100-250": {
+            "count": 1,
+            "pct_of_class": 50.0
+          },
+          "250-500": {
+            "count": 1,
+            "pct_of_class": 50.0
+          },
+          "500-1000": {
+            "count": 0,
+            "pct_of_class": 0.0
+          },
+          ">1000": {
+            "count": 0,
+            "pct_of_class": 0.0
+          }
+        }
+      }
+    },
+    "all": [
+      {
+        "band": "0-100",
+        "count": 3053,
+        "pct": 28.6
+      },
+      {
+        "band": "100-250",
+        "count": 6115,
+        "pct": 57.29
+      },
+      {
+        "band": "250-500",
+        "count": 1335,
+        "pct": 12.51
+      },
+      {
+        "band": "500-1000",
+        "count": 126,
+        "pct": 1.18
+      },
+      {
+        "band": ">1000",
+        "count": 45,
+        "pct": 0.42
+      }
+    ],
+    "summary_m": {
+      "count": 10674,
+      "mean": 164.3,
+      "median": 146.3,
+      "p95": 318.6,
+      "max": 1548.5
+    },
+    "max_search_radius_compliance": {
+      "radius_km": 5.0,
+      "violations": 0
+    }
+  },
+  "cross_split_nearest_neighbour_m": {
+    "test_train": {
+      "min_m": 11431.3,
+      "p5_m": 16719.2,
+      "p25_m": 19419.4,
+      "median_m": 22694.1,
+      "p75_m": 27124.5,
+      "under_250m_n": 0,
+      "under_250m_pct": 0.0,
+      "under_500m_n": 0,
+      "under_500m_pct": 0.0
+    },
+    "val_train": {
+      "min_m": 12.9,
+      "p5_m": 871.6,
+      "p25_m": 3088.6,
+      "median_m": 6950.5,
+      "p75_m": 10554.4,
+      "under_250m_n": 10,
+      "under_250m_pct": 0.41,
+      "under_500m_n": 47,
+      "under_500m_pct": 1.91
+    }
+  },
+  "temporal": {
+    "per_class": {
+      "coconut": {
+        "EXACT_SEASON": 6836,
+        "WITHIN_TOLERANCE": 29
+      },
+      "pepper": {
+        "EXACT_SEASON": 3687,
+        "WITHIN_TOLERANCE": 8
+      },
+      "coffee": {
+        "EXACT_SEASON": 100,
+        "WITHIN_TOLERANCE": 1
+      },
+      "cardamom": {
+        "EXACT_SEASON": 11
+      },
+      "blackgram": {
+        "EXACT_SEASON": 2
+      }
+    },
+    "overall": {
+      "EXACT_SEASON": 10636,
+      "WITHIN_TOLERANCE": 38
+    },
+    "env_year_alignment": {
+      "rows": 10674,
+      "env_match_year_gt_survey_year": 0,
+      "method": {
+        "knn_idw": 10673,
+        "exact_cell": 1
+      },
+      "confidence": {
+        "HIGH": 9169,
+        "MEDIUM": 1505
+      },
+      "env_season_for_features": {
+        "Kharif": 10637,
+        "Rabi": 37
+      }
+    }
+  },
+  "tabular_leakage": {
+    "feature_set": {
+      "numeric": [
+        "lat",
+        "lon",
+        "spatial_match_distance_km",
+        "year",
+        "annual_rainfall_mm",
+        "dewpoint_c",
+        "elevation",
+        "temperature_c",
+        "relative_humidity_pct",
+        "slope",
+        "ndvi",
+        "evi",
+        "ndwi",
+        "ndre",
+        "savi",
+        "s2_obs_count",
+        "soil_clay_pct",
+        "soil_sand_pct",
+        "soil_organic_carbon",
+        "soil_ph",
+        "soil_moisture",
+        "kharif_ndvi",
+        "kharif_evi",
+        "kharif_ndwi",
+        "rabi_ndvi",
+        "rabi_evi",
+        "rabi_ndwi",
+        "env_match_distance_m"
+      ],
+      "categorical": [
+        "season",
+        "is_cropland",
+        "land_cover_class",
+        "soil_type_class"
+      ]
+    },
+    "feature_count": 32,
+    "banned_columns_present": [],
+    "max_missing_by_feature": 0,
+    "s2_obs_count_note": "s2_obs_count is the count of Sentinel-2 observations in the grid cell's composite window, not a yield/target quantity.",
+    "env_features_note": "All non-geometry features are KNN-IDW spatial interpolants of the DK 500 m gridded dataset (annual_rainfall_mm ... rabi_ndwi) plus env_match_distance_m; none are derived from the crop label or yield. The DK grid ships Yield_Proxy_NPP and Area_sq_km, both excluded at match time.",
+    "temporal_note": "env_match_year == survey year for every row (gap 0); no feature comes from after the survey year. Same-year environmental features are climatology/environment, not label proxies; the Phase 8 ablation retrains without them."
+  },
+  "temporal_availability_candidates": {
+    "coconut": {
+      "+-30d": {
+        "mean_frames": 0.334,
+        "median": 0.0,
+        "max": 1,
+        "with_zero": 4570
+      },
+      "+-60d": {
+        "mean_frames": 0.724,
+        "median": 1.0,
+        "max": 2,
+        "with_zero": 1902
+      },
+      "+-90d": {
+        "mean_frames": 1.1,
+        "median": 1.0,
+        "max": 3,
+        "with_zero": 338
+      },
+      "+-120d": {
+        "mean_frames": 2.145,
+        "median": 2.0,
+        "max": 5,
+        "with_zero": 302
+      },
+      "+-180d": {
+        "mean_frames": 5.015,
+        "median": 5.0,
+        "max": 6,
+        "with_zero": 0
+      }
+    },
+    "pepper": {
+      "+-30d": {
+        "mean_frames": 0.313,
+        "median": 0.0,
+        "max": 1,
+        "with_zero": 2538
+      },
+      "+-60d": {
+        "mean_frames": 0.709,
+        "median": 1.0,
+        "max": 1,
+        "with_zero": 1076
+      },
+      "+-90d": {
+        "mean_frames": 1.144,
+        "median": 1.0,
+        "max": 2,
+        "with_zero": 119
+      },
+      "+-120d": {
+        "mean_frames": 2.276,
+        "median": 2.0,
+        "max": 5,
+        "with_zero": 93
+      },
+      "+-180d": {
+        "mean_frames": 5.048,
+        "median": 5.0,
+        "max": 6,
+        "with_zero": 0
+      }
+    },
+    "coffee": {
+      "+-30d": {
+        "mean_frames": 0.376,
+        "median": 0.0,
+        "max": 1,
+        "with_zero": 63
+      },
+      "+-60d": {
+        "mean_frames": 0.782,
+        "median": 1.0,
+        "max": 1,
+        "with_zero": 22
+      },
+      "+-90d": {
+        "mean_frames": 1.149,
+        "median": 1.0,
+        "max": 2,
+        "with_zero": 0
+      },
+      "+-120d": {
+        "mean_frames": 2.178,
+        "median": 2.0,
+        "max": 4,
+        "with_zero": 0
+      },
+      "+-180d": {
+        "mean_frames": 5.129,
+        "median": 5.0,
+        "max": 6,
+        "with_zero": 0
+      }
+    },
+    "cardamom": {
+      "+-30d": {
+        "mean_frames": 0.182,
+        "median": 0.0,
+        "max": 1,
+        "with_zero": 9
+      },
+      "+-60d": {
+        "mean_frames": 0.727,
+        "median": 1.0,
+        "max": 1,
+        "with_zero": 3
+      },
+      "+-90d": {
+        "mean_frames": 1.182,
+        "median": 1.0,
+        "max": 2,
+        "with_zero": 0
+      },
+      "+-120d": {
+        "mean_frames": 2.636,
+        "median": 3.0,
+        "max": 4,
+        "with_zero": 0
+      },
+      "+-180d": {
+        "mean_frames": 5.091,
+        "median": 5.0,
+        "max": 6,
+        "with_zero": 0
+      }
+    },
+    "blackgram": {
+      "+-30d": {
+        "mean_frames": 0.5,
+        "median": 0.5,
+        "max": 1,
+        "with_zero": 1
+      },
+      "+-60d": {
+        "mean_frames": 0.5,
+        "median": 0.5,
+        "max": 1,
+        "with_zero": 1
+      },
+      "+-90d": {
+        "mean_frames": 1.5,
+        "median": 1.5,
+        "max": 2,
+        "with_zero": 0
+      },
+      "+-120d": {
+        "mean_frames": 2.5,
+        "median": 2.5,
+        "max": 4,
+        "with_zero": 0
+      },
+      "+-180d": {
+        "mean_frames": 5.0,
+        "median": 5.0,
+        "max": 5,
+        "with_zero": 0
+      }
+    }
+  },
+  "limitations": "Candidate frames are raster-existence date arithmetic; point coverage not modelled."
+}
