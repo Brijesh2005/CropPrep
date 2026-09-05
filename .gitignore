@@ -148,3 +148,5 @@ kaggle_runs/
 # ===========================================
 
 artifacts/
+# Transient test artifacts
+training/kaggle/tests/_tmp_*

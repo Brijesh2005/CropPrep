@@ -1,0 +1,266 @@
+{
+  "release": "r5.5",
+  "phase": 2,
+  "title": "Class-retention audit (crop survey source -> R5.5 frozen corpus)",
+  "manifest_sha256": "486bee061f1620872b578eee1e00e31d004e966de7e30b43bc42ebbe20dc5637",
+  "manifest_splits": {
+    "train": 5924,
+    "validation": 2459,
+    "test": 2291
+  },
+  "scan_ledger": {
+    "path": "government_crop_stam_match.csv",
+    "rows": 199345,
+    "context": "199,345 government model-head survey records (R5.2.7 scan ledger) are the effective govt-survey input to matching. 94.3% of rejected records are near-identical GPS duplicates.",
+    "duplicate_rejected_share_pct": 94.28
+  },
+  "retention_cascade_per_crop": {
+    "coconut": {
+      "source_count": 151694,
+      "unique_source_locations": 148264,
+      "duplicate_removed": 144265,
+      "spatial_matched": 136687,
+      "temporal_passed": 136677,
+      "tabular_matched": 136677,
+      "imagery_matched": 136677,
+      "non_duplicate": 6865,
+      "valid": 6865,
+      "retention_rate_pct": 4.53
+    },
+    "pepper": {
+      "source_count": 47278,
+      "unique_source_locations": 46807,
+      "duplicate_removed": 43422,
+      "spatial_matched": 45366,
+      "temporal_passed": 45366,
+      "tabular_matched": 45366,
+      "imagery_matched": 45366,
+      "non_duplicate": 3695,
+      "valid": 3695,
+      "retention_rate_pct": 7.82
+    },
+    "coffee": {
+      "source_count": 330,
+      "unique_source_locations": 303,
+      "duplicate_removed": 221,
+      "spatial_matched": 317,
+      "temporal_passed": 317,
+      "tabular_matched": 317,
+      "imagery_matched": 317,
+      "non_duplicate": 101,
+      "valid": 101,
+      "retention_rate_pct": 30.61
+    },
+    "cardamom": {
+      "source_count": 38,
+      "unique_source_locations": 38,
+      "duplicate_removed": 24,
+      "spatial_matched": 34,
+      "temporal_passed": 34,
+      "tabular_matched": 34,
+      "imagery_matched": 34,
+      "non_duplicate": 11,
+      "valid": 11,
+      "retention_rate_pct": 28.95
+    },
+    "blackgram": {
+      "source_count": 5,
+      "unique_source_locations": 5,
+      "duplicate_removed": 2,
+      "spatial_matched": 4,
+      "temporal_passed": 4,
+      "tabular_matched": 4,
+      "imagery_matched": 4,
+      "non_duplicate": 2,
+      "valid": 2,
+      "retention_rate_pct": 40.0
+    }
+  },
+  "frozen_corpus_per_class": {
+    "coconut": {
+      "count": 6865,
+      "pct_of_corpus": 64.32,
+      "train": 4292,
+      "validation": 1373,
+      "test": 1200,
+      "unique_locations": 6865,
+      "unique_villages": 224,
+      "unique_taluks": 5,
+      "unique_hoblis": 14,
+      "survey_years": [
+        "2020",
+        "2021"
+      ],
+      "survey_seasons": [
+        "Kharif",
+        "Rabi"
+      ],
+      "survey_date_min": "2020-08-12",
+      "survey_date_max": "2022-02-09",
+      "satellite_full": 6865,
+      "satellite_available_pct": 100.0,
+      "ndvi_available": 6865,
+      "evi_available": 6865,
+      "est_imagery_candidates_wd180": {
+        "mean": 5.015,
+        "median": 5.0,
+        "max": 6,
+        "with_zero": 0
+      },
+      "env_provenance_join_rate": 100.0,
+      "env_match_confidence": {
+        "HIGH": 5855,
+        "MEDIUM": 1010
+      },
+      "unique_env_grid_cells": 4992,
+      "tab_note": "unique_env_grid_cells from provenance.json env_dk_index (KNN-IDW cells)"
+    },
+    "pepper": {
+      "count": 3695,
+      "pct_of_corpus": 34.62,
+      "train": 1599,
+      "validation": 1063,
+      "test": 1033,
+      "unique_locations": 3695,
+      "unique_villages": 182,
+      "unique_taluks": 5,
+      "unique_hoblis": 12,
+      "survey_years": [
+        "2020",
+        "2021"
+      ],
+      "survey_seasons": [
+        "Kharif"
+      ],
+      "survey_date_min": "2020-08-11",
+      "survey_date_max": "2021-10-20",
+      "satellite_full": 3695,
+      "satellite_available_pct": 100.0,
+      "ndvi_available": 3695,
+      "evi_available": 3695,
+      "est_imagery_candidates_wd180": {
+        "mean": 5.048,
+        "median": 5.0,
+        "max": 6,
+        "with_zero": 0
+      },
+      "env_provenance_join_rate": 100.0,
+      "env_match_confidence": {
+        "HIGH": 3215,
+        "MEDIUM": 480
+      },
+      "unique_env_grid_cells": 2917,
+      "tab_note": "unique_env_grid_cells from provenance.json env_dk_index (KNN-IDW cells)"
+    },
+    "coffee": {
+      "count": 101,
+      "pct_of_corpus": 0.95,
+      "train": 29,
+      "validation": 21,
+      "test": 51,
+      "unique_locations": 101,
+      "unique_villages": 41,
+      "unique_taluks": 4,
+      "unique_hoblis": 7,
+      "survey_years": [
+        "2020"
+      ],
+      "survey_seasons": [
+        "Kharif"
+      ],
+      "survey_date_min": "2020-08-15",
+      "survey_date_max": "2020-11-01",
+      "satellite_full": 101,
+      "satellite_available_pct": 100.0,
+      "ndvi_available": 101,
+      "evi_available": 101,
+      "est_imagery_candidates_wd180": {
+        "mean": 5.129,
+        "median": 5.0,
+        "max": 6,
+        "with_zero": 0
+      },
+      "env_provenance_join_rate": 100.0,
+      "env_match_confidence": {
+        "HIGH": 89,
+        "MEDIUM": 12
+      },
+      "unique_env_grid_cells": 93,
+      "tab_note": "unique_env_grid_cells from provenance.json env_dk_index (KNN-IDW cells)"
+    },
+    "cardamom": {
+      "count": 11,
+      "pct_of_corpus": 0.1,
+      "train": 4,
+      "validation": 2,
+      "test": 5,
+      "unique_locations": 11,
+      "unique_villages": 9,
+      "unique_taluks": 4,
+      "unique_hoblis": 6,
+      "survey_years": [
+        "2020"
+      ],
+      "survey_seasons": [
+        "Kharif"
+      ],
+      "survey_date_min": "2020-08-20",
+      "survey_date_max": "2020-10-21",
+      "satellite_full": 11,
+      "satellite_available_pct": 100.0,
+      "ndvi_available": 11,
+      "evi_available": 11,
+      "est_imagery_candidates_wd180": {
+        "mean": 5.091,
+        "median": 5.0,
+        "max": 6,
+        "with_zero": 0
+      },
+      "env_provenance_join_rate": 100.0,
+      "env_match_confidence": {
+        "HIGH": 9,
+        "MEDIUM": 2
+      },
+      "unique_env_grid_cells": 11,
+      "tab_note": "unique_env_grid_cells from provenance.json env_dk_index (KNN-IDW cells)"
+    },
+    "blackgram": {
+      "count": 2,
+      "pct_of_corpus": 0.02,
+      "train": 0,
+      "validation": 0,
+      "test": 2,
+      "unique_locations": 2,
+      "unique_villages": 2,
+      "unique_taluks": 1,
+      "unique_hoblis": 2,
+      "survey_years": [
+        "2020"
+      ],
+      "survey_seasons": [
+        "Kharif"
+      ],
+      "survey_date_min": "2020-08-22",
+      "survey_date_max": "2020-09-29",
+      "satellite_full": 2,
+      "satellite_available_pct": 100.0,
+      "ndvi_available": 2,
+      "evi_available": 2,
+      "est_imagery_candidates_wd180": {
+        "mean": 5.0,
+        "median": 5.0,
+        "max": 5,
+        "with_zero": 0
+      },
+      "env_provenance_join_rate": 100.0,
+      "env_match_confidence": {
+        "MEDIUM": 1,
+        "HIGH": 1
+      },
+      "unique_env_grid_cells": 2,
+      "tab_note": "unique_env_grid_cells from provenance.json env_dk_index (KNN-IDW cells)"
+    }
+  },
+  "rare_class_conclusion": "Coffee (101) and cardamom (11) are NATURALLY rare at the source: only 330 coffee and 38 cardamom government survey records enter matching across the five Dakshina Kannada taluks. Their pipeline retention is HIGHER than coconut/pepper (~30.6% / ~28.9% vs ~4.5% / ~7.8%) because coconut/pepper suffer an enormous duplicate-filter drop. No matcher stage is the bottleneck for the rare classes; recovering additional rare-class observations requires additional genuine source records, NOT looser matching.",
+  "limitations": "est_imagery_candidates_wd180 is raster-existence date arithmetic only; point coverage / patch extraction are not modelled. env fields come from provenance.json (record key match); the join rate per class is reported explicitly."
+}

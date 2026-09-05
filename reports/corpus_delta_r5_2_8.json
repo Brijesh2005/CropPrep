@@ -1,0 +1,70 @@
+{
+  "release": "r5.5",
+  "phase": 2,
+  "title": "Supervised-corpus delta: v1.1 (R5.2.7/8) -> v2.0 (R5.2.9)",
+  "old_corpus": {
+    "label": "crop_supervised_v1",
+    "version": "crop_supervised_v1.1",
+    "csv_path": "D:\\CropPrep\\govt_crop_matched_v1\\crop_supervised_v1.csv",
+    "csv_rows": 10674,
+    "manifest_total": 10674,
+    "manifest_splits": {
+      "train": 5924,
+      "validation": 2459,
+      "test": 2291
+    },
+    "csv_sha256": "239cb608972e87f4e069e27f4ab308c65141afcdcb2148e0847dcfe96ea2820d"
+  },
+  "new_corpus": {
+    "label": "crop_supervised_v2",
+    "version": "crop_supervised_v2.0",
+    "csv_path": "D:\\CropPrep\\govt_crop_matched_v2\\crop_supervised_v2.csv",
+    "csv_rows": 10675,
+    "benchmark_eligible_rows": 10674,
+    "manifest_total": 10674,
+    "manifest_splits": {
+      "train": 5924,
+      "validation": 2459,
+      "test": 2291
+    },
+    "csv_sha256": "992ee6c39832794577c93295685844848d0b03aff67a2fb03bc1cf7c9cd95446",
+    "manifest_sha256": "486bee061f1620872b578eee1e00e31d004e966de7e30b43bc42ebbe20dc5637"
+  },
+  "delta": {
+    "identical_records": 10674,
+    "added": 1,
+    "removed": 0,
+    "changed_columns": 0,
+    "record_id_equality_benchmark": true,
+    "split_delta_train": 0,
+    "split_delta_validation": 0,
+    "split_delta_test": 0
+  },
+  "removed_records": [],
+  "changed_fields": [],
+  "added_records": [
+    {
+      "record_id": "gov_PUTTUR_PUTTURU_2020_Kharif_coconut_12.7666078_75.2045673",
+      "crop_label": "coconut",
+      "location_taluk": "Puttur",
+      "location_hobli": "PUTTURU",
+      "location_village": "PUTTURU",
+      "year": "2020",
+      "season": "Kharif",
+      "survey_date": "2020-12-03",
+      "satellite_status": "FULL",
+      "ndvi_available": "True",
+      "evi_available": "True",
+      "is_recovered_v2": "True",
+      "benchmark_eligible": "False"
+    }
+  ],
+  "historical_stale_totals": {
+    "total_samples": 10119,
+    "train_samples": 5797,
+    "validation_samples": 2031,
+    "test_samples": 2291,
+    "note": "'10119/5797/2031/2291' were a post-filter subset produced by a cancelled r5-4 kernel run. No shipped corpus ever had them: the official v1.1 and v2.0 corpora are both 10674/5924/2459/2291. These figures leaked into legacy diagnostics and old reports; R5.5 Phase 1 removed every hard-coded use."
+  },
+  "summary": "The R5.5 benchmark contract is unchanged from the R5.2.9 v2.0 corpus: 10,674 benchmark-eligible records (5,924 train / 2,459 validation / 2,291 test). The v2 release adds exactly one recovered record (not benchmark-eligible). No records removed; no field changes among identical record_ids."
+}

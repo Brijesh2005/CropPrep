@@ -118,3 +118,30 @@ def test_verify_split_uses_frozen_provenance_split() -> None:
     assert len(train) == 1  # no silent train assignment
 
     assert mod.__doc__ and "provenance.split" in mod.__doc__
+
+# ── R5.5 Phase 1: frozen contract is manifest-driven (v2.0: 10674/5924/2459/2291) ──
+
+
+def test_frozen_contract_read_from_manifest() -> None:
+    from training.kaggle.scripts import diagnose_model, run_baselines
+
+    manifest = Path(__file__).resolve().parents[3] / "training_manifests" / "crop_supervised_v2.0_manifest.json"
+    for mod in (run_baselines, diagnose_model):
+        contract = mod._load_frozen_contract(manifest)
+        assert contract["total"] == 10674
+        assert contract["train"] == 5924
+        assert contract["val"] == 2459
+        assert contract["test"] == 2291
+        assert contract["supervised_classes"] == ["coconut", "pepper", "coffee", "cardamom"]
+        assert contract["excluded_classes"] == ["blackgram"]
+        assert len(contract["manifest_sha256"]) == 64
+        assert "crop_supervised_v2.csv" in contract["dataset_checksums"]
+
+
+def test_no_stale_frozen_totals_in_diagnostic_scripts() -> None:
+    """R5.5: the 10119/5797/2031 contract must not be hard-coded anywhere."""
+    scripts_dir = Path(__file__).resolve().parents[3] / "training" / "kaggle" / "scripts"
+    for name in ("run_baselines.py", "diagnose_model.py"):
+        text = (scripts_dir / name).read_text(encoding="utf-8")
+        for stale in ("10119", "5797", "2031"):
+            assert stale not in text, f"{name} still hard-codes {stale}"

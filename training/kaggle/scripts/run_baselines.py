@@ -17,6 +17,7 @@ Run from repo root (Kaggle kernel, after ``run_pipeline.py``)::
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from collections import Counter
@@ -28,13 +29,40 @@ import torch
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
-# ── Frozen contract (from crop_supervised_v1_manifest.json) ────────────
-_FROZEN_TOTAL = 10119
-_FROZEN_TRAIN = 5797
-_FROZEN_VAL = 2031
-_FROZEN_TEST = 2291
+# ── Frozen contract (from training_manifests/crop_supervised_v2.0_manifest.json) ──
+_FROZEN_MANIFEST = _REPO_ROOT / "training_manifests" / "crop_supervised_v2.0_manifest.json"
 _SUPERVISED_CLASSES = ["coconut", "pepper", "coffee", "cardamom"]
 _EXCLUDED_CLASSES = ["blackgram"]
+
+
+def _load_frozen_contract(manifest_path: Path) -> dict[str, Any]:
+    """Read the immutable frozen-corpus contract from the v2.0 manifest.
+
+    The assertions stay strict: these values ARE the contract
+    (total 10674 = train 5924 + val 2459 + test 2291).  Any future corpus
+    change must ship a new manifest rather than silently bump a constant.
+    """
+    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    total = int(data["total_samples"])
+    train = int(data["train_samples"])
+    val = int(data["validation_samples"])
+    test = int(data["test_samples"])
+    assert total == train + val + test, f"manifest total inconsistent: {total} != {train}+{val}+{test}"
+    supervised = list(data.get("supervised_classes") or _SUPERVISED_CLASSES)
+    excluded = list(data.get("excluded_classes") or _EXCLUDED_CLASSES)
+    sha256 = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    return {
+        "total": total,
+        "train": train,
+        "val": val,
+        "test": test,
+        "supervised_classes": supervised,
+        "excluded_classes": excluded,
+        "manifest_path": str(manifest_path),
+        "manifest_sha256": sha256,
+        "dataset_checksums": data.get("reproducibility", {}).get("dataset_checksums", {}),
+        "spatial_split": data.get("split_groups", {}),
+    }
 
 
 def _add_repo_root(repo_root: Path) -> None:
@@ -112,20 +140,21 @@ def _validate_frozen_contract(
     train: list[AgriculturalObservation],
     val: list[AgriculturalObservation],
     test: list[AgriculturalObservation],
+    expected: dict[str, Any],
 ) -> None:
     """Assert frozen corpus split counts match the manifest contract."""
     total = len(train) + len(val) + len(test)
-    assert total == _FROZEN_TOTAL, (
-        f"Frozen corpus total mismatch: expected {_FROZEN_TOTAL}, got {total}"
+    assert total == expected["total"], (
+        f"Frozen corpus total mismatch: expected {expected['total']}, got {total}"
     )
-    assert len(train) == _FROZEN_TRAIN, (
-        f"Frozen train split mismatch: expected {_FROZEN_TRAIN}, got {len(train)}"
+    assert len(train) == expected["train"], (
+        f"Frozen train split mismatch: expected {expected['train']}, got {len(train)}"
     )
-    assert len(val) == _FROZEN_VAL, (
-        f"Frozen val split mismatch: expected {_FROZEN_VAL}, got {len(val)}"
+    assert len(val) == expected["val"], (
+        f"Frozen val split mismatch: expected {expected['val']}, got {len(val)}"
     )
-    assert len(test) == _FROZEN_TEST, (
-        f"Frozen test split mismatch: expected {_FROZEN_TEST}, got {len(test)}"
+    assert len(test) == expected["test"], (
+        f"Frozen test split mismatch: expected {expected['test']}, got {len(test)}"
     )
     train_ids = {str(o.observation_id) for o in train}
     val_ids = {str(o.observation_id) for o in val}
@@ -268,6 +297,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="cropfusion-run-baselines")
     parser.add_argument("--corpus", required=True)
     parser.add_argument("--output", default=None)
+    parser.add_argument("--manifest", default=None,
+                        help="Frozen manifest defining the corpus contract (default: repo v2.0 manifest)")
     parser.add_argument("--preprocessing-config", default=None)
     parser.add_argument("--dataset-config", default=None)
     parser.add_argument("--stam-config", default=None)
@@ -275,6 +306,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     corpus_path = Path(args.corpus)
+    manifest_path = Path(args.manifest) if args.manifest else _FROZEN_MANIFEST
     output_dir = Path(args.output) if args.output else _REPO_ROOT / "training/kaggle/outputs/reports"
     pre_config = Path(args.preprocessing_config) if args.preprocessing_config else _REPO_ROOT / "training/config/preprocessing.yaml"
     ds_config = Path(args.dataset_config) if args.dataset_config else _REPO_ROOT / "training/config/dataset.yaml"
@@ -283,6 +315,13 @@ def main(argv: list[str] | None = None) -> int:
     print("=" * 66)
     print("  BASELINE EXPERIMENTS (frozen-provenance split)")
     print("=" * 66)
+
+    # ── Load frozen contract from the manifest (NOT hard-coded counts) ──
+    print("  loading frozen contract from manifest...")
+    contract = _load_frozen_contract(manifest_path)
+    print(f"  contract: total={contract['total']} train={contract['train']} "
+          f"val={contract['val']} test={contract['test']}")
+    print(f"  manifest sha256: {contract['manifest_sha256']}")
 
     # ── Load frozen corpus ─────────────────────────────────────────────
     print("  loading frozen corpus...")
@@ -295,7 +334,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # ── Validate frozen contract ───────────────────────────────────────
     print("  validating frozen contract...")
-    _validate_frozen_contract(train_obs, val_obs, test_obs)
+    _validate_frozen_contract(train_obs, val_obs, test_obs, contract)
     crop_dist = _validate_class_vocabulary(all_obs)
 
     print(f"  train={len(train_obs)}  val={len(val_obs)}  test={len(test_obs)}")
@@ -408,14 +447,7 @@ def main(argv: list[str] | None = None) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     report = {
         "corpus": str(corpus_path),
-        "frozen_contract": {
-            "total": _FROZEN_TOTAL,
-            "train": _FROZEN_TRAIN,
-            "val": _FROZEN_VAL,
-            "test": _FROZEN_TEST,
-            "supervised_classes": _SUPERVISED_CLASSES,
-            "excluded_classes": _EXCLUDED_CLASSES,
-        },
+        "frozen_contract": contract,
         "actual_split_sizes": {
             "train": len(train_obs),
             "val": len(val_obs),
