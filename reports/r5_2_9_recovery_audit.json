@@ -1,0 +1,32 @@
+{
+  "v1_rows": 10674,
+  "v2_rows": 10675,
+  "common": 10674,
+  "added_ids": [
+    "gov_PUTTUR_PUTTURU_2020_Kharif_coconut_12.7666078_75.2045673"
+  ],
+  "removed_ids": [],
+  "is_recovered_v2_counts": {
+    "False": 10674,
+    "True": 1
+  },
+  "benchmark_eligible_counts": {
+    "True": 10674,
+    "False": 1
+  },
+  "recovered_rows": [
+    {
+      "record_id": "gov_PUTTUR_PUTTURU_2020_Kharif_coconut_12.7666078_75.2045673",
+      "crop": "coconut",
+      "taluk": "Puttur",
+      "year": 2020,
+      "season": "Kharif",
+      "survey_date": "2020-12-03",
+      "satellite": "FULL",
+      "benchmark_eligible": false,
+      "v1_record_id": NaN
+    }
+  ],
+  "changed_cells": 0,
+  "library_note": "Previous delta (corpus_delta_r5_2_8.json) already confirmed the benchmark-eligible v2 set is RECORD-IDENTICAL to v1 (0 removed, 0 changed). This audit re-derives the same from source CSVs and categories the single added row."
+}

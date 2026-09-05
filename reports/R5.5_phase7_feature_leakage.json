@@ -1,0 +1,495 @@
+{
+  "feature_count": 32,
+  "numeric": 28,
+  "categorical": 4,
+  "banned_present": [],
+  "missing_columns": [],
+  "features": {
+    "lat": {
+      "source": "frozen corpus (village GPS)",
+      "meaning": "sample latitude",
+      "units": "deg",
+      "leak_risk": "coordinates identify taluk/split",
+      "type": "numeric",
+      "train": {
+        "mean": 12.906,
+        "std": 0.104,
+        "min": 12.665,
+        "max": 13.172,
+        "missing": 0,
+        "unique": 5908
+      }
+    },
+    "lon": {
+      "source": "frozen corpus (village GPS)",
+      "meaning": "sample longitude",
+      "units": "deg",
+      "leak_risk": "coordinates identify taluk/split",
+      "type": "numeric",
+      "train": {
+        "mean": 75.17,
+        "std": 0.159,
+        "min": 74.84,
+        "max": 75.525,
+        "missing": 0,
+        "unique": 5909
+      }
+    },
+    "spatial_match_distance_km": {
+      "source": "STAM spatial match",
+      "meaning": "distance from village point to matched env grid cell",
+      "units": "km",
+      "leak_risk": "match-quality confound",
+      "type": "numeric",
+      "train": {
+        "mean": 0.169,
+        "std": 0.132,
+        "min": 0.001,
+        "max": 1.548,
+        "missing": 0,
+        "unique": 2741
+      }
+    },
+    "year": {
+      "source": "survey metadata",
+      "meaning": "survey/report year",
+      "units": "year",
+      "leak_risk": "none (env_match_year==survey year verified)",
+      "type": "numeric",
+      "train": {
+        "mean": 2020.026,
+        "std": 0.159,
+        "min": 2020.0,
+        "max": 2021.0,
+        "missing": 0,
+        "unique": 2
+      }
+    },
+    "annual_rainfall_mm": {
+      "source": "DK env grid (R5.2.9)",
+      "meaning": "annual precipitation at matched cell",
+      "units": "mm",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 4380.046,
+        "std": 250.859,
+        "min": 3745.594,
+        "max": 4885.377,
+        "missing": 0,
+        "unique": 1294
+      }
+    },
+    "dewpoint_c": {
+      "source": "DK env grid",
+      "meaning": "mean dewpoint",
+      "units": "deg C",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 22.068,
+        "std": 0.722,
+        "min": 18.292,
+        "max": 23.352,
+        "missing": 0,
+        "unique": 613
+      }
+    },
+    "elevation": {
+      "source": "DK env grid (DEM)",
+      "meaning": "surface elevation",
+      "units": "m",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 89.677,
+        "std": 41.461,
+        "min": 2.163,
+        "max": 1074.794,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "temperature_c": {
+      "source": "DK env grid",
+      "meaning": "mean air temperature",
+      "units": "deg C",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 26.129,
+        "std": 0.714,
+        "min": 22.137,
+        "max": 27.133,
+        "missing": 0,
+        "unique": 628
+      }
+    },
+    "relative_humidity_pct": {
+      "source": "DK env grid",
+      "meaning": "mean relative humidity",
+      "units": "%",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 78.366,
+        "std": 0.841,
+        "min": 77.315,
+        "max": 81.83,
+        "missing": 0,
+        "unique": 634
+      }
+    },
+    "slope": {
+      "source": "DK env grid (DEM)",
+      "meaning": "terrain slope",
+      "units": "deg",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 5.994,
+        "std": 2.751,
+        "min": 0.042,
+        "max": 24.712,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "ndvi": {
+      "source": "Sentinel-2 composite/env grid",
+      "meaning": "mean NDVI (seasonal env composite)",
+      "units": "-1..1",
+      "leak_risk": "static composite, not per-sample imagery",
+      "type": "numeric",
+      "train": {
+        "mean": 0.671,
+        "std": 0.106,
+        "min": 0.058,
+        "max": 0.844,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "evi": {
+      "source": "Sentinel-2 composite/env grid",
+      "meaning": "mean EVI (seasonal env composite)",
+      "units": "-1..1",
+      "leak_risk": "static composite, not per-sample imagery",
+      "type": "numeric",
+      "train": {
+        "mean": 2.085,
+        "std": 0.481,
+        "min": -0.239,
+        "max": 4.175,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "ndwi": {
+      "source": "Sentinel-2 composite/env grid",
+      "meaning": "mean NDWI",
+      "units": "-1..1",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": -0.628,
+        "std": 0.066,
+        "min": -0.76,
+        "max": 0.095,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "ndre": {
+      "source": "Sentinel-2 composite/env grid",
+      "meaning": "mean NDRE (red edge)",
+      "units": "-1..1",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 0.462,
+        "std": 0.082,
+        "min": 0.002,
+        "max": 0.647,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "savi": {
+      "source": "Sentinel-2 composite/env grid",
+      "meaning": "mean SAVI",
+      "units": "-1..1",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 1.006,
+        "std": 0.158,
+        "min": 0.087,
+        "max": 1.266,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "s2_obs_count": {
+      "source": "Sentinel-2 metadata",
+      "meaning": "composite observation count",
+      "units": "count",
+      "leak_risk": "coverage confound",
+      "type": "numeric",
+      "train": {
+        "mean": 31.192,
+        "std": 10.025,
+        "min": 24.0,
+        "max": 91.676,
+        "missing": 0,
+        "unique": 260
+      }
+    },
+    "soil_clay_pct": {
+      "source": "soilgrids/DK grid",
+      "meaning": "soil clay fraction",
+      "units": "%",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 319.304,
+        "std": 27.79,
+        "min": 258.301,
+        "max": 401.496,
+        "missing": 0,
+        "unique": 5913
+      }
+    },
+    "soil_sand_pct": {
+      "source": "soilgrids/DK grid",
+      "meaning": "soil sand fraction",
+      "units": "%",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 457.891,
+        "std": 25.147,
+        "min": 355.038,
+        "max": 521.884,
+        "missing": 0,
+        "unique": 5912
+      }
+    },
+    "soil_organic_carbon": {
+      "source": "soilgrids/DK grid",
+      "meaning": "soil organic carbon",
+      "units": "dag/kg",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 359.506,
+        "std": 75.209,
+        "min": 211.386,
+        "max": 778.453,
+        "missing": 0,
+        "unique": 5914
+      }
+    },
+    "soil_ph": {
+      "source": "soilgrids/DK grid",
+      "meaning": "soil pH",
+      "units": "pH",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 56.614,
+        "std": 0.985,
+        "min": 54.166,
+        "max": 61.0,
+        "missing": 0,
+        "unique": 4444
+      }
+    },
+    "soil_moisture": {
+      "source": "DK env grid",
+      "meaning": "soil moisture",
+      "units": "0..1",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": 0.296,
+        "std": 0.024,
+        "min": 0.182,
+        "max": 0.355,
+        "missing": 0,
+        "unique": 551
+      }
+    },
+    "kharif_ndvi": {
+      "source": "Sentinel-2 seasonal",
+      "meaning": "Kharif-season mean NDVI",
+      "units": "-1..1",
+      "leak_risk": "seasonal composite",
+      "type": "numeric",
+      "train": {
+        "mean": 0.655,
+        "std": 0.173,
+        "min": -0.031,
+        "max": 0.855,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "kharif_evi": {
+      "source": "Sentinel-2 seasonal",
+      "meaning": "Kharif-season mean EVI",
+      "units": "-1..1",
+      "leak_risk": "seasonal composite",
+      "type": "numeric",
+      "train": {
+        "mean": 4.079,
+        "std": 106.355,
+        "min": -187.212,
+        "max": 6744.029,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "kharif_ndwi": {
+      "source": "Sentinel-2 seasonal",
+      "meaning": "Kharif-season mean NDWI",
+      "units": "-1..1",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": -0.581,
+        "std": 0.157,
+        "min": -0.764,
+        "max": 0.146,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "rabi_ndvi": {
+      "source": "Sentinel-2 seasonal",
+      "meaning": "Rabi-season mean NDVI",
+      "units": "-1..1",
+      "leak_risk": "seasonal composite",
+      "type": "numeric",
+      "train": {
+        "mean": 0.706,
+        "std": 0.096,
+        "min": 0.104,
+        "max": 0.844,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "rabi_evi": {
+      "source": "Sentinel-2 seasonal",
+      "meaning": "Rabi-season mean EVI",
+      "units": "-1..1",
+      "leak_risk": "seasonal composite",
+      "type": "numeric",
+      "train": {
+        "mean": 2.275,
+        "std": 0.513,
+        "min": -5.378,
+        "max": 14.148,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "rabi_ndwi": {
+      "source": "Sentinel-2 seasonal",
+      "meaning": "Rabi-season mean NDWI",
+      "units": "-1..1",
+      "leak_risk": "none",
+      "type": "numeric",
+      "train": {
+        "mean": -0.647,
+        "std": 0.062,
+        "min": -0.754,
+        "max": 0.07,
+        "missing": 0,
+        "unique": 5915
+      }
+    },
+    "env_match_distance_m": {
+      "source": "DK env grid match",
+      "meaning": "match cell distance",
+      "units": "m",
+      "leak_risk": "match-quality confound",
+      "type": "numeric",
+      "train": {
+        "mean": 169.101,
+        "std": 131.482,
+        "min": 1.39,
+        "max": 1548.51,
+        "missing": 0,
+        "unique": 5385
+      }
+    },
+    "season": {
+      "source": "survey metadata",
+      "meaning": "growing season",
+      "units": "Kharif/Rabi",
+      "leak_risk": "none",
+      "type": "categorical",
+      "train": {
+        "missing": 0,
+        "unique": 2,
+        "top_values": {
+          "Kharif": 5887,
+          "Rabi": 37
+        }
+      }
+    },
+    "is_cropland": {
+      "source": "land-cover product",
+      "meaning": "cropland flag",
+      "units": "0/1",
+      "leak_risk": "none",
+      "type": "categorical",
+      "train": {
+        "missing": 0,
+        "unique": 2,
+        "top_values": {
+          "0": 5888,
+          "1": 36
+        }
+      }
+    },
+    "land_cover_class": {
+      "source": "land-cover product",
+      "meaning": "ESA/Esa land cover class id",
+      "units": "class",
+      "leak_risk": "none",
+      "type": "categorical",
+      "train": {
+        "missing": 0,
+        "unique": 6,
+        "top_values": {
+          "10": 5763,
+          "30": 60,
+          "50": 47,
+          "40": 40,
+          "80": 9
+        }
+      }
+    },
+    "soil_type_class": {
+      "source": "soilgrids",
+      "meaning": "soil type class id",
+      "units": "class",
+      "leak_risk": "none",
+      "type": "categorical",
+      "train": {
+        "missing": 0,
+        "unique": 34,
+        "top_values": {
+          "262": 1295,
+          "389": 1119,
+          "220": 988,
+          "340": 399,
+          "31": 259
+        }
+      }
+    }
+  }
+}

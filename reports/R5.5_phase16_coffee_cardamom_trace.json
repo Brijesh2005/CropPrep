@@ -1,0 +1,58 @@
+{
+  "manifest_totals": {
+    "overall": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "train": {
+      "coconut": 4292,
+      "pepper": 1599,
+      "coffee": 29,
+      "cardamom": 4
+    },
+    "validation": {
+      "pepper": 1063,
+      "coconut": 1373,
+      "coffee": 21,
+      "cardamom": 2
+    },
+    "test": {
+      "coconut": 1200,
+      "pepper": 1033,
+      "coffee": 51,
+      "blackgram": 2,
+      "cardamom": 5
+    }
+  },
+  "crops": {
+    "coffee": {
+      "source_records": 330,
+      "satellite_full": 317,
+      "non_duplicate": 101,
+      "valid_matched": 101,
+      "corpus_accepted": 101,
+      "rejection_reasons_top": {
+        "['duplicate']": 216,
+        "[]": 101,
+        "['spatial_NO_MATCH', 'no_satellite']": 8,
+        "['spatial_NO_MATCH', 'no_satellite', 'duplicate']": 5
+      }
+    },
+    "cardamom": {
+      "source_records": 38,
+      "satellite_full": 34,
+      "non_duplicate": 11,
+      "valid_matched": 11,
+      "corpus_accepted": 11,
+      "rejection_reasons_top": {
+        "['duplicate']": 23,
+        "[]": 11,
+        "['spatial_NO_MATCH', 'no_satellite']": 3,
+        "['spatial_NO_MATCH', 'no_satellite', 'duplicate']": 1
+      }
+    }
+  }
+}

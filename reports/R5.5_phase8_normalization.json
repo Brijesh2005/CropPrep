@@ -1,0 +1,486 @@
+{
+  "features_kept": [
+    "lat",
+    "lon",
+    "spatial_match_distance_km",
+    "year",
+    "annual_rainfall_mm",
+    "dewpoint_c",
+    "elevation",
+    "temperature_c",
+    "relative_humidity_pct",
+    "slope",
+    "ndvi",
+    "evi",
+    "ndwi",
+    "ndre",
+    "savi",
+    "s2_obs_count",
+    "soil_clay_pct",
+    "soil_sand_pct",
+    "soil_organic_carbon",
+    "soil_ph",
+    "soil_moisture",
+    "kharif_ndvi",
+    "kharif_evi",
+    "kharif_ndwi",
+    "rabi_ndvi",
+    "rabi_evi",
+    "rabi_ndwi",
+    "env_match_distance_m"
+  ],
+  "per_sample_examples": {
+    "coconut": {
+      "lat": {
+        "raw": 12.985,
+        "filled_clipped": 12.985,
+        "scaled": 0.7559
+      },
+      "lon": {
+        "raw": 75.1128,
+        "filled_clipped": 75.1128,
+        "scaled": -0.362
+      },
+      "spatial_match_distance_km": {
+        "raw": 0.0892,
+        "filled_clipped": 0.0892,
+        "scaled": -0.8027
+      },
+      "year": {
+        "raw": 2020.0,
+        "filled_clipped": 2020.0,
+        "scaled": 0.0
+      },
+      "annual_rainfall_mm": {
+        "raw": 4388.9268,
+        "filled_clipped": 4388.9268,
+        "scaled": 0.0354
+      },
+      "dewpoint_c": {
+        "raw": 22.3667,
+        "filled_clipped": 22.3667,
+        "scaled": 0.4192
+      },
+      "elevation": {
+        "raw": 78.7848,
+        "filled_clipped": 78.7848,
+        "scaled": -0.2888
+      },
+      "temperature_c": {
+        "raw": 26.5645,
+        "filled_clipped": 26.5645,
+        "scaled": 0.6434
+      },
+      "relative_humidity_pct": {
+        "raw": 77.7791,
+        "filled_clipped": 77.7791,
+        "scaled": -0.7589
+      },
+      "slope": {
+        "raw": 2.9271,
+        "filled_clipped": 2.9271,
+        "scaled": -1.2007
+      },
+      "ndvi": {
+        "raw": 0.6774,
+        "filled_clipped": 0.6774,
+        "scaled": 0.0443
+      },
+      "evi": {
+        "raw": 2.1341,
+        "filled_clipped": 2.1341,
+        "scaled": 0.1005
+      },
+      "ndwi": {
+        "raw": -0.6082,
+        "filled_clipped": -0.6082,
+        "scaled": 0.3837
+      },
+      "ndre": {
+        "raw": 0.4445,
+        "filled_clipped": 0.4445,
+        "scaled": -0.2428
+      },
+      "savi": {
+        "raw": 1.0159,
+        "filled_clipped": 1.0159,
+        "scaled": 0.0442
+      },
+      "s2_obs_count": {
+        "raw": 26.0,
+        "filled_clipped": 26.0,
+        "scaled": -0.9618
+      },
+      "soil_clay_pct": {
+        "raw": 322.5202,
+        "filled_clipped": 322.5202,
+        "scaled": 0.1158
+      },
+      "soil_sand_pct": {
+        "raw": 416.8372,
+        "filled_clipped": 416.8372,
+        "scaled": -1.6425
+      },
+      "soil_organic_carbon": {
+        "raw": 393.0248,
+        "filled_clipped": 393.0248,
+        "scaled": 0.4523
+      },
+      "soil_ph": {
+        "raw": 56.1254,
+        "filled_clipped": 56.1254,
+        "scaled": -0.516
+      },
+      "soil_moisture": {
+        "raw": 0.3035,
+        "filled_clipped": 0.3035,
+        "scaled": 1.0153
+      },
+      "kharif_ndvi": {
+        "raw": 0.5544,
+        "filled_clipped": 0.5544,
+        "scaled": -0.8197
+      },
+      "kharif_evi": {
+        "raw": 10.2171,
+        "filled_clipped": 3.7831,
+        "scaled": 1.894
+      },
+      "kharif_ndwi": {
+        "raw": -0.43,
+        "filled_clipped": -0.43,
+        "scaled": 1.4781
+      },
+      "rabi_ndvi": {
+        "raw": 0.7132,
+        "filled_clipped": 0.7132,
+        "scaled": 0.057
+      },
+      "rabi_evi": {
+        "raw": 2.3503,
+        "filled_clipped": 2.3503,
+        "scaled": 0.156
+      },
+      "rabi_ndwi": {
+        "raw": -0.6399,
+        "filled_clipped": -0.6399,
+        "scaled": 0.2039
+      },
+      "env_match_distance_m": {
+        "raw": 89.18,
+        "filled_clipped": 89.18,
+        "scaled": -0.8029
+      }
+    }
+  },
+  "scale_stats": {
+    "lat": {
+      "fill": 12.906104709807561,
+      "clip": [
+        12.585461712499999,
+        13.228051812499999
+      ],
+      "min": 12.6648,
+      "max": 13.1721,
+      "post_mean": 12.9061,
+      "post_std": 0.1044
+    },
+    "lon": {
+      "fill": 75.17021361699865,
+      "clip": [
+        74.7604305,
+        75.59676370000001
+      ],
+      "min": 74.8396,
+      "max": 75.5254,
+      "post_mean": 75.1702,
+      "post_std": 0.1587
+    },
+    "spatial_match_distance_km": {
+      "fill": 0.16914571235651585,
+      "clip": [
+        -0.08798749999999998,
+        0.39171249999999996
+      ],
+      "min": 0.0014,
+      "max": 0.3917,
+      "post_mean": 0.1594,
+      "post_std": 0.0875
+    },
+    "year": {
+      "fill": 2020.0259959486834,
+      "clip": [
+        2020.0,
+        2020.0
+      ],
+      "min": 2020.0,
+      "max": 2020.0,
+      "post_mean": 2020.0,
+      "post_std": 0.0
+    },
+    "annual_rainfall_mm": {
+      "fill": 4380.045577948369,
+      "clip": [
+        3614.3139782045037,
+        5159.807359242812
+      ],
+      "min": 3745.5938,
+      "max": 4885.377,
+      "post_mean": 4380.0456,
+      "post_std": 250.8379
+    },
+    "dewpoint_c": {
+      "fill": 22.06766256880426,
+      "clip": [
+        20.51284116413111,
+        23.81857792065157
+      ],
+      "min": 20.5128,
+      "max": 23.3521,
+      "post_mean": 22.0897,
+      "post_std": 0.6607
+    },
+    "elevation": {
+      "fill": 89.67740994713509,
+      "clip": [
+        8.494641579986421,
+        170.7189706615041
+      ],
+      "min": 8.4946,
+      "max": 170.719,
+      "post_mean": 88.6256,
+      "post_std": 34.0728
+    },
+    "temperature_c": {
+      "fill": 26.129479317904977,
+      "clip": [
+        24.641679846464942,
+        27.789200225412944
+      ],
+      "min": 24.6417,
+      "max": 27.1327,
+      "post_mean": 26.1591,
+      "post_std": 0.6301
+    },
+    "relative_humidity_pct": {
+      "fill": 78.36632590506984,
+      "clip": [
+        76.38180033806282,
+        80.10787532080411
+      ],
+      "min": 77.3148,
+      "max": 80.1079,
+      "post_mean": 78.332,
+      "post_std": 0.7287
+    },
+    "slope": {
+      "fill": 5.994132850451522,
+      "clip": [
+        -0.724011562973315,
+        12.224368935359815
+      ],
+      "min": 0.0415,
+      "max": 12.2244,
+      "post_mean": 5.917,
+      "post_std": 2.49
+    },
+    "ndvi": {
+      "fill": 0.6708807705612069,
+      "clip": [
+        0.4172215018265667,
+        0.949929983494764
+      ],
+      "min": 0.4172,
+      "max": 0.844,
+      "post_mean": 0.673,
+      "post_std": 0.0986
+    },
+    "evi": {
+      "fill": 2.084690178951969,
+      "clip": [
+        0.7768982572672474,
+        3.4565914054444824
+      ],
+      "min": 0.7769,
+      "max": 3.4566,
+      "post_mean": 2.0865,
+      "post_std": 0.4736
+    },
+    "ndwi": {
+      "fill": -0.6276200021561809,
+      "clip": [
+        -0.7822127391851941,
+        -0.4873132882640918
+      ],
+      "min": -0.7604,
+      "max": -0.4873,
+      "post_mean": -0.6299,
+      "post_std": 0.0565
+    },
+    "ndre": {
+      "fill": 0.46208912783367484,
+      "clip": [
+        0.2555102829482513,
+        0.6819235698883811
+      ],
+      "min": 0.2555,
+      "max": 0.6467,
+      "post_mean": 0.4634,
+      "post_std": 0.0777
+    },
+    "savi": {
+      "fill": 1.0061707353313478,
+      "clip": [
+        0.6257191065261339,
+        1.424714344737942
+      ],
+      "min": 0.6257,
+      "max": 1.2659,
+      "post_mean": 1.0094,
+      "post_std": 0.1479
+    },
+    "s2_obs_count": {
+      "fill": 31.19159480805225,
+      "clip": [
+        24.499999999999993,
+        28.500000000000007
+      ],
+      "min": 24.5,
+      "max": 28.5,
+      "post_mean": 26.8906,
+      "post_std": 0.926
+    },
+    "soil_clay_pct": {
+      "fill": 319.30355249684595,
+      "clip": [
+        239.56884798724428,
+        398.6919059010898
+      ],
+      "min": 258.3006,
+      "max": 398.6919,
+      "post_mean": 319.3031,
+      "post_std": 27.7859
+    },
+    "soil_sand_pct": {
+      "fill": 457.8907735047431,
+      "clip": [
+        380.52619273234694,
+        534.0112576882527
+      ],
+      "min": 380.5262,
+      "max": 521.8836,
+      "post_mean": 457.9279,
+      "post_std": 25.0171
+    },
+    "soil_organic_carbon": {
+      "fill": 359.50563844073605,
+      "clip": [
+        72.99036649753162,
+        618.7344024617553
+      ],
+      "min": 211.3857,
+      "max": 618.7344,
+      "post_mean": 359.3324,
+      "post_std": 74.4929
+    },
+    "soil_ph": {
+      "fill": 56.61352753968248,
+      "clip": [
+        54.5,
+        58.5
+      ],
+      "min": 54.5,
+      "max": 58.5,
+      "post_mean": 56.5647,
+      "post_std": 0.8514
+    },
+    "soil_moisture": {
+      "fill": 0.2959187894609792,
+      "clip": [
+        0.2903999499999997,
+        0.3076889900000002
+      ],
+      "min": 0.2904,
+      "max": 0.3077,
+      "post_mean": 0.2984,
+      "post_std": 0.0051
+    },
+    "kharif_ndvi": {
+      "fill": 0.6552126418938705,
+      "clip": [
+        0.361945955151886,
+        1.0155047577184204
+      ],
+      "min": 0.3619,
+      "max": 0.8548,
+      "post_mean": 0.6685,
+      "post_std": 0.1391
+    },
+    "kharif_evi": {
+      "fill": 4.079138012643202,
+      "clip": [
+        1.1404470816154557,
+        3.783121545635531
+      ],
+      "min": 1.1404,
+      "max": 3.7831,
+      "post_mean": 2.4537,
+      "post_std": 0.7019
+    },
+    "kharif_ndwi": {
+      "fill": -0.5813918964814221,
+      "clip": [
+        -0.8749258009978229,
+        -0.35650810010894407
+      ],
+      "min": -0.7643,
+      "max": -0.3565,
+      "post_mean": -0.5985,
+      "post_std": 0.114
+    },
+    "rabi_ndvi": {
+      "fill": 0.7055493655118553,
+      "clip": [
+        0.48269948765089526,
+        0.9520363695700407
+      ],
+      "min": 0.4827,
+      "max": 0.844,
+      "post_mean": 0.7082,
+      "post_std": 0.087
+    },
+    "rabi_evi": {
+      "fill": 2.2754649764088386,
+      "clip": [
+        1.0700395575733281,
+        3.5556295743731843
+      ],
+      "min": 1.07,
+      "max": 3.5556,
+      "post_mean": 2.2793,
+      "post_std": 0.455
+    },
+    "rabi_ndwi": {
+      "fill": -0.6471975712145308,
+      "clip": [
+        -0.7835116092204086,
+        -0.5267978109039184
+      ],
+      "min": -0.7544,
+      "max": -0.5268,
+      "post_mean": -0.65,
+      "post_std": 0.0498
+    },
+    "env_match_distance_m": {
+      "fill": 169.10108710330857,
+      "clip": [
+        -88.02499999999998,
+        391.755
+      ],
+      "min": 1.39,
+      "max": 391.755,
+      "post_mean": 159.4356,
+      "post_std": 87.5028
+    }
+  }
+}

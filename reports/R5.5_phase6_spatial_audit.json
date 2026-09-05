@@ -1,0 +1,217 @@
+{
+  "coconut": {
+    "spatial_match_distance_km": {
+      "mean": 0.174,
+      "median": 0.148,
+      "p25": 0.091,
+      "p75": 0.215,
+      "p95": 0.35,
+      "max": 1.548
+    },
+    "env_match_distance_m": {
+      "mean": 174.089,
+      "median": 148.05,
+      "p25": 91.265,
+      "p75": 215.24,
+      "p95": 350.538,
+      "max": 1548.51
+    },
+    "lat": {
+      "min": 12.6666,
+      "max": 13.168,
+      "mean": 12.9139
+    },
+    "lon": {
+      "min": 74.8396,
+      "max": 75.5254,
+      "mean": 75.158
+    },
+    "env_match_year": {
+      "2020": 4142,
+      "2021": 150
+    },
+    "season": {
+      "Kharif": 4255,
+      "Rabi": 37
+    },
+    "tabular_source": {
+      "district_grid": 4292
+    },
+    "image_source": {
+      "sentinel2": 4292
+    },
+    "land_cover_class": {
+      "10": 4156,
+      "30": 47,
+      "50": 40,
+      "40": 35,
+      "80": 9,
+      "60": 5
+    },
+    "soil_type_class": {
+      "262": 980,
+      "389": 859,
+      "220": 687,
+      "340": 269,
+      "31": 206,
+      "390": 155,
+      "392": 140,
+      "375": 122,
+      "19": 118,
+      "255": 86,
+      "381": 84,
+      "378": 81,
+      "216": 71,
+      "260": 56,
+      "261": 55,
+      "144": 49,
+      "40": 48,
+      "218": 43,
+      "247": 34,
+      "388": 30,
+      "328": 25,
+      "387": 23,
+      "265": 22,
+      "143": 14,
+      "229": 9,
+      "430": 7,
+      "18": 7,
+      "256": 4,
+      "146": 3,
+      "290": 1,
+      "48": 1,
+      "219": 1,
+      "264": 1,
+      "395": 1
+    },
+    "satellite_status": {
+      "FULL": 4292
+    },
+    "temporal_match_status": {
+      "EXACT_SEASON": 4274,
+      "WITHIN_TOLERANCE": 18
+    }
+  },
+  "pepper": {
+    "spatial_match_distance_km": {
+      "mean": 0.155,
+      "median": 0.145,
+      "p25": 0.094,
+      "p75": 0.203,
+      "p95": 0.298,
+      "max": 1.129
+    },
+    "env_match_distance_m": {
+      "mean": 155.433,
+      "median": 144.91,
+      "p25": 94.28,
+      "p75": 202.855,
+      "p95": 298.177,
+      "max": 1129.35
+    },
+    "lat": {
+      "min": 12.6648,
+      "max": 13.1417,
+      "mean": 12.8847
+    },
+    "lon": {
+      "min": 74.8411,
+      "max": 75.5243,
+      "mean": 75.201
+    },
+    "env_match_year": {
+      "2020": 1595,
+      "2021": 4
+    },
+    "season": {
+      "Kharif": 1599
+    },
+    "tabular_source": {
+      "district_grid": 1599
+    },
+    "image_source": {
+      "sentinel2": 1599
+    },
+    "land_cover_class": {
+      "10": 1574,
+      "30": 13,
+      "50": 7,
+      "40": 5
+    },
+    "soil_type_class": {
+      "262": 309,
+      "220": 292,
+      "389": 258,
+      "340": 129,
+      "392": 78,
+      "390": 73,
+      "19": 54,
+      "381": 54,
+      "31": 52,
+      "375": 40,
+      "260": 37,
+      "378": 36,
+      "255": 33,
+      "218": 28,
+      "216": 21,
+      "261": 17,
+      "40": 17,
+      "387": 12,
+      "144": 12,
+      "328": 11,
+      "229": 8,
+      "265": 7,
+      "247": 7,
+      "388": 4,
+      "143": 3,
+      "18": 3,
+      "146": 3,
+      "430": 1
+    },
+    "satellite_status": {
+      "FULL": 1599
+    },
+    "temporal_match_status": {
+      "EXACT_SEASON": 1595,
+      "WITHIN_TOLERANCE": 4
+    }
+  },
+  "village_colocation_train": {
+    "coconut_pepper": {
+      "a_villages": 161,
+      "b_villages": 118,
+      "shared_villages": 118,
+      "a_rows_in_shared_village": 3736,
+      "a_total": 4292,
+      "b_rows_in_shared_village": 1599,
+      "b_total": 1599
+    },
+    "coconut_coffee": {
+      "a_villages": 161,
+      "b_villages": 17,
+      "shared_villages": 17,
+      "a_rows_in_shared_village": 731,
+      "a_total": 4292,
+      "b_rows_in_shared_village": 29,
+      "b_total": 29
+    },
+    "coconut_cardamom": {
+      "a_villages": 161,
+      "b_villages": 4,
+      "shared_villages": 4,
+      "a_rows_in_shared_village": 108,
+      "a_total": 4292,
+      "b_rows_in_shared_village": 4,
+      "b_total": 4
+    },
+    "pepper_coffee": {
+      "a_villages": 118,
+      "b_villages": 17,
+      "shared_villages": 17,
+      "a_rows_in_shared_village": 472,
+      "a_total": 1599,
+      "b_rows_in_shared_village": 29,
+      "b_total": 29
+    }
+  }
+}

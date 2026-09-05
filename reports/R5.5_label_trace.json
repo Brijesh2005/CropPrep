@@ -1,0 +1,92 @@
+{
+  "supervised_classes": [
+    "coconut",
+    "pepper",
+    "coffee",
+    "cardamom"
+  ],
+  "species_shipped": [
+    "blackgram"
+  ],
+  "csv_crop_counts": {
+    "coconut": 6866,
+    "pepper": 3695,
+    "coffee": 101,
+    "cardamom": 11,
+    "blackgram": 2
+  },
+  "encoding": {
+    "coconut": 0,
+    "pepper": 1,
+    "coffee": 2,
+    "cardamom": 3
+  },
+  "encoding_order": {
+    "coconut": 0,
+    "pepper": 1,
+    "coffee": 2,
+    "cardamom": 3
+  },
+  "label_mapping_ok": true,
+  "train_counts": {
+    "coconut": 4292,
+    "pepper": 1599,
+    "coffee": 29,
+    "cardamom": 4
+  },
+  "validation_counts": {
+    "coconut": 1373,
+    "pepper": 1063,
+    "coffee": 21,
+    "cardamom": 2
+  },
+  "test_counts": {
+    "coconut": 1200,
+    "pepper": 1033,
+    "coffee": 51,
+    "cardamom": 5,
+    "blackgram": 2
+  },
+  "split_counts_match_manifest": true,
+  "gate_equals_trivial_coconut_anchor": true,
+  "anchor": {
+    "pred_class": 0,
+    "accuracy": 0.5583570557137048,
+    "macro_f1": 0.17914926931106473,
+    "weighted_f1": 0.4001170341831507,
+    "pred_distribution": {
+      "0": 2459,
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "target_distribution": {
+      "0": 1373,
+      "1": 1063,
+      "2": 21,
+      "3": 2
+    },
+    "per_class": {
+      "0": {
+        "precision": 0.5583570557137048,
+        "recall": 1.0,
+        "f1": 0.7165970772442589
+      },
+      "1": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "2": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "3": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    }
+  }
+}

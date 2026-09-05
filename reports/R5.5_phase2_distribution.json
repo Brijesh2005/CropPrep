@@ -1,0 +1,50 @@
+{
+  "train_counts": {
+    "coconut": 4292,
+    "pepper": 1599,
+    "coffee": 29,
+    "cardamom": 4
+  },
+  "train_percent": {
+    "coconut": 72.451,
+    "pepper": 26.992,
+    "coffee": 0.49,
+    "cardamom": 0.068
+  },
+  "weights": {
+    "balanced": {
+      "coconut": 0.003266,
+      "pepper": 0.008767,
+      "coffee": 0.48339,
+      "cardamom": 3.504577
+    },
+    "sqrt_inv": {
+      "coconut": 0.084103,
+      "pepper": 0.13779,
+      "coffee": 1.023161,
+      "cardamom": 2.754945
+    },
+    "effective_num": {
+      "coconut": 0.0141,
+      "pepper": 0.017427,
+      "coffee": 0.486321,
+      "cardamom": 3.482152
+    }
+  },
+  "manifest_class_weights": {
+    "coconut": 0.015264,
+    "pepper": 0.025008,
+    "coffee": 0.185695,
+    "cardamom": 0.5,
+    "blackgram": 0.0
+  },
+  "effective_loss": {
+    "crop_loss": "focal",
+    "focal_gamma": 2.0,
+    "class_weight_mode": "sqrt_inv",
+    "class_weight_beta": 0.999,
+    "label_smoothing": 0.15,
+    "crop_weight": 0.75,
+    "yield_weight": 0.25
+  }
+}

@@ -10,6 +10,7 @@
     "val_macro_f1": 0.1791,
     "imagery": "window_days 180, closest_to_survey, max 8 (mean real frames 3.062)"
   },
+  "note": "SUPERSEDED 2026-09-05: the loss-variant sweep is on hold. Kernel v3 (variant 1, unweighted CE) stalled RUNNING >7h and was abandoned. User pivoted to R5.5_CLASSIFIER_COLLAPSE_DIAGNOSTIC before sweep results were usable. val numbers cited for the old gate (focal+sqrt_inv): accuracy 0.5584 / macro-F1 0.1791 are EXACTLY the trivial predict-coconut baseline (see reports/R5.5_label_trace.json).",
   "runs": [
     {
       "variant": "ce_unweighted_raw_baseline",
