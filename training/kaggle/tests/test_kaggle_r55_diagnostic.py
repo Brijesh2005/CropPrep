@@ -164,3 +164,25 @@ def test_preprocessing_config_load_roundtrip():
     pre = Preprocessor(cfg)
     assert pre.config is cfg
     assert build_dataloader.__doc__ is not None
+
+
+def test_run_config_clamps_warmup():
+    from training.training.config import load_training_config
+
+    training_cfg = load_training_config(_REPO_ROOT / "training/config/training.yaml")
+    warmup_raw = training_cfg.scheduler.warmup_epochs
+    assert warmup_raw >= 2, "test assumes warmup >= 2"
+    # With epochs <= warmup, _run_config must clamp so warmup < epochs
+    sys.path.insert(0, str(_REPO_ROOT / "training" / "kaggle" / "scripts"))
+    from diagnose_collapse_kaggle import _run_config
+
+    cfg2 = _run_config(training_cfg, epochs=2)
+    assert cfg2.train.epochs == 2
+    assert cfg2.scheduler.warmup_epochs == 1, "must clamp to epochs-1"
+
+    cfg1 = _run_config(training_cfg, epochs=1)
+    assert cfg1.train.epochs == 1
+    assert cfg1.scheduler.warmup_epochs == 0
+
+    cfg_big = _run_config(training_cfg, epochs=10)
+    assert cfg_big.scheduler.warmup_epochs == warmup_raw, "unclamped for large epochs"

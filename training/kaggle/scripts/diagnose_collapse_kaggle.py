@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -285,6 +286,31 @@ def _model_config_for(
     )
 
 
+def _run_config(
+    training_cfg: Any,
+    *,
+    epochs: int,
+    loss: Any | None = None,
+) -> Any:
+    """Copy the training config for a phase run with ``epochs`` epochs.
+
+    Clamps the scheduler warmup so ``warmup_epochs < schedule length``
+    (avoids TR-SCHED-001 when a phase trims epochs below the config warmup).
+    """
+    warmup = training_cfg.scheduler.warmup_epochs
+    scheduler = training_cfg.scheduler.model_copy(
+        update={"warmup_epochs": min(int(warmup), max(0, int(epochs) - 1))}
+    )
+    update: dict[str, Any] = {
+        "train": training_cfg.train.model_copy(update={"epochs": epochs}),
+        "general": training_cfg.general.model_copy(update={"log_every": 1}),
+        "scheduler": scheduler,
+    }
+    if loss is not None:
+        update["loss"] = loss
+    return training_cfg.model_copy(update=update)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="cropfusion-diagnose-collapse-kaggle",
@@ -359,6 +385,10 @@ def main(argv: list[str] | None = None) -> int:
             encoding="utf-8",
         )
         print(f"[checkpoint:{label}] report -> {target}")
+        if os.environ.get("R5_5_DUMP_REPORT") == "1":
+            print(f"[report-json:{label}:start]")
+            print(json.dumps(report, indent=2, default=str, ensure_ascii=False))
+            print(f"[report-json:{label}:end]")
         return target
 
     checkpoint_manager = TrainingCheckpointManager(
@@ -542,11 +572,9 @@ def main(argv: list[str] | None = None) -> int:
             for variant_name, loss_updates in variants:
                 print(f"\n  -- binary variant: {variant_name} --")
                 loss_cfg = training_cfg.loss.model_copy(update=loss_updates)
-                run_cfg = training_cfg.model_copy(update={
-                    "loss": loss_cfg,
-                    "train": training_cfg.train.model_copy(update={"epochs": args.epochs}),
-                    "general": training_cfg.general.model_copy(update={"log_every": 1}),
-                })
+                run_cfg = _run_config(
+                    training_cfg, epochs=args.epochs, loss=loss_cfg
+                )
                 model_config = _model_config_for(pre_bin, model_cfg)
                 model = ModelFactory.create(model_config)
                 trainer = CropFusionTrainer(
@@ -583,10 +611,7 @@ def main(argv: list[str] | None = None) -> int:
                 probe_inputs, probe_targets, device,
                 limit=args.probe_steps, num_classes=n_classes,
             )
-            dynamics_cfg = training_cfg.model_copy(update={
-                "train": training_cfg.train.model_copy(update={"epochs": 1}),
-                "general": training_cfg.general.model_copy(update={"log_every": 1}),
-            })
+            dynamics_cfg = _run_config(training_cfg, epochs=1)
             model_config = _model_config_for(pre, model_cfg)
             model = ModelFactory.create(model_config)
             trainer = CropFusionTrainer(
@@ -635,12 +660,7 @@ def main(argv: list[str] | None = None) -> int:
                 limit=args.tiny_steps,
                 num_classes=2,
             )
-            tiny_config_single = training_cfg.model_copy(update={
-                "train": training_cfg.train.model_copy(
-                    update={"epochs": args.tiny_steps}
-                ),
-                "general": training_cfg.general.model_copy(update={"log_every": 1}),
-            })
+            tiny_config_single = _run_config(training_cfg, epochs=args.tiny_steps)
             trainer = CropFusionTrainer(
                 model, tiny_loader, tiny_config_single,
                 callbacks=[probe], checkpoint_manager=checkpoint_manager,
