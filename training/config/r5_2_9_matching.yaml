@@ -1,0 +1,53 @@
+# R5.2.9 enhanced spatial-tabular matching configuration.
+#
+# Loaded by ``training.kaggle.enhanced_observation_generator`` and consumed
+# by ``training.matching.spatial_tabular_matcher.SpatialTabularMatcher``.
+#
+# Purpose: enrich the frozen government survey observations with REAL per-cell
+# environmental features interpolated from the DK_Features grid (2018-2023),
+# instead of the R5.2.7 ``district_grid`` match that carried no feature
+# columns. Imagery matching is NOT re-run here — rasters are unavailable
+# locally, so R5.2.7 satellite/NDVI/EVI flags are carried forward unchanged.
+
+version: r5.2.9
+
+spatial:
+  # Survey points beyond this radius are not matched (recorded as
+  # matched=False; features left null). Matches the STAM baseline radius.
+  max_search_radius_km: 5.0
+  # K nearest grid cells used for IDW interpolation.
+  knn_k: 5
+  # Inverse-distance power for IDW weights: w = (d + 1e-6) ** -power.
+  idw_power: 2.0
+  # Baseline R5.2.7 duplicate tolerance (kept; configurable for experiments).
+  duplicate_tolerance_m: 50.0
+
+temporal:
+  # Baseline R5.2.7 tolerance (kept; a single point may be recovered under a
+  # relaxed temporal window with a flagged confidence tier).
+  tolerance_days: 15
+  temporal_relaxation_days: 45
+
+tabular:
+  dk_years: [2018, 2019, 2020, 2021, 2022, 2023]
+  # Target-leakage columns that must never enter the benchmark schema.
+  exclude_columns: [Yield_Proxy_NPP]
+  # Fallback when the observation year has no grid file: nearest available.
+  fallback_year_mode: nearest
+  season_composites:
+    Kharif: [Kharif_NDVI, Kharif_EVI, Kharif_NDWI]
+    Rabi: [Rabi_NDVI, Rabi_EVI, Rabi_NDWI]
+  categorical_features: [Is_Cropland, Land_Cover_Class, Soil_Type_Class]
+
+confidence:
+  # distance thresholds for tier assignment.
+  high_max_m: 250.0
+  medium_max_km: 5.0
+
+files:
+  v1_matched: govt_crop_matched_v1/government_crop_stam_match.csv
+  v1_supervised: govt_crop_matched_v1/crop_supervised_v1.csv
+  v1_manifest: training_manifests/crop_supervised_v1_manifest.json
+  dk_dir: Tabular_Datasets
+  out_dir: govt_crop_matched_v2
+  reports_dir: reports

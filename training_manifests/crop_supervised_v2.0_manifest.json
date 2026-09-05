@@ -1,0 +1,192 @@
+{
+  "dataset_version": "crop_supervised_v2.0",
+  "creation_timestamp": "2026-09-05T00:00:00.000000",
+  "phase": "R5.2.9-enhanced corpus for the R5.3 benchmark-optimization campaign",
+  "source_datasets": {
+    "government_ogd": {
+      "name": "Karnataka Crop Survey OGD",
+      "api": "kodi.karnataka.gov.in",
+      "hoblis": 14,
+      "taluki": 5,
+      "years": [
+        "2020",
+        "2021"
+      ],
+      "seasons": [
+        "Kharif",
+        "Rabi"
+      ],
+      "total_raw_records": 199345,
+      "valid_matched_records": 10674
+    },
+    "enrichment": {
+      "name": "Government DK environmental grid (R5.2.9 enhanced observation generator)",
+      "features_added": 27
+    }
+  },
+  "total_samples": 10674,
+  "train_samples": 5924,
+  "validation_samples": 2459,
+  "test_samples": 2291,
+  "class_mapping": {
+    "coconut": 4,
+    "pepper": 6,
+    "coffee": 7,
+    "cardamom": 8,
+    "blackgram": 9
+  },
+  "class_counts": {
+    "overall": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "train": {
+      "coconut": 4292,
+      "pepper": 1599,
+      "coffee": 29,
+      "cardamom": 4
+    },
+    "validation": {
+      "pepper": 1063,
+      "coconut": 1373,
+      "coffee": 21,
+      "cardamom": 2
+    },
+    "test": {
+      "coconut": 1200,
+      "pepper": 1033,
+      "coffee": 51,
+      "blackgram": 2,
+      "cardamom": 5
+    }
+  },
+  "class_weights": {
+    "coconut": 0.015264,
+    "pepper": 0.025008,
+    "coffee": 0.185695,
+    "cardamom": 0.5,
+    "blackgram": 0.0
+  },
+  "split_strategy": "spatial_leave_one_taluk_out",
+  "split_groups": {
+    "train_taluk": [
+      "Belthangady",
+      "Mangalore",
+      "Bantwal"
+    ],
+    "validation_taluk": "Puttur",
+    "test_taluk": "Sullia"
+  },
+  "supervised_classes": [
+    "coconut",
+    "pepper",
+    "coffee",
+    "cardamom"
+  ],
+  "excluded_classes": [
+    "blackgram"
+  ],
+  "class_schema": {
+    "note": "supervised_classes = crop-head output vocabulary (learnable); excluded_classes = corpus labels with zero training support, kept for provenance and matched-but-unlearnable analysis",
+    "excluded_reason": "class has zero training samples -> classifier cannot learn it; excluded explicitly (never silently)"
+  },
+  "evaluation_policy": {
+    "blackgram": "EXCLUDE from per-class evaluation (insufficient support)",
+    "cardamom": "INCLUDE with low-support warning",
+    "coffee": "INCLUDE normally with support annotation",
+    "coconut": "normal metrics",
+    "pepper": "normal metrics"
+  },
+  "benchmark_eligibility": {
+    "note": "crop_supervised_v2.csv keeps the recovered observation (temporal OUTSIDE_TOLERANCE, satellite FULL, Puttur/2020) with benchmark_eligible=False for provenance; the frozen loader filters it out before training. All totals above are benchmark-eligible counts.",
+    "csv_rows_with_recovered": 10675,
+    "benchmark_eligible_rows": 10674
+  },
+  "feature_schema": {
+    "tabular_numeric": [
+      "lat",
+      "lon",
+      "spatial_match_distance_km",
+      "year",
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "elevation",
+      "temperature_c",
+      "relative_humidity_pct",
+      "slope",
+      "ndvi",
+      "evi",
+      "ndwi",
+      "ndre",
+      "savi",
+      "s2_obs_count",
+      "soil_clay_pct",
+      "soil_sand_pct",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_moisture",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi",
+      "env_match_distance_m"
+    ],
+    "tabular_categorical": [
+      "season",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "satellite": "sentinel2",
+    "temporal": [
+      "year",
+      "season"
+    ],
+    "spatial": [
+      "lat",
+      "lon",
+      "village",
+      "taluk",
+      "district"
+    ]
+  },
+  "image_schema": {
+    "platform": "sentinel2",
+    "resolution": "10m",
+    "bands": "RGB+NIR"
+  },
+  "temporal_schema": {
+    "years": [
+      "2020",
+      "2021"
+    ],
+    "seasons": [
+      "Kharif",
+      "Rabi"
+    ]
+  },
+  "provenance_schema": {
+    "government_ogd": "Full: API -> JSON -> label normalization -> spatial matching -> temporal matching -> tabular matching -> satellite verification -> dedup",
+    "enhancement": "R5.2.9 spatial-tabular matcher: unit-sphere KDTree + haversine re-rank, IDW (power 2, K=5) interpolation of the DK environmental grid, categorical majority vote, year fallback nearest; recovered row excluded via benchmark_eligible."
+  },
+  "matching_configuration": {
+    "spatial_tolerance_km": 5.0,
+    "temporal_tolerance_days": 15,
+    "grid_precision": 3,
+    "grid_search_radius_cells": 10
+  },
+  "spatial_tolerance": "5.0 km",
+  "temporal_tolerance": "15 days",
+  "reproducibility": {
+    "random_seed": 42,
+    "code_version": "R5.3",
+    "dataset_checksums": {
+      "crop_supervised_v2.csv": "992ee6c39832794577c93295685844848d0b03aff67a2fb03bc1cf7c9cd95446"
+    }
+  }
+}

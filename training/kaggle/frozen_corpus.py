@@ -106,6 +106,60 @@ _CANONICAL_CLASS_MAP = {
     "blackgram": 9,
 }
 
+# R5.2.7 frozen corpus manifest versions accepted by the loader. v1.1 is the
+# R5.2.7/8 frozen corpus; v2.0 is the R5.2.9-enriched corpus (the same 10,674
+# benchmark-eligible rows plus the R5.2.9 DK-grid environmental features).
+_SUPPORTED_CORPUS_VERSIONS = ("crop_supervised_v1.1", "crop_supervised_v2.0")
+
+# R5.2.9 additional environmental tabular features (emitted by the enhanced
+# observation generator) beyond the base geometry/survey fields already exposed
+# by the frozen v1 loader. Keys MUST match ``training/config/preprocessing.yaml``
+# ``tabular.numeric_features`` / ``tabular.categorical_features`` and the v2 CSV
+# columns. Rows lacking a column keep today's behaviour (v1 corpus: absent;
+# the TabularPipeline flags configured-but-absent columns into
+# ``missing_columns`` and scales only the present ones).
+_ENHANCED_NUMERIC_FEATURES = (
+    "annual_rainfall_mm",
+    "dewpoint_c",
+    "elevation",
+    "temperature_c",
+    "relative_humidity_pct",
+    "slope",
+    "ndvi",
+    "evi",
+    "ndwi",
+    "ndre",
+    "savi",
+    "s2_obs_count",
+    "soil_clay_pct",
+    "soil_sand_pct",
+    "soil_organic_carbon",
+    "soil_ph",
+    "soil_moisture",
+    "kharif_ndvi",
+    "kharif_evi",
+    "kharif_ndwi",
+    "rabi_ndvi",
+    "rabi_evi",
+    "rabi_ndwi",
+    "env_match_distance_m",
+)
+_ENHANCED_CATEGORICAL_FEATURES = ("is_cropland", "land_cover_class", "soil_type_class")
+
+
+def _is_benchmark_eligible(row: dict[str, Any]) -> bool:
+    """Whether a frozen-corpus row is benchmark-eligible.
+
+    The R5.2.9 ``crop_supervised_v2.csv`` keeps the recovered
+    (temporal-relaxed) observation on disk for provenance with
+    ``benchmark_eligible=False``; it must never enter training. The v1 corpus
+    has no such column, so every row stays eligible.
+    """
+    value = row.get("benchmark_eligible")
+    if value is None:
+        return True
+    return str(value).strip().lower() in ("true", "1", "yes")
+
 
 # --------------------------------------------------------------------------- #
 # Errors
@@ -135,7 +189,8 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
 
     Checks:
     - Required top-level fields are present.
-    - ``dataset_version`` is ``crop_supervised_v1.1``.
+    - ``dataset_version`` is ``crop_supervised_v1.1`` (frozen) or
+      ``crop_supervised_v2.0`` (R5.2.9-enriched).
     - Class mapping matches the frozen canonical mapping.
     - Split counts sum to total_samples.
     - ``split_groups`` contains train/val/test taluk lists.
@@ -157,10 +212,10 @@ def validate_manifest(manifest_path: Path) -> dict[str, Any]:
         raise FrozenCorpusError(f"Manifest missing required fields: {sorted(missing)}")
 
     version = raw["dataset_version"]
-    if version != "crop_supervised_v1.1":
+    if version not in _SUPPORTED_CORPUS_VERSIONS:
         raise FrozenCorpusError(
             f"Unexpected manifest version: {version!r} "
-            "(expected 'crop_supervised_v1.1')"
+            f"(expected one of {sorted(_SUPPORTED_CORPUS_VERSIONS)})"
         )
 
     total = raw["total_samples"]
@@ -447,18 +502,30 @@ def build_observation(
     # fabricated to satisfy the tabular branch.  Feature absence is
     # documented in the manifest's ``feature_schema`` rather than invented.
     season_value = (row.get("season") or "").strip() or None
+    fields: dict[str, Any] = {
+        "lat": _safe_float(row.get("lat")),
+        "lon": _safe_float(row.get("lon")),
+        "spatial_match_distance_km": _safe_float(
+            row.get("spatial_match_distance_km")
+        ),
+        "season": season_value,
+        "year": _safe_float(row.get("year")),
+    }
+    # R5.2.9 enrichment: expose the DK-grid environmental features through the
+    # tabular branch whenever the v2 corpus carries them. Rows/columns that are
+    # absent (e.g. the v1.1 frozen corpus has none) are simply never added, so
+    # the v1 pipeline is unchanged while the v2 pipeline gets the full
+    # preprocessing feature schema.
+    for key in _ENHANCED_NUMERIC_FEATURES:
+        if row.get(key) not in (None, ""):
+            fields[key] = _safe_float(row.get(key))
+    for key in _ENHANCED_CATEGORICAL_FEATURES:
+        if row.get(key) not in (None, ""):
+            fields[key] = str(row.get(key)).strip()
     tabular = TabularFeatures(
         crop=crop_label,
         yield_value=None,
-        fields={
-            "lat": _safe_float(row.get("lat")),
-            "lon": _safe_float(row.get("lon")),
-            "spatial_match_distance_km": _safe_float(
-                row.get("spatial_match_distance_km")
-            ),
-            "season": season_value,
-            "year": _safe_float(row.get("year")),
-        },
+        fields=fields,
         source_path=None,
         matched_level="frozen_corpus",
     )
@@ -556,6 +623,23 @@ class FrozenCorpusLoader:
         """
         self._manifest = validate_manifest(self.manifest_path)
         self._rows = _load_csv(self.csv_path)
+
+        # R5.2.9 benchmark eligibility: the v2 CSV keeps the recovered
+        # observation (temporal-relaxed, benchmark_eligible=False) for
+        # provenance only. It must not enter training or evaluation. The v1.1
+        # corpus has no `benchmark_eligible` column, so no rows ever change.
+        if self._rows and "benchmark_eligible" in self._rows[0]:
+            eligible = [row for row in self._rows if _is_benchmark_eligible(row)]
+            dropped = len(self._rows) - len(eligible)
+            if dropped:
+                log_dict(
+                    logger,
+                    logging.INFO,
+                    "Excluded non-benchmark rows (R5.2.9 recovered observation)",
+                    dropped=dropped,
+                    kept=len(eligible),
+                )
+            self._rows = eligible
 
         # Cross-validate CSV row count against manifest.
         csv_count = len(self._rows)

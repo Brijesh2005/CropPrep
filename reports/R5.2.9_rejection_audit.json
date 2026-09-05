@@ -1,0 +1,111 @@
+{
+  "release": "r5.2.9",
+  "scan_set": {
+    "source": "D:\\CropPrep\\govt_crop_matched_v1\\government_crop_stam_match.csv",
+    "records": 199345,
+    "accepted": 10674,
+    "rejected": 188671,
+    "acceptance_rate": 5.35
+  },
+  "context": "The R5.2.7 scan ledger covers 199,345 government model-head records (survey rows emitted by the seasonal model heads). The ~51,120 figure seen in older releases is the STAM runtime plan grid (2,130 locations x 3 seasons x 8 years of candidates), not the scan set; ~275 corresponds to accepted plan cells. This audit is computed on the actual scan ledger shipped in the repo.",
+  "rejection_reasons_literal": {
+    "duplicate": 187934,
+    "spatial_NO_MATCH": 16937,
+    "no_satellite": 16937,
+    "temporal_OUTSIDE_TOLERANCE": 10
+  },
+  "rejection_reasons_derived": {
+    "missing_coordinates": 0,
+    "no_ndvi_evi_pair": 16937,
+    "tabular_mismatch": 0
+  },
+  "crosstabs": {
+    "reason_x_year": {
+      "duplicate": {
+        "2020": 152772,
+        "2021": 18952
+      },
+      "spatial_NO_MATCH,no_satellite": {
+        "2020": 528,
+        "2021": 208
+      },
+      "spatial_NO_MATCH,no_satellite,duplicate": {
+        "2020": 8748,
+        "2021": 7453
+      },
+      "temporal_OUTSIDE_TOLERANCE": {
+        "2020": 1,
+        "2021": 0
+      },
+      "temporal_OUTSIDE_TOLERANCE,duplicate": {
+        "2020": 9,
+        "2021": 0
+      }
+    },
+    "reason_x_season": {
+      "duplicate": {
+        "Kharif": 171628,
+        "Rabi": 96
+      },
+      "spatial_NO_MATCH,no_satellite": {
+        "Kharif": 736,
+        "Rabi": 0
+      },
+      "spatial_NO_MATCH,no_satellite,duplicate": {
+        "Kharif": 16201,
+        "Rabi": 0
+      },
+      "temporal_OUTSIDE_TOLERANCE": {
+        "Kharif": 1,
+        "Rabi": 0
+      },
+      "temporal_OUTSIDE_TOLERANCE,duplicate": {
+        "Kharif": 9,
+        "Rabi": 0
+      }
+    },
+    "reason_x_crop": {
+      "duplicate": {
+        "blackgram": 2,
+        "cardamom": 23,
+        "coconut": 129812,
+        "coffee": 216,
+        "pepper": 41671
+      },
+      "spatial_NO_MATCH,no_satellite": {
+        "blackgram": 1,
+        "cardamom": 3,
+        "coconut": 563,
+        "coffee": 8,
+        "pepper": 161
+      },
+      "spatial_NO_MATCH,no_satellite,duplicate": {
+        "blackgram": 0,
+        "cardamom": 1,
+        "coconut": 14444,
+        "coffee": 5,
+        "pepper": 1751
+      },
+      "temporal_OUTSIDE_TOLERANCE": {
+        "blackgram": 0,
+        "cardamom": 0,
+        "coconut": 1,
+        "coffee": 0,
+        "pepper": 0
+      },
+      "temporal_OUTSIDE_TOLERANCE,duplicate": {
+        "blackgram": 0,
+        "cardamom": 0,
+        "coconut": 9,
+        "coffee": 0,
+        "pepper": 0
+      }
+    }
+  },
+  "recovery_potential": {
+    "non_duplicate_rejected": 737,
+    "with_full_satellite_imagery": 1,
+    "blocked_missing_imagery": 736
+  },
+  "notes": "94.3% of rejected records are near-identical GPS duplicates (duplicate_tolerance_m=50; the R5.2.7 baseline, kept). Duplicates repeat the same physical field and are NOT valid new observations; accepting them would inflate counts without adding information. Of the non-duplicate rejected records, all but 1 lack local satellite imagery and cannot form image-pair observations without re-running imagery matching on the ~148 GB rasters (not available here)."
+}

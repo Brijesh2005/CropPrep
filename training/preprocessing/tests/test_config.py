@@ -84,8 +84,18 @@ def test_repo_preprocessing_config():
     config = load_preprocessing_config(config_path, env={})
     assert config.image.size == 224
     assert config.tabular.categorical_encoding == "ordinal"
-    assert config.tabular.numeric_features == [
-        "lat", "lon", "spatial_match_distance_km",
+    # R5.2.9: the repository config now declares the full frozen-v1 base fields
+    # PLUS the DK-grid environmental features (28 numeric + 4 categorical).
+    expected_numeric = [
+        "lat", "lon", "spatial_match_distance_km", "year", "annual_rainfall_mm",
+        "dewpoint_c", "elevation", "temperature_c", "relative_humidity_pct",
+        "slope", "ndvi", "evi", "ndwi", "ndre", "savi", "s2_obs_count",
+        "soil_clay_pct", "soil_sand_pct", "soil_organic_carbon", "soil_ph",
+        "soil_moisture", "kharif_ndvi", "kharif_evi", "kharif_ndwi",
+        "rabi_ndvi", "rabi_evi", "rabi_ndwi", "env_match_distance_m",
     ]
-    assert config.tabular.categorical_features == ["season"]
+    assert config.tabular.numeric_features == expected_numeric
+    assert config.tabular.categorical_features == [
+        "season", "is_cropland", "land_cover_class", "soil_type_class",
+    ]
     assert config.augmentation.enabled is True

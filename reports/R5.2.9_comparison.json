@@ -1,0 +1,76 @@
+{
+  "release": "r5.2.9",
+  "summary": {
+    "v1_supervised": 10674,
+    "v2_supervised": 10675,
+    "delta": 1,
+    "recovered": 1
+  },
+  "classes": {
+    "v1": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "v2": {
+      "coconut": 6866,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "delta_per_class": {
+      "blackgram": 0,
+      "cardamom": 0,
+      "coconut": 1,
+      "coffee": 0,
+      "pepper": 0
+    }
+  },
+  "split": {
+    "train": 5924,
+    "val": 2460,
+    "test": 2291,
+    "unknown": 0
+  },
+  "env_features_added": [
+    "annual_rainfall_mm",
+    "dewpoint_c",
+    "elevation",
+    "evi",
+    "is_cropland",
+    "kharif_evi",
+    "kharif_ndvi",
+    "kharif_ndwi",
+    "land_cover_class",
+    "ndre",
+    "ndvi",
+    "ndwi",
+    "rabi_evi",
+    "rabi_ndvi",
+    "rabi_ndwi",
+    "relative_humidity_pct",
+    "s2_obs_count",
+    "savi",
+    "slope",
+    "soil_clay_pct",
+    "soil_moisture",
+    "soil_organic_carbon",
+    "soil_ph",
+    "soil_sand_pct",
+    "soil_type_class",
+    "temperature_c"
+  ],
+  "temporal_match_status": {
+    "EXACT_SEASON": 10636,
+    "WITHIN_TOLERANCE": 38,
+    "WITHIN_RELAXED_TOLERANCE": 1
+  },
+  "confidence": {
+    "HIGH": 9169,
+    "MEDIUM": 1506
+  },
+  "new_samples_with_imagery": 10675
+}

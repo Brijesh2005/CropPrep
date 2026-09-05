@@ -1,0 +1,2387 @@
+{
+  "release": "r5.2.9",
+  "years": {
+    "2018": {
+      "present": true,
+      "cells": 71027,
+      "lat": {
+        "min": 12.550148,
+        "max": 13.250075
+      },
+      "lon": {
+        "min": 74.850119,
+        "max": 75.649876
+      },
+      "lat_spacing_m": 0.7618574557145408,
+      "lon_spacing_m": 0.8610006874047826,
+      "continuous": {
+        "Annual_Rainfall_mm": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 1560.4765,
+          "max": 4455.853,
+          "mean": 3915.3719,
+          "std": 557.3109
+        },
+        "Area_sq_km": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 6749.3272,
+          "max": 6749.3272,
+          "mean": 6749.3272,
+          "std": 0.0
+        },
+        "Dewpoint_C": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 16.9841,
+          "max": 23.2154,
+          "mean": 20.9047,
+          "std": 1.6987
+        },
+        "EVI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -33.1171,
+          "max": 177.0,
+          "mean": 2.3209,
+          "std": 1.1081
+        },
+        "Elevation": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -1.0,
+          "max": 1878.0,
+          "mean": 279.885,
+          "std": 337.1066
+        },
+        "Is_Cropland": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.0,
+          "mean": 0.0097,
+          "std": 0.0979
+        },
+        "Kharif_EVI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -306.8333,
+          "max": 3562.5,
+          "mean": 2.9859,
+          "std": 14.0267
+        },
+        "Kharif_NDVI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -0.6567,
+          "max": 0.9139,
+          "mean": 0.7354,
+          "std": 0.1256
+        },
+        "Kharif_NDWI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -0.8225,
+          "max": 0.6826,
+          "mean": -0.6539,
+          "std": 0.0951
+        },
+        "Land_Cover_Class": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 10.0,
+          "max": 90.0,
+          "mean": 12.1107,
+          "std": 7.7126
+        },
+        "NDRE": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -0.3616,
+          "max": 0.7208,
+          "mean": 0.4773,
+          "std": 0.1113
+        },
+        "NDVI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -0.2907,
+          "max": 0.903,
+          "mean": 0.6981,
+          "std": 0.138
+        },
+        "NDWI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -0.8221,
+          "max": 0.4207,
+          "mean": -0.6391,
+          "std": 0.0879
+        },
+        "Rabi_EVI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -70.0,
+          "max": 37.8125,
+          "mean": 2.0508,
+          "std": 0.7665
+        },
+        "Rabi_NDVI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -0.2224,
+          "max": 0.9094,
+          "mean": 0.6906,
+          "std": 0.15
+        },
+        "Rabi_NDWI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -0.8389,
+          "max": 0.4157,
+          "mean": -0.6423,
+          "std": 0.0939
+        },
+        "Relative_Humidity_Pct": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 74.1921,
+          "max": 80.2432,
+          "mean": 77.4421,
+          "std": 1.4986
+        },
+        "S2_Obs_Count": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 7.0,
+          "max": 31.0,
+          "mean": 10.536,
+          "std": 4.4365
+        },
+        "SAVI": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": -0.4358,
+          "max": 1.3543,
+          "mean": 1.0469,
+          "std": 0.2069
+        },
+        "Slope": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 71.2498,
+          "mean": 9.3846,
+          "std": 7.4818
+        },
+        "Soil_Clay_Pct": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 233.0,
+          "max": 427.0,
+          "mean": 317.1431,
+          "std": 30.1048
+        },
+        "Soil_Moisture": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 0.1615,
+          "max": 0.3372,
+          "mean": 0.2791,
+          "std": 0.0251
+        },
+        "Soil_Organic_Carbon": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 195.0,
+          "max": 868.0,
+          "mean": 389.9846,
+          "std": 97.1861
+        },
+        "Soil_Sand_Pct": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 310.0,
+          "max": 571.0,
+          "mean": 460.5453,
+          "std": 37.9258
+        },
+        "Soil_Type_Class": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 18.0,
+          "max": 432.0,
+          "mean": 286.2213,
+          "std": 103.4655
+        },
+        "Soil_pH": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 53.0,
+          "max": 61.0,
+          "mean": 56.1186,
+          "std": 1.2144
+        },
+        "Temperature_C": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 21.4729,
+          "max": 26.9087,
+          "mean": 25.1291,
+          "std": 1.4996
+        },
+        "Year": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 2018.0,
+          "max": 2018.0,
+          "mean": 2018.0,
+          "std": 0.0
+        },
+        "Yield_Proxy_NPP": {
+          "type": "float",
+          "n_non_null": 71027,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.4809,
+          "mean": 0.8851,
+          "std": 0.3064
+        }
+      },
+      "categorical": {
+        "Country": {
+          "type": "categorical",
+          "n_non_null": 71027,
+          "unique": 1,
+          "top5": {
+            "India": 71027
+          }
+        },
+        "District": {
+          "type": "categorical",
+          "n_non_null": 71027,
+          "unique": 1,
+          "top5": {
+            "Dakshina Kannada": 71027
+          }
+        },
+        "Season": {
+          "type": "categorical",
+          "n_non_null": 71027,
+          "unique": 1,
+          "top5": {
+            "Annual + Kharif/Rabi composites": 71027
+          }
+        },
+        "State": {
+          "type": "categorical",
+          "n_non_null": 71027,
+          "unique": 1,
+          "top5": {
+            "Karnataka": 71027
+          }
+        }
+      }
+    },
+    "2019": {
+      "present": true,
+      "cells": 71134,
+      "lat": {
+        "min": 12.550148,
+        "max": 13.250075
+      },
+      "lon": {
+        "min": 74.850119,
+        "max": 75.649876
+      },
+      "lat_spacing_m": 0.7609571422125327,
+      "lon_spacing_m": 0.8593266282554168,
+      "continuous": {
+        "Annual_Rainfall_mm": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 1833.1167,
+          "max": 4977.8458,
+          "mean": 4010.2124,
+          "std": 617.5212
+        },
+        "Area_sq_km": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 6749.3272,
+          "max": 6749.3272,
+          "mean": 6749.3272,
+          "std": 0.0
+        },
+        "Dewpoint_C": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 17.5589,
+          "max": 23.1864,
+          "mean": 21.1127,
+          "std": 1.5142
+        },
+        "EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -71.4062,
+          "max": 350.0,
+          "mean": 2.0712,
+          "std": 1.5819
+        },
+        "Elevation": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -1.0,
+          "max": 1878.0,
+          "mean": 279.4974,
+          "std": 337.0013
+        },
+        "Is_Cropland": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.0,
+          "mean": 0.0097,
+          "std": 0.0978
+        },
+        "Kharif_EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -5930.0,
+          "max": 2270.0,
+          "mean": 2.1405,
+          "std": 36.4997
+        },
+        "Kharif_NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.6547,
+          "max": 0.9258,
+          "mean": 0.7623,
+          "std": 0.1732
+        },
+        "Kharif_NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8361,
+          "max": 0.7497,
+          "mean": -0.6687,
+          "std": 0.1392
+        },
+        "Land_Cover_Class": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 10.0,
+          "max": 95.0,
+          "mean": 12.1144,
+          "std": 7.732
+        },
+        "NDRE": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.3081,
+          "max": 0.6845,
+          "mean": 0.4618,
+          "std": 0.1157
+        },
+        "NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.302,
+          "max": 0.8917,
+          "mean": 0.677,
+          "std": 0.1516
+        },
+        "NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8023,
+          "max": 0.4199,
+          "mean": -0.6306,
+          "std": 0.0932
+        },
+        "Rabi_EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -1055.0,
+          "max": 110.0,
+          "mean": 2.2373,
+          "std": 4.0969
+        },
+        "Rabi_NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.3803,
+          "max": 0.9117,
+          "mean": 0.7345,
+          "std": 0.1449
+        },
+        "Rabi_NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8415,
+          "max": 0.5597,
+          "mean": -0.6706,
+          "std": 0.0938
+        },
+        "Relative_Humidity_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 75.8955,
+          "max": 79.6676,
+          "mean": 77.5797,
+          "std": 0.9271
+        },
+        "S2_Obs_Count": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 24.0,
+          "max": 118.0,
+          "mean": 40.0663,
+          "std": 15.5784
+        },
+        "SAVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.4527,
+          "max": 1.3374,
+          "mean": 1.0153,
+          "std": 0.2273
+        },
+        "Slope": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 71.2498,
+          "mean": 9.3781,
+          "std": 7.4789
+        },
+        "Soil_Clay_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 233.0,
+          "max": 427.0,
+          "mean": 317.1834,
+          "std": 30.105
+        },
+        "Soil_Moisture": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.1643,
+          "max": 0.323,
+          "mean": 0.2709,
+          "std": 0.0232
+        },
+        "Soil_Organic_Carbon": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 195.0,
+          "max": 868.0,
+          "mean": 390.0397,
+          "std": 97.1385
+        },
+        "Soil_Sand_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 310.0,
+          "max": 571.0,
+          "mean": 460.5399,
+          "std": 37.9045
+        },
+        "Soil_Type_Class": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 18.0,
+          "max": 432.0,
+          "mean": 286.3093,
+          "std": 103.4434
+        },
+        "Soil_pH": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 53.0,
+          "max": 61.0,
+          "mean": 56.1215,
+          "std": 1.2164
+        },
+        "Temperature_C": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 21.7296,
+          "max": 27.1117,
+          "mean": 25.3145,
+          "std": 1.5118
+        },
+        "Year": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 2019.0,
+          "max": 2019.0,
+          "mean": 2019.0,
+          "std": 0.0
+        },
+        "Yield_Proxy_NPP": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.3105,
+          "mean": 0.858,
+          "std": 0.2454
+        }
+      },
+      "categorical": {
+        "Country": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "India": 71134
+          }
+        },
+        "District": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Dakshina Kannada": 71134
+          }
+        },
+        "Season": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Annual + Kharif/Rabi composites": 71134
+          }
+        },
+        "State": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Karnataka": 71134
+          }
+        }
+      }
+    },
+    "2020": {
+      "present": true,
+      "cells": 71134,
+      "lat": {
+        "min": 12.550148,
+        "max": 13.250075
+      },
+      "lon": {
+        "min": 74.850119,
+        "max": 75.649876
+      },
+      "lat_spacing_m": 0.760956970175215,
+      "lon_spacing_m": 0.8593266282554168,
+      "continuous": {
+        "Annual_Rainfall_mm": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 2001.7946,
+          "max": 4885.377,
+          "mean": 4185.4895,
+          "std": 508.5168
+        },
+        "Area_sq_km": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 6749.3272,
+          "max": 6749.3272,
+          "mean": 6749.3272,
+          "std": 0.0
+        },
+        "Dewpoint_C": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 17.8857,
+          "max": 23.3642,
+          "mean": 21.3628,
+          "std": 1.4885
+        },
+        "EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -338.7288,
+          "max": 290.0,
+          "mean": 2.1543,
+          "std": 1.8923
+        },
+        "Elevation": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -1.0,
+          "max": 1878.0,
+          "mean": 279.4974,
+          "std": 337.0013
+        },
+        "Is_Cropland": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.0,
+          "mean": 0.0097,
+          "std": 0.0978
+        },
+        "Kharif_EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -23330.0,
+          "max": 28235.0,
+          "mean": 2.7222,
+          "std": 157.9215
+        },
+        "Kharif_NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.371,
+          "max": 0.919,
+          "mean": 0.6897,
+          "std": 0.1984
+        },
+        "Kharif_NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8368,
+          "max": 0.5035,
+          "mean": -0.6092,
+          "std": 0.1769
+        },
+        "Land_Cover_Class": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 10.0,
+          "max": 95.0,
+          "mean": 12.1144,
+          "std": 7.732
+        },
+        "NDRE": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.2834,
+          "max": 0.718,
+          "mean": 0.4776,
+          "std": 0.1181
+        },
+        "NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.2764,
+          "max": 0.8982,
+          "mean": 0.6976,
+          "std": 0.1525
+        },
+        "NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8128,
+          "max": 0.4293,
+          "mean": -0.6456,
+          "std": 0.0954
+        },
+        "Rabi_EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -492.1739,
+          "max": 73.913,
+          "mean": 2.2969,
+          "std": 2.1568
+        },
+        "Rabi_NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.2942,
+          "max": 0.9266,
+          "mean": 0.7338,
+          "std": 0.1383
+        },
+        "Rabi_NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8495,
+          "max": 0.4921,
+          "mean": -0.6672,
+          "std": 0.0909
+        },
+        "Relative_Humidity_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 77.0272,
+          "max": 80.818,
+          "mean": 78.6155,
+          "std": 0.976
+        },
+        "S2_Obs_Count": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 21.0,
+          "max": 99.0,
+          "mean": 32.0393,
+          "std": 12.72
+        },
+        "SAVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.4143,
+          "max": 1.3472,
+          "mean": 1.0462,
+          "std": 0.2287
+        },
+        "Slope": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 71.2498,
+          "mean": 9.3781,
+          "std": 7.4789
+        },
+        "Soil_Clay_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 233.0,
+          "max": 427.0,
+          "mean": 317.1834,
+          "std": 30.105
+        },
+        "Soil_Moisture": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.1819,
+          "max": 0.3545,
+          "mean": 0.295,
+          "std": 0.0256
+        },
+        "Soil_Organic_Carbon": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 195.0,
+          "max": 868.0,
+          "mean": 390.0397,
+          "std": 97.1385
+        },
+        "Soil_Sand_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 310.0,
+          "max": 571.0,
+          "mean": 460.5399,
+          "std": 37.9045
+        },
+        "Soil_Type_Class": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 18.0,
+          "max": 432.0,
+          "mean": 286.3093,
+          "std": 103.4434
+        },
+        "Soil_pH": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 53.0,
+          "max": 61.0,
+          "mean": 56.1215,
+          "std": 1.2164
+        },
+        "Temperature_C": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 21.7492,
+          "max": 27.169,
+          "mean": 25.3492,
+          "std": 1.4511
+        },
+        "Year": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 2020.0,
+          "max": 2020.0,
+          "mean": 2020.0,
+          "std": 0.0
+        },
+        "Yield_Proxy_NPP": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.4819,
+          "mean": 0.9416,
+          "std": 0.295
+        }
+      },
+      "categorical": {
+        "Country": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "India": 71134
+          }
+        },
+        "District": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Dakshina Kannada": 71134
+          }
+        },
+        "Season": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Annual + Kharif/Rabi composites": 71134
+          }
+        },
+        "State": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Karnataka": 71134
+          }
+        }
+      }
+    },
+    "2021": {
+      "present": true,
+      "cells": 69233,
+      "lat": {
+        "min": 12.550379,
+        "max": 13.250075
+      },
+      "lon": {
+        "min": 74.850119,
+        "max": 75.649876
+      },
+      "lat_spacing_m": 0.763768296844205,
+      "lon_spacing_m": 0.8850848409045398,
+      "continuous": {
+        "Annual_Rainfall_mm": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 2149.3561,
+          "max": 4276.2539,
+          "mean": 3839.0613,
+          "std": 385.757
+        },
+        "Area_sq_km": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 6749.3272,
+          "max": 6749.3272,
+          "mean": 6749.3272,
+          "std": 0.0
+        },
+        "Dewpoint_C": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 17.8383,
+          "max": 23.2764,
+          "mean": 21.3334,
+          "std": 1.5062
+        },
+        "EVI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -241.3636,
+          "max": 216.1864,
+          "mean": 2.3348,
+          "std": 1.7941
+        },
+        "Elevation": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -1.0,
+          "max": 1878.0,
+          "mean": 282.5008,
+          "std": 340.6515
+        },
+        "Is_Cropland": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.0,
+          "mean": 0.0099,
+          "std": 0.0991
+        },
+        "Kharif_EVI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -13200.0,
+          "max": 9925.0,
+          "mean": 3.5719,
+          "std": 109.7171
+        },
+        "Kharif_NDVI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -0.5742,
+          "max": 0.9082,
+          "mean": 0.6187,
+          "std": 0.1847
+        },
+        "Kharif_NDWI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -0.8061,
+          "max": 0.5159,
+          "mean": -0.5317,
+          "std": 0.164
+        },
+        "Land_Cover_Class": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 10.0,
+          "max": 95.0,
+          "mean": 12.1477,
+          "std": 7.755
+        },
+        "NDRE": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -0.3301,
+          "max": 0.714,
+          "mean": 0.4886,
+          "std": 0.1105
+        },
+        "NDVI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -0.312,
+          "max": 0.9128,
+          "mean": 0.7059,
+          "std": 0.1376
+        },
+        "NDWI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -0.8309,
+          "max": 0.3983,
+          "mean": -0.6449,
+          "std": 0.0909
+        },
+        "Rabi_EVI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -1806.6667,
+          "max": 2951.25,
+          "mean": 2.2344,
+          "std": 14.2301
+        },
+        "Rabi_NDVI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -0.2702,
+          "max": 0.9286,
+          "mean": 0.7227,
+          "std": 0.1419
+        },
+        "Rabi_NDWI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -0.8512,
+          "max": 0.4429,
+          "mean": -0.6652,
+          "std": 0.0912
+        },
+        "Relative_Humidity_Pct": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 79.5874,
+          "max": 83.376,
+          "mean": 80.9607,
+          "std": 0.9218
+        },
+        "S2_Obs_Count": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 24.0,
+          "max": 98.0,
+          "mean": 31.228,
+          "std": 13.2141
+        },
+        "SAVI": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": -0.4678,
+          "max": 1.369,
+          "mean": 1.0587,
+          "std": 0.2063
+        },
+        "Slope": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 71.2498,
+          "mean": 9.3715,
+          "std": 7.4923
+        },
+        "Soil_Clay_Pct": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 233.0,
+          "max": 427.0,
+          "mean": 317.7829,
+          "std": 29.9829
+        },
+        "Soil_Moisture": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 0.1991,
+          "max": 0.3771,
+          "mean": 0.3205,
+          "std": 0.0273
+        },
+        "Soil_Organic_Carbon": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 195.0,
+          "max": 868.0,
+          "mean": 391.189,
+          "std": 97.3029
+        },
+        "Soil_Sand_Pct": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 310.0,
+          "max": 565.0,
+          "mean": 459.5396,
+          "std": 37.5901
+        },
+        "Soil_Type_Class": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 18.0,
+          "max": 432.0,
+          "mean": 286.6058,
+          "std": 103.0228
+        },
+        "Soil_pH": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 53.0,
+          "max": 61.0,
+          "mean": 56.1422,
+          "std": 1.2212
+        },
+        "Temperature_C": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 21.2512,
+          "max": 26.7576,
+          "mean": 24.8255,
+          "std": 1.4816
+        },
+        "Year": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 2021.0,
+          "max": 2021.0,
+          "mean": 2021.0,
+          "std": 0.0
+        },
+        "Yield_Proxy_NPP": {
+          "type": "float",
+          "n_non_null": 69233,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.5158,
+          "mean": 0.9501,
+          "std": 0.3242
+        }
+      },
+      "categorical": {
+        "Country": {
+          "type": "categorical",
+          "n_non_null": 69233,
+          "unique": 1,
+          "top5": {
+            "India": 69233
+          }
+        },
+        "District": {
+          "type": "categorical",
+          "n_non_null": 69233,
+          "unique": 1,
+          "top5": {
+            "Dakshina Kannada": 69233
+          }
+        },
+        "Season": {
+          "type": "categorical",
+          "n_non_null": 69233,
+          "unique": 1,
+          "top5": {
+            "Annual + Kharif/Rabi composites": 69233
+          }
+        },
+        "State": {
+          "type": "categorical",
+          "n_non_null": 69233,
+          "unique": 1,
+          "top5": {
+            "Karnataka": 69233
+          }
+        }
+      }
+    },
+    "2022": {
+      "present": true,
+      "cells": 71134,
+      "lat": {
+        "min": 12.550148,
+        "max": 13.250075
+      },
+      "lon": {
+        "min": 74.850119,
+        "max": 75.649876
+      },
+      "lat_spacing_m": 0.7609571422125327,
+      "lon_spacing_m": 0.8593266282554168,
+      "continuous": {
+        "Annual_Rainfall_mm": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 2324.5642,
+          "max": 4669.5621,
+          "mean": 4144.5601,
+          "std": 394.1838
+        },
+        "Area_sq_km": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 6749.3272,
+          "max": 6749.3272,
+          "mean": 6749.3272,
+          "std": 0.0
+        },
+        "Dewpoint_C": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 17.0884,
+          "max": 22.939,
+          "mean": 20.7672,
+          "std": 1.588
+        },
+        "EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -35.5778,
+          "max": 771.25,
+          "mean": 2.1963,
+          "std": 3.0569
+        },
+        "Elevation": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -1.0,
+          "max": 1878.0,
+          "mean": 279.4974,
+          "std": 337.0013
+        },
+        "Is_Cropland": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.0,
+          "mean": 0.0097,
+          "std": 0.0978
+        },
+        "Kharif_EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -6215.0,
+          "max": 7205.0,
+          "mean": 2.7736,
+          "std": 70.999
+        },
+        "Kharif_NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.5479,
+          "max": 0.9066,
+          "mean": 0.7038,
+          "std": 0.1739
+        },
+        "Kharif_NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.815,
+          "max": 0.5733,
+          "mean": -0.6206,
+          "std": 0.1489
+        },
+        "Land_Cover_Class": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 10.0,
+          "max": 95.0,
+          "mean": 12.1144,
+          "std": 7.732
+        },
+        "NDRE": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.3095,
+          "max": 0.7263,
+          "mean": 0.487,
+          "std": 0.1125
+        },
+        "NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.2606,
+          "max": 0.9043,
+          "mean": 0.7148,
+          "std": 0.1427
+        },
+        "NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8263,
+          "max": 0.4163,
+          "mean": -0.6584,
+          "std": 0.0913
+        },
+        "Rabi_EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -44.75,
+          "max": 70.102,
+          "mean": 2.2449,
+          "std": 0.8334
+        },
+        "Rabi_NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.3564,
+          "max": 0.9264,
+          "mean": 0.732,
+          "std": 0.1437
+        },
+        "Rabi_NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8501,
+          "max": 0.4908,
+          "mean": -0.6732,
+          "std": 0.0932
+        },
+        "Relative_Humidity_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 75.2154,
+          "max": 80.3276,
+          "mean": 77.7069,
+          "std": 1.3268
+        },
+        "S2_Obs_Count": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 21.0,
+          "max": 92.0,
+          "mean": 27.3638,
+          "std": 12.2252
+        },
+        "SAVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.3906,
+          "max": 1.3563,
+          "mean": 1.072,
+          "std": 0.214
+        },
+        "Slope": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 71.2498,
+          "mean": 9.3781,
+          "std": 7.4789
+        },
+        "Soil_Clay_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 233.0,
+          "max": 427.0,
+          "mean": 317.1834,
+          "std": 30.105
+        },
+        "Soil_Moisture": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.191,
+          "max": 0.3705,
+          "mean": 0.3117,
+          "std": 0.0273
+        },
+        "Soil_Organic_Carbon": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 195.0,
+          "max": 868.0,
+          "mean": 390.0397,
+          "std": 97.1385
+        },
+        "Soil_Sand_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 310.0,
+          "max": 571.0,
+          "mean": 460.5399,
+          "std": 37.9045
+        },
+        "Soil_Type_Class": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 18.0,
+          "max": 432.0,
+          "mean": 286.3093,
+          "std": 103.4434
+        },
+        "Soil_pH": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 53.0,
+          "max": 61.0,
+          "mean": 56.1215,
+          "std": 1.2164
+        },
+        "Temperature_C": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 21.321,
+          "max": 26.7253,
+          "mean": 24.9301,
+          "std": 1.4467
+        },
+        "Year": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 2022.0,
+          "max": 2022.0,
+          "mean": 2022.0,
+          "std": 0.0
+        },
+        "Yield_Proxy_NPP": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.6157,
+          "mean": 1.0457,
+          "std": 0.3263
+        }
+      },
+      "categorical": {
+        "Country": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "India": 71134
+          }
+        },
+        "District": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Dakshina Kannada": 71134
+          }
+        },
+        "Season": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Annual + Kharif/Rabi composites": 71134
+          }
+        },
+        "State": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Karnataka": 71134
+          }
+        }
+      }
+    },
+    "2023": {
+      "present": true,
+      "cells": 71134,
+      "lat": {
+        "min": 12.550148,
+        "max": 13.250075
+      },
+      "lon": {
+        "min": 74.850119,
+        "max": 75.649876
+      },
+      "lat_spacing_m": 0.7609571422125327,
+      "lon_spacing_m": 0.8593266282554168,
+      "continuous": {
+        "Annual_Rainfall_mm": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 1314.9133,
+          "max": 3257.9389,
+          "mean": 2809.7907,
+          "std": 344.1869
+        },
+        "Area_sq_km": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 6749.3272,
+          "max": 6749.3272,
+          "mean": 6749.3272,
+          "std": 0.0
+        },
+        "Dewpoint_C": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 16.4551,
+          "max": 23.1736,
+          "mean": 20.5814,
+          "std": 1.8427
+        },
+        "EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -358.75,
+          "max": 244.6429,
+          "mean": 2.2402,
+          "std": 2.1245
+        },
+        "Elevation": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -1.0,
+          "max": 1878.0,
+          "mean": 279.4974,
+          "std": 337.0013
+        },
+        "Is_Cropland": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.0,
+          "mean": 0.0097,
+          "std": 0.0978
+        },
+        "Kharif_EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -22140.0,
+          "max": 5005.0,
+          "mean": 2.3778,
+          "std": 93.3241
+        },
+        "Kharif_NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.5086,
+          "max": 0.9009,
+          "mean": 0.6913,
+          "std": 0.165
+        },
+        "Kharif_NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8206,
+          "max": 0.5806,
+          "mean": -0.6121,
+          "std": 0.1415
+        },
+        "Land_Cover_Class": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 10.0,
+          "max": 95.0,
+          "mean": 12.1144,
+          "std": 7.732
+        },
+        "NDRE": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.3701,
+          "max": 0.7197,
+          "mean": 0.4769,
+          "std": 0.117
+        },
+        "NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.3426,
+          "max": 0.9092,
+          "mean": 0.69,
+          "std": 0.1517
+        },
+        "NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8254,
+          "max": 0.4273,
+          "mean": -0.6413,
+          "std": 0.0931
+        },
+        "Rabi_EVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -1420.0,
+          "max": 453.75,
+          "mean": 2.2848,
+          "std": 5.869
+        },
+        "Rabi_NDVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.4277,
+          "max": 0.9211,
+          "mean": 0.7252,
+          "std": 0.1371
+        },
+        "Rabi_NDWI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.8549,
+          "max": 0.4836,
+          "mean": -0.6645,
+          "std": 0.0905
+        },
+        "Relative_Humidity_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 69.7799,
+          "max": 78.1909,
+          "mean": 73.4458,
+          "std": 2.3612
+        },
+        "S2_Obs_Count": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 19.0,
+          "max": 88.0,
+          "mean": 29.2225,
+          "std": 11.4279
+        },
+        "SAVI": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": -0.5136,
+          "max": 1.3636,
+          "mean": 1.0348,
+          "std": 0.2275
+        },
+        "Slope": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 71.2498,
+          "mean": 9.3781,
+          "std": 7.4789
+        },
+        "Soil_Clay_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 233.0,
+          "max": 427.0,
+          "mean": 317.1834,
+          "std": 30.105
+        },
+        "Soil_Moisture": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.1606,
+          "max": 0.3363,
+          "mean": 0.2757,
+          "std": 0.0266
+        },
+        "Soil_Organic_Carbon": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 195.0,
+          "max": 868.0,
+          "mean": 390.0397,
+          "std": 97.1385
+        },
+        "Soil_Sand_Pct": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 310.0,
+          "max": 571.0,
+          "mean": 460.5399,
+          "std": 37.9045
+        },
+        "Soil_Type_Class": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 18.0,
+          "max": 432.0,
+          "mean": 286.3093,
+          "std": 103.4434
+        },
+        "Soil_pH": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 53.0,
+          "max": 61.0,
+          "mean": 56.1215,
+          "std": 1.2164
+        },
+        "Temperature_C": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 22.0017,
+          "max": 27.3421,
+          "mean": 25.6887,
+          "std": 1.474
+        },
+        "Year": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 2023.0,
+          "max": 2023.0,
+          "mean": 2023.0,
+          "std": 0.0
+        },
+        "Yield_Proxy_NPP": {
+          "type": "float",
+          "n_non_null": 71134,
+          "n_null": 0,
+          "min": 0.0,
+          "max": 1.6179,
+          "mean": 1.0143,
+          "std": 0.3213
+        }
+      },
+      "categorical": {
+        "Country": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "India": 71134
+          }
+        },
+        "District": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Dakshina Kannada": 71134
+          }
+        },
+        "Season": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Annual + Kharif/Rabi composites": 71134
+          }
+        },
+        "State": {
+          "type": "categorical",
+          "n_non_null": 71134,
+          "unique": 1,
+          "top5": {
+            "Karnataka": 71134
+          }
+        }
+      }
+    }
+  },
+  "leakage_columns_excluded": [
+    "Yield_Proxy_NPP"
+  ],
+  "season_composites": {
+    "Kharif": [
+      "Kharif_NDVI",
+      "Kharif_EVI",
+      "Kharif_NDWI"
+    ],
+    "Rabi": [
+      "Rabi_NDVI",
+      "Rabi_EVI",
+      "Rabi_NDWI"
+    ]
+  },
+  "notes": "EVI/Annual_EVI columns carry un-normalised values; NDVI/NDWI/NDRE/SAVI are in [-1, 1]; soil percentages are scaled x10 and organic carbon x100 per DK_Features units. Features are stored raw and normalised downstream by the preprocessing scaler.",
+  "emitted_schema_coverage": {
+    "source_crop": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 6,
+      "top5": {
+        "Coconut": 7429,
+        "Pepper (Black)": 3856,
+        "Coffee robusta": 89,
+        "Coffee arabica": 20,
+        "Cardamom": 14
+      }
+    },
+    "crop_type": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 5,
+      "top5": {
+        "coconut": 7429,
+        "pepper": 3856,
+        "coffee": 109,
+        "cardamom": 14,
+        "blackgram": 3
+      }
+    },
+    "crop_status": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 2,
+      "top5": {
+        "exact": 7443,
+        "alias": 3968
+      }
+    },
+    "hobli": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 14,
+      "top5": {
+        "PUTTURU": 2032,
+        "SULYA": 1916,
+        "KOKKADA": 1442,
+        "VITLA": 1435,
+        "BELTANGADI": 1111
+      }
+    },
+    "taluk": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 5,
+      "top5": {
+        "Belthangady": 2976,
+        "Sullia": 2613,
+        "Puttur": 2460,
+        "Bantwal": 2267,
+        "Mangalore": 1095
+      }
+    },
+    "village": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 255,
+      "top5": {
+        "BELLARE": 127,
+        "NETTANIGE MUDNURU": 126,
+        "MUNDURU": 125,
+        "AIVARNADU": 124,
+        "AMARAMUDNURU": 119
+      }
+    },
+    "lat": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 11364,
+      "top5": {
+        "12.9533448": 2,
+        "12.8803943": 2,
+        "12.9266978": 2,
+        "12.9623633": 2,
+        "13.0331041": 2
+      }
+    },
+    "lon": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 11366,
+      "top5": {
+        "75.1948534": 2,
+        "75.1622518": 2,
+        "75.0837381": 2,
+        "75.1392783": 2,
+        "75.3359379": 2
+      }
+    },
+    "year": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 2,
+      "top5": {
+        "2020": 10621,
+        "2021": 790
+      }
+    },
+    "season": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 2,
+      "top5": {
+        "Kharif": 11374,
+        "Rabi": 37
+      }
+    },
+    "survey_date": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 217,
+      "top5": {
+        "2020-08-23": 238,
+        "2020-10-01": 235,
+        "2020-09-28": 235,
+        "2020-09-30": 234,
+        "2020-09-03": 224
+      }
+    },
+    "distance_km": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 3305,
+      "top5": {
+        "inf": 736,
+        "0.0718": 15,
+        "0.1511": 13,
+        "0.1688": 12,
+        "0.0848": 12
+      }
+    },
+    "spatial_status": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 2,
+      "top5": {
+        "MATCHED": 10675,
+        "NO_MATCH": 736
+      }
+    },
+    "temporal_status": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 3,
+      "top5": {
+        "EXACT_SEASON": 11369,
+        "WITHIN_TOLERANCE": 41,
+        "OUTSIDE_TOLERANCE": 1
+      }
+    },
+    "tabular_matched": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 1,
+      "top5": {
+        "True": 11411
+      }
+    },
+    "tabular_level": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 1,
+      "top5": {
+        "district_grid": 11411
+      }
+    },
+    "satellite_status": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 2,
+      "top5": {
+        "FULL": 10675,
+        "NOT_AVAILABLE": 736
+      }
+    },
+    "ndvi_available": {
+      "type": "non_numeric",
+      "n_non_null": 11411
+    },
+    "evi_available": {
+      "type": "non_numeric",
+      "n_non_null": 11411
+    },
+    "is_duplicate": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 1,
+      "top5": {
+        "False": 11411
+      }
+    },
+    "valid_cropfusion_sample": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 2,
+      "top5": {
+        "True": 10675,
+        "False": 736
+      }
+    },
+    "rejection_reasons": {
+      "type": "categorical",
+      "n_non_null": 11411,
+      "unique": 2,
+      "top5": {
+        "[]": 10675,
+        "['spatial_NO_MATCH', 'no_satellite']": 736
+      }
+    },
+    "annual_rainfall_mm": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 3700.9872,
+      "max": 4885.377,
+      "mean": 4371.8101,
+      "std": 234.2499
+    },
+    "dewpoint_c": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 18.2921,
+      "max": 23.3521,
+      "mean": 22.0264,
+      "std": 0.586
+    },
+    "elevation": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 2.1632,
+      "max": 1074.7942,
+      "mean": 103.7367,
+      "std": 46.1825
+    },
+    "evi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": -0.2386,
+      "max": 4.5278,
+      "mean": 2.1661,
+      "std": 0.4712
+    },
+    "is_cropland": {
+      "type": "categorical",
+      "n_non_null": 11150,
+      "unique": 2,
+      "top5": {
+        "0": 11112,
+        "1": 38
+      }
+    },
+    "kharif_evi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": -187.2119,
+      "max": 6744.0292,
+      "mean": 3.3037,
+      "std": 77.5915
+    },
+    "kharif_ndvi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": -0.0583,
+      "max": 0.876,
+      "mean": 0.6963,
+      "std": 0.1628
+    },
+    "kharif_ndwi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": -0.776,
+      "max": 0.1459,
+      "mean": -0.6219,
+      "std": 0.1475
+    },
+    "land_cover_class": {
+      "type": "categorical",
+      "n_non_null": 11150,
+      "unique": 6,
+      "top5": {
+        "10": 10907,
+        "50": 95,
+        "30": 86,
+        "40": 42,
+        "80": 14
+      }
+    },
+    "ndre": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 0.0016,
+      "max": 0.6471,
+      "mean": 0.4798,
+      "std": 0.0819
+    },
+    "ndvi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 0.058,
+      "max": 0.8587,
+      "mean": 0.6914,
+      "std": 0.1043
+    },
+    "ndwi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": -0.7872,
+      "max": 0.0952,
+      "mean": -0.641,
+      "std": 0.0647
+    },
+    "rabi_evi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": -71.2792,
+      "max": 14.1484,
+      "mean": 2.2883,
+      "std": 1.3328
+    },
+    "rabi_ndvi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 0.1037,
+      "max": 0.8689,
+      "mean": 0.7218,
+      "std": 0.095
+    },
+    "rabi_ndwi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": -0.7757,
+      "max": 0.0703,
+      "mean": -0.6598,
+      "std": 0.0608
+    },
+    "relative_humidity_pct": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 77.3148,
+      "max": 81.8301,
+      "mean": 78.8266,
+      "std": 1.0257
+    },
+    "s2_obs_count": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 21.0,
+      "max": 91.6761,
+      "mean": 32.3876,
+      "std": 10.4502
+    },
+    "savi": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 0.087,
+      "max": 1.2879,
+      "mean": 1.037,
+      "std": 0.1565
+    },
+    "slope": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 0.0109,
+      "max": 26.1178,
+      "mean": 6.2974,
+      "std": 3.071
+    },
+    "soil_clay_pct": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 239.6589,
+      "max": 401.4964,
+      "mean": 308.8805,
+      "std": 29.1782
+    },
+    "soil_moisture": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 0.1819,
+      "max": 0.3547,
+      "mean": 0.2944,
+      "std": 0.0214
+    },
+    "soil_organic_carbon": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 206.9197,
+      "max": 778.453,
+      "mean": 355.5354,
+      "std": 74.1603
+    },
+    "soil_ph": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 54.0,
+      "max": 61.0,
+      "mean": 56.2103,
+      "std": 1.0312
+    },
+    "soil_sand_pct": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 355.0384,
+      "max": 569.1837,
+      "mean": 470.2974,
+      "std": 35.4469
+    },
+    "soil_type_class": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 18.0,
+      "max": 430.0,
+      "mean": 281.4637,
+      "std": 105.8223
+    },
+    "temperature_c": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 22.1373,
+      "max": 27.1327,
+      "mean": 25.9886,
+      "std": 0.6008
+    },
+    "env_match_distance_m": {
+      "type": "float",
+      "n_non_null": 11411,
+      "n_null": 0,
+      "min": 0.92,
+      "max": 9152.11,
+      "mean": 422.3037,
+      "std": 1102.806
+    },
+    "env_match_year": {
+      "type": "float",
+      "n_non_null": 11411,
+      "n_null": 0,
+      "min": 2020.0,
+      "max": 2021.0,
+      "mean": 2020.0692,
+      "std": 0.2539
+    },
+    "env_dk_index": {
+      "type": "float",
+      "n_non_null": 11411,
+      "n_null": 0,
+      "min": 60.0,
+      "max": 749790.0,
+      "mean": 371708.9826,
+      "std": 219966.2225
+    },
+    "env_match_method": {
+      "type": "non_numeric",
+      "n_non_null": 11411
+    },
+    "env_match_confidence": {
+      "type": "non_numeric",
+      "n_non_null": 11411
+    },
+    "env_season_for_features": {
+      "type": "non_numeric",
+      "n_non_null": 11411
+    },
+    "env_support": {
+      "type": "float",
+      "n_non_null": 11150,
+      "n_null": 261,
+      "min": 1.0,
+      "max": 1.0,
+      "mean": 1.0,
+      "std": 0.0
+    }
+  }
+}
