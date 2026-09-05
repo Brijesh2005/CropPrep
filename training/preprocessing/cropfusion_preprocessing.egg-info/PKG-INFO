@@ -1,8 +1,0 @@
-Metadata-Version: 2.4
-Name: cropfusion-preprocessing
-Version: 0.1.0
-Summary: CropFusion preprocessing pipeline — AgriculturalObservation -> AI-ready tensors
-Requires-Python: >=3.12
-Provides-Extra: dev
-Requires-Dist: pytest>=8.0; extra == "dev"
-Requires-Dist: torch>=2.0; extra == "dev"

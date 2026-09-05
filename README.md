@@ -32,7 +32,6 @@ cropfusion/
 ├── docs/           # architecture, installation, usage, deployment, research
 ├── releases/       # tagged release archives
 ├── scripts/        # docs build, backups
-├── datasets/       # dataset caches (git-ignored)
 └── .github/        # CI/CD, dependabot, CODEOWNERS
 ```
 
@@ -101,6 +100,21 @@ and the [Repository & Folder Guide](docs/architecture/FOLDER_GUIDE.md).
 - [docs/api/API.md](docs/api/API.md) — API overview
 - [docs/research/ARCHITECTURE.md](docs/research/ARCHITECTURE.md) — system architecture
 - [docs/migration/MIGRATION_GUIDE.md](docs/migration/MIGRATION_GUIDE.md) — two-platform migration guide
+- [docs/prediction/INFERENCE_PACKAGE.md](docs/prediction/INFERENCE_PACKAGE.md) — release-package inference contract
+- [docs/CHANGELOG.md](docs/CHANGELOG.md) — version history
+- [docs/releases/](docs/releases/) — tagged release & R5 training reports
+
+## Project status
+
+All development phases (1–11) are complete; the v1.0.0 validation pass reported
+**594 passing tests**, a 25-page docs build, and validated Docker Compose stacks
+(dev + prod). Full history and per-release details are in
+[`docs/CHANGELOG.md`](docs/CHANGELOG.md) and the release reports under
+[`docs/releases/`](docs/releases/). No Phase 1–11 functionality was redesigned
+in the final phase, which delivered the deployment/DevOps/MLOps/documentation/
+release-packaging groundwork. Release-package inference (`cropfusion_release/`)
+is the only artifact the Prediction Platform loads — see
+[`docs/prediction/INFERENCE_PACKAGE.md`](docs/prediction/INFERENCE_PACKAGE.md).
 
 ## Reproducibility
 

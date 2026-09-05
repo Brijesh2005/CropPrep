@@ -1,7 +1,0 @@
-Metadata-Version: 2.4
-Name: cropfusion-spatial-alignment
-Version: 0.1.0
-Summary: CropFusion Spatial-Temporal Alignment Module (STAM) — fuses tabular data + Sentinel-2 indices into observations
-Requires-Python: >=3.12
-Provides-Extra: dev
-Requires-Dist: pytest>=8.0; extra == "dev"

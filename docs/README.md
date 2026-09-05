@@ -63,6 +63,7 @@
 - [CHANGELOG.md](CHANGELOG.md) — version history
 - [ROADMAP.md](ROADMAP.md) — planned work
 - [CITATION.md](CITATION.md) — how to cite CropFusion
+- [releases/](releases/) — tagged release notes and R5 training/audit reports
 
 ## Manuals
 
