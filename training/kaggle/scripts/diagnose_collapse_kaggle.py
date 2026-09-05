@@ -321,9 +321,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--frozen-crop-csv",
-        default=str(
-            _REPO_ROOT / "training_manifests" / "crop_supervised_v2.csv"
-        ),
+        default=str(_REPO_ROOT / "govt_crop_matched_v2" / "crop_supervised_v2.csv"),
     )
     parser.add_argument(
         "--frozen-manifest",
