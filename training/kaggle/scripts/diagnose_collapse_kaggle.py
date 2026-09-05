@@ -58,7 +58,7 @@ from training.models.config import (  # noqa: E402
     ModelConfig,
     load_model_config as load_model_cfg,
 )
-from training.preprocessing import Preprocessor  # noqa: E402
+from training.preprocessing import Preprocessor, load_preprocessing_config  # noqa: E402
 from training.preprocessing.dataloader import build_dataloader  # noqa: E402
 from training.preprocessing.dataset import CropFusionDataset  # noqa: E402
 from training.stam import STAM  # noqa: E402
@@ -357,7 +357,7 @@ def main(argv: list[str] | None = None) -> int:
 
     dataset_settings = load_settings(args.dataset_config)
     stam_cfg = load_stam_config(args.stam_config)
-    preprocessing_cfg = Preprocessor.from_config(args.preprocessing_config)
+    preprocessing_cfg = load_preprocessing_config(args.preprocessing_config)
     training_cfg = load_training_cfg(args.training_config)
     model_cfg = load_model_cfg(args.model_config)
 
@@ -381,8 +381,8 @@ def main(argv: list[str] | None = None) -> int:
         frozen_loader.validate()
         declared = list(frozen_loader.manifest.get("supervised_classes") or [])
         excluded = list(frozen_loader.manifest.get("excluded_classes") or [])
-        preprocessing_cfg.config.label.declared_classes = declared
-        preprocessing_cfg.config.label.excluded_classes = excluded
+        preprocessing_cfg.label.declared_classes = declared
+        preprocessing_cfg.label.excluded_classes = excluded
 
         train_obs, val_obs, test_obs = frozen_loader.build(stam)
         accepted = train_obs + val_obs + test_obs

@@ -130,3 +130,37 @@ def test_diagnostic_module_help_parses():
     with pytest.raises(SystemExit) as exc:
         main(["--help"])
     assert exc.value.code == 0
+
+
+def test_driver_uses_preprocessing_config_not_preprocessor():
+    src = (
+        _REPO_ROOT
+        / "training"
+        / "kaggle"
+        / "scripts"
+        / "diagnose_collapse_kaggle.py"
+    ).read_text(encoding="utf-8")
+    # The main flow must load a PreprocessingConfig (NOT a Preprocessor via
+    # Preprocessor.from_config) so `Preprocessor(cfg)` doesn't double-wrap and
+    # build_dataloader(config=cfg) receives a valid config object.
+    assert (
+        "preprocessing_cfg = load_preprocessing_config(args.preprocessing_config)"
+        in src
+    )
+    assert "pre = Preprocessor(preprocessing_cfg)" in src
+    # The binary/tiny preprocessor reuse the same loader output directly and
+    # must NOT re-wrap the Preprocessor it receives.
+    assert "pre_bin = bin_cfg" in src
+    assert "pre_tiny = tiny_cfg" in src
+
+
+def test_preprocessing_config_load_roundtrip():
+    from training.preprocessing import Preprocessor, load_preprocessing_config
+    from training.preprocessing.dataloader import build_dataloader
+
+    cfg = load_preprocessing_config(_REPO_ROOT / "training/config/preprocessing.yaml")
+    cfg.label.declared_classes = ["coconut", "pepper", "coffee", "cardamom"]
+    cfg.label.excluded_classes = []
+    pre = Preprocessor(cfg)
+    assert pre.config is cfg
+    assert build_dataloader.__doc__ is not None
