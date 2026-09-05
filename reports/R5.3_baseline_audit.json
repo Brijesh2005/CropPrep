@@ -1,0 +1,287 @@
+{
+  "phase": "R5.3",
+  "step": 1,
+  "title": "R5.3 Baseline / environment / history audit",
+  "generated": "2026-09-05",
+  "corpus": {
+    "supervised_v2_csv": "govt_crop_matched_v2/crop_supervised_v2.csv",
+    "rows_total": 10675,
+    "benchmark_eligible": 10674,
+    "recovered_v2_excluded_from_benchmark": 1,
+    "baseline_supervised_v1": 10674,
+    "class_counts_overall": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "class_counts_benchmark_subset": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "split_strategy": "spatial_leave_one_taluk_out",
+    "splits": {
+      "train": {
+        "taluks": [
+          "Belthangady",
+          "Mangalore",
+          "Bantwal"
+        ],
+        "samples": 5924,
+        "classes": {
+          "coconut": 4292,
+          "pepper": 1599,
+          "coffee": 29,
+          "cardamom": 4
+        }
+      },
+      "validation": {
+        "taluks": [
+          "Puttur"
+        ],
+        "samples": 2460,
+        "classes": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        }
+      },
+      "test": {
+        "taluks": [
+          "Sullia"
+        ],
+        "samples": 2291,
+        "classes": {
+          "coconut": 1200,
+          "pepper": 1033,
+          "coffee": 51,
+          "cardamom": 5,
+          "blackgram": 2
+        }
+      }
+    },
+    "years": {
+      "2020": 10093,
+      "2021": 582
+    },
+    "seasons": {
+      "Kharif": 10638,
+      "Rabi": 37
+    },
+    "evaluation_policy": {
+      "blackgram": "EXCLUDE from per-class evaluation (insufficient support)",
+      "cardamom": "INCLUDE with low-support warning",
+      "coffee": "INCLUDE normally with support annotation",
+      "coconut": "normal metrics",
+      "pepper": "normal metrics"
+    },
+    "supervised_classes": [
+      "coconut",
+      "pepper",
+      "coffee",
+      "cardamom"
+    ],
+    "excluded_classes_note": "blackgram has 2 samples but 0 training support -> excluded from learnable vocabulary; present in test provenance"
+  },
+  "feature_schema": {
+    "numeric_features": [
+      "lat",
+      "lon",
+      "spatial_match_distance_km",
+      "year",
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "elevation",
+      "temperature_c",
+      "relative_humidity_pct",
+      "slope",
+      "ndvi",
+      "evi",
+      "ndwi",
+      "ndre",
+      "savi",
+      "s2_obs_count",
+      "soil_clay_pct",
+      "soil_sand_pct",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_moisture",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi",
+      "env_match_distance_m"
+    ],
+    "categorical_features": [
+      "season",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "n_numeric": 28,
+    "n_categorical": 4,
+    "all_present_in_csv": true,
+    "column_count_csv": 58,
+    "feature_quality_flags": {
+      "env_support_constant": true,
+      "env_support_not_used": true,
+      "is_cropland_mostly_zero": {
+        "zeros": 10637,
+        "ones": 38,
+        "note": "0 for 99.6% of rows; semantics need explanation (candidate step-15 investigation)"
+      },
+      "evi_scale_anomaly": {
+        "evi": {
+          "min": -0.23857375064983732,
+          "max": 4.52782432454662,
+          "mean": 2.1684
+        },
+        "kharif_evi": {
+          "min": -187.21189159451967,
+          "max": 6744.029176347143
+        },
+        "rabi_evi": {
+          "min": -71.2791502425433,
+          "max": 14.14838822848828
+        },
+        "note": "EVI/EVI-composite magnitudes far outside typical Sentinel-2 EVI (-1..1.5); IQR clipping + standard scaling in preprocessing mitigates; investigate scaling source"
+      },
+      "soil_scales": {
+        "soil_ph": {
+          "min": 54.0,
+          "max": 61.00000000000001,
+          "note": "values x10, real range 5.4..6.1"
+        },
+        "soil_clay_pct": {
+          "min": 239.65889492918893,
+          "max": 401.49639421739823,
+          "note": "values x10"
+        },
+        "soil_sand_pct": {
+          "min": 355.03839209383847,
+          "max": 569.1837063757043,
+          "note": "values x10"
+        },
+        "soil_organic_carbon": {
+          "min": 206.91965505077093,
+          "max": 778.4529634624233,
+          "note": "values x100"
+        }
+      },
+      "match_distance_m": {
+        "min": 0.92,
+        "max": 1548.51,
+        "mean_km": 0.1643
+      }
+    }
+  },
+  "model": {
+    "name": "cropfusion_v1",
+    "version": "v2.0.0",
+    "architecture": {
+      "image_encoder": "EfficientNetV2-S (ImageNet) 224x224, dual NDVI/EVI branch",
+      "tabular_encoder": "TabTransformer depth=6 heads=8 ff=512 dropout=0.15",
+      "temporal_encoder": "TemporalTransformer depth=4 heads=8 d_model=256 max_len=16",
+      "cross_attention": "CrossModalFusion heads=4 out_dim=256 dropout=0.15",
+      "gate": "GatedFusion hidden=256 dropout=0.15",
+      "shared_encoder": "Transformer depth=4 heads=8 ff=2048 out=512",
+      "crop_head": "Linear dropout=0.15 num_classes=5",
+      "yield_head": "Linear dropout=0.15 regression"
+    },
+    "input_sizes": {
+      "image": "224x224 minmax (preprocessing authoritative; validation.yaml stam patch default 128 - override keeps 224)",
+      "temporal_max_observations": 8
+    }
+  },
+  "training_config_snapshot": {
+    "source": "training/config/training.yaml",
+    "optimizer": "AdamW",
+    "lr": 0.0001,
+    "backbone_lr_multiplier": 0.3,
+    "weight_decay": 0.0001,
+    "scheduler": "warmup_cosine",
+    "warmup_epochs": 2,
+    "pct_start": 0.3,
+    "epochs": 30,
+    "batch_size": 16,
+    "seed": 42,
+    "loss": {
+      "crop_loss": "focal",
+      "focal_gamma": 2.0,
+      "label_smoothing": 0.15,
+      "yield_loss": "huber",
+      "crop_weight": 0.75,
+      "yield_weight": 0.25,
+      "class_weight_mode": "sqrt_inv"
+    },
+    "early_stopping": {
+      "metric": "crop/macro_f1",
+      "mode": "max",
+      "patience": 5,
+      "restore_best": true
+    },
+    "checkpoint": {
+      "directory": "training/artifacts/training/checkpoints",
+      "keep_last": 3,
+      "save_best": true,
+      "save_latest": true
+    },
+    "full_training_mode": "REAL IMAGE TRAINING NOT POSSIBLE LOCALLY (see environment)"
+  },
+  "baseline_metrics_history": {
+    "exists": false,
+    "local_checkpoints": "none (training/artifacts/training/checkpoints empty; training/artifacts/models empty)",
+    "metrics_json_files": "none anywhere in repo (excluding .venv/node_modules)",
+    "prior_docs_releases_R5.3_TRAINING_REPORT_md": {
+      "status": "PRE-FLIGHT ONLY - Kaggle GPU execution PENDING; NO accuracy/F1 metrics reported",
+      "discrepancy": "used train=6116/val=2267 (Puttur in TRAIN, Bantwal VALIDATION) which CONTRADICTS the frozen corpus v1.1 split (train=5924/val=2459, Puttur VALIDATION, Bantwal TRAIN). Its split and counts must NOT be reused.",
+      "discrepancy_class_counts": "reported coffee train=41/val=9, cardamom train=6/val=0; frozen manifest does not match."
+    },
+    "note": "No reproducible numeric baseline exists. The first R5.3 deliverable cannot meaningfully cite a current accuracy."
+  },
+  "environment": {
+    "platform": "win32",
+    "python": "via D:/CropPrep/.venv",
+    "torch": "2.13.0+cpu (cuda NOT available)",
+    "sklearn": "1.8.0",
+    "xgboost": "3.3.0",
+    "lightgbm": "MISSING",
+    "imagery_rasters": "NOT PRESENT locally (no ~148GB Sentinel-2 NDVI/EVI rasters)",
+    "metadata_db": "training/datasets/.cropfusion/metadata.db 0.07MB (~5 records) - raster catalog effectively unavailable",
+    "consequence": "image-patch sequence resolution empty for all observations; real vision training cannot run on this machine. Multimodal CropFusion benchmark requires Kaggle GPU workspace with attached imagery dataset."
+  },
+  "local_experiment_scope": {
+    "runnable": [
+      "tabular feature-group ablation (step 4)",
+      "feature selection (step 5)",
+      "class-imbalance / class-weight experiments (step 6)",
+      "crop-vs-yield-style weight ablations on the crop head (step 7)",
+      "hyperparameter search on tabular classifier (step 8)",
+      "temporal seq/scale explorations are image-bound"
+    ],
+    "blocked": [
+      "image patch training",
+      "temporal sequence training",
+      "patch size experiments",
+      "image augmentation impact"
+    ],
+    "honesty_contract": "any locally run model is a REAL trained model with REAL holdout eval; results are labeled TABULAR-BRANCH evidence, never claimed as the multimodal CropFusion benchmark."
+  },
+  "target_90pct_feasibility_note": {
+    "test_class_distribution": {
+      "coconut": 1200,
+      "pepper": 1033,
+      "coffee": 51,
+      "cardamom": 5,
+      "blackgram": 2
+    },
+    "observation": "coconut+pepper = 97.5% of test; top-1 accuracy >=90% is dominated by the two majority classes. macro-F1 is the hard metric (coffee 51, cardamom 5, blackgram 2). blackgram excluded from learnable vocabulary; cardamom has only 4 train samples. Report BOTH accuracy and macro-F1; low-support classes must be documented under evaluation_policy."
+  }
+}
