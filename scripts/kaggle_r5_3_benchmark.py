@@ -51,7 +51,7 @@ EXPECTED_VAL = 2_459
 EXPECTED_TEST = 2_291
 
 DATASET_ID = "shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada"
-KERNEL_SLUG = "r5-3-cropfusion-benchmark"
+KERNEL_SLUG = "r5-3-cropfusion-benchmark-optimization"
 
 DEFAULT_POLL_SECONDS = 30
 DEFAULT_TIMEOUT_SECONDS = 14_400  # 4 hours
@@ -434,8 +434,12 @@ def main(argv: list[str] | None = None) -> int:
     p_prepare = sub.add_parser("prepare", help="Prepare the Kaggle deployment directory")
     p_prepare.add_argument("--test-epochs", type=int, default=None,
                            help="Short run: inject R5_3_EPOCHS=<n> into the deployed notebook")
-    sub.add_parser("push", help="Push/update notebook to Kaggle")
-    sub.add_parser("run", help="Start remote execution")
+    p_push = sub.add_parser("push", help="Push/update notebook to Kaggle")
+    p_push.add_argument("--timeout", type=int, default=None,
+                        help="Kaggle upload timeout (seconds)")
+    p_run = sub.add_parser("run", help="Start remote execution")
+    p_run.add_argument("--timeout", type=int, default=None,
+                       help="Kaggle upload timeout (seconds)")
     sub.add_parser("status", help="Show current Kaggle status")
     sub.add_parser("output", help="Download latest output")
 

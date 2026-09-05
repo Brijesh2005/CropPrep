@@ -131,6 +131,6 @@ def test_parser_accepts_test_epochs(launcher):
     parser = launcher.argparse.ArgumentParser(prog="t")
     # main constructs the parser internally; just exercise cmd_* parsing via
     # the documented interface: ensure module-level helpers resolve.
-    assert launcher.KERNEL_SLUG == "r5-3-cropfusion-benchmark"
+    assert launcher.KERNEL_SLUG == "r5-3-cropfusion-benchmark-optimization"
     assert launcher.EXPECTED_TOTAL == 10_674
     assert launcher.EXPECTED_TRAIN == 5_924

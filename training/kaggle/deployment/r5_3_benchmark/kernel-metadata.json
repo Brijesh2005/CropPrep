@@ -1,5 +1,5 @@
 {
-  "id": "gojosensa/r5-3-cropfusion-benchmark",
+  "id": "gojosensa/r5-3-cropfusion-benchmark-optimization",
   "title": "R5.3 CropFusion Benchmark Optimization",
   "code_file": "R5_3_benchmark.ipynb",
   "language": "python",
