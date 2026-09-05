@@ -393,17 +393,38 @@ def _resolve_imagery(
     lat = float(row["lat"])
     year = int(row["year"])
     season = row.get("season")
+    survey_date = _parse_date(row.get("survey_date"))
+
+    # The imagery acquisition window is configurable (ST_IMAGERY__*). When the
+    # window is NOT the legacy season calendar, use the windowed resolver so a
+    # survey-anchored multi-season window (R5.3) can recover several real
+    # frames per observation instead of the single season composite.
+    from training.stam.config import ImageryWindowConfig
+
+    imagery_cfg = getattr(getattr(stam, "config", None), "imagery", None)
+    windowed = isinstance(imagery_cfg, ImageryWindowConfig) and imagery_cfg.mode != "season"
 
     try:
-        sequence = stam.resolve_sequence(lon, lat, year=year, season=season)
+        if windowed:
+            sequence = stam.resolve_sequence_windowed(
+                lon,
+                lat,
+                year=year,
+                season=season,
+                reference_date=survey_date,
+            )
+        else:
+            sequence = stam.resolve_sequence(lon, lat, year=year, season=season)
         if len(getattr(sequence, "pairs", ())) == 0:
             # Diagnostic: attribute the empty sequence to one of two
             # root causes so a Kaggle run can be triaged without digging
             # through per-sample logs:
-            #   * zero season-window imagery records, or
+            #   * zero window candidate records, or
             #   * records present but filtered out by point-coverage
             #     (CRS / bounds mismatch on the mounted GeoTIFFs).
-            _log_empty_sequence_diagnostics(stam, row, lon, lat, year, season)
+            _log_empty_sequence_diagnostics(
+                stam, row, lon, lat, year, season, survey_date=survey_date
+            )
         return sequence
     except Exception as exc:  # noqa: BLE001
         log_dict(
@@ -417,37 +438,64 @@ def _resolve_imagery(
 
 
 def _log_empty_sequence_diagnostics(
-    stam: Any, row: dict[str, Any], lon: float, lat: float, year: int, season: str | None
+    stam: Any,
+    row: dict[str, Any],
+    lon: float,
+    lat: float,
+    year: int,
+    season: str | None,
+    *,
+    survey_date: Any = None,
 ) -> None:
     """Best-effort diagnostics for an empty imagery sequence (never raises).
 
-    Uses the STAM internal matcher to distinguish ``no season-window records``
-    from ``records dropped by point coverage`` — the two root causes of
-    empty sequences on the Kaggle imagery mount.
+    Uses the STAM internal matcher to distinguish ``no window records`` from
+    ``records dropped by point coverage`` — the two root causes of empty
+    sequences on the Kaggle imagery mount.
     """
     try:
         matcher = getattr(stam, "matcher", None)
         if matcher is None or not hasattr(matcher, "resolve_temporal"):
             return
         context = matcher.resolve_temporal(year=year, season=season)
-        window_ndvi, window_evi = matcher.match_images(
-            year=year, season=context.season, resolution=None
-        )
-        covered_ndvi, covered_evi = getattr(stam, "_filter_images_for_point", lambda *a, **k: (a[2], a[3]))(
-            lon, lat, window_ndvi, window_evi
-        )
+        from training.stam.config import ImageryWindowConfig
+
+        imagery_cfg = getattr(getattr(stam, "config", None), "imagery", None)
+        windowed = isinstance(imagery_cfg, ImageryWindowConfig) and imagery_cfg.mode != "season"
+        if windowed:
+            from training.stam.temporal_window import resolve_window
+
+            window = resolve_window(
+                imagery_cfg,
+                reference_date=survey_date,
+                year=year,
+                season=context.season,
+            )
+            window_ndvi, window_evi = matcher.match_images_in_window(
+                window, year=year, resolution=None
+            )
+            desc = window.description
+        else:
+            window_ndvi, window_evi = matcher.match_images(
+                year=year, season=context.season, resolution=None
+            )
+            desc = "season-calendar window"
+        covered_ndvi, covered_evi = getattr(
+            stam, "_filter_images_for_point", lambda *a, **k: (a[2], a[3])
+        )(lon, lat, window_ndvi, window_evi)
         log_dict(
             logger,
             logging.WARNING,
             "Empty imagery sequence diagnostics",
             record_id=row.get("record_id"),
-            year=year,
-            season=season,
-            resolved_season=context.season.name if getattr(context, "season", None) else None,
+            window=desc,
             window_ndvi=len(window_ndvi),
             window_evi=len(window_evi),
             covered_ndvi=len(covered_ndvi),
             covered_evi=len(covered_evi),
+            year=year,
+            season=season,
+            resolved_season=context.season.name if getattr(context, "season", None) else None,
             start_hint=(
                 "no season-window records"
                 if not (window_ndvi or window_evi)
@@ -854,17 +902,22 @@ class FrozenCorpusLoader:
 
         def _split_block(obs_list: Sequence[AgriculturalObservation]) -> dict[str, Any]:
             samples = len(obs_list)
-            stream = {}
+            stream: dict[str, Any] = {}
+            per_sample_frames: list[int] = []
             for stream_name in ("ndvi", "evi"):
                 total_slots = samples * max_observations
                 real_slots = 0
                 samples_with_real = 0
+                sample_frames = []
                 for obs in obs_list:
                     ndvi_real, evi_real = _stream_counts(obs)
                     real = ndvi_real if stream_name == "ndvi" else evi_real
                     real_slots += real
+                    sample_frames.append(min(max_observations, real))
                     if real > 0:
                         samples_with_real += 1
+                if stream_name == "ndvi":
+                    per_sample_frames = sample_frames
                 stream[stream_name] = {
                     "total_slots": total_slots,
                     "real_slots": real_slots,
@@ -874,7 +927,25 @@ class FrozenCorpusLoader:
                     "samples_with_real_imagery": samples_with_real,
                     "samples_without_imagery": samples - samples_with_real,
                 }
-            return {"samples": samples, "streams": stream}
+            sorted_frames = sorted(per_sample_frames)
+            n = len(sorted_frames)
+            frame_stats = {
+                "min": sorted_frames[0] if n else None,
+                "p25": sorted_frames[n // 4] if n else None,
+                "median": sorted_frames[n // 2] if n else None,
+                "mean": round(sum(sorted_frames) / n, 3) if n else None,
+                "p75": sorted_frames[3 * n // 4] if n else None,
+                "max": sorted_frames[-1] if n else None,
+            }
+            dist: dict[str, int] = {}
+            for f in per_sample_frames:
+                dist[str(min(max_observations, f))] = dist.get(str(min(max_observations, f)), 0) + 1
+            return {
+                "samples": samples,
+                "streams": stream,
+                "real_frames_per_sample": frame_stats,
+                "real_frames_distribution": dist,
+            }
 
         diagnostics = {
             "max_observations": int(max_observations),

@@ -382,14 +382,8 @@ class STAM:
     ) -> SequenceInfo:
         """NDVI/EVI sequence for a point — no spatial or tabular matching.
 
-        Unlike :meth:`build_observation`, this never consults the spatial
-        location index (ST-SPATIAL-001) or the tabular record chain, so it
-        works for arbitrary GPS points that sit inside imagery coverage but
-        far from any indexed dataset location. Intended for the frozen
-        corpus path where labels and locations come from the corpus itself.
-
-        Returns:
-            The built :class:`~training.stam.observation.SequenceInfo`.
+        This is the legacy season-window path (``imagery.mode == "season"``).
+        For multi-season imagery windows use :meth:`resolve_sequence_windowed`.
         """
         self._require_initialized()
         context = self.matcher.resolve_temporal(
@@ -397,6 +391,55 @@ class STAM:
         )
         return self._build_sequence_with_fallback(
             lon, lat, context=context, resolution=resolution
+        ).sequence
+
+    def resolve_sequence_windowed(
+        self,
+        lon: float,
+        lat: float,
+        *,
+        year: int,
+        season: str | None = None,
+        reference_date: date | None = None,
+        resolution: str | None = None,
+    ) -> SequenceInfo:
+        """NDVI/EVI sequence resolved through a configurable imagery window.
+
+        Mirrors :meth:`resolve_sequence` (never consults the spatial location
+        index or tabular chain — safe for arbitrary GPS points) but acquires
+        imagery via :func:`training.stam.temporal_window.resolve_window`
+        instead of the season calendar window:
+
+        * ``window_days`` / ``crop_year`` anchor on ``reference_date`` (the
+          survey date) when provided;
+        * records inside the window are verified to cover the point, paired by
+          date, and trimmed to ``<= max_observations`` real frames by the
+          configured strategy;
+        * ``mode == "season"`` simply delegates to :meth:`resolve_sequence`.
+
+        Every retained frame is a real record that exists on disk — no date is
+        fabricated, duplicated or zero-filled here.
+        """
+        self._require_initialized()
+        imagery = self.config.imagery
+        if imagery.mode == "season":
+            return self.resolve_sequence(
+                lon,
+                lat,
+                year=year,
+                season=season,
+                reference_date=reference_date,
+                resolution=resolution,
+            )
+        context = self.matcher.resolve_temporal(
+            year=year, season=season, reference_date=reference_date
+        )
+        return self._build_sequence_windowed(
+            lon,
+            lat,
+            context=context,
+            reference_date=reference_date,
+            resolution=resolution,
         ).sequence
 
     def get_patch(
@@ -483,6 +526,94 @@ class STAM:
                 _missing_pair_issue(),
             )
             return result
+
+    def _build_sequence_windowed(
+        self,
+        lon: float,
+        lat: float,
+        *,
+        context: TemporalContext,
+        reference_date: date | None,
+        resolution: str | None,
+    ) -> SequenceBuildResult:
+        """Build a sequence from imagery-window frames (never fabricates frames).
+
+        Steps: resolve the acquisition window, collect windowed records,
+        verify point coverage, pair by date, then trim the *real* frames to
+        ``<= max_observations`` using the configured selection strategy. The
+        trim only drops real records — any sequence slot that remains empty is
+        handled downstream by the standard zero-fill + temporal-mask policy.
+        """
+        from .temporal_window import (
+            resolve_window,
+            select_temporal_frames,
+            sequence_from_pairs,
+            window_description,
+        )
+
+        imagery = self.config.imagery
+        try:
+            window = resolve_window(
+                imagery,
+                reference_date=reference_date,
+                year=context.year,
+                season=context.season,
+            )
+        except ValueError as exc:
+            logger.warning(
+                "Imagery window unresolved",
+                extra={"error": str(exc), "lon": lon, "lat": lat},
+            )
+            raise
+
+        ndvi, evi = self.matcher.match_images_in_window(
+            window, year=context.year, resolution=resolution
+        )
+        ndvi, evi = self._filter_images_for_point(lon, lat, ndvi, evi)
+
+        try:
+            result = self.sequence_builder.build(ndvi, evi, resolution=resolution)
+        except PairingError as exc:
+            logger.warning(
+                "Strict pairing failed; rebuilding lenient windowed sequence",
+                extra={"reason": str(exc)},
+            )
+            lenient = ObservationSequenceBuilder(
+                require_pairs=False,
+                max_gap_days=self.config.quality.max_temporal_gap_days,
+            )
+            result = lenient.build(ndvi, evi, resolution=resolution)
+            result.issues.insert(
+                0,
+                _missing_pair_issue(),
+            )
+
+        kept = select_temporal_frames(
+            result.sequence.pairs, reference_date, imagery
+        )
+        sequence = sequence_from_pairs(result.sequence, kept)
+
+        desc = window_description(imagery, reference_date)
+        for pair in sequence.pairs:
+            pair.quality["imagery_window"] = desc
+        logger.info(
+            "Windowed sequence built",
+            extra={
+                "window": desc,
+                "candidate_frames": len(result.sequence.pairs),
+                "kept_frames": len(sequence.pairs),
+                "mode": imagery.mode,
+                "strategy": imagery.strategy,
+            },
+        )
+        return SequenceBuildResult(
+            sequence=sequence,
+            issues=result.issues,
+            ndvi_count=result.ndvi_count,
+            evi_count=result.evi_count,
+            paired_count=result.paired_count,
+            duplicate_dates=result.duplicate_dates,
+        )
 
     def _filter_images_for_point(
         self,

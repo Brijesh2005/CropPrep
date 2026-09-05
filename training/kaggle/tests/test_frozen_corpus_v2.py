@@ -78,6 +78,33 @@ def _mock_stam() -> MagicMock:
     return stam
 
 
+def _mock_stam_windowed() -> MagicMock:
+    from training.stam.config import ImageryWindowConfig
+    from training.stam.observation import SequenceInfo
+
+    stam = MagicMock()
+    stam.config.imagery = ImageryWindowConfig(mode="window_days", window_days=180)
+    stam.resolve_sequence_windowed.return_value = SequenceInfo(pairs=[])
+    return stam
+
+
+def test_windowed_imagery_path_uses_reference_date() -> None:
+    """R5.3: window_days imagery mode routes build_observation through the
+    windowed resolver with the row's survey date as reference."""
+    row = _first_eligible_v2_row()
+    stam = _mock_stam_windowed()
+    build_observation(
+        row, stam,
+        corpus_version="crop_supervised_v2.0",
+        manifest_checksum="x" * 64,
+    )
+    stam.resolve_sequence_windowed.assert_called_once()
+    kwargs = stam.resolve_sequence_windowed.call_args.kwargs
+    assert kwargs["reference_date"] is not None
+    assert kwargs["reference_date"].isoformat() == (row.get("survey_date") or "")[:10]
+    assert kwargs["year"] == int(row["year"])
+
+
 def test_v2_row_exposes_environmental_features() -> None:
     row = _first_eligible_v2_row()
     obs = build_observation(

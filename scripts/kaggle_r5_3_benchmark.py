@@ -161,12 +161,15 @@ def cmd_check(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 
 
-def _inject_epochs_cell(notebook_path: Path, epochs: int) -> None:
+def _inject_config_cell(notebook_path: Path, env: dict[str, str], label: str) -> None:
     nb = json.loads(notebook_path.read_text(encoding="utf-8"))
-    source = f"import os\nos.environ['R5_3_EPOCHS'] = '{epochs}'\n"
+    lines = ["import os"]
+    lines += [f"os.environ[{k!r}] = {v!r}" for k, v in env.items()]
+    source = "\n".join(lines) + "\n"
     cell = {"cell_type": "code", "metadata": {}, "execution_count": None,
             "outputs": [], "source": source.splitlines(keepends=True)}
-    # Insert a runnable epoch-pinning cell just before the Full Pipeline cell.
+    # Insert a config-pinning cell just before the Full Pipeline cell so the
+    # assignments override any notebook defaults.
     insert_before = None
     for idx, c in enumerate(nb["cells"]):
         if "run_pipeline.py" in "".join(c.get("source", [])):
@@ -175,6 +178,46 @@ def _inject_epochs_cell(notebook_path: Path, epochs: int) -> None:
     assert insert_before is not None
     nb["cells"].insert(insert_before, cell)
     notebook_path.write_text(json.dumps(nb, indent=1), encoding="utf-8")
+
+
+def _inject_epochs_cell(notebook_path: Path, epochs: int) -> None:
+    _inject_config_cell(notebook_path, {"R5_3_EPOCHS": str(epochs)}, "test epochs")
+
+
+def _imagery_env(args: argparse.Namespace) -> dict[str, str]:
+    """ST_IMAGERY__* overrides for the temporal acquisition window (R5.3).
+
+    Only the given values are pinned; missing ones fall back to the notebook's
+    window-configuration cell (ST_IMAGERY__MODE etc.).
+    """
+    env: dict[str, str] = {}
+    for flag, key in [
+        ("imagery_mode", "ST_IMAGERY__MODE"),
+        ("imagery_window_days", "ST_IMAGERY__WINDOW_DAYS"),
+        ("imagery_strategy", "ST_IMAGERY__STRATEGY"),
+        ("imagery_max_observations", "ST_IMAGERY__MAX_OBSERVATIONS"),
+    ]:
+        value = getattr(args, flag, None)
+        if value is not None:
+            env[key] = str(value)
+    return env
+
+
+def _add_imagery_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--imagery-mode", type=str, default=None,
+                        choices=["season", "window_days", "crop_year"],
+                        help="Temporal imagery window: season (legacy, 1 frame), "
+                             "window_days (N-day centered on survey), crop_year "
+                             "(May-anchored 12-month campaign window)")
+    parser.add_argument("--imagery-window-days", type=int, default=None,
+                        help="Window radius in days when mode is window_days (e.g. 180)")
+    parser.add_argument("--imagery-strategy", type=str, default=None,
+                        choices=["closest_to_survey", "evenly_spaced",
+                                 "quality_ranked", "temporal_quality_combined",
+                                 "phenology_coverage"],
+                        help="Real-frame selection strategy within the window")
+    parser.add_argument("--imagery-max-observations", type=int, default=None,
+                        help="Cap on real temporal frames retained per sample")
 
 
 def cmd_prepare(args: argparse.Namespace) -> int:
@@ -191,6 +234,13 @@ def cmd_prepare(args: argparse.Namespace) -> int:
         _print_row("Test epochs", f"{test_epochs} (injected R5_3_EPOCHS)")
     else:
         _print_row("Test epochs", "off (FULL 30-EPOCH RUN)")
+
+    imagery_env = _imagery_env(args)
+    if imagery_env:
+        _inject_config_cell(dst_nb, imagery_env, "imagery window")
+        _print_row("Imagery window", ", ".join(f"{k.split('__')[-1].lower()}={v}" for k, v in imagery_env.items()))
+    else:
+        _print_row("Imagery window", "notebook defaults (ST_IMAGERY__*)")
 
     username = _get_kaggle_username()
     if not username:
@@ -434,6 +484,7 @@ def main(argv: list[str] | None = None) -> int:
     p_prepare = sub.add_parser("prepare", help="Prepare the Kaggle deployment directory")
     p_prepare.add_argument("--test-epochs", type=int, default=None,
                            help="Short run: inject R5_3_EPOCHS=<n> into the deployed notebook")
+    _add_imagery_args(p_prepare)
     p_push = sub.add_parser("push", help="Push/update notebook to Kaggle")
     p_push.add_argument("--timeout", type=int, default=None,
                         help="Kaggle upload timeout (seconds)")
@@ -448,6 +499,7 @@ def main(argv: list[str] | None = None) -> int:
     p_train.add_argument("--poll-seconds", type=int, default=DEFAULT_POLL_SECONDS)
     p_train.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT_SECONDS)
     p_train.add_argument("--test-epochs", type=int, default=None)
+    _add_imagery_args(p_train)
 
     sub.add_parser("verify-output", help="Validate downloaded artifacts")
 
@@ -455,6 +507,7 @@ def main(argv: list[str] | None = None) -> int:
     p_full.add_argument("--confirm", action="store_true")
     p_full.add_argument("--poll-seconds", type=int, default=DEFAULT_POLL_SECONDS)
     p_full.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT_SECONDS)
+    _add_imagery_args(p_full)
 
     args = parser.parse_args(argv)
     handlers = {

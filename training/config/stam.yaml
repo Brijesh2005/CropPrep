@@ -33,6 +33,20 @@ image:
   index_types: [NDVI, EVI]
   require_pairs: true
 
+# Temporal imagery acquisition window. "season" is the legacy behaviour —
+# only composites inside the season calendar window. For seasonal-composite
+# mounts (Kaggle NDVI/EVI: ~5 dates/year clustered late-Apr/May and late-Oct),
+# a season window resolves exactly one frame for Kharif surveys; the campaign
+# overrides this via ST_IMAGERY__* (see R5.3: multi-season windows).
+imagery:
+  mode: season
+  window_days: 180
+  start_month: 5
+  span_months: 12
+  max_observations: 8
+  strategy: closest_to_survey
+  require_pairs: true
+
 quality:
   max_temporal_gap_days: 60
   min_observations: 1

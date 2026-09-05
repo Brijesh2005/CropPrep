@@ -61,6 +61,7 @@ from .spatial_index import (
     NearestMatch,
 )
 from .temporal_index import Season, SeasonCalendar, TemporalIndex
+from .temporal_window import ImageryWindow, in_window
 
 logger = get_logger("matcher")
 
@@ -807,6 +808,26 @@ class SpatialTemporalMatcher:
             ndvi = [r for r in ndvi if r.year == year]
             evi = [r for r in evi if r.year == year]
         return ndvi, evi
+
+    def match_images_in_window(
+        self,
+        window: "ImageryWindow",
+        *,
+        year: int,
+        resolution: str | None = None,
+    ) -> tuple[list[ImageRecordRef], list[ImageRecordRef]]:
+        """NDVI + EVI records whose observation date falls in an imagery window.
+
+        Windows are resolved by :func:`training.stam.temporal_window.resolve_window`
+        and define an *inclusive range* instead of a season calendar window.
+        Undated legacy records keep the old ``year``-membership fallback.
+        """
+        resolution = resolution or self.config.image.resolution
+        ndvi = self.image_source.query_images(index_type="NDVI", resolution=resolution)
+        evi = self.image_source.query_images(index_type="EVI", resolution=resolution)
+
+        keep = lambda r, y=year: in_window(window, r.observation_date, year=y)
+        return [r for r in ndvi if keep(r)], [r for r in evi if keep(r)]
 
     # -- Indexes -------------------------------------------------------------- #
 

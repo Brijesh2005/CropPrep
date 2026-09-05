@@ -12,6 +12,9 @@ Key options::
     ST_TEMPORAL__DEFAULT_SEASON=Kharif
     ST_TEMPORAL__TOLERANCE_DAYS=15
     ST_IMAGE__RESOLUTION=R10m
+    ST_IMAGERY__MODE=window_days
+    ST_IMAGERY__WINDOW_DAYS=180
+    ST_IMAGERY__STRATEGY=closest_to_survey
     ST_CACHE__ENABLED=true
     ST_ADMIN__ADMIN_DIR=D:/CropPrep/gis
     ST_TABULAR__TABLE=cropdata_updated.csv
@@ -99,6 +102,50 @@ class ImageConfig(BaseModel):
     #: Vegetation indices to align (NDVI, EVI).
     index_types: list[str] = Field(default_factory=lambda: ["NDVI", "EVI"])
     #: Require every observation date to have both NDVI and EVI.
+    require_pairs: bool = True
+
+
+class ImageryWindowConfig(BaseModel):
+    """How the NDVI/EVI acquisition window is resolved around each sample.
+
+    The legacy behaviour matches records inside the cropping-season calendar
+    window (``mode="season"``). Seasonal-composite datasets such as the Kaggle
+    NDVI/EVI mount hold only a handful of composite dates per year clustered in
+    late-Apr/May and late-Oct, so a season window resolves exactly one composite
+    for Kharif surveys. The window modes below widen acquisition while keeping
+    every frame a REAL record that exists on disk:
+
+    * ``"season"``        — legacy: the season calendar window for ``year``.
+    * ``"window_days"``   — ``[survey_date - days, survey_date + days]``.
+    * ``"crop_year"``     — ``[start_month .. start_month+span_months)`` of the
+      survey reference's calendar year (season-agnostic crop-year context).
+
+    ``max_observations`` trims the ordered real sequence to at most that many
+    frames using ``strategy``; the sequence order itself is never altered and no
+    date is fabricated, duplicated or zero-filled here.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: Window resolution mode: ``season`` | ``window_days`` | ``crop_year``.
+    mode: str = Field(default="season", pattern="^(season|window_days|crop_year)$")
+    #: Half-width of the ``window_days`` window around the reference date.
+    window_days: int = Field(default=180, ge=1)
+    #: Month (1-12) anchoring a ``crop_year`` window start.
+    start_month: int = Field(default=5, ge=1, le=12)
+    #: Length of a ``crop_year`` window in months.
+    span_months: int = Field(default=12, ge=1, le=36)
+    #: Maximum number of real temporal frames kept per observation.
+    max_observations: int = Field(default=8, ge=1, le=32)
+    #: Frame-selection strategy when more dates exist than ``max_observations``.
+    strategy: str = Field(
+        default="closest_to_survey",
+        pattern=(
+            "^(closest_to_survey|evenly_spaced|quality_ranked|"
+            "temporal_quality_combined|phenology_coverage)$"
+        ),
+    )
+    #: Require every retained frame to carry both NDVI and EVI records.
     require_pairs: bool = True
 
 
@@ -289,6 +336,7 @@ class StamConfig(BaseModel):
     spatial: SpatialConfig = Field(default_factory=SpatialConfig)
     temporal: TemporalConfig = Field(default_factory=TemporalConfig)
     image: ImageConfig = Field(default_factory=ImageConfig)
+    imagery: ImageryWindowConfig = Field(default_factory=ImageryWindowConfig)
     quality: QualityConfig = Field(default_factory=QualityConfig)
     cache: CacheConfig = Field(default_factory=CacheConfig)
     admin: AdminConfig = Field(default_factory=AdminConfig)
@@ -358,6 +406,9 @@ def save_stam_config_template(path: str | Path) -> Path:
                      "season_file": None},
         "image": {"resolution": "R10m", "index_types": ["NDVI", "EVI"],
                   "require_pairs": True},
+        "imagery": {"mode": "season", "window_days": 180, "start_month": 5,
+                    "span_months": 12, "max_observations": 8,
+                    "strategy": "closest_to_survey", "require_pairs": True},
         "quality": {"max_temporal_gap_days": 60, "min_observations": 1,
                     "fail_below": 40.0},
         "cache": {"enabled": True, "observation_ttl_seconds": 3600,

@@ -472,6 +472,20 @@ def main(argv: list[str] | None = None) -> int:
                 train_obs, val_obs, test_obs,
                 max_observations=preprocessing_cfg.config.temporal.max_observations,
             )
+            report["corpus"]["imagery"]["imagery_window"] = {
+                "mode": stam_cfg.imagery.mode,
+                "window_days": stam_cfg.imagery.window_days,
+                "start_month": stam_cfg.imagery.start_month,
+                "span_months": stam_cfg.imagery.span_months,
+                "max_observations": stam_cfg.imagery.max_observations,
+                "strategy": stam_cfg.imagery.strategy,
+                "temporal_pad_slots": preprocessing_cfg.config.temporal.max_observations,
+                "description": (
+                    "season-calendar window (legacy)"
+                    if stam_cfg.imagery.mode == "season"
+                    else f"{stam_cfg.imagery.mode} window"
+                ),
+            }
             # Corpus-level real-vs-zero-filled slot statistics (R5.3): proves
             # every accepted split carries real NDVI/EVI frames and quantifies
             # the zero-fill padding within the fixed temporal window.
@@ -492,16 +506,26 @@ def main(argv: list[str] | None = None) -> int:
                         f"real_frac={s['real_frac']:.1%} "
                         f"samples_no_imagery={s['samples_without_imagery']}"
                     )
-            # R5.3: one real temporal slot per observation is BY CONSTRUCTION —
-            # each frozen CSV row carries exactly one survey_date, so STAM
-            # resolves exactly one (NDVI, EVI) pair per sample. The remaining
-            # T-1 slots are zero-filled padding, which the temporal mask
-            # correctly excludes.
+                fs = block.get("real_frames_per_sample", {})
+                print(
+                    f"    real frames/sample: mean={fs.get('mean')} "
+                    f"median={fs.get('median')} p25={fs.get('p25')} "
+                    f"p75={fs.get('p75')} max={fs.get('max')} "
+                    f"dist={block.get('real_frames_distribution', {})}"
+                )
+            # R5.3 (supersedes the earlier single-frame note): the number of
+            # real temporal frames per observation is determined by the
+            # configured imagery acquisition window (ST_IMAGERY__*), NOT by
+            # construction. The season calendar window (legacy) resolves one
+            # composite per Kharif survey on the Kaggle seasonal-composite
+            # mount; a window_days / crop_year window recovers multiple real
+            # frames. Slots left empty after trimming real frames are
+            # zero-filled padding, which the temporal mask excludes.
             print(
-                "  Note: exactly 1 real temporal slot per observation by "
-                "construction (each frozen CSV row has one survey_date); the "
-                "other T-1 slots are zero-filled padding excluded by the "
-                "temporal mask."
+                f"  Imagery window: mode={stam_cfg.imagery.mode} "
+                f"strategy={stam_cfg.imagery.strategy} "
+                f"imagery_max_frames={stam_cfg.imagery.max_observations} "
+                f"temporal_pad_slots={preprocessing_cfg.config.temporal.max_observations}"
             )
             logger.log_experiment(
                 "frozen_corpus_loaded",
