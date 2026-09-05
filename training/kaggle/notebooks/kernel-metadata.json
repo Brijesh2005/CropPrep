@@ -1,0 +1,13 @@
+{
+  "id": "gojosensa/r5-4-cropfusion-multimodal-training",
+  "title": "R5.4 CropFusion Multimodal Training",
+  "code_file": "R5_4_train.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada"
+  ]
+}

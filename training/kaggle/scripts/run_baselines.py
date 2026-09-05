@@ -3,6 +3,8 @@
 Trains lightweight sklearn classifiers on extracted features to establish
 upper/lower bounds for the CropFusion model performance.
 
+Uses the FROZEN spatial split (taluk-based) — never calls split_observations().
+
 Requires imagery (Kaggle mount). Exits 0 with a clear message if unavailable.
 
 Run from repo root (Kaggle kernel, after ``run_pipeline.py``)::
@@ -17,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +27,14 @@ import numpy as np
 import torch
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
+
+# ── Frozen contract (from crop_supervised_v1_manifest.json) ────────────
+_FROZEN_TOTAL = 10119
+_FROZEN_TRAIN = 5797
+_FROZEN_VAL = 2031
+_FROZEN_TEST = 2291
+_SUPERVISED_CLASSES = ["coconut", "pepper", "coffee", "cardamom"]
+_EXCLUDED_CLASSES = ["blackgram"]
 
 
 def _add_repo_root(repo_root: Path) -> None:
@@ -45,11 +56,94 @@ _add_repo_root(_REPO_ROOT)
 
 from training.dataset_manager import DatasetManager, load_settings  # noqa: E402
 from training.preprocessing import Preprocessor, load_preprocessing_config  # noqa: E402
-from training.preprocessing.dataset import CropFusionDataset, split_observations  # noqa: E402
+from training.preprocessing.dataset import CropFusionDataset  # noqa: E402
 from training.preprocessing.dataloader import build_dataloader  # noqa: E402
 from training.stam import STAM  # noqa: E402
 from training.stam.config import load_stam_config  # noqa: E402
 from training.stam.observation import AgriculturalObservation  # noqa: E402
+
+
+# ── Frozen-provenance split ────────────────────────────────────────────
+
+def _split_by_frozen_provenance(
+    observations: list[AgriculturalObservation],
+) -> tuple[list[AgriculturalObservation], list[AgriculturalObservation], list[AgriculturalObservation]]:
+    """Partition observations by their frozen provenance split.
+
+    The frozen corpus stamps each observation with provenance["split"]
+    determined by the taluk-to-split mapping.  This function replicates
+    the partitioning logic of FrozenCorpusLoader.build() without calling
+    the generic split_observations() recommuter.
+    """
+    train: list[AgriculturalObservation] = []
+    val: list[AgriculturalObservation] = []
+    test: list[AgriculturalObservation] = []
+    for obs in observations:
+        split = (obs.provenance or {}).get("split", "unknown")
+        if split == "train":
+            train.append(obs)
+        elif split == "val":
+            val.append(obs)
+        elif split == "test":
+            test.append(obs)
+        else:
+            train.append(obs)  # frozen fallback: unknown -> train
+    return train, val, test
+
+
+def _load_frozen_corpus(path: Path) -> list[AgriculturalObservation]:
+    """Load accepted observations from the frozen corpus JSON."""
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    obs_list: list[AgriculturalObservation] = []
+    for sample in raw["samples"]:
+        if sample.get("status") != "accepted":
+            continue
+        obs_data = sample.get("observation")
+        if obs_data is None:
+            continue
+        obs = AgriculturalObservation.model_validate(obs_data)
+        if not obs.provenance:
+            obs.provenance = dict(sample.get("provenance") or {})
+        obs_list.append(obs)
+    return obs_list
+
+
+def _validate_frozen_contract(
+    train: list[AgriculturalObservation],
+    val: list[AgriculturalObservation],
+    test: list[AgriculturalObservation],
+) -> None:
+    """Assert frozen corpus split counts match the manifest contract."""
+    total = len(train) + len(val) + len(test)
+    assert total == _FROZEN_TOTAL, (
+        f"Frozen corpus total mismatch: expected {_FROZEN_TOTAL}, got {total}"
+    )
+    assert len(train) == _FROZEN_TRAIN, (
+        f"Frozen train split mismatch: expected {_FROZEN_TRAIN}, got {len(train)}"
+    )
+    assert len(val) == _FROZEN_VAL, (
+        f"Frozen val split mismatch: expected {_FROZEN_VAL}, got {len(val)}"
+    )
+    assert len(test) == _FROZEN_TEST, (
+        f"Frozen test split mismatch: expected {_FROZEN_TEST}, got {len(test)}"
+    )
+    train_ids = {str(o.observation_id) for o in train}
+    val_ids = {str(o.observation_id) for o in val}
+    test_ids = {str(o.observation_id) for o in test}
+    assert not (train_ids & val_ids), "train/val ID overlap detected"
+    assert not (train_ids & test_ids), "train/test ID overlap detected"
+    assert not (val_ids & test_ids), "val/test ID overlap detected"
+
+
+def _validate_class_vocabulary(observations: list[AgriculturalObservation]) -> Counter:
+    """Verify supervised class vocabulary and return crop distribution."""
+    crops = Counter(o.crop for o in observations)
+    all_labels = set(crops.keys())
+    supervised = set(_SUPERVISED_CLASSES)
+    excluded = set(_EXCLUDED_CLASSES)
+    unexpected = all_labels - supervised - excluded
+    assert not unexpected, f"Unexpected crop labels: {unexpected}"
+    return crops
 
 
 def _extract_tabular_features(
@@ -77,13 +171,13 @@ def _extract_image_stats(
         B = ndvi.size(0)
 
         # Get real-frame mask: [B, T] -> [B, T, 1, 1, 1] for broadcasting
-        real_mask = mask.unsqueeze(-1).unsqueeze(-1).unsqueeze(-1)  # [B, T, 1, 1, 1]
+        real_mask = mask.unsqueeze(-1).unsqueeze(-1).unsqueeze(-1)
 
         # Mean over real frames only (skip zero-padded frames)
         ndvi_real = (ndvi * real_mask).sum(dim=1) / real_mask.sum(dim=1).clamp(min=1)
         evi_real = (evi * real_mask).sum(dim=1) / real_mask.sum(dim=1).clamp(min=1)
 
-        # Flatten and compute statistics: [B, 1, H, W] -> [B, 1*H*W]
+        # Flatten and compute statistics
         ndvi_flat = ndvi_real.view(B, -1)
         evi_flat = evi_real.view(B, -1)
 
@@ -187,19 +281,27 @@ def main(argv: list[str] | None = None) -> int:
     stam_config = Path(args.stam_config) if args.stam_config else _REPO_ROOT / "training/config/stam.yaml"
 
     print("=" * 66)
-    print("  BASELINE EXPERIMENTS (tabular-only, imagery-only, combined)")
+    print("  BASELINE EXPERIMENTS (frozen-provenance split)")
     print("=" * 66)
 
-    # ── Load observations ──────────────────────────────────────────────
+    # ── Load frozen corpus ─────────────────────────────────────────────
     print("  loading frozen corpus...")
-    raw = json.loads(corpus_path.read_text(encoding="utf-8"))
-    all_obs = []
-    for sample in raw["samples"]:
-        if sample["status"] == "accepted" and sample.get("observation") is not None:
-            obs = AgriculturalObservation.model_validate(sample["observation"])
-            obs.provenance = dict(sample.get("provenance") or obs.provenance or {})
-            all_obs.append(obs)
+    all_obs = _load_frozen_corpus(corpus_path)
     print(f"  {len(all_obs)} observations loaded")
+
+    # ── Split by frozen provenance (NOT split_observations) ────────────
+    print("  using frozen provenance split...")
+    train_obs, val_obs, test_obs = _split_by_frozen_provenance(all_obs)
+
+    # ── Validate frozen contract ───────────────────────────────────────
+    print("  validating frozen contract...")
+    _validate_frozen_contract(train_obs, val_obs, test_obs)
+    crop_dist = _validate_class_vocabulary(all_obs)
+
+    print(f"  train={len(train_obs)}  val={len(val_obs)}  test={len(test_obs)}")
+    print(f"  supervised classes: {_SUPERVISED_CLASSES}")
+    print(f"  excluded classes: {_EXCLUDED_CLASSES}")
+    print(f"  crop distribution: {dict(crop_dist)}")
 
     # ── Resolve imagery ────────────────────────────────────────────────
     print("  resolving imagery (STAM)...")
@@ -215,12 +317,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  SKIPPED: {exc}")
         return 0
 
-    # ── Preprocessor fit ───────────────────────────────────────────────
-    print("  fitting preprocessor...")
+    # ── Preprocessor fit (TRAIN ONLY) ──────────────────────────────────
+    print("  fitting preprocessor on train split (TRAIN ONLY)...")
     preprocessing_cfg = load_preprocessing_config(pre_config)
-    train_obs, val_obs, test_obs = split_observations(all_obs, preprocessing_cfg.split)
-    print(f"  train={len(train_obs)}  val={len(val_obs)}  test={len(test_obs)}")
-
     pre = Preprocessor(preprocessing_cfg)
     try:
         pre.fit(train_obs, extractor=extractor)
@@ -229,7 +328,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     class_names = list(pre.label.crop_encoder.classes_)
-    print(f"  classes: {class_names}")
+    n_classes = len(class_names)
+    print(f"  classes ({n_classes}): {class_names}")
+    assert class_names == _SUPERVISED_CLASSES, (
+        f"Label encoder classes {class_names} != frozen contract {_SUPERVISED_CLASSES}"
+    )
 
     # ── Build DataLoaders ──────────────────────────────────────────────
     print("  building DataLoaders...")
@@ -305,8 +408,19 @@ def main(argv: list[str] | None = None) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     report = {
         "corpus": str(corpus_path),
-        "n_train": len(train_obs),
-        "n_val": len(val_obs),
+        "frozen_contract": {
+            "total": _FROZEN_TOTAL,
+            "train": _FROZEN_TRAIN,
+            "val": _FROZEN_VAL,
+            "test": _FROZEN_TEST,
+            "supervised_classes": _SUPERVISED_CLASSES,
+            "excluded_classes": _EXCLUDED_CLASSES,
+        },
+        "actual_split_sizes": {
+            "train": len(train_obs),
+            "val": len(val_obs),
+            "test": len(test_obs),
+        },
         "class_names": class_names,
         "results": results,
     }
