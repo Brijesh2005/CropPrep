@@ -60,7 +60,10 @@ from training.models.config import (  # noqa: E402
     load_model_config as load_model_cfg,
 )
 from training.preprocessing import Preprocessor, load_preprocessing_config  # noqa: E402
-from training.preprocessing.dataloader import build_dataloader  # noqa: E402
+from training.preprocessing.dataloader import (  # noqa: E402
+    build_dataloader,
+    collate_samples,
+)
 from training.preprocessing.dataset import CropFusionDataset  # noqa: E402
 from training.stam import STAM  # noqa: E402
 from training.stam.config import load_stam_config  # noqa: E402
@@ -632,22 +635,49 @@ def main(argv: list[str] | None = None) -> int:
         if not args.skip_tiny:
             print("\n=== Phase 11: tiny-set overfit (20 + 20) ===")
             rng = np.random.RandomState(2026)
-            tiny = []
+            candidates: list[Any] = []
+            pool: dict[str, list[Any]] = {}
             for cls in BINARY_CLASSES:
                 rows = [o for o in train_obs if o.crop == cls]
-                idx = rng.choice(len(rows), size=min(20, len(rows)), replace=False)
-                tiny.extend(rows[int(i)] for i in idx)
+                idx = rng.choice(len(rows), size=min(40, len(rows)), replace=False)
+                pool[cls] = [rows[int(i)] for i in idx]
+                candidates.extend(pool[cls])
             tiny_cfg = Preprocessor.from_config(args.preprocessing_config)
             tiny_cfg.config.label.declared_classes = BINARY_CLASSES
             tiny_cfg.config.label.excluded_classes = []
             pre_tiny = tiny_cfg
-            pre_tiny.fit(tiny, extractor=extractor)
+            pre_tiny.fit(candidates, extractor=extractor)
+            tiny: list[Any] = []
+            invalid: dict[str, list[str]] = {}
+            for cls in BINARY_CLASSES:
+                picked = 0
+                for obs in pool[cls]:
+                    if picked >= 20:
+                        break
+                    try:
+                        pre_tiny.transform(obs, extractor=extractor, augment=False)
+                    except Exception as exc:  # noqa: BLE001
+                        invalid.setdefault(cls, []).append(str(obs.observation_id))
+                        continue
+                    tiny.append(obs)
+                    picked += 1
+            if invalid:
+                print(f"[phase 11] skipped untransformable tiny candidates: "
+                      f"{invalid}")
+            if len(tiny) == 0:
+                print("[phase 11] no transformable tiny samples; SKIPPED")
+                report["tiny_overfit"] = {
+                    "n_train": 0,
+                    "error": "no transformable tiny candidates",
+                }
+                save_report("phase_11_tiny")
+                return 0
             tiny_ds = CropFusionDataset.build(
                 pre_tiny, tiny, split="train", extractor=extractor
             )
             tiny_loader = torch.utils.data.DataLoader(
                 tiny_ds, batch_size=len(tiny), shuffle=True,
-                num_workers=0, drop_last=False,
+                num_workers=0, drop_last=False, collate_fn=collate_samples,
             )
             tiny_probe_batch = next(iter(tiny_loader))
             model_config = _model_config_for(pre_tiny, model_cfg)
