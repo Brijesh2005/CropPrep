@@ -32,7 +32,8 @@ DEPLOY_DIR = REPO_ROOT / "training" / "kaggle" / "deployment" / "r5_6_image_stat
 OUTPUT_DIR = REPO_ROOT / "artifacts" / "r5_6_image_stats"
 
 DATASET_ID = "shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada"
-KERNEL_SLUG = "r5-6-image-stats"
+# Title-derived slug (kaggle resolves from title; see kaggle_r5_5_diagnostic.py note)
+KERNEL_SLUG = "r5-6-image-statistics-export"
 
 
 def _now_iso() -> str:

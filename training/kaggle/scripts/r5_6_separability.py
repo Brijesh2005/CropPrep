@@ -117,6 +117,11 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+def sha256_lf(path: Path) -> str:
+    data = path.read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
+
+
 # --------------------------------------------------------------------------- #
 # Feature matrix
 # --------------------------------------------------------------------------- #
@@ -223,11 +228,13 @@ def phase0() -> dict[str, Any]:
                                      cwd=REPO_ROOT).stdout.strip(),
         "corpus": {
             "csv": str(CSV_PATH.name),
-            "csv_sha256": sha256(CSV_PATH),
+            "csv_sha256_raw": sha256(CSV_PATH),
+            "csv_sha256_lf": sha256_lf(CSV_PATH),
         },
         "manifest": {
             "file": str(MANIFEST_PATH.name),
-            "sha256": sha256(MANIFEST_PATH),
+            "sha256_raw": sha256(MANIFEST_PATH),
+            "sha256_lf": sha256_lf(MANIFEST_PATH),
             "dataset_version": manifest.get("dataset_version"),
             "split_strategy": manifest.get("split_strategy"),
         },
@@ -647,11 +654,395 @@ def phase8() -> dict[str, Any]:
 
 
 # --------------------------------------------------------------------------- #
+# Image statistics loader
+# --------------------------------------------------------------------------- #
+
+IMAGE_REP_C = [
+    "ndvi_mean", "ndvi_std", "ndvi_min", "ndvi_max",
+    "evi_mean", "evi_std", "evi_min", "evi_max",
+    "ndvi_last_frame_mean", "evi_last_frame_mean",
+    "real_frame_count", "zero_fill_fraction",
+]
+IMAGE_REP_B = ["ndvi_mean", "evi_mean"]
+IMAGE_REP_A = ["ndvi_last_frame_mean", "evi_last_frame_mean"]
+
+
+def load_image_frame() -> pd.DataFrame:
+    """Join the Kaggle-exported image_stats.csv to the binary corpus.
+
+    Split labels come from the frozen binary CSV (single source of truth).
+    Returns a frame with one row per binary record plus ``*_img`` features.
+    """
+    if not IMAGE_STATS_CSV.exists():
+        raise FileNotFoundError(
+            f"missing {IMAGE_STATS_CSV} — run the R5.6 image-stats kernel "
+            f"(scripts/kaggle_r5_6_image_stats.py) and pull its output first")
+    stats = pd.read_csv(IMAGE_STATS_CSV, dtype={"record_id": str})
+    stats = stats.rename(columns=lambda c: c if not c.startswith("ndvi_") and
+                         c not in ("real_frame_count", "zero_fill_fraction",
+                                   "total_frames") else f"{c}_img"
+                         if c not in ("record_id", "split", "crop_label")
+                         else c)
+    binary = pd.read_csv(CSV_PATH, dtype={"crop_label": str, "location_taluk": str})
+    binary["crop_label"] = binary["crop_label"].str.strip().str.lower()
+    binary["split"] = binary["location_taluk"].map(TALUK_SPLIT).fillna("unknown")
+    bi = binary[binary["crop_label"].isin(BINARY)][[
+        "record_id", "crop_label", "split"]].copy()
+    m = bi.merge(stats, on="record_id", how="left")
+    return m
+
+
+def image_feature_matrix(bi: pd.DataFrame, feats: list[str]) -> np.ndarray:
+    X = bi[feats].to_numpy(dtype=float)
+    for j in range(X.shape[1]):
+        col = X[:, j]
+        if np.isnan(col).any():
+            col[np.isnan(col)] = np.nanmedian(col)
+    return X
+
+
+# --------------------------------------------------------------------------- #
+# Phase 3 — image-only baselines
+# --------------------------------------------------------------------------- #
+
+def _image_baselines(bi: pd.DataFrame, reps: dict[str, list[str]],
+                     split_y: dict[str, np.ndarray],
+                     split_idx: dict[str, np.ndarray]) -> tuple[pd.DataFrame, dict]:
+    from sklearn.metrics import roc_auc_score
+    from sklearn.neural_network import MLPClassifier
+    from sklearn.preprocessing import StandardScaler
+
+    all_rows: list[dict[str, Any]] = []
+    probs: dict[str, np.ndarray] = {}
+    for rep, feats in reps.items():
+        X = image_feature_matrix(bi, feats)
+        scaler = StandardScaler().fit(X[split_idx["train"]])
+        Xtr = scaler.transform(X[split_idx["train"]])
+        for split in ("val", "test"):
+            Xs = scaler.transform(X[split_idx[split]])
+            y = split_y[split]
+            for name, clf in _tabular_models():
+                pred = clf.fit(Xtr, split_y["train"]).predict(Xs)
+                m = metrics(y, pred, BINARY)
+                p = clf.predict_proba(Xs)[:, 1]
+                auc = float(roc_auc_score(y, p)) if len(np.unique(y)) > 1 else None
+                all_rows.append({
+                    "modality": "image", "representation": rep, "model": name,
+                    "split": split, "n_features": len(feats),
+                    "accuracy": m["accuracy"],
+                    "balanced_accuracy": m["balanced_accuracy"],
+                    "macro_f1": m["macro_f1"], "roc_auc": round(auc, 4) if auc else auc,
+                    "precision_coconut": m["per_class"]["coconut"]["precision"],
+                    "recall_coconut": m["per_class"]["coconut"]["recall"],
+                    "precision_pepper": m["per_class"]["pepper"]["precision"],
+                    "recall_pepper": m["per_class"]["pepper"]["recall"],
+                    "confusion_matrix": json.dumps(m["confusion_matrix"],
+                                                   default=_json_default),
+                    "beats_majority": m["beats_majority"],
+                    "majority_prior_accuracy": m["majority_prior_accuracy"],
+                })
+                if split == "test":
+                    probs[f"{rep}_{name}_p_pepper"] = p
+    res = pd.DataFrame(all_rows)
+    res.to_csv(OUT_DIR / "image_results.csv", index=False)
+    te = split_idx["test"]
+    _proba_frame(bi.iloc[te][["record_id", "crop_label"]],
+                 probs).to_csv(OUT_DIR / "image_test_probabilities.csv", index=False)
+    return res, probs
+
+
+def _tabular_models(seed: int = SEED):
+    from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.neural_network import MLPClassifier
+
+    return [
+        ("lr", LogisticRegression(max_iter=3000, random_state=seed,
+                                  class_weight="balanced")),
+        ("rf", RandomForestClassifier(n_estimators=250, random_state=seed,
+                                      class_weight="balanced")),
+        ("gb", GradientBoostingClassifier(n_estimators=250, random_state=seed,
+                                          max_depth=4)),
+        ("mlp", MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=500,
+                              random_state=seed)),
+    ]
+
+
+def phase3() -> dict[str, Any]:
+    bi = load_image_frame()
+    order = bi["crop_label"].to_numpy()
+    y_all = (order == "pepper").astype(int)
+    splits = bi["split"].to_numpy()
+    idx = {s: np.where(splits == s)[0] for s in ("train", "val", "test")}
+    split_y = {s: y_all[idx[s]] for s in ("train", "val", "test")}
+    valid = np.isfinite(bi[IMAGE_REP_C].to_numpy(dtype=float)).all(axis=1)
+    print(f"  binary image-valid: {int(valid.sum())}/{len(bi)} "
+          f"(dropped {int((~valid).sum())} untransformable)")
+    bi = bi[valid].reset_index(drop=True)
+    idx = {s: np.where(bi["split"].to_numpy() == s)[0] for s in ("train", "val", "test")}
+    split_y = {s: (bi["crop_label"].to_numpy() == "pepper").astype(int)[idx[s]]
+               for s in ("train", "val", "test")}
+
+    reps = {"A_nearest_frame": IMAGE_REP_A, "B_temporal_mean": IMAGE_REP_B,
+            "C_full_stats": IMAGE_REP_C}
+    res, probs = _image_baselines(bi, reps, split_y, idx)
+    summary = {
+        "phase": "R5.6 Phase 3",
+        "representation_note": {
+            "A_nearest_frame": "last real temporal frame, spatial mean (NDVI/EVI)",
+            "B_temporal_mean": "real-frame temporal + spatial mean (NDVI/EVI)",
+            "C_full_stats": "sequence statistics (mean/std/min/max per band, "
+                            "last-frame spatial mean, real-frame count, "
+                            "zero-fill fraction)",
+        },
+        "dropped_untransformable": int(len(bi) - int(valid.sum())),
+        "baseline_rows": int(len(res)),
+    }
+    return summary
+
+
+# --------------------------------------------------------------------------- #
+# Phase 4 — fusion baselines (32 tabular + image statistics)
+# --------------------------------------------------------------------------- #
+
+def phase4() -> dict[str, Any]:
+    from sklearn.metrics import roc_auc_score as _auc
+
+    bi = load_image_frame()
+    valid = np.isfinite(bi[IMAGE_REP_C].to_numpy(dtype=float)).all(axis=1)
+    bi = bi[valid].reset_index(drop=True)
+
+    binary = bi[["record_id", "crop_label", "split"]].copy()
+    df_tab = pd.merge(binary, load_frame()[["record_id", *NUMERIC, *CATEGORICAL]],
+                      on="record_id", how="left")
+    X_img = image_feature_matrix(bi, IMAGE_REP_C)
+    X_num = df_tab[NUMERIC].apply(pd.to_numeric, errors="coerce").to_numpy(dtype=float)
+    med = np.nanmedian(X_num, axis=0)
+    for j in range(X_num.shape[1]):
+        col = X_num[:, j]
+        if np.isnan(col).any():
+            col[np.isnan(col)] = med[j]
+    X_cat = df_tab[CATEGORICAL].fillna("__nan__").astype(str)
+    codes = np.stack([pd.factorize(v, sort=False)[0]
+                      for v in [X_cat[c] for c in CATEGORICAL]], axis=1)
+    X_fus = np.hstack([X_num, codes, X_img]).astype(np.float64)
+    y_all = (bi["crop_label"].to_numpy() == "pepper").astype(int)
+    splits = bi["split"].to_numpy()
+    idx = {s: np.where(splits == s)[0] for s in ("train", "val", "test")}
+
+    rows: list[dict[str, Any]] = []
+    probs: dict[str, np.ndarray] = {}
+    for name, clf in _tabular_models():
+        clf.fit(X_fus[idx["train"]], y_all[idx["train"]])
+        for split in ("val", "test"):
+            Xs, y = X_fus[idx[split]], y_all[idx[split]]
+            pred = clf.predict(Xs)
+            m = metrics(y, pred, BINARY)
+            p = clf.predict_proba(Xs)[:, 1]
+            auc = float(_auc(y, p))
+            rows.append({
+                "modality": "fusion", "model": name, "split": split,
+                "n_features": int(X_fus.shape[1]),
+                "accuracy": m["accuracy"],
+                "balanced_accuracy": m["balanced_accuracy"],
+                "macro_f1": m["macro_f1"], "roc_auc": round(auc, 4),
+                "precision_coconut": m["per_class"]["coconut"]["precision"],
+                "recall_coconut": m["per_class"]["coconut"]["recall"],
+                "precision_pepper": m["per_class"]["pepper"]["precision"],
+                "recall_pepper": m["per_class"]["pepper"]["recall"],
+                "confusion_matrix": json.dumps(m["confusion_matrix"],
+                                               default=_json_default),
+                "beats_majority": m["beats_majority"],
+                "majority_prior_accuracy": m["majority_prior_accuracy"],
+            })
+            if split == "test":
+                probs[f"{name}_p_pepper"] = p
+    pd.DataFrame(rows).to_csv(OUT_DIR / "fusion_results.csv", index=False)
+    _proba_frame(bi.iloc[idx["test"]][["record_id", "crop_label"]],
+                 probs).to_csv(OUT_DIR / "fusion_test_probabilities.csv", index=False)
+    return {"phase": "R5.6 Phase 4",
+            "n_features": int(X_fus.shape[1]),
+            "tabular_features": len(NUMERIC) + len(CATEGORICAL),
+            "image_features": len(IMAGE_REP_C),
+            "baseline_rows": int(len(rows))}
+
+
+# --------------------------------------------------------------------------- #
+# Phase 6 — image separability (distributions + overlap)
+# --------------------------------------------------------------------------- #
+
+def phase6() -> dict[str, Any]:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import roc_auc_score
+
+    bi = load_image_frame()
+    valid = np.isfinite(bi[IMAGE_REP_C].to_numpy(dtype=float)).all(axis=1)
+    bi = bi[valid].reset_index(drop=True)
+    train = bi[bi["split"] == "train"]
+    coco = train[train["crop_label"] == "coconut"]
+    pepp = train[train["crop_label"] == "pepper"]
+
+    stats_cols = ["ndvi_mean", "evi_mean", "ndvi_std", "evi_std",
+                  "real_frame_count", "zero_fill_fraction"]
+    fig, axes = plt.subplots(2, 3, figsize=(14, 8))
+    for ax, col in zip(axes.flat, stats_cols):
+        a = coco[col].dropna()
+        b = pepp[col].dropna()
+        bins = np.histogram(np.hstack([a, b]), bins=40)[1]
+        ax.hist(a, bins=bins, alpha=0.5, color="#2e7d32", label="coconut")
+        ax.hist(b, bins=bins, alpha=0.5, color="#c62828", label="pepper")
+        ax.set_title(f"{col} (train)")
+        ax.legend()
+    fig.tight_layout()
+    fig.savefig(OUT_DIR / "image_distribution_histograms.png", dpi=110)
+    plt.close(fig)
+
+    fig, axes = plt.subplots(2, 3, figsize=(14, 8))
+    for ax, col in zip(axes.flat, stats_cols):
+        a = coco[col].dropna().to_numpy()
+        b = pepp[col].dropna().to_numpy()
+        ax.boxplot([a, b], tick_labels=["coconut", "pepper"])
+        ax.set_title(col)
+    fig.tight_layout()
+    fig.savefig(OUT_DIR / "image_distribution_boxplots.png", dpi=110)
+    plt.close(fig)
+
+    overlap: dict[str, Any] = {}
+    y_train = (train["crop_label"] == "pepper").astype(int)
+    Xtr_al = pd.DataFrame({"f": train["ndvi_mean"]}).dropna()
+    feats = ["ndvi_mean", "evi_mean", "ndvi_std", "evi_std", "real_frame_count",
+             "zero_fill_fraction"]
+    for col in feats:
+        d = train[["crop_label", col]].dropna()
+        y = (d["crop_label"] == "pepper").astype(int)
+        core = np.ones((len(y), 1))
+        auc = float(roc_auc_score(y, d[col].to_numpy()))
+        if auc < 0.5:
+            auc = 1.0 - auc
+        lr = LogisticRegression(max_iter=500).fit(core, y)
+        oracle = float(roc_auc_score(y, lr.predict_proba(core)[:, 1]))
+        overlap[col] = {
+            "single_feature_auc_abs": round(auc, 4),
+            "coco_mean": round(float(coco[col].mean()), 6),
+            "pepp_mean": round(float(pepp[col].mean()), 6),
+            "coco_std": round(float(coco[col].std()), 6),
+            "pepp_std": round(float(pepp[col].std()), 6),
+        }
+        overlap[col]["effect_sd"] = round(
+            abs(overlap[col]["coco_mean"] - overlap[col]["pepp_mean"])
+            / max(1e-9, 0.5 * (overlap[col]["coco_std"] + overlap[col]["pepp_std"])), 4)
+
+    return {
+        "phase": "R5.6 Phase 6",
+        "train_n": {"coconut": int(len(coco)), "pepper": int(len(pepp))},
+        "per_feature_overlap": overlap,
+        "plots": ["image_distribution_histograms.png",
+                  "image_distribution_boxplots.png"],
+        "note": "single_feature_auc_abs = |AUC-0.5|+0.5 of a 1-D linear "
+                "separator on train; values near 0.5 mean distribution overlap.",
+    }
+
+
+# --------------------------------------------------------------------------- #
+# Phase 9 — modality contribution (cross-shuffle ablations)
+# --------------------------------------------------------------------------- #
+
+def phase9() -> dict[str, Any]:
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.metrics import roc_auc_score
+
+    bi = load_image_frame()
+    valid = np.isfinite(bi[IMAGE_REP_C].to_numpy(dtype=float)).all(axis=1)
+    bi = bi[valid].reset_index(drop=True)
+
+    binary = bi[["record_id", "crop_label", "split"]].copy()
+    df_tab = pd.merge(binary, load_frame()[["record_id", *NUMERIC, *CATEGORICAL]],
+                      on="record_id", how="left")
+    X_img = image_feature_matrix(bi, IMAGE_REP_C)
+    X_num = df_tab[NUMERIC].apply(pd.to_numeric, errors="coerce").to_numpy(dtype=float)
+    med = np.nanmedian(X_num, axis=0)
+    for j in range(X_num.shape[1]):
+        col = X_num[:, j]
+        if np.isnan(col).any():
+            col[np.isnan(col)] = med[j]
+    X_cat = np.stack([pd.factorize(df_tab[c].fillna("__nan__").astype(str), sort=False)[0]
+                      for c in CATEGORICAL], axis=1)
+    X_tab = np.hstack([X_num, X_cat]).astype(np.float64)
+    y_all = (bi["crop_label"].to_numpy() == "pepper").astype(int)
+    splits = bi["split"].to_numpy()
+    idx = {s: np.where(splits == s)[0] for s in ("train", "val", "test")}
+    rng = np.random.RandomState(SEED)
+
+    def rf_auc(Xtr, ytr, Xva, yva):
+        clf = RandomForestClassifier(n_estimators=250, random_state=SEED,
+                                     class_weight="balanced")
+        clf.fit(Xtr, ytr)
+        return float(roc_auc_score(yva, clf.predict_proba(Xva)[:, 1]))
+
+    Xt, yt = np.hstack([X_tab[idx["train"]], X_img[idx["train"]]]), y_all[idx["train"]]
+    Xv, yv = np.hstack([X_tab[idx["val"]], X_img[idx["val"]]]), y_all[idx["val"]]
+
+    # shuffle helper: permute a block's rows within split (reproducible per seed)
+    def shuffle_block(X: np.ndarray, mask_cols: slice, r: np.random.RandomState
+                      ) -> np.ndarray:
+        out = X.copy()
+        perm = r.permutation(len(out))
+        out[:, mask_cols] = X[perm][:, mask_cols]
+        return out
+
+    n_tab = X_tab.shape[1]
+    img_slice = slice(n_tab, n_tab + X_img.shape[1])
+    tab_slice = slice(0, n_tab)
+
+    conditions = {
+        "intact_tabular_intact_image": np.hstack([X_tab, X_img]),
+        "intact_tabular_shuffled_image": shuffle_block(Xt, img_slice, rng),
+        "shuffled_tabular_intact_image": shuffle_block(Xt, tab_slice, rng),
+        "shuffled_tabular_shuffled_image": shuffle_block(
+            shuffle_block(Xt, tab_slice, rng), img_slice,
+            np.random.RandomState(SEED + 1)),
+    }
+    rows = []
+    for label, Xtr in conditions.items():
+        Xva = np.hstack([X_tab[idx["val"]], X_img[idx["val"]]])
+        if "shuffled_image" in label:
+            prm = rng.permutation(len(Xva))
+            Xva = Xva.copy(); Xva[:, img_slice] = Xva[prm][:, img_slice]
+        if "shuffled_tabular" in label:
+            prm = rng.permutation(len(Xva))
+            Xva = Xva.copy(); Xva[:, tab_slice] = Xva[prm][:, tab_slice]
+        rows.append({"condition": label,
+                     "roc_auc_val": round(rf_auc(Xtr, yt, Xva, yv), 4)})
+
+    single_tab = rf_auc(X_tab[idx["train"]], yt, X_tab[idx["val"]], yv)
+    single_img = rf_auc(X_img[idx["train"]], yt, X_img[idx["val"]], yv)
+    fused_intact = rows[0]["roc_auc_val"]
+    full = {
+        "phase": "R5.6 Phase 9",
+        "model": "RandomForest (250 trees, balanced), eval on val split",
+        "rf_auc_tabular_only": round(single_tab, 4),
+        "rf_auc_image_only": round(single_img, 4),
+        "rf_auc_fusion_intact": fused_intact,
+        "conditions": rows,
+        "drop_image_signal": round(fused_intact - rows[1]["roc_auc_val"], 4),
+        "drop_tabular_signal": round(fused_intact - rows[2]["roc_auc_val"], 4),
+        "note": "shuffles respect split boundaries (permute rows within a split); "
+                "a condition with ~no drop means that modality carries no info "
+                "on top of the other.",
+    }
+    return full
+
+
+# --------------------------------------------------------------------------- #
 # Main
 # --------------------------------------------------------------------------- #
 
 PHASES: dict[str, Any] = {
-    "0": phase0, "1": phase1, "2": phase2, "5": phase5, "7": phase7, "8": phase8,
+    "0": phase0, "1": phase1, "2": phase2, "3": phase3, "4": phase4,
+    "5": phase5, "6": phase6, "7": phase7, "8": phase8, "9": phase9,
 }
 
 
@@ -674,7 +1065,6 @@ def main(argv: list[str] | None = None) -> int:
         print(f"=== PHASE {p} ===")
         res = PHASES[p]()
         if isinstance(res, dict):
-            parts = [("meta", phase0 if p == "0" else None)]
             if p == "0":
                 write_json(OUT_DIR / "R5.6_METADATA.json", res)
                 print("  metadata keys:", sorted(res.keys()))
@@ -682,12 +1072,20 @@ def main(argv: list[str] | None = None) -> int:
                 write_json(OUT_DIR / "binary_manifest.json", res)
             elif p == "2":
                 write_json(OUT_DIR / "tabular_baselines.json", res)
+            elif p == "3":
+                write_json(OUT_DIR / "image_baselines.json", res)
+            elif p == "4":
+                write_json(OUT_DIR / "fusion_baselines.json", res)
             elif p == "5":
                 write_json(OUT_DIR / "feature_separability.json", res)
+            elif p == "6":
+                write_json(OUT_DIR / "image_separability.json", res)
             elif p == "7":
                 write_json(OUT_DIR / "spatial_separability.json", res)
             elif p == "8":
                 write_json(OUT_DIR / "feature_importance.json", res)
+            elif p == "9":
+                write_json(OUT_DIR / "modality_contribution.json", res)
     print("\nAll requested phases complete. Artifacts in:", OUT_DIR)
     return 0
 

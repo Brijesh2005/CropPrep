@@ -1,16 +1,18 @@
 {
   "phase": "R5.6",
   "title": "COCONUT vs PEPPER separability / data information ceiling",
-  "created_at": "2026-09-06T15:41:24",
-  "git_commit": "9105f60f35dbff06e97982a43e61f0db4d1452e4",
+  "created_at": "2026-09-06T15:55:45",
+  "git_commit": "03a7255760f298758eb25208cf59d5b0fb207f47",
   "git_branch": "r5.6-separability",
   "corpus": {
     "csv": "crop_supervised_v2.csv",
-    "csv_sha256": "992ee6c39832794577c93295685844848d0b03aff67a2fb03bc1cf7c9cd95446"
+    "csv_sha256_raw": "992ee6c39832794577c93295685844848d0b03aff67a2fb03bc1cf7c9cd95446",
+    "csv_sha256_lf": "99795faf6b30b505c05b8f34db6676a6b4c86d30d961885acacc317e5885c65a"
   },
   "manifest": {
     "file": "crop_supervised_v2.0_manifest.json",
-    "sha256": "486bee061f1620872b578eee1e00e31d004e966de7e30b43bc42ebbe20dc5637",
+    "sha256_raw": "486bee061f1620872b578eee1e00e31d004e966de7e30b43bc42ebbe20dc5637",
+    "sha256_lf": "d294ea1abf03075280cde2b078d89df4e5227890edce473d6d2536a3741977c0",
     "dataset_version": "crop_supervised_v2.0",
     "split_strategy": "spatial_leave_one_taluk_out"
   },
