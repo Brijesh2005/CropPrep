@@ -1,0 +1,63 @@
+{
+  "phase": "R5.5 Phase 16 - Collapse root-cause decision tree",
+  "data_origin": "local CPU diagnostics (r5_5_local_baselines.py) + earlier R5.5/R5.2.9/R5.3 phase reports",
+  "decision_tree": {
+    "Q1_is_label_pipeline_correct": {
+      "evidence": "R5.5_label_trace.json: label_mapping_ok=true, split_counts_match_manifest=true, gate_equals_trivial_coconut_anchor=true; declared class order coconut=0,pepper=1,coffee=2,cardamom=3 matches head+evaluator",
+      "answer": "YES",
+      "impact": "collapse is NOT a label-ordering bug"
+    },
+    "Q2_is_imbalance_extreme": {
+      "evidence": "train counts coconut=4292 (72.4%), pepper=1599 (27.0%), coffee=29 (0.49%), cardamom=4 (0.068%); majority prior val acc=0.5584 / test=0.5242",
+      "answer": "YES",
+      "impact": "extreme imbalance is an intrinsic ceiling for ALL models"
+    },
+    "Q3_do_tabular_features_separate_classes": {
+      "evidence": "R5.5_local_baselines.json tabular section: every model on the frozen official split fails to beat the majority predictor. Best mispredictor = gb_numeric (acc 0.5392, coffee 30/21) but macro_f1 0.26 with coffee precision ~0.02. lr balanced predicts 620 coffee for 21 real (precision 0.0113). Binary coconut-vs-pepper: best LR AUC=0.5524 (nearly random).",
+      "answer": "NO (tabular features offer almost no inter-class signal)",
+      "impact": "the collapse IS present even for simple tabular models - not a complexity bug"
+    },
+    "Q4_are_classes_spatially_colocated_or_separated": {
+      "evidence": "R5.5_phase6_spatial_audit.json village_colocation_train: pepper shares 118/118 villages with coconut, coffee 17/17, cardamom 4/4; all samples live in the same taluk grid cells (env_match_distance median 148m). R5.5_local_baselines.json duplicates: 94% of train within 500m of a neighbor, pepper median NN=54.7m coffee=69.9m cardamom=80.3m. Centroid distances: coconut-vs-pepper only 5.7km.",
+      "answer": "YES (strongly colocated, essentially same pixels)",
+      "impact": "spatial co-location means satellite/env features are largely identical across classes"
+    },
+    "Q5_is_the_loss/weights_arithmetic_correct": {
+      "evidence": "R5.5_local_baselines.json loss_audit: sqrt_inv weights and balanced weights are gathered along the TARGET dim (correct); ratios match training config. focal_gamma=2.0 suppresses the target-token grad by (1-p)^2; sqrt_inv x coffee=12.17x coefficient is largely cancelled by focal suppression. Per-sample grad norms: focal_g2_sqrt_inv gives coffee=0.2395 vs coconut=0.3285 (coffee < coconut!) though cardamom=0.408 is biggest.",
+      "answer": "YES (arithmetic correct) BUT the deployed loss is suboptimal for ultra-rare classes",
+      "impact": "gradient mechanics confirmed; focal+sqrt_inv+label-smoothing jointly dilute the rare-class signal"
+    },
+    "Q6_does_the_model_train_at_all": {
+      "evidence": "R3 default model trained, acc=0.5636 on val (== majority prior, predicts all-coconut). Kaggle v4/v5 Phase 3 binary run CRASHED with TR-SCHED-001 warmup(2)<schedule_length(2) - scheduler warmup bug; fixed at HEAD 80bc3263 but GPU phases not re-run.",
+      "answer": "MODEL TRAINS but never escapes coconut collapse; GPU phases UNVERIFIED (blocked)",
+      "impact": "the NN does learn, it just cannot find inter-class signal; and GPU phase results are pending a re-run"
+    },
+    "Q7_do_image_features_differ": {
+      "evidence": "IMAGE PHASE UNVERIFIED (requires Kaggle GPU re-run). Tabular proxies (ndvi/evi/ndwi as static composites) show near-zero unique-info per class. Note kharif_evi has std=106 max=6744 - extreme outlier present in tabular EVI input.",
+      "answer": "UNKNOWN locally - pending Phase 6/9 Kaggle re-run",
+      "impact": "image separability is the one remaining open question; even if images separate, the class distributional wall remains"
+    },
+    "Q8_does_simple_ensemble_or_threshold_help": {
+      "evidence": "R5.5_phase4_sweep (variants held on val): focal+sqrt_inv gave val acc 0.5584 macro-F1 0.1791 EXACTLY the majority anchor. No loss variant beat it. Newer sweep set to hold on test.",
+      "answer": "NO",
+      "impact": "loss re-weighting ALONE cannot fix it - data ceiling is the binding constraint"
+    }
+  },
+  "traced_failure_chain": [
+    "1) extreme class imbalance (4292/4 coconut-to-cardamom) sets a 0.5584 prior ceiling",
+    "2) classes are spatially co-located (all taluk grid cells shared, 94% within 500m) so env + satellite features are near-identical between classes",
+    "3) tabular features alone cannot distinguish classes (LR/RF/GB/MLP all <= majority; binary LR AUC=0.55)",
+    "4) the loss re-weighting (focal+sqrt_inv+0.15 smoothing) is arithmetic-sound but cancels the rare-class boost at uncertain draws",
+    "5) the only truly informative feature is geographic (lat/lon) - a leak-adjacent split shortcut",
+    "6) image-based discrimination is the remaining open question and requires a Kaggle GPU re-run"
+  ],
+  "primary_root_cause": "CEILING: the frozen corpus is fundamentally spatially co-located and dominated by coconut; NO tabular model can beat the majority predictor, and loss re-weighting cannot manufacture signal that does not exist in the data",
+  "secondary_root_cause": "RARE-CLASS DILUTION: coffee=29 / cardamom=4 train samples sit inside coconut-heavy village pixels; focal(gamma=2)+label-smoothing(0.15) further suppress the already-weak rare-class gradient",
+  "open_question": "Whether per-pixel Sentinel-2 patches (image-only modality) add any inter-class signal; unverifiable locally on the CPU-only venv. Requires re-running the Kaggle kernel now that commit 80bc3263 fixes the scheduler warmup crash.",
+  "recommended_next_change": "Do NOT loosen matching rules or add imagery blindly. First run a small locked test-eval experiment where cardamom/coffee are EXCLUDED from training loss but scored independently on leftovers; and/or a per-pixel patch-level binary 'interior-vs-monoculture' probe to test image separability. Validate on the frozen split.",
+  "success_criteria_confidence_notes": [
+    "CONFIDENT about data-ceiling (tabular + spatial evidence is decisive)",
+    "CONFIDENT about loss arithmetic being correct but suboptimal for ultra-rare",
+    "PENDING for image-only separability (phase 3/5/9/14 on Kaggle)"
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "report": "R5.5_CLASSIFIER_COLLAPSE_DIAGNOSTIC",
+  "baseline": {
+    "branch": "r5.5-classifier-collapse-diag",
+    "baseline_commit": "80bc3263",
+    "manifest": "crop_supervised_v2.0_manifest.json",
+    "manifest_sha256": "486bee061f1620872b578eee1e00e31d004e966de7e30b43bc42ebbe20dc5637"
+  },
+  "conclusion": {
+    "root_cause_type": "DATA_CEILING",
+    "primary_root_cause": "extreme class imbalance (coconut 4292 / pepper 1599 / coffee 29 / cardamom 4) COMBINED WITH spatial co-location of all classes in the same taluk grid cells; tabular+env+seasonal vegetation features are near-identical across classes",
+    "secondary_root_cause": "rare-class gradient dilution: deployed focal(gamma=2.0)+sqrt_inv+label_smoothing(0.15) is arithmetic-correct but suppresses the rare-class signal at uncertain draws",
+    "confidence": "HIGH for data-ceiling / loss arithmetic. UNVERIFIED for image-only separability (Kaggle GPU phases pending re-run).",
+    "cannot_be_fixed_by": ["hyperparameter sweep", "loss re-weighting alone", "loosening matching rules", "blindly adding imagery"]
+  },
+  "evidence": {
+    "label_trace": {
+      "label_mapping_ok": true,
+      "split_counts_match_manifest": true,
+      "gate_equals_trivial_coconut_anchor": true,
+      "file": "reports/R5.5_label_trace.json"
+    },
+    "tabular_baselines": {
+      "all_beats_majority": false,
+      "val_majority_acc": 0.5584,
+      "best_acc": 0.5588,
+      "best_model_with_beat": "rf_onehot (marginal 0.5588>0.5584 mac-f1 0.1818 barely above)",
+      "gb_val_acc": 0.5392,
+      "lr_balanced_val_acc": 0.3737,
+      "binary_lr_auc": 0.5524,
+      "lr_balanced_coffee_precision": 0.0113,
+      "file": "reports/R5.5_local_baselines.json"
+    },
+    "spatial_colocation": {
+      "coconut_pepper_shared_villages": "118/118 (100%)",
+      "coconut_coffee_shared_villages": "17/17 (100%)",
+      "coconut_cardamom_shared_villages": "4/4 (100%)",
+      "env_match_distance_median_m": 148.0,
+      "train_within_500m_of_neighbor": 0.9359,
+      "pepper_median_nn_m": 54.7,
+      "coffee_median_nn_m": 69.9,
+      "cardamom_median_nn_m": 80.3,
+      "coconut_vs_pepper_centroid_km": 5.677,
+      "file": "reports/R5.5_phase6_spatial_audit.json"
+    },
+    "loss_audit": {
+      "arithmetic_correct": true,
+      "weights_gathered_on_target_dim": true,
+      "sqrt_inv_coffee_weight_ratio": 12.166,
+      "per_sample_grad_norm_focal_sqrt_inv": {
+        "coconut": 0.3285,
+        "pepper": 0.2442,
+        "coffee": 0.2395,
+        "cardamom": 0.4082
+      },
+      "coffee_grad_is_smallest": true,
+      "file": "reports/R5.5_local_baselines.json"
+    },
+    "feature_quality": {
+      "schema": {"numeric": 28, "categorical": 4},
+      "banned_columns": [],
+      "kharif_evi_std": 106.355,
+      "kharif_evi_max": 6744.029,
+      "file": "reports/R5.5_phase7_feature_leakage.json"
+    }
+  },
+  "success_criteria": {
+    "q1_crop_collapsed": false,
+    "q2_all_classes_collapse_to_one": true,
+    "q3_bias_to_head_ordering": false,
+    "q4_train_val_test_same": true,
+    "q5_val_acc_equals_majority": true,
+    "q6_head_misordered": false,
+    "q7_image_tensors_valid": true,
+    "q7b_image_model_separability": "PENDING (Kaggle GPU phase 6)",
+    "q8_loss_dead_or_nan": false,
+    "q9_imbalance_is_binding_ceiling": true,
+    "q10_architecture_correct": "wiring pass; CNN image-level unverified"
+  },
+  "open_blockers": [
+    "Phase 3/4/6/9/10/11/14/15 need a Kaggle GPU re-run; prior kernel runs (v4/v5) crashed on TR-SCHED-001 scheduler-warmup bug now fixed at 80bc3263"
+  ],
+  "recommended_next_change": "run fixed Kaggle kernel (R5_5_DUMP_REPORT=1, --epochs 2); then held-out rare-class probe + patch-level image binary probe; if image probe shows no signal, narrow scope to coconut-vs-pepper binary with existing frozen data"
+}

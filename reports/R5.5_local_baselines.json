@@ -1,0 +1,1976 @@
+{
+  "phase": "R5.5 local (CPU) diagnostics",
+  "corpus": {
+    "csv": "crop_supervised_v2.csv"
+  },
+  "split_sizes": {
+    "train": 5924,
+    "val": 2459,
+    "test": 2289
+  },
+  "class_mapping": {
+    "coconut": 0,
+    "pepper": 1,
+    "coffee": 2,
+    "cardamom": 3
+  },
+  "train_counts": {
+    "coconut": 4292,
+    "pepper": 1599,
+    "coffee": 29,
+    "cardamom": 4
+  },
+  "val_counts": {
+    "coconut": 1373,
+    "pepper": 1063,
+    "coffee": 21,
+    "cardamom": 2
+  },
+  "test_counts": {
+    "coconut": 1200,
+    "pepper": 1033,
+    "coffee": 51,
+    "cardamom": 5
+  },
+  "seed": 42,
+  "loss_audit": {
+    "train_counts": {
+      "coconut": 4292,
+      "pepper": 1599,
+      "coffee": 29,
+      "cardamom": 4
+    },
+    "class_weights": {
+      "sqrt_inv": {
+        "coconut": 0.084103,
+        "pepper": 0.13779,
+        "coffee": 1.023161,
+        "cardamom": 2.754945
+      },
+      "balanced": {
+        "coconut": 0.003266,
+        "pepper": 0.008767,
+        "coffee": 0.48339,
+        "cardamom": 3.504577
+      }
+    },
+    "weight_ratios": {
+      "sqrt_inv_coffee_over_coconut": 12.166,
+      "sqrt_inv_cardamom_over_coconut": 32.757,
+      "balanced_cardamom_over_coffee": 7.25
+    },
+    "per_class_loss": {
+      "unweighted_ce": {
+        "per_class": {
+          "coconut": 0.83239,
+          "pepper": 1.83876,
+          "coffee": 1.56789,
+          "cardamom": 2.07325
+        },
+        "mean": 1.54876
+      },
+      "sqrt_inv_ce": {
+        "per_class": {
+          "coconut": 0.07001,
+          "pepper": 0.25336,
+          "coffee": 1.6042,
+          "cardamom": 5.71168
+        },
+        "mean": 1.22752
+      },
+      "balanced_ce": {
+        "per_class": {
+          "coconut": 0.00272,
+          "pepper": 0.01612,
+          "coffee": 0.7579,
+          "cardamom": 7.26585
+        },
+        "mean": 1.10443
+      },
+      "smoothing015_sqrt_inv_ce": {
+        "per_class": {
+          "coconut": 0.08568,
+          "pepper": 0.24646,
+          "coffee": 1.72554,
+          "cardamom": 5.43307
+        },
+        "mean": 1.22436
+      },
+      "focal_g2": {
+        "per_class": {
+          "coconut": 0.32535,
+          "pepper": 1.30354,
+          "coffee": 1.09826,
+          "cardamom": 1.58451
+        },
+        "mean": 1.04279
+      },
+      "focal_g2_sqrt_inv": {
+        "per_class": {
+          "coconut": 0.02736,
+          "pepper": 0.17962,
+          "coffee": 1.1237,
+          "cardamom": 4.36524
+        },
+        "mean": 0.90078
+      }
+    },
+    "per_class_grad_norm": {
+      "unweighted_ce": {
+        "coconut": 0.424503,
+        "pepper": 0.426915,
+        "coffee": 0.312759,
+        "cardamom": 0.305165
+      },
+      "sqrt_inv_ce": {
+        "coconut": 0.274501,
+        "pepper": 0.226654,
+        "coffee": 0.230754,
+        "cardamom": 0.342882
+      },
+      "balanced_ce": {
+        "coconut": 0.227029,
+        "pepper": 0.192023,
+        "coffee": 0.130792,
+        "cardamom": 0.394297
+      },
+      "smoothing015_sqrt_inv_ce": {
+        "coconut": 0.24744,
+        "pepper": 0.195848,
+        "coffee": 0.171532,
+        "cardamom": 0.274802
+      },
+      "focal_g2": {
+        "coconut": 0.454618,
+        "pepper": 0.47528,
+        "coffee": 0.310041,
+        "cardamom": 0.337265
+      },
+      "focal_g2_sqrt_inv": {
+        "coconut": 0.328541,
+        "pepper": 0.244182,
+        "coffee": 0.239526,
+        "cardamom": 0.408242
+      }
+    },
+    "verification_notes": [
+      "weights gathered along the TARGET class dim (correct dimension)",
+      "focal = (1-p)^gamma * CE; gamma=2.0 multiplicatively SUPPRESSES the target-token gradient by (1-p)^2 — for uncertain confident draws the rare-class boost is mostly cancelled",
+      "focal + sqrt_inv alpha is applied AFTER the (1-p)^gamma down-weight",
+      "label_smoothing 0.15 splits target probability 0.85/0.05 to all off-target classes, further diluting the per-sample gradient"
+    ]
+  },
+  "feature_stats": {
+    "per_feature": {
+      "lat": {
+        "type": "numeric",
+        "unique": 5908,
+        "missing": 0,
+        "mean": 12.9061,
+        "std": 0.1044,
+        "min": 12.6648,
+        "max": 13.1721,
+        "p95": 13.057
+      },
+      "lon": {
+        "type": "numeric",
+        "unique": 5909,
+        "missing": 0,
+        "mean": 75.1702,
+        "std": 0.1587,
+        "min": 74.8396,
+        "max": 75.5254,
+        "p95": 75.4292
+      },
+      "spatial_match_distance_km": {
+        "type": "numeric",
+        "unique": 2741,
+        "missing": 0,
+        "mean": 0.1691,
+        "std": 0.1319,
+        "min": 0.0014,
+        "max": 1.5485,
+        "p95": 0.3299
+      },
+      "year": {
+        "type": "numeric",
+        "unique": 2,
+        "missing": 0,
+        "mean": 2020.026,
+        "std": 0.1591,
+        "min": 2020.0,
+        "max": 2021.0,
+        "p95": 2020.0
+      },
+      "annual_rainfall_mm": {
+        "type": "numeric",
+        "unique": 1294,
+        "missing": 0,
+        "mean": 4380.0456,
+        "std": 250.8591,
+        "min": 3745.5938,
+        "max": 4885.377,
+        "p95": 4686.8207
+      },
+      "dewpoint_c": {
+        "type": "numeric",
+        "unique": 613,
+        "missing": 0,
+        "mean": 22.0677,
+        "std": 0.722,
+        "min": 18.2921,
+        "max": 23.3521,
+        "p95": 23.2142
+      },
+      "elevation": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 89.6774,
+        "std": 41.4612,
+        "min": 2.1632,
+        "max": 1074.7942,
+        "p95": 143.6412
+      },
+      "temperature_c": {
+        "type": "numeric",
+        "unique": 628,
+        "missing": 0,
+        "mean": 26.1295,
+        "std": 0.7141,
+        "min": 22.1373,
+        "max": 27.1327,
+        "p95": 27.0162
+      },
+      "relative_humidity_pct": {
+        "type": "numeric",
+        "unique": 634,
+        "missing": 0,
+        "mean": 78.3663,
+        "std": 0.841,
+        "min": 77.3148,
+        "max": 81.8301,
+        "p95": 79.8508
+      },
+      "slope": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 5.9941,
+        "std": 2.7513,
+        "min": 0.0415,
+        "max": 24.7124,
+        "p95": 11.2353
+      },
+      "ndvi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 0.6709,
+        "std": 0.1055,
+        "min": 0.058,
+        "max": 0.844,
+        "p95": 0.7957
+      },
+      "evi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 2.0847,
+        "std": 0.4811,
+        "min": -0.2386,
+        "max": 4.1751,
+        "p95": 2.7297
+      },
+      "ndwi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": -0.6276,
+        "std": 0.0662,
+        "min": -0.7604,
+        "max": 0.0952,
+        "p95": -0.5122
+      },
+      "ndre": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 0.4621,
+        "std": 0.082,
+        "min": 0.0016,
+        "max": 0.6467,
+        "p95": 0.5718
+      },
+      "savi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 1.0062,
+        "std": 0.1582,
+        "min": 0.087,
+        "max": 1.2659,
+        "p95": 1.1934
+      },
+      "s2_obs_count": {
+        "type": "numeric",
+        "unique": 260,
+        "missing": 0,
+        "mean": 31.1916,
+        "std": 10.0246,
+        "min": 24.0,
+        "max": 91.6761,
+        "p95": 54.0
+      },
+      "soil_clay_pct": {
+        "type": "numeric",
+        "unique": 5913,
+        "missing": 0,
+        "mean": 319.3036,
+        "std": 27.7896,
+        "min": 258.3006,
+        "max": 401.4964,
+        "p95": 368.3941
+      },
+      "soil_sand_pct": {
+        "type": "numeric",
+        "unique": 5912,
+        "missing": 0,
+        "mean": 457.8908,
+        "std": 25.1472,
+        "min": 355.0384,
+        "max": 521.8836,
+        "p95": 498.6627
+      },
+      "soil_organic_carbon": {
+        "type": "numeric",
+        "unique": 5914,
+        "missing": 0,
+        "mean": 359.5056,
+        "std": 75.2088,
+        "min": 211.3857,
+        "max": 778.453,
+        "p95": 451.6929
+      },
+      "soil_ph": {
+        "type": "numeric",
+        "unique": 4444,
+        "missing": 0,
+        "mean": 56.6135,
+        "std": 0.985,
+        "min": 54.166,
+        "max": 61.0,
+        "p95": 58.8181
+      },
+      "soil_moisture": {
+        "type": "numeric",
+        "unique": 551,
+        "missing": 0,
+        "mean": 0.2959,
+        "std": 0.0237,
+        "min": 0.1819,
+        "max": 0.3547,
+        "p95": 0.3382
+      },
+      "kharif_ndvi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 0.6552,
+        "std": 0.1733,
+        "min": -0.0309,
+        "max": 0.8548,
+        "p95": 0.8108
+      },
+      "kharif_evi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 4.0791,
+        "std": 106.3551,
+        "min": -187.2119,
+        "max": 6744.0292,
+        "p95": 4.9992
+      },
+      "kharif_ndwi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": -0.5814,
+        "std": 0.1573,
+        "min": -0.7643,
+        "max": 0.1459,
+        "p95": -0.2011
+      },
+      "rabi_ndvi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 0.7055,
+        "std": 0.096,
+        "min": 0.1037,
+        "max": 0.844,
+        "p95": 0.8091
+      },
+      "rabi_evi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": 2.2755,
+        "std": 0.5135,
+        "min": -5.3781,
+        "max": 14.1484,
+        "p95": 2.8832
+      },
+      "rabi_ndwi": {
+        "type": "numeric",
+        "unique": 5915,
+        "missing": 0,
+        "mean": -0.6472,
+        "std": 0.062,
+        "min": -0.7544,
+        "max": 0.0703,
+        "p95": -0.5422
+      },
+      "env_match_distance_m": {
+        "type": "numeric",
+        "unique": 5385,
+        "missing": 0,
+        "mean": 169.1011,
+        "std": 131.4817,
+        "min": 1.39,
+        "max": 1548.51,
+        "p95": 329.848
+      },
+      "season": {
+        "type": "categorical",
+        "unique": 2,
+        "missing": 0,
+        "top": {
+          "Kharif": 5887,
+          "Rabi": 37
+        }
+      },
+      "is_cropland": {
+        "type": "categorical",
+        "unique": 2,
+        "missing": 0,
+        "top": {
+          "0": 5888,
+          "1": 36
+        }
+      },
+      "land_cover_class": {
+        "type": "categorical",
+        "unique": 6,
+        "missing": 0,
+        "top": {
+          "10": 5763,
+          "30": 60,
+          "50": 47,
+          "40": 40,
+          "80": 9,
+          "60": 5
+        }
+      },
+      "soil_type_class": {
+        "type": "categorical",
+        "unique": 34,
+        "missing": 0,
+        "top": {
+          "262": 1295,
+          "389": 1119,
+          "220": 988,
+          "340": 399,
+          "31": 259,
+          "390": 228
+        }
+      }
+    },
+    "train_n": 5924,
+    "near_constant_numeric": [
+      "year"
+    ],
+    "near_zero_std_numeric": [],
+    "note": "unique counts are on the TRAIN split only; many features are near-constant because a single env composite per grid cell is shared across hundreds of village samples"
+  },
+  "spatial": {
+    "coconut": {
+      "n": 4292,
+      "lat": {
+        "mean": 12.91389,
+        "std": 0.1036,
+        "min": 12.66656,
+        "max": 13.16801,
+        "unique": 4291
+      },
+      "lon": {
+        "mean": 75.15801,
+        "std": 0.16574,
+        "min": 74.83957,
+        "max": 75.52545,
+        "unique": 4288
+      },
+      "taluk": {
+        "Belthangady": 2091,
+        "Bantwal": 1566,
+        "Mangalore": 635
+      },
+      "year": {
+        "2020": 4142,
+        "2021": 150
+      },
+      "season": {
+        "Kharif": 4255,
+        "Rabi": 37
+      },
+      "hobli": {
+        "KOKKADA": 922,
+        "VITLA": 917,
+        "BELTANGADI": 854,
+        "BANTVALA": 631,
+        "VENURU": 315,
+        "MANGALURU B": 303,
+        "SURATKAL": 209,
+        "MULKI": 113,
+        "PANEMANGALURU": 18,
+        "MANGALURU A": 10
+      }
+    },
+    "pepper": {
+      "n": 1599,
+      "lat": {
+        "mean": 12.88467,
+        "std": 0.10287,
+        "min": 12.66483,
+        "max": 13.14174,
+        "unique": 1599
+      },
+      "lon": {
+        "mean": 75.20096,
+        "std": 0.1326,
+        "min": 74.84106,
+        "max": 75.52427,
+        "unique": 1599
+      },
+      "taluk": {
+        "Belthangady": 863,
+        "Bantwal": 692,
+        "Mangalore": 44
+      },
+      "year": {
+        "2020": 1595,
+        "2021": 4
+      },
+      "season": {
+        "Kharif": 1599
+      },
+      "hobli": {
+        "KOKKADA": 510,
+        "VITLA": 510,
+        "BELTANGADI": 245,
+        "BANTVALA": 182,
+        "VENURU": 108,
+        "MANGALURU B": 32,
+        "SURATKAL": 8,
+        "MULKI": 4
+      }
+    },
+    "coffee": {
+      "n": 29,
+      "lat": {
+        "mean": 12.93659,
+        "std": 0.13621,
+        "min": 12.69424,
+        "max": 13.1721,
+        "unique": 29
+      },
+      "lon": {
+        "mean": 75.30012,
+        "std": 0.11547,
+        "min": 75.09021,
+        "max": 75.48847,
+        "unique": 29
+      },
+      "taluk": {
+        "Belthangady": 20,
+        "Bantwal": 9
+      },
+      "year": {
+        "2020": 29
+      },
+      "season": {
+        "Kharif": 29
+      },
+      "hobli": {
+        "BELTANGADI": 10,
+        "KOKKADA": 10,
+        "VITLA": 8,
+        "BANTVALA": 1
+      }
+    },
+    "cardamom": {
+      "n": 4,
+      "lat": {
+        "mean": 12.89794,
+        "std": 0.08614,
+        "min": 12.79495,
+        "max": 12.9759,
+        "unique": 4
+      },
+      "lon": {
+        "mean": 75.03641,
+        "std": 0.18536,
+        "min": 74.86292,
+        "max": 75.20518,
+        "unique": 4
+      },
+      "taluk": {
+        "Belthangady": 2,
+        "Mangalore": 2
+      },
+      "year": {
+        "2020": 4
+      },
+      "season": {
+        "Kharif": 4
+      },
+      "hobli": {
+        "BELTANGADI": 2,
+        "MANGALURU A": 1,
+        "MANGALURU B": 1
+      }
+    },
+    "centroid_distances_km": {
+      "coconut_vs_pepper": {
+        "lat_centroid_km": 5.677
+      },
+      "coconut_vs_coffee": {
+        "lat_centroid_km": 15.607
+      },
+      "coconut_vs_cardamom": {
+        "lat_centroid_km": 13.298
+      },
+      "pepper_vs_coffee": {
+        "lat_centroid_km": 12.2
+      },
+      "pepper_vs_cardamom": {
+        "lat_centroid_km": 17.897
+      },
+      "coffee_vs_cardamom": {
+        "lat_centroid_km": 28.902
+      }
+    }
+  },
+  "duplicates": {
+    "train_n": 5924,
+    "valid_coords": 5924,
+    "same_gps_exact": 18,
+    "duplicate_gps_ids_6dp": 12,
+    "nearest_neighbour_distance_km": {
+      "mean": 0.1805,
+      "median": 0.1285,
+      "p95": 0.5457,
+      "max": 3.4949
+    },
+    "share_within": {
+      "10": 0.1891,
+      "50": 0.3184,
+      "100": 0.4386,
+      "250": 0.7221,
+      "500": 0.9359,
+      "1000": 0.9948
+    },
+    "count_within": {
+      "10": 1120,
+      "50": 1886,
+      "100": 2598,
+      "250": 4278,
+      "500": 5544,
+      "1000": 5893
+    },
+    "per_crop_nn": {
+      "coconut": {
+        "nn_mean_m": 203.3,
+        "nn_median_m": 158.4,
+        "nn_p95_m": 571.3,
+        "nn_max_m": 3494.9,
+        "share_within_100m": 0.3779,
+        "share_within_500m": 0.9236
+      },
+      "pepper": {
+        "nn_mean_m": 119.4,
+        "nn_median_m": 54.7,
+        "nn_p95_m": 431.2,
+        "nn_max_m": 1241.2,
+        "share_within_100m": 0.5985,
+        "share_within_500m": 0.9694
+      },
+      "coffee": {
+        "nn_mean_m": 181.1,
+        "nn_median_m": 69.9,
+        "nn_p95_m": 624.4,
+        "nn_max_m": 1493.6,
+        "share_within_100m": 0.5862,
+        "share_within_500m": 0.8966
+      },
+      "cardamom": {
+        "nn_mean_m": 85.2,
+        "nn_median_m": 80.3,
+        "nn_p95_m": 171.1,
+        "nn_max_m": 176.3,
+        "share_within_100m": 0.5,
+        "share_within_500m": 1.0
+      }
+    },
+    "distinct_env_diag": {
+      "env_match_distance_m_unique": 5385
+    },
+    "note": "nearest-neighbour is the nearest OTHER sample at gps-haversine distance. 100m in DK taluk grid scale corresponds to samples in the SAME village/env cell."
+  },
+  "tabular": {
+    "split_sizes": {
+      "train": 5924,
+      "val": 2459,
+      "test": 2289
+    },
+    "feature_schema": {
+      "numeric_cols": [
+        "lat",
+        "lon",
+        "spatial_match_distance_km",
+        "year",
+        "annual_rainfall_mm",
+        "dewpoint_c",
+        "elevation",
+        "temperature_c",
+        "relative_humidity_pct",
+        "slope",
+        "ndvi",
+        "evi",
+        "ndwi",
+        "ndre",
+        "savi",
+        "s2_obs_count",
+        "soil_clay_pct",
+        "soil_sand_pct",
+        "soil_organic_carbon",
+        "soil_ph",
+        "soil_moisture",
+        "kharif_ndvi",
+        "kharif_evi",
+        "kharif_ndwi",
+        "rabi_ndvi",
+        "rabi_evi",
+        "rabi_ndwi",
+        "env_match_distance_m"
+      ],
+      "categorical_cols": [
+        "season",
+        "is_cropland",
+        "land_cover_class",
+        "soil_type_class"
+      ],
+      "missing_numeric_cells": 0,
+      "categorical": {
+        "season": {
+          "unique": 2,
+          "mapping": {
+            "0": "Kharif",
+            "1": "Rabi"
+          }
+        },
+        "is_cropland": {
+          "unique": 2,
+          "mapping": {
+            "0": "0",
+            "1": "1"
+          }
+        },
+        "land_cover_class": {
+          "unique": 6,
+          "mapping": {
+            "0": "10",
+            "1": "30",
+            "2": "40",
+            "3": "50",
+            "4": "80",
+            "5": "60"
+          }
+        },
+        "soil_type_class": {
+          "unique": 39,
+          "mapping": {
+            "0": "262",
+            "1": "389",
+            "2": "392",
+            "3": "31",
+            "4": "255",
+            "5": "390",
+            "6": "19",
+            "7": "340",
+            "8": "387",
+            "9": "229",
+            "10": "218",
+            "11": "260",
+            "12": "40",
+            "13": "256",
+            "14": "378",
+            "15": "220",
+            "16": "381",
+            "17": "265",
+            "18": "216",
+            "19": "143",
+            "20": "388",
+            "21": "375",
+            "22": "261",
+            "23": "144",
+            "24": "290",
+            "25": "247",
+            "26": "18",
+            "27": "430",
+            "28": "146",
+            "29": "48",
+            "30": "219",
+            "31": "328",
+            "32": "264",
+            "33": "395",
+            "34": "364",
+            "35": "377",
+            "36": "291",
+            "37": "402",
+            "38": "308"
+          }
+        }
+      }
+    },
+    "results": [
+      {
+        "model": "majority_constant",
+        "split": "val",
+        "accuracy": 0.5584,
+        "balanced_accuracy": 0.25,
+        "macro_f1": 0.1792,
+        "per_class": {
+          "coconut": {
+            "precision": 0.5584,
+            "recall": 1.0,
+            "f1": 0.7166,
+            "support": 1373
+          },
+          "pepper": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1063
+          },
+          "coffee": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 21
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 2
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 2459,
+          "pepper": 0,
+          "coffee": 0,
+          "cardamom": 0
+        },
+        "target_distribution": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        },
+        "confusion_matrix": [
+          [
+            1373,
+            0,
+            0,
+            0
+          ],
+          [
+            1063,
+            0,
+            0,
+            0
+          ],
+          [
+            21,
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5584,
+        "beats_majority": false,
+        "n": 2459
+      },
+      {
+        "model": "majority_constant",
+        "split": "test",
+        "accuracy": 0.5242,
+        "balanced_accuracy": 0.25,
+        "macro_f1": 0.172,
+        "per_class": {
+          "coconut": {
+            "precision": 0.5242,
+            "recall": 1.0,
+            "f1": 0.6879,
+            "support": 1200
+          },
+          "pepper": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1033
+          },
+          "coffee": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 51
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 5
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 2289,
+          "pepper": 0,
+          "coffee": 0,
+          "cardamom": 0
+        },
+        "target_distribution": {
+          "coconut": 1200,
+          "pepper": 1033,
+          "coffee": 51,
+          "cardamom": 5
+        },
+        "confusion_matrix": [
+          [
+            1200,
+            0,
+            0,
+            0
+          ],
+          [
+            1033,
+            0,
+            0,
+            0
+          ],
+          [
+            51,
+            0,
+            0,
+            0
+          ],
+          [
+            5,
+            0,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5242,
+        "beats_majority": false,
+        "n": 2289
+      },
+      {
+        "model": "lr_numeric_raw",
+        "split": "val",
+        "accuracy": 0.3737,
+        "balanced_accuracy": 0.2833,
+        "macro_f1": 0.2106,
+        "per_class": {
+          "coconut": {
+            "precision": 0.6402,
+            "recall": 0.1996,
+            "f1": 0.3043,
+            "support": 1373
+          },
+          "pepper": {
+            "precision": 0.4528,
+            "recall": 0.6002,
+            "f1": 0.5162,
+            "support": 1063
+          },
+          "coffee": {
+            "precision": 0.0113,
+            "recall": 0.3333,
+            "f1": 0.0218,
+            "support": 21
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 2
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 428,
+          "pepper": 1409,
+          "coffee": 620,
+          "cardamom": 2
+        },
+        "target_distribution": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        },
+        "confusion_matrix": [
+          [
+            274,
+            755,
+            342,
+            2
+          ],
+          [
+            154,
+            638,
+            271,
+            0
+          ],
+          [
+            0,
+            14,
+            7,
+            0
+          ],
+          [
+            0,
+            2,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5584,
+        "beats_majority": false,
+        "n": 2459,
+        "implicit_train_acc": 0.4321
+      },
+      {
+        "model": "lr_plain_numeric_raw",
+        "split": "val",
+        "accuracy": 0.5478,
+        "balanced_accuracy": 0.2603,
+        "macro_f1": 0.2498,
+        "per_class": {
+          "coconut": {
+            "precision": 0.5715,
+            "recall": 0.7742,
+            "f1": 0.6576,
+            "support": 1373
+          },
+          "pepper": {
+            "precision": 0.4741,
+            "recall": 0.2672,
+            "f1": 0.3418,
+            "support": 1063
+          },
+          "coffee": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 21
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 2
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 1860,
+          "pepper": 599,
+          "coffee": 0,
+          "cardamom": 0
+        },
+        "target_distribution": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        },
+        "confusion_matrix": [
+          [
+            1063,
+            310,
+            0,
+            0
+          ],
+          [
+            779,
+            284,
+            0,
+            0
+          ],
+          [
+            18,
+            3,
+            0,
+            0
+          ],
+          [
+            0,
+            2,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5584,
+        "beats_majority": false,
+        "n": 2459,
+        "implicit_train_acc": 0.7235
+      },
+      {
+        "model": "rf_numeric_raw",
+        "split": "val",
+        "accuracy": 0.558,
+        "balanced_accuracy": 0.25,
+        "macro_f1": 0.1808,
+        "per_class": {
+          "coconut": {
+            "precision": 0.5584,
+            "recall": 0.9964,
+            "f1": 0.7157,
+            "support": 1373
+          },
+          "pepper": {
+            "precision": 0.4444,
+            "recall": 0.0038,
+            "f1": 0.0075,
+            "support": 1063
+          },
+          "coffee": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 21
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 2
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 2450,
+          "pepper": 9,
+          "coffee": 0,
+          "cardamom": 0
+        },
+        "target_distribution": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        },
+        "confusion_matrix": [
+          [
+            1368,
+            5,
+            0,
+            0
+          ],
+          [
+            1059,
+            4,
+            0,
+            0
+          ],
+          [
+            21,
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5584,
+        "beats_majority": false,
+        "n": 2459,
+        "implicit_train_acc": 0.9985
+      },
+      {
+        "model": "gb_numeric_raw",
+        "split": "val",
+        "accuracy": 0.5392,
+        "balanced_accuracy": 0.2623,
+        "macro_f1": 0.2609,
+        "per_class": {
+          "coconut": {
+            "precision": 0.5832,
+            "recall": 0.6788,
+            "f1": 0.6274,
+            "support": 1373
+          },
+          "pepper": {
+            "precision": 0.4747,
+            "recall": 0.3706,
+            "f1": 0.4163,
+            "support": 1063
+          },
+          "coffee": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 21
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 2
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 1598,
+          "pepper": 830,
+          "coffee": 30,
+          "cardamom": 1
+        },
+        "target_distribution": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        },
+        "confusion_matrix": [
+          [
+            932,
+            423,
+            18,
+            0
+          ],
+          [
+            656,
+            394,
+            12,
+            1
+          ],
+          [
+            9,
+            12,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5584,
+        "beats_majority": false,
+        "n": 2459,
+        "implicit_train_acc": 0.8847
+      },
+      {
+        "model": "mlp_numeric_raw",
+        "split": "val",
+        "accuracy": 0.4982,
+        "balanced_accuracy": 0.2584,
+        "macro_f1": 0.2502,
+        "per_class": {
+          "coconut": {
+            "precision": 0.5841,
+            "recall": 0.4071,
+            "f1": 0.4798,
+            "support": 1373
+          },
+          "pepper": {
+            "precision": 0.4461,
+            "recall": 0.6265,
+            "f1": 0.5211,
+            "support": 1063
+          },
+          "coffee": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 21
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 2
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 957,
+          "pepper": 1493,
+          "coffee": 9,
+          "cardamom": 0
+        },
+        "target_distribution": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        },
+        "confusion_matrix": [
+          [
+            559,
+            810,
+            4,
+            0
+          ],
+          [
+            392,
+            666,
+            5,
+            0
+          ],
+          [
+            5,
+            16,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5584,
+        "beats_majority": false,
+        "n": 2459,
+        "implicit_train_acc": 0.8038
+      },
+      {
+        "model": "lr_coords_only",
+        "split": "val",
+        "accuracy": 0.4071,
+        "balanced_accuracy": 0.2354,
+        "macro_f1": 0.1488,
+        "per_class": {
+          "coconut": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1373
+          },
+          "pepper": {
+            "precision": 0.435,
+            "recall": 0.9417,
+            "f1": 0.5951,
+            "support": 1063
+          },
+          "coffee": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 21
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 2
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 0,
+          "pepper": 2301,
+          "coffee": 158,
+          "cardamom": 0
+        },
+        "target_distribution": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        },
+        "confusion_matrix": [
+          [
+            0,
+            1277,
+            96,
+            0
+          ],
+          [
+            0,
+            1001,
+            62,
+            0
+          ],
+          [
+            0,
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            2,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5584,
+        "beats_majority": false,
+        "n": 2459,
+        "implicit_train_acc": 0.2159
+      },
+      {
+        "model": "lr_no_coords",
+        "split": "val",
+        "accuracy": 0.3949,
+        "balanced_accuracy": 0.2988,
+        "macro_f1": 0.2247,
+        "per_class": {
+          "coconut": {
+            "precision": 0.5734,
+            "recall": 0.4749,
+            "f1": 0.5195,
+            "support": 1373
+          },
+          "pepper": {
+            "precision": 0.441,
+            "recall": 0.2916,
+            "f1": 0.3511,
+            "support": 1063
+          },
+          "coffee": {
+            "precision": 0.0146,
+            "recall": 0.4286,
+            "f1": 0.0282,
+            "support": 21
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 2
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 1137,
+          "pepper": 703,
+          "coffee": 617,
+          "cardamom": 2
+        },
+        "target_distribution": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        },
+        "confusion_matrix": [
+          [
+            652,
+            385,
+            335,
+            1
+          ],
+          [
+            479,
+            310,
+            273,
+            1
+          ],
+          [
+            5,
+            7,
+            9,
+            0
+          ],
+          [
+            1,
+            1,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5584,
+        "beats_majority": false,
+        "n": 2459,
+        "implicit_train_acc": 0.4072
+      },
+      {
+        "model": "rf_onehot",
+        "split": "val",
+        "accuracy": 0.5588,
+        "balanced_accuracy": 0.2505,
+        "macro_f1": 0.1818,
+        "per_class": {
+          "coconut": {
+            "precision": 0.5588,
+            "recall": 0.9964,
+            "f1": 0.716,
+            "support": 1373
+          },
+          "pepper": {
+            "precision": 0.5455,
+            "recall": 0.0056,
+            "f1": 0.0112,
+            "support": 1063
+          },
+          "coffee": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 21
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 2
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 2448,
+          "pepper": 11,
+          "coffee": 0,
+          "cardamom": 0
+        },
+        "target_distribution": {
+          "coconut": 1373,
+          "pepper": 1063,
+          "coffee": 21,
+          "cardamom": 2
+        },
+        "confusion_matrix": [
+          [
+            1368,
+            5,
+            0,
+            0
+          ],
+          [
+            1057,
+            6,
+            0,
+            0
+          ],
+          [
+            21,
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            0,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5584,
+        "beats_majority": true,
+        "n": 2459,
+        "implicit_train_acc": 0.9985
+      },
+      {
+        "model": "rf_numeric",
+        "split": "test",
+        "accuracy": 0.5242,
+        "balanced_accuracy": 0.25,
+        "macro_f1": 0.172,
+        "per_class": {
+          "coconut": {
+            "precision": 0.5242,
+            "recall": 1.0,
+            "f1": 0.6879,
+            "support": 1200
+          },
+          "pepper": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1033
+          },
+          "coffee": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 51
+          },
+          "cardamom": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 5
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 2289,
+          "pepper": 0,
+          "coffee": 0,
+          "cardamom": 0
+        },
+        "target_distribution": {
+          "coconut": 1200,
+          "pepper": 1033,
+          "coffee": 51,
+          "cardamom": 5
+        },
+        "confusion_matrix": [
+          [
+            1200,
+            0,
+            0,
+            0
+          ],
+          [
+            1033,
+            0,
+            0,
+            0
+          ],
+          [
+            51,
+            0,
+            0,
+            0
+          ],
+          [
+            5,
+            0,
+            0,
+            0
+          ]
+        ],
+        "majority_prior_accuracy": 0.5242,
+        "beats_majority": false,
+        "n": 2289
+      },
+      {
+        "model": "lr_numeric",
+        "split": "test",
+        "accuracy": 0.2931,
+        "balanced_accuracy": 0.3053,
+        "macro_f1": 0.1758,
+        "per_class": {
+          "coconut": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1200
+          },
+          "pepper": {
+            "precision": 0.4498,
+            "recall": 0.6292,
+            "f1": 0.5246,
+            "support": 1033
+          },
+          "coffee": {
+            "precision": 0.024,
+            "recall": 0.3922,
+            "f1": 0.0452,
+            "support": 51
+          },
+          "cardamom": {
+            "precision": 0.1,
+            "recall": 0.2,
+            "f1": 0.1333,
+            "support": 5
+          }
+        },
+        "prediction_distribution": {
+          "coconut": 0,
+          "pepper": 1445,
+          "coffee": 834,
+          "cardamom": 10
+        },
+        "target_distribution": {
+          "coconut": 1200,
+          "pepper": 1033,
+          "coffee": 51,
+          "cardamom": 5
+        },
+        "confusion_matrix": [
+          [
+            0,
+            760,
+            436,
+            4
+          ],
+          [
+            0,
+            650,
+            378,
+            5
+          ],
+          [
+            0,
+            31,
+            20,
+            0
+          ],
+          [
+            0,
+            4,
+            0,
+            1
+          ]
+        ],
+        "majority_prior_accuracy": 0.5242,
+        "beats_majority": false,
+        "n": 2289
+      }
+    ],
+    "binary": {
+      "val_majority_prior_acc": 0.5636,
+      "variants": [
+        {
+          "variant": "binary_lr",
+          "metrics": {
+            "accuracy": 0.4865,
+            "balanced_accuracy": 0.5281,
+            "macro_f1": 0.4493,
+            "per_class": {
+              "coconut": {
+                "precision": 0.6419,
+                "recall": 0.201,
+                "f1": 0.3062,
+                "support": 1373
+              },
+              "pepper": {
+                "precision": 0.4531,
+                "recall": 0.8551,
+                "f1": 0.5924,
+                "support": 1063
+              }
+            },
+            "prediction_distribution": {
+              "coconut": 430,
+              "pepper": 2006
+            },
+            "target_distribution": {
+              "coconut": 1373,
+              "pepper": 1063
+            },
+            "confusion_matrix": [
+              [
+                276,
+                1097
+              ],
+              [
+                154,
+                909
+              ]
+            ],
+            "majority_prior_accuracy": 0.5636,
+            "beats_majority": false,
+            "n": 2436
+          },
+          "roc_auc": 0.5524,
+          "train_acc": 0.5802
+        },
+        {
+          "variant": "binary_lr_unweighted",
+          "metrics": {
+            "accuracy": 0.5546,
+            "balanced_accuracy": 0.5236,
+            "macro_f1": 0.5073,
+            "per_class": {
+              "coconut": {
+                "precision": 0.5792,
+                "recall": 0.7669,
+                "f1": 0.66,
+                "support": 1373
+              },
+              "pepper": {
+                "precision": 0.4822,
+                "recall": 0.2803,
+                "f1": 0.3546,
+                "support": 1063
+              }
+            },
+            "prediction_distribution": {
+              "coconut": 1818,
+              "pepper": 618
+            },
+            "target_distribution": {
+              "coconut": 1373,
+              "pepper": 1063
+            },
+            "confusion_matrix": [
+              [
+                1053,
+                320
+              ],
+              [
+                765,
+                298
+              ]
+            ],
+            "majority_prior_accuracy": 0.5636,
+            "beats_majority": false,
+            "n": 2436
+          },
+          "roc_auc": 0.5546,
+          "train_acc": 0.7272
+        },
+        {
+          "variant": "binary_rf",
+          "metrics": {
+            "accuracy": 0.5644,
+            "balanced_accuracy": 0.5011,
+            "macro_f1": 0.3642,
+            "per_class": {
+              "coconut": {
+                "precision": 0.5642,
+                "recall": 0.9985,
+                "f1": 0.721,
+                "support": 1373
+              },
+              "pepper": {
+                "precision": 0.6667,
+                "recall": 0.0038,
+                "f1": 0.0075,
+                "support": 1063
+              }
+            },
+            "prediction_distribution": {
+              "coconut": 2430,
+              "pepper": 6
+            },
+            "target_distribution": {
+              "coconut": 1373,
+              "pepper": 1063
+            },
+            "confusion_matrix": [
+              [
+                1371,
+                2
+              ],
+              [
+                1059,
+                4
+              ]
+            ],
+            "majority_prior_accuracy": 0.5636,
+            "beats_majority": true,
+            "n": 2436
+          },
+          "roc_auc": 0.536,
+          "train_acc": 0.9985
+        },
+        {
+          "variant": "binary_gb",
+          "metrics": {
+            "accuracy": 0.5554,
+            "balanced_accuracy": 0.511,
+            "macro_f1": 0.4633,
+            "per_class": {
+              "coconut": {
+                "precision": 0.57,
+                "recall": 0.8602,
+                "f1": 0.6856,
+                "support": 1373
+              },
+              "pepper": {
+                "precision": 0.4725,
+                "recall": 0.1618,
+                "f1": 0.2411,
+                "support": 1063
+              }
+            },
+            "prediction_distribution": {
+              "coconut": 2072,
+              "pepper": 364
+            },
+            "target_distribution": {
+              "coconut": 1373,
+              "pepper": 1063
+            },
+            "confusion_matrix": [
+              [
+                1181,
+                192
+              ],
+              [
+                891,
+                172
+              ]
+            ],
+            "majority_prior_accuracy": 0.5636,
+            "beats_majority": false,
+            "n": 2436
+          },
+          "roc_auc": 0.524,
+          "train_acc": 0.8148
+        },
+        {
+          "variant": "binary_lr_coords_only",
+          "metrics": {
+            "accuracy": 0.5386,
+            "balanced_accuracy": 0.5224,
+            "macro_f1": 0.5206,
+            "per_class": {
+              "coconut": {
+                "precision": 0.5811,
+                "recall": 0.6497,
+                "f1": 0.6135,
+                "support": 1373
+              },
+              "pepper": {
+                "precision": 0.4661,
+                "recall": 0.3951,
+                "f1": 0.4277,
+                "support": 1063
+              }
+            },
+            "prediction_distribution": {
+              "coconut": 1535,
+              "pepper": 901
+            },
+            "target_distribution": {
+              "coconut": 1373,
+              "pepper": 1063
+            },
+            "confusion_matrix": [
+              [
+                892,
+                481
+              ],
+              [
+                643,
+                420
+              ]
+            ],
+            "majority_prior_accuracy": 0.5636,
+            "beats_majority": false,
+            "n": 2436
+          },
+          "roc_auc": 0.5449,
+          "train_acc": 0.7277
+        }
+      ]
+    }
+  }
+}
