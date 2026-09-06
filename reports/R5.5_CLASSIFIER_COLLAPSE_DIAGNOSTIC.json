@@ -85,8 +85,14 @@
         "coconut_minus_pepper_mean_logit": "0.35 at step1, stays 0.07-0.63 positive",
         "probe_batch_accuracy": "0.5 -> 0.61 (64-sample batch partially separable, class prior wins full set)"
       },
-      "phase11_tiny_overfit": "CRASHED - default_collate found NoneType in CropFusionDataset for tiny subset; not a signal result",
-      "evidence_source": "kernel v7 log (4333 lines) parsed to artifacts/r5_5_pull/logs_v7.json; diagnostic_r5_5.json was written on kernel but not downloaded (workspace pull truncated at 2.1GB)"
+      "phase11_tiny_overfit": "RESOLVED (kernel v8): n_train=40 (20/20), steps_to_acc_090=29, best_probe_accuracy=1.0, train_loss->0.0001. Root-cause of the v7 crash was a raw default_collate over the metadata dict with a None leaf (yield_value/season); fixed by using collate_samples + transform-validation in the tiny phase",
+      "kernel_v8_phase11_only": {
+        "run": "gojosensa/r5-5-classifier-collapse-diagnostic v8 (Phase-11-only, r5.5 branch, ~1h)",
+        "exit_status": 0,
+        "phase11": {"n_train": 40, "classes": {"coconut": 20, "pepper": 20}, "steps_to_acc_090": 29, "best_probe_accuracy": 1.0, "steps_traced": 300, "train_loss_final": 0.0001},
+        "interpretation": "model has ample capacity and healthy optimizer (memorizes a balanced 40-sample set to 100%); collapse is a data-ceiling, not underfitting"
+      },
+      "evidence_source": "kernel v7 log (4333 lines) + kernel v8 log -> artifacts/r5_5_pull/logs_v7.json + C:\\Users\\brije\\AppData\\Local\\Temp\\opencode\\log_v8.txt; diagnostic_r5_5.json was written on the kernels but not downloaded (workspace pull truncated at 2.1GB)"
     }
   },
   "success_criteria": {
@@ -100,11 +106,11 @@
     "q7b_image_model_separability": "VERIFIED NON-SEPARATING on GPU: binary default collapses to all-coconut with imagery; balanced CE pepper prec 0.353; per-class NDVI/EVI stats near-identical",
     "q8_loss_dead_or_nan": false,
     "q9_imbalance_is_binding_ceiling": true,
-    "q10_architecture_correct": "wiring + GPU training healthy (loss descends, no NaN, no scheduler crash); collapse reproduced with image inputs"
+    "q10_architecture_correct": "wiring + GPU training healthy (loss descends, no NaN, no scheduler crash); Phase 11 tiny-overfit memorizes 40 samples to 100% -> architecture + optimizer have ample capacity"
   },
   "open_blockers": [
-    "Phase 11 tiny-overfit: clean_image_pipeline returns None for tiny subset -> collate crash at diagnose_collapse_kaggle.py:652; fix returns a padded/zero instance before any follow-up run",
-    "Phase 15 modality ablation: strict image-only training curve not isolated (joint covered by Phase 3 binary, image statistics by Phase 5/9)"
+    "Phase 15 modality ablation: strict image-only training curve not isolated (joint covered by Phase 3 binary, image statistics by Phase 5/9); not expected to change the verdict",
+    "kaggle kernels output full-workspace download still truncated at 2.1GB (no full output tarball pulled; phase results recovered from kernel logs)"
   ],
   "recommended_next_change": "GPU re-run DONE (kernel v7) and it confirms imagery does not unlock separation. Next: held-out rare-class probe (train coc+pep only, score coffee/cardamom on frozen split) + patch-level image binary probe; if image probe shows no signal, narrow scope to coconut-vs-pepper binary with existing frozen data"
 }

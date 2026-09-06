@@ -1,6 +1,6 @@
 {
   "phase": "R5.5 Phase 16 - Collapse root-cause decision tree",
-  "data_origin": "local CPU diagnostics (r5_5_local_baselines.py) + Kaggle GPU kernel v7 (image+tabular, 2 epochs) + earlier R5.5/R5.2.9/R5.3 phase reports",
+  "data_origin": "local CPU diagnostics (r5_5_local_baselines.py) + Kaggle GPU kernels v7 (image+tabular, 2 epochs) and v8 (Phase-11 tiny-overfit) + earlier R5.5/R5.2.9/R5.3 phase reports",
   "decision_tree": {
     "Q1_is_label_pipeline_correct": {
       "evidence": "R5.5_label_trace.json: label_mapping_ok=true, split_counts_match_manifest=true, gate_equals_trivial_coconut_anchor=true; declared class order coconut=0,pepper=1,coffee=2,cardamom=3 matches head+evaluator",
@@ -28,9 +28,9 @@
       "impact": "gradient mechanics confirmed; focal+sqrt_inv+label-smoothing jointly dilute the rare-class signal"
     },
     "Q6_does_the_model_train_at_all": {
-      "evidence": "R3 default model trained, acc=0.5636 on val (== majority prior, predicts all-coconut). Kaggle GPU v7: scheduler fixed (80bc3263); Phase 3 binary ran cleanly 2 epochs - loss descends (train 0.1147 -> 0.1122 default), no NaN, val acc 0.5636 == prior. Phase 10 first-step dynamics: train_loss 0.0776 -> 0.0545, probe acc 0.5 -> 0.61, coconut-pepper logit gap positive.",
-      "answer": "YES - model trains healthily on GPU with image+tabular inputs; never escapes coconut collapse",
-      "impact": "the NN does learn, it just cannot find inter-class signal even with the CNN + imagery active"
+      "evidence": "R3 default model trained, acc=0.5636 on val (== majority prior, predicts all-coconut). Kaggle GPU v7: scheduler fixed (80bc3263); Phase 3 binary ran cleanly 2 epochs - loss descends (train 0.1147 -> 0.1122 default), no NaN, val acc 0.5636 == prior. Phase 10 first-step dynamics: train_loss 0.0776 -> 0.0545, probe acc 0.5 -> 0.61, coconut-pepper logit gap positive. Kaggle GPU v8 Phase 11: a balanced 40-sample (20+20) tiny set is memorized to probe acc 1.0 by step 29 of 300, train_loss -> 0.0001.",
+      "answer": "YES - model trains healthily on GPU and has ample capacity (memorizes a balanced 40-sample set to 100%); it never escapes coconut collapse on the full corpus",
+      "impact": "the NN is NOT underfitting or capacity-limited; the collapse on the full corpus is caused by the data distribution, not the model"
     },
     "Q7_do_image_features_differ": {
       "evidence": "Kaggle GPU Phase 5/9 (fitted preprocessor, train subset): per-class NDVI mean 0.611 (coconut) / 0.616 (pepper) / 0.643 (coffee) / 0.617 (cardamom); EVI mean 0.662/0.663/0.668/0.645 - near-identical. zero_fill_frac 0.539-0.656 (53-66% of 8 temporal frames are padding, mask mean 0.396 in first batch). Phase 3 binary with imagery: default collapses all-coconut ([[1373,0],[1063,0]]); balanced CE pepper prec 0.353/recall 0.136 below majority.",
@@ -53,11 +53,11 @@
   ],
   "primary_root_cause": "CEILING: the frozen corpus is fundamentally spatially co-located and dominated by coconut; NO tabular model can beat the majority predictor, and loss re-weighting cannot manufacture signal that does not exist in the data - GPU-verified for the image modality too",
   "secondary_root_cause": "RARE-CLASS DILUTION: coffee=29 / cardamom=4 train samples sit inside coconut-heavy village pixels; focal(gamma=2)+label-smoothing(0.15) further suppress the already-weak rare-class gradient",
-  "open_question": "RESOLVED at statistics + joint-binary level (Kaggle GPU v7). Only niche remaining: a strict image-ONLY training curve (Phase 15 modality ablation) and the Phase 11 tiny-set overfit attempt (which crashed on a dataset collate bug, not on a model-signal result).",
-  "recommended_next_change": "Do NOT loosen matching rules or add imagery blindly (imagery already shown non-separating on GPU). Next: small locked test-eval experiment where cardamom/coffee are EXCLUDED from training loss but scored independently on leftovers; and/or a per-pixel patch-level binary 'interior-vs-monoculture' probe. Validate on the frozen split.",
+  "open_question": "RESOLVED at statistics + joint-binary + capacity levels (Kaggle GPU v7+v8). The only residual niche is a strict image-ONLY training curve (Phase 15 modality ablation), which is not expected to change the verdict given Phase 3's joint collapse at exactly the majority prior.",
+  "recommended_next_change": "Do NOT loosen matching rules or add imagery blindly (imagery already shown non-separating on GPU; model capacity shown sufficient in Phase 11). Next: small locked test-eval experiment where cardamom/coffee are EXCLUDED from training loss but scored independently on leftovers; and/or a per-pixel patch-level binary 'interior-vs-monoculture' probe. Validate on the frozen split.",
   "success_criteria_confidence_notes": [
     "CONFIDENT about data-ceiling (tabular + spatial + GPU image evidence is decisive)",
     "CONFIDENT about loss arithmetic being correct but suboptimal for ultra-rare",
-    "GPU phases 3/5/9/10 VERIFIED completed; phase 11 crashed on collate bug (fix pending), phase 15 (image-only) not run"
+    "GPU phases 3/5/9/10 (v7) and phase 11 (v8) VERIFIED completed; phase 15 (image-only) not run"
   ]
 }
