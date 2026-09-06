@@ -1,0 +1,159 @@
+{
+  "phase": "R5.6 Phase 8",
+  "model": "RandomForestClassifier(300 trees, class_weight=balanced)",
+  "metric": "permutation importance on validation split (ROC-AUC drop)",
+  "grouped_importance": {
+    "Vegetation (sat. composites)": 0.012597,
+    "Soil": 0.004761,
+    "Terrain": 0.003449,
+    "Spatial": 0.000975,
+    "Matching/metadata": -0.00192,
+    "Climate": -0.005231
+  },
+  "coordinates_dominance": {
+    "lat_lon_sum": 0.000975,
+    "share_of_total": 0.066617
+  },
+  "top20": [
+    {
+      "feature": "ndwi",
+      "group": "Vegetation (sat. composites)",
+      "imp_mean": 0.007208478160428133,
+      "imp_std": 0.0016605485380777186,
+      "rank": 1
+    },
+    {
+      "feature": "ndre",
+      "group": "Vegetation (sat. composites)",
+      "imp_mean": 0.0037936762318211414,
+      "imp_std": 0.0027314175300941616,
+      "rank": 2
+    },
+    {
+      "feature": "ndvi",
+      "group": "Vegetation (sat. composites)",
+      "imp_mean": 0.003582256651083715,
+      "imp_std": 0.0017295874888846653,
+      "rank": 3
+    },
+    {
+      "feature": "soil_sand_pct",
+      "group": "Soil",
+      "imp_mean": 0.0024576698351055507,
+      "imp_std": 0.001530376386328111,
+      "rank": 4
+    },
+    {
+      "feature": "slope",
+      "group": "Terrain",
+      "imp_mean": 0.0022516630706838664,
+      "imp_std": 0.0015458895575676732,
+      "rank": 5
+    },
+    {
+      "feature": "soil_type_class",
+      "group": "Soil",
+      "imp_mean": 0.002184539580591268,
+      "imp_std": 0.0008035144994068156,
+      "rank": 6
+    },
+    {
+      "feature": "soil_moisture",
+      "group": "Soil",
+      "imp_mean": 0.0016803711410559696,
+      "imp_std": 0.0017376369216025884,
+      "rank": 7
+    },
+    {
+      "feature": "kharif_ndwi",
+      "group": "Vegetation (sat. composites)",
+      "imp_mean": 0.0015367830559208206,
+      "imp_std": 0.0028186311240911382,
+      "rank": 8
+    },
+    {
+      "feature": "rabi_evi",
+      "group": "Vegetation (sat. composites)",
+      "imp_mean": 0.0015138071351882055,
+      "imp_std": 0.0015771903603405079,
+      "rank": 9
+    },
+    {
+      "feature": "lat",
+      "group": "Spatial",
+      "imp_mean": 0.0014866060202850676,
+      "imp_std": 0.0014708986062225672,
+      "rank": 10
+    },
+    {
+      "feature": "elevation",
+      "group": "Terrain",
+      "imp_mean": 0.0011968947335124548,
+      "imp_std": 0.0012905781864965499,
+      "rank": 11
+    },
+    {
+      "feature": "savi",
+      "group": "Vegetation (sat. composites)",
+      "imp_mean": 0.0008937541809438621,
+      "imp_std": 0.0014281827231780331,
+      "rank": 12
+    },
+    {
+      "feature": "soil_clay_pct",
+      "group": "Soil",
+      "imp_mean": 0.0005075942726465647,
+      "imp_std": 0.001877035154568649,
+      "rank": 13
+    },
+    {
+      "feature": "soil_ph",
+      "group": "Soil",
+      "imp_mean": 0.0003505540828279733,
+      "imp_std": 0.0024581274895583583,
+      "rank": 14
+    },
+    {
+      "feature": "year",
+      "group": "Matching/metadata",
+      "imp_mean": 4.124703065916021e-05,
+      "imp_std": 0.0012592209510323017,
+      "rank": 15
+    },
+    {
+      "feature": "is_cropland",
+      "group": "Matching/metadata",
+      "imp_mean": 8.450388341296744e-07,
+      "imp_std": 1.9420119631686014e-05,
+      "rank": 16
+    },
+    {
+      "feature": "season",
+      "group": "Matching/metadata",
+      "imp_mean": 0.0,
+      "imp_std": 0.0,
+      "rank": 17
+    },
+    {
+      "feature": "rabi_ndwi",
+      "group": "Vegetation (sat. composites)",
+      "imp_mean": -2.137719861402913e-05,
+      "imp_std": 0.0017350688399861145,
+      "rank": 18
+    },
+    {
+      "feature": "land_cover_class",
+      "group": "Matching/metadata",
+      "imp_mean": -2.4483287301535483e-05,
+      "imp_std": 8.179713647853712e-05,
+      "rank": 19
+    },
+    {
+      "feature": "lon",
+      "group": "Spatial",
+      "imp_mean": -0.0005119793390288673,
+      "imp_std": 0.0008164770631482552,
+      "rank": 20
+    }
+  ]
+}

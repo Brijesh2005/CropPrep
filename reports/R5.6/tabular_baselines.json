@@ -1,0 +1,130 @@
+{
+  "phase": "R5.6 Phase 2",
+  "modality": "tabular (32 features)",
+  "n_features": 32,
+  "feature_schema": {
+    "numeric_cols": [
+      "lat",
+      "lon",
+      "spatial_match_distance_km",
+      "year",
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "elevation",
+      "temperature_c",
+      "relative_humidity_pct",
+      "slope",
+      "ndvi",
+      "evi",
+      "ndwi",
+      "ndre",
+      "savi",
+      "s2_obs_count",
+      "soil_clay_pct",
+      "soil_sand_pct",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_moisture",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi",
+      "env_match_distance_m"
+    ],
+    "categorical_cols": [
+      "season",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "missing_numeric_cells": 0,
+    "categorical": {
+      "season": {
+        "unique": 2,
+        "mapping": {
+          "0": "Kharif",
+          "1": "Rabi"
+        }
+      },
+      "is_cropland": {
+        "unique": 2,
+        "mapping": {
+          "0": "0",
+          "1": "1"
+        }
+      },
+      "land_cover_class": {
+        "unique": 6,
+        "mapping": {
+          "0": "10",
+          "1": "30",
+          "2": "40",
+          "3": "50",
+          "4": "80",
+          "5": "60"
+        }
+      },
+      "soil_type_class": {
+        "unique": 39,
+        "mapping": {
+          "0": "262",
+          "1": "389",
+          "2": "392",
+          "3": "31",
+          "4": "255",
+          "5": "390",
+          "6": "19",
+          "7": "340",
+          "8": "387",
+          "9": "229",
+          "10": "218",
+          "11": "260",
+          "12": "40",
+          "13": "256",
+          "14": "378",
+          "15": "220",
+          "16": "381",
+          "17": "265",
+          "18": "216",
+          "19": "143",
+          "20": "388",
+          "21": "375",
+          "22": "261",
+          "23": "144",
+          "24": "290",
+          "25": "247",
+          "26": "18",
+          "27": "430",
+          "28": "146",
+          "29": "48",
+          "30": "219",
+          "31": "328",
+          "32": "264",
+          "33": "395",
+          "34": "364",
+          "35": "377",
+          "36": "291",
+          "37": "402",
+          "38": "308"
+        }
+      }
+    }
+  },
+  "train_samples": 5891,
+  "val_samples": 2436,
+  "test_samples": 2233,
+  "class_balance_test": {
+    "coconut": 1200,
+    "pepper": 1033
+  },
+  "models": [
+    "lr",
+    "rf",
+    "gb",
+    "mlp",
+    "majority_constant"
+  ],
+  "note": "identical official split; LR/RF class_weight='balanced'; MLP default (baseline, not tuned); features scaled via StandardScaler fit on train only."
+}

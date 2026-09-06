@@ -1,0 +1,101 @@
+{
+  "phase": "R5.6 Phase 7",
+  "note": "train split only. Spatial split is leave-one-taluk-out; train covers Belthangady/Mangalore/Bantwal, val=Puttur, test=Sullia.",
+  "centroids_km": {
+    "coconut": {
+      "lat": 12.91389,
+      "lon": 75.15801
+    },
+    "pepper": {
+      "lat": 12.88467,
+      "lon": 75.20096
+    },
+    "coconut_to_pepper_km": 5.677
+  },
+  "env_niche": {
+    "elevation": {
+      "coconut": {
+        "mean": 87.5628,
+        "std": 38.9352,
+        "median": 90.0298,
+        "min": 2.1632,
+        "max": 501.1075
+      },
+      "pepper": {
+        "mean": 93.5683,
+        "std": 31.1403,
+        "median": 92.355,
+        "min": 13.2611,
+        "max": 505.661
+      }
+    },
+    "slope": {
+      "coconut": {
+        "mean": 5.953,
+        "std": 2.7488,
+        "median": 5.4302,
+        "min": 0.0415,
+        "max": 24.4188
+      },
+      "pepper": {
+        "mean": 6.0911,
+        "std": 2.7379,
+        "median": 5.5592,
+        "min": 0.1616,
+        "max": 24.7124
+      }
+    },
+    "annual_rainfall_mm": {
+      "coconut": {
+        "mean": 4381.8054,
+        "std": 253.7495,
+        "median": 4440.5564,
+        "min": 3747.0271,
+        "max": 4885.377
+      },
+      "pepper": {
+        "mean": 4378.5477,
+        "std": 241.401,
+        "median": 4413.6446,
+        "min": 3745.5938,
+        "max": 4885.377
+      }
+    },
+    "soil_moisture": {
+      "coconut": {
+        "mean": 0.2955,
+        "std": 0.0255,
+        "median": 0.2982,
+        "min": 0.1819,
+        "max": 0.3547
+      },
+      "pepper": {
+        "mean": 0.2972,
+        "std": 0.0179,
+        "median": 0.2982,
+        "min": 0.1819,
+        "max": 0.3522
+      }
+    }
+  },
+  "taluk_proportion_train": {
+    "Bantwal": {
+      "coconut": 0.6935,
+      "pepper": 0.3065
+    },
+    "Belthangady": {
+      "coconut": 0.7079,
+      "pepper": 0.2921
+    },
+    "Mangalore": {
+      "coconut": 0.9352,
+      "pepper": 0.0648
+    }
+  },
+  "plots": [
+    "spatial_scatter.png",
+    "spatial_density.png",
+    "spatial_env_niche.png"
+  ],
+  "overlap_note": "taluk grid means both classes occupy the SAME villages in training taluka; no class-exclusive tiles exist."
+}

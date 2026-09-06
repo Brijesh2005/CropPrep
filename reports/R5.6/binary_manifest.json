@@ -1,0 +1,42 @@
+{
+  "phase": "R5.6 Phase 1",
+  "description": "binary coconut-vs-pepper dataset, official frozen split preserved, provenance unchanged (same record_id / source_record_id as the frozen corpus)",
+  "source_csv": "crop_supervised_v2.csv",
+  "source_csv_sha256": "992ee6c39832794577c93295685844848d0b03aff67a2fb03bc1cf7c9cd95446",
+  "binary_csv": "binary_coconut_pepper.csv",
+  "binary_csv_sha256": "492b4ec3e7702f03453e24976aee5a223ea8bf98c3ef996e1d4c9b348b962e5d",
+  "classes": [
+    "coconut",
+    "pepper"
+  ],
+  "rows": 10560,
+  "split_counts": {
+    "train": {
+      "coconut": 4292,
+      "pepper": 1599
+    },
+    "val": {
+      "coconut": 1373,
+      "pepper": 1063
+    },
+    "test": {
+      "coconut": 1200,
+      "pepper": 1033
+    }
+  },
+  "expected": {
+    "train": {
+      "coconut": 4292,
+      "pepper": 1599
+    },
+    "val": {
+      "coconut": 1373,
+      "pepper": 1063
+    },
+    "test": {
+      "coconut": 1200,
+      "pepper": 1033
+    }
+  },
+  "provenance_note": "filter = crop_label in [coconut, pepper] on the benchmark-eligible frozen corpus; split column is the official taluk mapping; nothing else changed."
+}

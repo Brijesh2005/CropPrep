@@ -1,0 +1,107 @@
+{
+  "phase": "R5.6",
+  "title": "COCONUT vs PEPPER separability / data information ceiling",
+  "created_at": "2026-09-06T15:41:24",
+  "git_commit": "9105f60f35dbff06e97982a43e61f0db4d1452e4",
+  "git_branch": "r5.6-separability",
+  "corpus": {
+    "csv": "crop_supervised_v2.csv",
+    "csv_sha256": "992ee6c39832794577c93295685844848d0b03aff67a2fb03bc1cf7c9cd95446"
+  },
+  "manifest": {
+    "file": "crop_supervised_v2.0_manifest.json",
+    "sha256": "486bee061f1620872b578eee1e00e31d004e966de7e30b43bc42ebbe20dc5637",
+    "dataset_version": "crop_supervised_v2.0",
+    "split_strategy": "spatial_leave_one_taluk_out"
+  },
+  "split_counts": {
+    "overall": {
+      "coconut": 6865,
+      "pepper": 3695,
+      "coffee": 101,
+      "cardamom": 11,
+      "blackgram": 2
+    },
+    "train": {
+      "coconut": 4292,
+      "pepper": 1599,
+      "coffee": 29,
+      "cardamom": 4
+    },
+    "validation": {
+      "pepper": 1063,
+      "coconut": 1373,
+      "coffee": 21,
+      "cardamom": 2
+    },
+    "test": {
+      "coconut": 1200,
+      "pepper": 1033,
+      "coffee": 51,
+      "blackgram": 2,
+      "cardamom": 5
+    }
+  },
+  "feature_schema": {
+    "tabular_numeric": [
+      "lat",
+      "lon",
+      "spatial_match_distance_km",
+      "year",
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "elevation",
+      "temperature_c",
+      "relative_humidity_pct",
+      "slope",
+      "ndvi",
+      "evi",
+      "ndwi",
+      "ndre",
+      "savi",
+      "s2_obs_count",
+      "soil_clay_pct",
+      "soil_sand_pct",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_moisture",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi",
+      "env_match_distance_m"
+    ],
+    "tabular_categorical": [
+      "season",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "satellite": "sentinel2",
+    "temporal": [
+      "year",
+      "season"
+    ],
+    "spatial": [
+      "lat",
+      "lon",
+      "village",
+      "taluk",
+      "district"
+    ]
+  },
+  "image_schema": {
+    "platform": "sentinel2",
+    "resolution": "10m",
+    "bands": "RGB+NIR"
+  },
+  "constraints": [
+    "frozen corpus NOT modified",
+    "official split (spatial leave-one-taluk-out) NOT changed",
+    "binary subset = coconut + pepper only, 1:1 provenance",
+    "no CropFusion training, no architecture changes, no HPO",
+    "no fabricated observations, matching criteria unchanged"
+  ]
+}

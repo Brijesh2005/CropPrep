@@ -1,0 +1,116 @@
+{
+  "phase": "R5.6 Phase 5",
+  "note": "Cohen's d for numeric; Jensen-Shannon divergence for categorical. Train split, coconut vs pepper.",
+  "n_features": 32,
+  "top15": {
+    "n": 15,
+    "features": [
+      {
+        "rank": 1,
+        "feature": "relative_humidity_pct",
+        "group": "Climate",
+        "type": "numeric",
+        "abs_d": 0.381227
+      },
+      {
+        "rank": 2,
+        "feature": "soil_ph",
+        "group": "Soil",
+        "type": "numeric",
+        "abs_d": 0.372069
+      },
+      {
+        "rank": 3,
+        "feature": "kharif_ndwi",
+        "group": "Vegetation (sat. composites)",
+        "type": "numeric",
+        "abs_d": 0.303631
+      },
+      {
+        "rank": 4,
+        "feature": "kharif_ndvi",
+        "group": "Vegetation (sat. composites)",
+        "type": "numeric",
+        "abs_d": 0.289869
+      },
+      {
+        "rank": 5,
+        "feature": "lat",
+        "group": "Spatial",
+        "type": "numeric",
+        "abs_d": 0.282545
+      },
+      {
+        "rank": 6,
+        "feature": "soil_clay_pct",
+        "group": "Soil",
+        "type": "numeric",
+        "abs_d": 0.274039
+      },
+      {
+        "rank": 7,
+        "feature": "lon",
+        "group": "Spatial",
+        "type": "numeric",
+        "abs_d": 0.272835
+      },
+      {
+        "rank": 8,
+        "feature": "ndwi",
+        "group": "Vegetation (sat. composites)",
+        "type": "numeric",
+        "abs_d": 0.258582
+      },
+      {
+        "rank": 9,
+        "feature": "ndre",
+        "group": "Vegetation (sat. composites)",
+        "type": "numeric",
+        "abs_d": 0.258
+      },
+      {
+        "rank": 10,
+        "feature": "ndvi",
+        "group": "Vegetation (sat. composites)",
+        "type": "numeric",
+        "abs_d": 0.248933
+      },
+      {
+        "rank": 11,
+        "feature": "savi",
+        "group": "Vegetation (sat. composites)",
+        "type": "numeric",
+        "abs_d": 0.248929
+      },
+      {
+        "rank": 12,
+        "feature": "evi",
+        "group": "Vegetation (sat. composites)",
+        "type": "numeric",
+        "abs_d": 0.235982
+      },
+      {
+        "rank": 13,
+        "feature": "year",
+        "group": "Matching/metadata",
+        "type": "numeric",
+        "abs_d": 0.204161
+      },
+      {
+        "rank": 14,
+        "feature": "rabi_ndwi",
+        "group": "Vegetation (sat. composites)",
+        "type": "numeric",
+        "abs_d": 0.19836
+      },
+      {
+        "rank": 15,
+        "feature": "rabi_ndvi",
+        "group": "Vegetation (sat. composites)",
+        "type": "numeric",
+        "abs_d": 0.194302
+      }
+    ]
+  },
+  "strongest_abs_d": 0.0
+}
