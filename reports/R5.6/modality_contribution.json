@@ -1,0 +1,28 @@
+{
+  "phase": "R5.6 Phase 9",
+  "model": "RandomForest (250 trees, balanced), eval on val split",
+  "rf_auc_tabular_only": 0.5354,
+  "rf_auc_image_only": 0.5338,
+  "rf_auc_fusion_intact": 0.5336,
+  "conditions": [
+    {
+      "condition": "intact_tabular_intact_image",
+      "roc_auc_val": 0.5336
+    },
+    {
+      "condition": "intact_tabular_shuffled_image",
+      "roc_auc_val": 0.5453
+    },
+    {
+      "condition": "shuffled_tabular_intact_image",
+      "roc_auc_val": 0.5263
+    },
+    {
+      "condition": "shuffled_tabular_shuffled_image",
+      "roc_auc_val": 0.5051
+    }
+  ],
+  "drop_image_signal": -0.0117,
+  "drop_tabular_signal": 0.0073,
+  "note": "shuffles respect split boundaries (permute rows within a split); a condition with ~no drop means that modality carries no info on top of the other."
+}

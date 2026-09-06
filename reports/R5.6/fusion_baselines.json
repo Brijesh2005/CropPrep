@@ -1,0 +1,7 @@
+{
+  "phase": "R5.6 Phase 4",
+  "n_features": 44,
+  "tabular_features": 32,
+  "image_features": 12,
+  "baseline_rows": 8
+}

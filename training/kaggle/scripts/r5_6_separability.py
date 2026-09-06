@@ -670,20 +670,21 @@ IMAGE_REP_A = ["ndvi_last_frame_mean", "evi_last_frame_mean"]
 def load_image_frame() -> pd.DataFrame:
     """Join the Kaggle-exported image_stats.csv to the binary corpus.
 
-    Split labels come from the frozen binary CSV (single source of truth).
-    Returns a frame with one row per binary record plus ``*_img`` features.
+    Split/crop labels come from the frozen binary CSV (single source of truth);
+    image columns keep their native stats names (ndvi_mean, evi_mean, ...).
+    Returns a frame with one row per binary benchmark record.
     """
     if not IMAGE_STATS_CSV.exists():
         raise FileNotFoundError(
             f"missing {IMAGE_STATS_CSV} — run the R5.6 image-stats kernel "
             f"(scripts/kaggle_r5_6_image_stats.py) and pull its output first")
     stats = pd.read_csv(IMAGE_STATS_CSV, dtype={"record_id": str})
-    stats = stats.rename(columns=lambda c: c if not c.startswith("ndvi_") and
-                         c not in ("real_frame_count", "zero_fill_fraction",
-                                   "total_frames") else f"{c}_img"
-                         if c not in ("record_id", "split", "crop_label")
-                         else c)
+    stats = stats.drop(columns=["split", "crop_label"])
     binary = pd.read_csv(CSV_PATH, dtype={"crop_label": str, "location_taluk": str})
+    if "benchmark_eligible" in binary:
+        ok = binary["benchmark_eligible"].fillna("true").astype(str).str.strip()
+        ok = ok.str.lower().isin(["true", "1", "yes"])
+        binary = binary[ok].copy()
     binary["crop_label"] = binary["crop_label"].str.strip().str.lower()
     binary["split"] = binary["location_taluk"].map(TALUK_SPLIT).fillna("unknown")
     bi = binary[binary["crop_label"].isin(BINARY)][[
@@ -998,7 +999,7 @@ def phase9() -> dict[str, Any]:
     tab_slice = slice(0, n_tab)
 
     conditions = {
-        "intact_tabular_intact_image": np.hstack([X_tab, X_img]),
+        "intact_tabular_intact_image": Xt,
         "intact_tabular_shuffled_image": shuffle_block(Xt, img_slice, rng),
         "shuffled_tabular_intact_image": shuffle_block(Xt, tab_slice, rng),
         "shuffled_tabular_shuffled_image": shuffle_block(
@@ -1037,12 +1038,280 @@ def phase9() -> dict[str, Any]:
 
 
 # --------------------------------------------------------------------------- #
+# Phase 10 — data-ceiling table
+# --------------------------------------------------------------------------- #
+
+MOD_RESULTS = {
+    "tabular": "tabular_results.csv",
+    "image": "image_results.csv",
+    "fusion": "fusion_results.csv",
+}
+
+def _best_by_metric(df: pd.DataFrame, metric: str, split: str = "test") -> dict[str, Any]:
+    sub = df[df["split"] == split].copy()
+    if sub.empty:
+        return {}
+    i = sub[metric].idxmax()
+    row = sub.loc[i]
+    return {metric: round(float(row[metric]), 4), "model": row["model"],
+            "accuracy": round(float(row["accuracy"]), 4),
+            "balanced_accuracy": round(float(row["balanced_accuracy"]), 4),
+            "roc_auc": round(float(row["roc_auc"]), 4),
+            "confusion_matrix": json.loads(row["confusion_matrix"])}
+
+def phase10() -> dict[str, Any]:
+    tabs: dict[str, pd.DataFrame] = {}
+    for mod, fname in MOD_RESULTS.items():
+        p = OUT_DIR / fname
+        if not p.exists():
+            raise FileNotFoundError(f"missing {fname} — run phases 2,3,4 first")
+        tabs[mod] = pd.read_csv(p)
+
+    maj_test = float(tabs["image"]
+                     .loc[tabs["image"]["split"] == "test",
+                          "majority_prior_accuracy"].iloc[0])
+    per_mod = {}
+    for mod, df in tabs.items():
+        per_mod[mod] = {
+            "best_test_balanced_accuracy": _best_by_metric(df, "balanced_accuracy"),
+            "best_test_roc_auc": _best_by_metric(df, "roc_auc"),
+            "best_test_accuracy": _best_by_metric(df, "accuracy"),
+            "n_baselines": int(len(df)),
+        }
+
+    max_bal = max(_best_by_metric(df, "balanced_accuracy").get("balanced_accuracy", 0.0)
+                  for df in tabs.values())
+
+    mc = None
+    if (OUT_DIR / "modality_contribution.json").exists():
+        with open(OUT_DIR / "modality_contribution.json") as f:
+            mc = json.load(f)
+
+    table_rows = []
+    for mod, d in per_mod.items():
+        b = d["best_test_balanced_accuracy"]
+        a = d["best_test_accuracy"]
+        u = d["best_test_roc_auc"]
+        table_rows.append({
+            "modality": mod,
+            "best_test_balanced_accuracy": b.get("balanced_accuracy"),
+            "best_test_balanced_accuracy_model": b.get("model"),
+            "best_test_accuracy": a.get("accuracy"),
+            "best_test_accuracy_model": a.get("model"),
+            "best_test_roc_auc": u.get("roc_auc"),
+            "best_test_roc_auc_model": u.get("model"),
+        })
+    pd.DataFrame(table_rows).to_csv(OUT_DIR / "ceiling_table.csv", index=False)
+
+    full = {
+        "phase": "R5.6 Phase 10",
+        "note": "every baseline uses official frozen split (Puttur=val, Sullia=test); "
+                "test majority prior (majority class) balanced accuracy = 50.0%, "
+                f"accuracy = {round(maj_test, 4)}",
+        "test_majority_prior_accuracy": round(float(maj_test), 4),
+        "best_ceiling_balanced_accuracy_test": round(float(max_bal), 4),
+        "per_modality": per_mod,
+        "modality_contribution_rf_auc": {
+            "tabular": mc.get("rf_auc_tabular_only") if mc else None,
+            "image": mc.get("rf_auc_image_only") if mc else None,
+            "fusion_intact": mc.get("rf_auc_fusion_intact") if mc else None,
+        } if mc else None,
+    }
+    return full
+
+
+# --------------------------------------------------------------------------- #
+# Phase 11 — decision
+# --------------------------------------------------------------------------- #
+
+def _modality_bal(df: pd.DataFrame) -> float:
+    b = _best_by_metric(df, "balanced_accuracy")
+    return b.get("balanced_accuracy", 0.0)
+
+def phase11() -> dict[str, Any]:
+    tabs = {mod: pd.read_csv(OUT_DIR / fname)
+            for mod, fname in MOD_RESULTS.items()
+            if (OUT_DIR / fname).exists()}
+    if len(tabs) < 3:
+        raise FileNotFoundError("missing tabular/image/fusion results — run phases 2,3,4 first")
+
+    tab = _modality_bal(tabs["tabular"])
+    img = _modality_bal(tabs["image"])
+    fus = _modality_bal(tabs["fusion"])
+    threshold = 0.10  # 10 balanced-accuracy points
+
+    steps = []
+    if fus > max(tab, img) + threshold:
+        bottleneck = "none"
+        conclusion = "CropFusion should work — fused representation clearly exceeds either modality"
+    elif tab > img + threshold:
+        bottleneck = "imagery"
+        conclusion = "tabular representation carries the separable signal; imagery is the bottleneck"
+    elif img > tab + threshold:
+        bottleneck = "environmental_matching"
+        conclusion = "imagery carries the separable signal; tabular/environmental matching is the bottleneck"
+    elif max(tab, img, fus) <= 0.55:
+        bottleneck = "limited_discriminative_information"
+        conclusion = ("no modality exceeds majority-chance; the matched design leaves essentially "
+                       "no separable distributional information to exploit")
+        steps.append("max balanced accuracy across modalities = "
+                     f"{max(tab, img, fus):.4f} <= 0.55")
+    else:
+        bottleneck = "balanced_no_clear_bottleneck"
+        conclusion = "all modalities near chance; no single bottleneck identified above the others"
+
+    steps += [
+        f"tabular best test balanced accuracy = {tab:.4f}",
+        f"image   best test balanced accuracy = {img:.4f}",
+        f"fusion  best test balanced accuracy = {fus:.4f}",
+        f"rule threshold = {threshold:+.2f} balanced-accuracy points",
+    ]
+
+    full = {
+        "phase": "R5.6 Phase 11",
+        "threshold_balanced_accuracy_points": threshold,
+        "tabular_best_test_balanced_accuracy": round(tab, 4),
+        "image_best_test_balanced_accuracy": round(img, 4),
+        "fusion_best_test_balanced_accuracy": round(fus, 4),
+        "primary_bottleneck": bottleneck,
+        "conclusion": conclusion,
+        "rule_trace": steps,
+    }
+    return full
+
+
+# --------------------------------------------------------------------------- #
+# Phase 12 — final report
+# --------------------------------------------------------------------------- #
+
+def _load_json(name: str) -> dict[str, Any]:
+    p = OUT_DIR / name
+    if not p.exists():
+        raise FileNotFoundError(f"missing {name}")
+    with open(p) as f:
+        return json.load(f)
+
+def phase12() -> dict[str, Any]:
+    dec = _load_json("decision.json")
+    ceil = _load_json("ceiling_table.json")
+    tab = _load_json("tabular_baselines.json")
+    img = _load_json("image_baselines.json")
+    fus = _load_json("fusion_baselines.json")
+    meta = _load_json("R5.6_METADATA.json")
+
+    bal = ceil["best_ceiling_balanced_accuracy_test"]
+    ceiling_pct = round(bal * 100.0, 1)
+    bottleneck = dec["primary_bottleneck"]
+    bottleneck_txt = {
+        "none": "NONE (fusion works)",
+        "imagery": "IMAGERY",
+        "environmental_matching": "ENVIRONMENTAL-MATCHING",
+        "limited_discriminative_information": "LIMITED DISCRIMINATIVE INFORMATION",
+        "balanced_no_clear_bottleneck": "BALANCED / NO CLEAR BOTTLENECK",
+    }[bottleneck]
+    sentence = (f"DATA CEILING = {ceiling_pct}% (best balanced accuracy on the "
+                 f"official test split), PRIMARY BOTTLENECK = {bottleneck_txt}.")
+
+    rows = pd.read_csv(OUT_DIR / "ceiling_table.csv").to_dict("records")
+
+    md = []
+    md.append("# R5.6 — Coconut vs Pepper Separability Report")
+    md.append("")
+    md.append("**Objective:** with CropFusion still untrained, quantify whether the frozen matched "
+              "dataset already separates coconut from pepper, and identify the primary information "
+              "bottleneck. No model training beyond cheap baselines; official split untouched.")
+    md.append("")
+    md.append(f"**Corpus:** `{meta.get('corpus_filename', 'crop_supervised_v2.csv')}` — "
+              "binary subset coconut/pepper, taluk split (Belthangady/Mangalore/Bantwal = train, "
+              "Puttur = val, Sullia = test), frozen.")
+    md.append("")
+    md.append("## Data ceiling table")
+    md.append("")
+    md.append("| modality | best test balance acc | best test acc | best test AUC |")
+    md.append("|---|---|---|---|")
+    for r in rows:
+        md.append(f"| {r['modality']} | {r['best_test_balanced_accuracy']} "
+                  f"({r['best_test_balanced_accuracy_model']}) | "
+                  f"{r['best_test_accuracy']} | {r['best_test_roc_auc']} |")
+    md.append("")
+    md.append(f"*Test majority prior (all-coconut): accuracy = "
+              f"{ceil['test_majority_prior_accuracy']}, balanced accuracy = 0.50.*")
+    md.append("")
+    md.append("## Modality contribution (Phase 9, RF AUC on val)")
+    mc = ceil.get("modality_contribution_rf_auc") or {}
+    md.append("")
+    md.append(f"| setting | AUC |")
+    md.append("|---|---|")
+    for k, v in mc.items():
+        md.append(f"| {k} | {v} |")
+    md.append("")
+    md.append("## Phase 2 tabular baselines (test)")
+    trows = sorted(rows, key=lambda x: x["modality"])
+    tab_row = next((r for r in trows if r["modality"] == "tabular"), None)
+    if tab_row:
+        md.append(f"- best balanced accuracy {tab_row['best_test_balanced_accuracy']} "
+                  f"({tab_row['best_test_balanced_accuracy_model']})")
+        md.append(f"- best AUC {tab_row['best_test_roc_auc']} "
+                  f"({tab_row['best_test_roc_auc_model']})")
+    md.append("")
+    md.append("## Phase 3 image baselines (test)")
+    img_row = next((r for r in trows if r["modality"] == "image"), None)
+    if img_row:
+        md.append(f"- best balanced accuracy {img_row['best_test_balanced_accuracy']} "
+                  f"({img_row['best_test_balanced_accuracy_model']})")
+        md.append(f"- best AUC {img_row['best_test_roc_auc']} "
+                  f"({img_row['best_test_roc_auc_model']})")
+    md.append("")
+    md.append("## Phase 4 fusion baselines (test)")
+    fus_row = next((r for r in trows if r["modality"] == "fusion"), None)
+    if fus_row:
+        md.append(f"- best balanced accuracy {fus_row['best_test_balanced_accuracy']} "
+                  f"({fus_row['best_test_balanced_accuracy_model']})")
+        md.append(f"- best AUC {fus_row['best_test_roc_auc']} "
+                  f"({fus_row['best_test_roc_auc_model']})")
+    md.append("")
+    md.append("## Decision (Phase 11)")
+    md.append("")
+    md.append(f"- tabular best test balanced accuracy: {dec['tabular_best_test_balanced_accuracy']}")
+    md.append(f"- image best test balanced accuracy:   {dec['image_best_test_balanced_accuracy']}")
+    md.append(f"- fusion best test balanced accuracy:  {dec['fusion_best_test_balanced_accuracy']}")
+    md.append(f"- threshold (balanced-accuracy points): {dec['threshold_balanced_accuracy_points']:+.2f}")
+    md.append("")
+    md.append(f"**Primary bottleneck:** `{bottleneck}`.")
+    md.append("")
+    md.append(f"**Conclusion:** {dec['conclusion']}.")
+    md.append("")
+    md.append("## Verdict")
+    md.append("")
+    md.append(f"> **{sentence}**")
+    md.append("")
+    md.append("*All metrics on the official frozen test split unless noted. Confusion matrices, "
+              "per-model detail and probabilities: see reports/R5.6/*.csv*")
+    write_text(OUT_DIR / "R5.6_SEPARABILITY_REPORT.md", "\n".join(md))
+
+    full = {
+        "phase": "R5.6 Phase 12",
+        "report_md": "R5.6_SEPARABILITY_REPORT.md",
+        "data_ceiling_pct": ceiling_pct,
+        "best_ceiling_balanced_accuracy_test": round(bal, 4),
+        "primary_bottleneck": bottleneck,
+        "sentence": sentence,
+    }
+    return full
+
+
+def write_text(path: Path, text: str) -> None:
+    path.write_text(text, encoding="utf-8")
+
+
+# --------------------------------------------------------------------------- #
 # Main
 # --------------------------------------------------------------------------- #
 
 PHASES: dict[str, Any] = {
     "0": phase0, "1": phase1, "2": phase2, "3": phase3, "4": phase4,
     "5": phase5, "6": phase6, "7": phase7, "8": phase8, "9": phase9,
+    "10": phase10, "11": phase11, "12": phase12,
 }
 
 
@@ -1086,6 +1355,12 @@ def main(argv: list[str] | None = None) -> int:
                 write_json(OUT_DIR / "feature_importance.json", res)
             elif p == "9":
                 write_json(OUT_DIR / "modality_contribution.json", res)
+            elif p == "10":
+                write_json(OUT_DIR / "ceiling_table.json", res)
+            elif p == "11":
+                write_json(OUT_DIR / "decision.json", res)
+            elif p == "12":
+                write_json(OUT_DIR / "R5.6_SEPARABILITY_REPORT.json", res)
     print("\nAll requested phases complete. Artifacts in:", OUT_DIR)
     return 0
 

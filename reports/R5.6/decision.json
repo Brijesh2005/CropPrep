@@ -1,0 +1,16 @@
+{
+  "phase": "R5.6 Phase 11",
+  "threshold_balanced_accuracy_points": 0.1,
+  "tabular_best_test_balanced_accuracy": 0.5047,
+  "image_best_test_balanced_accuracy": 0.5063,
+  "fusion_best_test_balanced_accuracy": 0.5023,
+  "primary_bottleneck": "limited_discriminative_information",
+  "conclusion": "no modality exceeds majority-chance; the matched design leaves essentially no separable distributional information to exploit",
+  "rule_trace": [
+    "max balanced accuracy across modalities = 0.5063 <= 0.55",
+    "tabular best test balanced accuracy = 0.5047",
+    "image   best test balanced accuracy = 0.5063",
+    "fusion  best test balanced accuracy = 0.5023",
+    "rule threshold = +0.10 balanced-accuracy points"
+  ]
+}

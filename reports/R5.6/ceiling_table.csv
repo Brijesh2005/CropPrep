@@ -1,0 +1,4 @@
+modality,best_test_balanced_accuracy,best_test_balanced_accuracy_model,best_test_accuracy,best_test_accuracy_model,best_test_roc_auc,best_test_roc_auc_model
+tabular,0.5047,gb,0.5374,rf,0.5267,lr
+image,0.5063,rf,0.5374,mlp,0.5268,lr
+fusion,0.5023,mlp,0.5374,rf,0.505,mlp

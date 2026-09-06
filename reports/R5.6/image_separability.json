@@ -1,0 +1,62 @@
+{
+  "phase": "R5.6 Phase 6",
+  "train_n": {
+    "coconut": 4292,
+    "pepper": 1599
+  },
+  "per_feature_overlap": {
+    "ndvi_mean": {
+      "single_feature_auc_abs": 0.5495,
+      "coco_mean": 0.628949,
+      "pepp_mean": 0.633399,
+      "coco_std": 0.025292,
+      "pepp_std": 0.019463,
+      "effect_sd": 0.1989
+    },
+    "evi_mean": {
+      "single_feature_auc_abs": 0.5553,
+      "coco_mean": 0.663406,
+      "pepp_mean": 0.666845,
+      "coco_std": 0.023252,
+      "pepp_std": 0.015282,
+      "effect_sd": 0.1785
+    },
+    "ndvi_std": {
+      "single_feature_auc_abs": 0.575,
+      "coco_mean": 0.105475,
+      "pepp_mean": 0.108563,
+      "coco_std": 0.010848,
+      "pepp_std": 0.006708,
+      "effect_sd": 0.3518
+    },
+    "evi_std": {
+      "single_feature_auc_abs": 0.5209,
+      "coco_mean": 0.138016,
+      "pepp_mean": 0.139166,
+      "coco_std": 0.017327,
+      "pepp_std": 0.013544,
+      "effect_sd": 0.0745
+    },
+    "real_frame_count": {
+      "single_feature_auc_abs": 0.5165,
+      "coco_mean": 3.132572,
+      "pepp_mean": 3.19137,
+      "coco_std": 0.526963,
+      "pepp_std": 0.410623,
+      "effect_sd": 0.1254
+    },
+    "zero_fill_fraction": {
+      "single_feature_auc_abs": 0.5165,
+      "coco_mean": 0.608428,
+      "pepp_mean": 0.601079,
+      "coco_std": 0.06587,
+      "pepp_std": 0.051328,
+      "effect_sd": 0.1254
+    }
+  },
+  "plots": [
+    "image_distribution_histograms.png",
+    "image_distribution_boxplots.png"
+  ],
+  "note": "single_feature_auc_abs = |AUC-0.5|+0.5 of a 1-D linear separator on train; values near 0.5 mean distribution overlap."
+}

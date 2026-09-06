@@ -1,0 +1,47 @@
+{
+  "phase": "R5.6 image statistics export",
+  "n_samples": 10560,
+  "n_skipped": 0,
+  "expected_binary_total": 10560,
+  "split_counts": {
+    "('test', 'coconut')": 1200,
+    "('test', 'pepper')": 1033,
+    "('train', 'coconut')": 4292,
+    "('train', 'pepper')": 1599,
+    "('val', 'coconut')": 1373,
+    "('val', 'pepper')": 1063
+  },
+  "columns": [
+    "record_id",
+    "split",
+    "crop_label",
+    "real_frame_count",
+    "total_frames",
+    "zero_fill_fraction",
+    "ndvi_mean",
+    "ndvi_std",
+    "ndvi_min",
+    "ndvi_max",
+    "ndvi_last_frame_mean",
+    "evi_mean",
+    "evi_std",
+    "evi_min",
+    "evi_max",
+    "evi_last_frame_mean"
+  ],
+  "missing_ndvi_mean": 0,
+  "missing_evi_mean": 0,
+  "zero_fill_fraction_mean": 0.617247,
+  "zero_fill_mean_per_split": {
+    "test": 0.601713,
+    "train": 0.606434,
+    "val": 0.657635
+  },
+  "mean_real_frames_per_split": {
+    "test": 3.186,
+    "train": 3.149,
+    "val": 2.739
+  },
+  "image_stats_csv": "/kaggle/working/r5_6_image_stats/image_stats.csv",
+  "verify": "image_stats_ok"
+}

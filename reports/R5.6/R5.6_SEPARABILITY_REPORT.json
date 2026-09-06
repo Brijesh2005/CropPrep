@@ -1,0 +1,8 @@
+{
+  "phase": "R5.6 Phase 12",
+  "report_md": "R5.6_SEPARABILITY_REPORT.md",
+  "data_ceiling_pct": 50.6,
+  "best_ceiling_balanced_accuracy_test": 0.5063,
+  "primary_bottleneck": "limited_discriminative_information",
+  "sentence": "DATA CEILING = 50.6% (best balanced accuracy on the official test split), PRIMARY BOTTLENECK = LIMITED DISCRIMINATIVE INFORMATION."
+}

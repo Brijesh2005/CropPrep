@@ -1,0 +1,10 @@
+{
+  "phase": "R5.6 Phase 3",
+  "representation_note": {
+    "A_nearest_frame": "last real temporal frame, spatial mean (NDVI/EVI)",
+    "B_temporal_mean": "real-frame temporal + spatial mean (NDVI/EVI)",
+    "C_full_stats": "sequence statistics (mean/std/min/max per band, last-frame spatial mean, real-frame count, zero-fill fraction)"
+  },
+  "dropped_untransformable": 0,
+  "baseline_rows": 24
+}

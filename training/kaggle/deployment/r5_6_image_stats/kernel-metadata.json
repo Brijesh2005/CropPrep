@@ -1,0 +1,13 @@
+{
+  "id": "gojosensa/r5-6-image-statistics-export",
+  "title": "R5.6 Image Statistics Export",
+  "code_file": "R5_6_image_stats.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada"
+  ]
+}
