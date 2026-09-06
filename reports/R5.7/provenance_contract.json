@@ -1,0 +1,68 @@
+{
+  "contract": {
+    "core_provenance_columns": [
+      "field_observation_id",
+      "source",
+      "latitude",
+      "longitude",
+      "survey_date",
+      "year",
+      "season",
+      "grid_year",
+      "env_method",
+      "environment_match_distance_m",
+      "dk_nearest_index",
+      "r5_6_record_id",
+      "field_cluster_id",
+      "quality_tier"
+    ],
+    "field_observation_id_required": true,
+    "fixed_joins": {
+      "crop_label": "shared/enums/crop_taxonomy.py resolve_crop_label",
+      "environment": "year-aware K-NN-IDW over DK_Features grid (radius 5 km, k=5, idw^2), never Yield_Proxy_NPP",
+      "satellite": "exact (lat7, lon7, year, season, crop) join to frozen corpus then R5.6 image_stats export record_id",
+      "temporal": "survey date only; imagery gaps from Kaggle export"
+    },
+    "master_file": "reports/R5.7/master_geospatial_features.csv",
+    "no_fabrication": true,
+    "no_leakage_features": true,
+    "no_silent_discards": true,
+    "row_identity": "one row per (survey_id, year, season, crop_label); survey_id is a plot stable across seasons/years"
+  },
+  "copy_of_master_for_audit": true,
+  "coverage": {
+    "environment_coverage_fraction": 1.0,
+    "rows": 175185,
+    "satellite_note": "recovered pool needs Kaggle export (training/kaggle/scripts/kaggle_r5_7_image_stats.py)",
+    "with_environment_match": 175185,
+    "with_r56_imagery": 9701,
+    "with_survey_date": 175185
+  },
+  "data_sources": [
+    "survey:govt_crop_survey_data/ogd_bantvala_kharif_2020_21.csv",
+    "survey:govt_crop_survey_data/ogd_beltangadi_kharif_2020_21.csv",
+    "survey:govt_crop_survey_data/ogd_kokkada_kharif_2020_21.csv",
+    "survey:govt_crop_survey_data/ogd_mangaluru_a_kharif_2020_2021.csv",
+    "survey:govt_crop_survey_data/ogd_mangaluru_b_kharif_2020_21.csv",
+    "survey:govt_crop_survey_data/ogd_mulki_kharif_2021_22.csv",
+    "survey:govt_crop_survey_data/ogd_panemangaluru_rabi_2021_2022.csv",
+    "survey:govt_crop_survey_data/ogd_panja_kharif_2020_21.csv",
+    "survey:govt_crop_survey_data/ogd_putturu_kharif_2020_21.csv",
+    "survey:govt_crop_survey_data/ogd_sulya_kharif_2020_21.csv",
+    "survey:govt_crop_survey_data/ogd_suratkal_kharif_2020_21.csv",
+    "survey:govt_crop_survey_data/ogd_uppinangadi_kharif_2021_22.csv",
+    "survey:govt_crop_survey_data/ogd_venuru_kharif_2020_21.csv",
+    "survey:govt_crop_survey_data/ogd_venuru_rabi_2021_22.csv",
+    "survey:govt_crop_survey_data/ogd_vitla_kharif_2020_21.csv",
+    "env_grid:Tabular_Datasets/DK_Features_2018.csv",
+    "env_grid:Tabular_Datasets/DK_Features_2019.csv",
+    "env_grid:Tabular_Datasets/DK_Features_2020.csv",
+    "env_grid:Tabular_Datasets/DK_Features_2021.csv",
+    "env_grid:Tabular_Datasets/DK_Features_2022.csv",
+    "env_grid:Tabular_Datasets/DK_Features_2023.csv",
+    "satellite:R5.6 export reports/R5.6/image_stats.csv",
+    "frozen:govt_crop_matched_v2/crop_supervised_v2.csv"
+  ],
+  "phase": "16",
+  "schema_version": "r5.7.0"
+}

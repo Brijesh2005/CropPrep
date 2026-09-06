@@ -1,0 +1,10 @@
+stage,modality,model,n,test_balanced_accuracy,test_roc_auc,test_majority_accuracy
+before_frozen,tabular,gb (best),10674,0.5047,0.5027,0.5374
+before_frozen,image,rf (best),10560,0.5063,0.5075,0.5374
+before_frozen,fusion,mlp (best),10560,0.5023,,0.5374
+after_recovered,tabular_raw_AB,lr (best),170178,0.5231,,0.612
+after_recovered,tabular_dedup50m,lr (best),41659,0.5015,,0.5932
+after_recovered,image,lr (best),9598,0.5157,,0.5396
+after_recovered,fusion,gb (best),9598,0.5189,,
+R5.6_ceiling,reference,best any,10674,0.5063,,0.5374
+R5.7_ceiling,reference,best any (dedup conservative),41659,0.5015,,0.5932

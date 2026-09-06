@@ -1,0 +1,10 @@
+{
+  "clusters_that_are_coconut_pepper_dual": 10653,
+  "field_observation_id_duplicates": 0,
+  "intercrop_note": "77% of pepper fields co-occur with coconut at the field level; nearly all pepper clusters are coconut-pepper dual patches — separability must be read with this in mind",
+  "max_cluster_size_fields": 957,
+  "obs_in_multi_field_clusters": 160235,
+  "phase": "8",
+  "rows": 175185,
+  "unique_field_clusters": 32097
+}

@@ -1,0 +1,242 @@
+{
+  "R5.7_cleanA": {
+    "best_model": "lr",
+    "best_test_balanced_accuracy": 0.5234,
+    "best_test_roc_auc": 0.5303,
+    "modality": "tabular",
+    "models": {
+      "gb": {
+        "modality": "tabular",
+        "model": "gb",
+        "pool": "R5.7_cleanA",
+        "test_accuracy": 0.6684,
+        "test_balanced_accuracy": 0.5082,
+        "test_roc_auc": 0.5444,
+        "val_accuracy": 0.8689,
+        "val_balanced_accuracy": 0.4973,
+        "val_roc_auc": 0.6038
+      },
+      "lr": {
+        "modality": "tabular",
+        "model": "lr",
+        "pool": "R5.7_cleanA",
+        "test_accuracy": 0.584,
+        "test_balanced_accuracy": 0.5234,
+        "test_roc_auc": 0.5303,
+        "val_accuracy": 0.514,
+        "val_balanced_accuracy": 0.531,
+        "val_roc_auc": 0.53
+      },
+      "mlp": {
+        "modality": "tabular",
+        "model": "mlp",
+        "pool": "R5.7_cleanA",
+        "test_accuracy": 0.7553,
+        "test_balanced_accuracy": 0.5,
+        "test_roc_auc": 0.508,
+        "val_accuracy": 0.8813,
+        "val_balanced_accuracy": 0.5,
+        "val_roc_auc": 0.5049
+      },
+      "rf": {
+        "modality": "tabular",
+        "model": "rf",
+        "pool": "R5.7_cleanA",
+        "test_accuracy": 0.7553,
+        "test_balanced_accuracy": 0.5,
+        "test_roc_auc": 0.5166,
+        "val_accuracy": 0.8813,
+        "val_balanced_accuracy": 0.5,
+        "val_roc_auc": 0.6278
+      }
+    },
+    "n": 84542,
+    "pool": "R5.7_cleanA",
+    "test_majority_accuracy": 0.7553
+  },
+  "R5.7_dedup_cluster50m": {
+    "best_model": "lr",
+    "best_test_balanced_accuracy": 0.5015,
+    "best_test_roc_auc": 0.5085,
+    "modality": "tabular",
+    "models": {
+      "gb": {
+        "modality": "tabular",
+        "model": "gb",
+        "pool": "R5.7_dedup_cluster50m",
+        "test_accuracy": 0.5121,
+        "test_balanced_accuracy": 0.4953,
+        "test_roc_auc": 0.4964,
+        "val_accuracy": 0.6369,
+        "val_balanced_accuracy": 0.503,
+        "val_roc_auc": 0.5538
+      },
+      "lr": {
+        "modality": "tabular",
+        "model": "lr",
+        "pool": "R5.7_dedup_cluster50m",
+        "test_accuracy": 0.5563,
+        "test_balanced_accuracy": 0.5015,
+        "test_roc_auc": 0.5085,
+        "val_accuracy": 0.5327,
+        "val_balanced_accuracy": 0.5122,
+        "val_roc_auc": 0.5078
+      },
+      "mlp": {
+        "modality": "tabular",
+        "model": "mlp",
+        "pool": "R5.7_dedup_cluster50m",
+        "test_accuracy": 0.5932,
+        "test_balanced_accuracy": 0.5,
+        "test_roc_auc": 0.5051,
+        "val_accuracy": 0.651,
+        "val_balanced_accuracy": 0.5,
+        "val_roc_auc": 0.5073
+      },
+      "rf": {
+        "modality": "tabular",
+        "model": "rf",
+        "pool": "R5.7_dedup_cluster50m",
+        "test_accuracy": 0.5932,
+        "test_balanced_accuracy": 0.5,
+        "test_roc_auc": 0.5202,
+        "val_accuracy": 0.6509,
+        "val_balanced_accuracy": 0.4999,
+        "val_roc_auc": 0.5562
+      }
+    },
+    "n": 41659,
+    "pool": "R5.7_dedup_cluster50m",
+    "test_majority_accuracy": 0.5932
+  },
+  "R5.7_full_AB": {
+    "best_model": "lr",
+    "best_test_balanced_accuracy": 0.5231,
+    "best_test_roc_auc": 0.5367,
+    "modality": "tabular",
+    "models": {
+      "gb": {
+        "modality": "tabular",
+        "model": "gb",
+        "pool": "R5.7_full_AB",
+        "test_accuracy": 0.5539,
+        "test_balanced_accuracy": 0.5044,
+        "test_roc_auc": 0.5081,
+        "val_accuracy": 0.709,
+        "val_balanced_accuracy": 0.5039,
+        "val_roc_auc": 0.5747
+      },
+      "lr": {
+        "modality": "tabular",
+        "model": "lr",
+        "pool": "R5.7_full_AB",
+        "test_accuracy": 0.5446,
+        "test_balanced_accuracy": 0.5231,
+        "test_roc_auc": 0.5367,
+        "val_accuracy": 0.52,
+        "val_balanced_accuracy": 0.5133,
+        "val_roc_auc": 0.5111
+      },
+      "mlp": {
+        "modality": "tabular",
+        "model": "mlp",
+        "pool": "R5.7_full_AB",
+        "test_accuracy": 0.612,
+        "test_balanced_accuracy": 0.5,
+        "test_roc_auc": 0.4932,
+        "val_accuracy": 0.7114,
+        "val_balanced_accuracy": 0.5,
+        "val_roc_auc": 0.4492
+      },
+      "rf": {
+        "modality": "tabular",
+        "model": "rf",
+        "pool": "R5.7_full_AB",
+        "test_accuracy": 0.612,
+        "test_balanced_accuracy": 0.5,
+        "test_roc_auc": 0.5188,
+        "val_accuracy": 0.7114,
+        "val_balanced_accuracy": 0.5,
+        "val_roc_auc": 0.5743
+      }
+    },
+    "n": 170178,
+    "pool": "R5.7_full_AB",
+    "test_majority_accuracy": 0.612
+  },
+  "R5.7_fusion": {
+    "best_model": "gb",
+    "best_test_balanced_accuracy": 0.5189,
+    "best_test_roc_auc": 0.5283,
+    "modality": "fusion",
+    "n": 9598,
+    "pool": "R5.7_fusion"
+  },
+  "R5.7_image_only": {
+    "best_model": "lr",
+    "best_test_balanced_accuracy": 0.5157,
+    "best_test_roc_auc": 0.5278,
+    "modality": "image",
+    "models": {
+      "gb": {
+        "modality": "tabular",
+        "model": "gb",
+        "pool": "R5.7_image_only",
+        "test_accuracy": 0.5297,
+        "test_balanced_accuracy": 0.495,
+        "test_roc_auc": 0.4912,
+        "val_accuracy": 0.551,
+        "val_balanced_accuracy": 0.5016,
+        "val_roc_auc": 0.5335
+      },
+      "lr": {
+        "modality": "tabular",
+        "model": "lr",
+        "pool": "R5.7_image_only",
+        "test_accuracy": 0.4832,
+        "test_balanced_accuracy": 0.5157,
+        "test_roc_auc": 0.5278,
+        "val_accuracy": 0.4955,
+        "val_balanced_accuracy": 0.5304,
+        "val_roc_auc": 0.5433
+      },
+      "mlp": {
+        "modality": "tabular",
+        "model": "mlp",
+        "pool": "R5.7_image_only",
+        "test_accuracy": 0.5396,
+        "test_balanced_accuracy": 0.5,
+        "test_roc_auc": 0.5176,
+        "val_accuracy": 0.5591,
+        "val_balanced_accuracy": 0.5,
+        "val_roc_auc": 0.5445
+      },
+      "rf": {
+        "modality": "tabular",
+        "model": "rf",
+        "pool": "R5.7_image_only",
+        "test_accuracy": 0.5416,
+        "test_balanced_accuracy": 0.5025,
+        "test_roc_auc": 0.4974,
+        "val_accuracy": 0.5543,
+        "val_balanced_accuracy": 0.4972,
+        "val_roc_auc": 0.522
+      }
+    },
+    "n": 9598,
+    "pool": "R5.7_image_only",
+    "test_majority_accuracy": 0.5396
+  },
+  "phase": "12",
+  "stability_gb_5seeds": {
+    "means": 0.5063,
+    "stdev": 0.0025,
+    "values": [
+      0.5044,
+      0.5037,
+      0.5066,
+      0.5071,
+      0.5099
+    ]
+  }
+}

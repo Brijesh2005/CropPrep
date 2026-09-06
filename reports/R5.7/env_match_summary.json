@@ -1,0 +1,209 @@
+{
+  "distance_percentiles_m": {
+    "p50": 151.1,
+    "p90": 313.5,
+    "p95": 1042.2,
+    "p99": 4329.6
+  },
+  "emitted_schema": [
+    "annual_rainfall_mm",
+    "dewpoint_c",
+    "evi",
+    "elevation",
+    "ndre",
+    "ndvi",
+    "ndwi",
+    "relative_humidity_pct",
+    "s2_obs_count",
+    "savi",
+    "slope",
+    "soil_clay_pct",
+    "soil_moisture",
+    "soil_organic_carbon",
+    "soil_sand_pct",
+    "soil_ph",
+    "temperature_c",
+    "kharif_ndvi",
+    "kharif_evi",
+    "kharif_ndwi",
+    "rabi_ndvi",
+    "rabi_evi",
+    "rabi_ndwi",
+    "is_cropland",
+    "land_cover_class",
+    "soil_type_class"
+  ],
+  "grid_year_used": {
+    "2020": 161656,
+    "2021": 13529
+  },
+  "knn_k5_vs_nearest_cell_k1": {
+    "features": {
+      "annual_rainfall_mm": {
+        "k1_mean": 4392.6281,
+        "k1_vs_k5_corr": -0.0456,
+        "k5_mean": 4323.9204,
+        "n": 2222
+      },
+      "dewpoint_c": {
+        "k1_mean": 22.0564,
+        "k1_vs_k5_corr": -0.0063,
+        "k5_mean": 21.7716,
+        "n": 2222
+      },
+      "elevation": {
+        "k1_mean": 106.4995,
+        "k1_vs_k5_corr": -0.0022,
+        "k5_mean": 99.2345,
+        "n": 2222
+      },
+      "evi": {
+        "k1_mean": 2.2023,
+        "k1_vs_k5_corr": 0.0227,
+        "k5_mean": 2.0764,
+        "n": 2222
+      },
+      "is_cropland": {
+        "k1_mean": 0.0081,
+        "k1_vs_k5_corr": -0.0054,
+        "k5_mean": 0.0036,
+        "n": 2222
+      },
+      "kharif_evi": {
+        "k1_mean": 2.0144,
+        "k1_vs_k5_corr": 0.0018,
+        "k5_mean": 2.7413,
+        "n": 2222
+      },
+      "kharif_ndvi": {
+        "k1_mean": 0.7128,
+        "k1_vs_k5_corr": 0.0176,
+        "k5_mean": 0.6733,
+        "n": 2222
+      },
+      "kharif_ndwi": {
+        "k1_mean": -0.6383,
+        "k1_vs_k5_corr": 0.0138,
+        "k5_mean": -0.5986,
+        "n": 2222
+      },
+      "land_cover_class": {
+        "k1_mean": 10.9541,
+        "k1_vs_k5_corr": 0.0044,
+        "k5_mean": 10.6391,
+        "n": 2222
+      },
+      "ndre": {
+        "k1_mean": 0.4872,
+        "k1_vs_k5_corr": -0.0131,
+        "k5_mean": 0.46,
+        "n": 2222
+      },
+      "ndvi": {
+        "k1_mean": 0.7011,
+        "k1_vs_k5_corr": 0.0105,
+        "k5_mean": 0.6731,
+        "n": 2222
+      },
+      "ndwi": {
+        "k1_mean": -0.6473,
+        "k1_vs_k5_corr": -0.0031,
+        "k5_mean": -0.6289,
+        "n": 2222
+      },
+      "rabi_evi": {
+        "k1_mean": 2.3463,
+        "k1_vs_k5_corr": 0.0124,
+        "k5_mean": 2.2944,
+        "n": 2222
+      },
+      "rabi_ndvi": {
+        "k1_mean": 0.7299,
+        "k1_vs_k5_corr": 0.0071,
+        "k5_mean": 0.7101,
+        "n": 2222
+      },
+      "rabi_ndwi": {
+        "k1_mean": -0.6659,
+        "k1_vs_k5_corr": -0.0029,
+        "k5_mean": -0.6493,
+        "n": 2222
+      },
+      "relative_humidity_pct": {
+        "k1_mean": 78.9616,
+        "k1_vs_k5_corr": 0.0125,
+        "k5_mean": 78.3397,
+        "n": 2222
+      },
+      "s2_obs_count": {
+        "k1_mean": 33.3294,
+        "k1_vs_k5_corr": 0.0213,
+        "k5_mean": 32.4984,
+        "n": 2222
+      },
+      "savi": {
+        "k1_mean": 1.0515,
+        "k1_vs_k5_corr": 0.0104,
+        "k5_mean": 1.0095,
+        "n": 2222
+      },
+      "slope": {
+        "k1_mean": 6.2542,
+        "k1_vs_k5_corr": 0.0081,
+        "k5_mean": 5.919,
+        "n": 2222
+      },
+      "soil_clay_pct": {
+        "k1_mean": 305.6382,
+        "k1_vs_k5_corr": 0.007,
+        "k5_mean": 314.7818,
+        "n": 2222
+      },
+      "soil_moisture": {
+        "k1_mean": 0.2939,
+        "k1_vs_k5_corr": 0.024,
+        "k5_mean": 0.2964,
+        "n": 2222
+      },
+      "soil_organic_carbon": {
+        "k1_mean": 357.5189,
+        "k1_vs_k5_corr": -0.0099,
+        "k5_mean": 337.6357,
+        "n": 2222
+      },
+      "soil_ph": {
+        "k1_mean": 56.0234,
+        "k1_vs_k5_corr": -0.0021,
+        "k5_mean": 56.5679,
+        "n": 2222
+      },
+      "soil_sand_pct": {
+        "k1_mean": 472.8965,
+        "k1_vs_k5_corr": -0.0061,
+        "k5_mean": 458.786,
+        "n": 2222
+      },
+      "soil_type_class": {
+        "k1_mean": 282.4068,
+        "k1_vs_k5_corr": -0.0183,
+        "k5_mean": 256.2736,
+        "n": 2222
+      },
+      "temperature_c": {
+        "k1_mean": 25.9908,
+        "k1_vs_k5_corr": -0.0101,
+        "k5_mean": 25.8296,
+        "n": 2222
+      }
+    },
+    "note": "nearest distances identical by construction; feature values compare raw cell (k=1) vs IDW interpolation (k=5)",
+    "sample_n": 20000
+  },
+  "matched_fraction": 0.973,
+  "matched_within_5km": 170462,
+  "median_distance_m": 151.1,
+  "method": "year-aware K-NN inverse-distance weighting (k=5, radius 5km) vs nearest-cell (k=1); distances = haversine great-circle metres",
+  "observations": 175185,
+  "phase": "4",
+  "within_250m_fraction": 0.8225
+}

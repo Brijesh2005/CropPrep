@@ -1,0 +1,27 @@
+{
+  "by_crop": [
+    {
+      "total": 21,
+      "with_imagery": 10
+    },
+    {
+      "total": 132321,
+      "with_imagery": 6260
+    },
+    {
+      "total": 272,
+      "with_imagery": 93
+    },
+    {
+      "total": 42571,
+      "with_imagery": 3338
+    }
+  ],
+  "coverage_fraction": 0.0554,
+  "disposition": "satellite_match_valid=False rows are NEVER discarded; they participate in tiering with the satellite dimension absorbed (see Phase 9)",
+  "join_rule": "exact (lat7, lon7, year, season, crop_label) match to frozen corpus rows, then record_id join to the R5.6 image_stats export",
+  "observations": 175185,
+  "phase": "6",
+  "satellite_status": "recovered observations have no local imagery; their satellite feature columns are empty until a Kaggle export of the R5.7 pool is produced with scripts/kaggle_r5_7_image_stats.py",
+  "with_r56_image_stats": 9701
+}

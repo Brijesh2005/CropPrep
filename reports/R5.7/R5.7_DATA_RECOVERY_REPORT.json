@@ -1,0 +1,4444 @@
+{
+  "artifacts": {
+    "before_after_ceiling.json": true,
+    "coordinate_audit_summary.json": true,
+    "decision.json": true,
+    "env_match_summary.json": true,
+    "field_dedup_summary.json": true,
+    "geographic_audit.json": true,
+    "leakage_audit.json": true,
+    "master_summary.json": true,
+    "observation_recovery.json": true,
+    "provenance_contract.json": false,
+    "quality_tiers.json": true,
+    "r5_7_separability.json": true,
+    "satellite_availability.json": true,
+    "source_inventory.json": true,
+    "temporal_alignment.json": true
+  },
+  "before_after_ceiling.json": {
+    "note": "before = frozen R5.6 corpus released ceiling; after = recovered R5.7 master; tabular_dedup50m is the fair comparison because the frozen corpus enforced ~50 m observation spacing",
+    "phase": "13",
+    "rows": [
+      {
+        "modality": "tabular",
+        "model": "gb (best)",
+        "n": 10674,
+        "stage": "before_frozen",
+        "test_balanced_accuracy": 0.5047,
+        "test_majority_accuracy": 0.5374,
+        "test_roc_auc": 0.5027
+      },
+      {
+        "modality": "image",
+        "model": "rf (best)",
+        "n": 10560,
+        "stage": "before_frozen",
+        "test_balanced_accuracy": 0.5063,
+        "test_majority_accuracy": 0.5374,
+        "test_roc_auc": 0.5075
+      },
+      {
+        "modality": "fusion",
+        "model": "mlp (best)",
+        "n": 10560,
+        "stage": "before_frozen",
+        "test_balanced_accuracy": 0.5023,
+        "test_majority_accuracy": 0.5374,
+        "test_roc_auc": null
+      },
+      {
+        "modality": "tabular_raw_AB",
+        "model": "lr (best)",
+        "n": 170178,
+        "stage": "after_recovered",
+        "test_balanced_accuracy": 0.5231,
+        "test_majority_accuracy": 0.612,
+        "test_roc_auc": null
+      },
+      {
+        "modality": "tabular_dedup50m",
+        "model": "lr (best)",
+        "n": 41659,
+        "stage": "after_recovered",
+        "test_balanced_accuracy": 0.5015,
+        "test_majority_accuracy": 0.5932,
+        "test_roc_auc": null
+      },
+      {
+        "modality": "image",
+        "model": "lr (best)",
+        "n": 9598,
+        "stage": "after_recovered",
+        "test_balanced_accuracy": 0.5157,
+        "test_majority_accuracy": 0.5396,
+        "test_roc_auc": null
+      },
+      {
+        "modality": "fusion",
+        "model": "gb (best)",
+        "n": 9598,
+        "stage": "after_recovered",
+        "test_balanced_accuracy": 0.5189,
+        "test_majority_accuracy": null,
+        "test_roc_auc": null
+      },
+      {
+        "modality": "reference",
+        "model": "best any",
+        "n": 10674,
+        "stage": "R5.6_ceiling",
+        "test_balanced_accuracy": 0.5063,
+        "test_majority_accuracy": 0.5374,
+        "test_roc_auc": null
+      },
+      {
+        "modality": "reference",
+        "model": "best any (dedup conservative)",
+        "n": 41659,
+        "stage": "R5.7_ceiling",
+        "test_balanced_accuracy": 0.5015,
+        "test_majority_accuracy": 0.5932,
+        "test_roc_auc": null
+      }
+    ]
+  },
+  "coordinate_audit_summary.json": {
+    "coord_valid": 746359,
+    "disposition": "no record discarded; every issue is logged and used for the Phase 9 quality tiers",
+    "dup_coord_6dec": 51017,
+    "environment_grids": {
+      "DK_Features_2018": {
+        "bbox": {
+          "lat_max": 13.250074927185867,
+          "lat_min": 12.55014822767554,
+          "lon_max": 75.64987605390736,
+          "lon_min": 74.85011915230255
+        },
+        "cells": 71027,
+        "dup_cells_6dec": 0,
+        "valid": 71027
+      },
+      "DK_Features_2019": {
+        "bbox": {
+          "lat_max": 13.250074927185867,
+          "lat_min": 12.55014822767554,
+          "lon_max": 75.64987605390736,
+          "lon_min": 74.85011915230255
+        },
+        "cells": 71134,
+        "dup_cells_6dec": 0,
+        "valid": 71134
+      },
+      "DK_Features_2020": {
+        "bbox": {
+          "lat_max": 13.250074927185867,
+          "lat_min": 12.55014822767554,
+          "lon_max": 75.64987605390736,
+          "lon_min": 74.85011915230255
+        },
+        "cells": 71134,
+        "dup_cells_6dec": 0,
+        "valid": 71134
+      },
+      "DK_Features_2021": {
+        "bbox": {
+          "lat_max": 13.250074927185867,
+          "lat_min": 12.55037903816107,
+          "lon_max": 75.64987605390736,
+          "lon_min": 74.85011915230255
+        },
+        "cells": 69233,
+        "dup_cells_6dec": 0,
+        "valid": 69233
+      },
+      "DK_Features_2022": {
+        "bbox": {
+          "lat_max": 13.250074927185867,
+          "lat_min": 12.55014822767554,
+          "lon_max": 75.64987605390736,
+          "lon_min": 74.85011915230255
+        },
+        "cells": 71134,
+        "dup_cells_6dec": 0,
+        "valid": 71134
+      },
+      "DK_Features_2023": {
+        "bbox": {
+          "lat_max": 13.250074927185867,
+          "lat_min": 12.55014822767554,
+          "lon_max": 75.64987605390736,
+          "lon_min": 74.85011915230255
+        },
+        "cells": 71134,
+        "dup_cells_6dec": 0,
+        "valid": 71134
+      },
+      "DK_Features_2024 (1)": {
+        "bbox": {
+          "lat_max": 13.250105524998736,
+          "lat_min": 12.550228087141218,
+          "lon_max": 75.64978010579306,
+          "lon_min": 74.85018967139827
+        },
+        "cells": 95082,
+        "dup_cells_6dec": 70,
+        "valid": 95082
+      }
+    },
+    "frozen_corpus": {
+      "coord_valid": 10674,
+      "dup_coord_6dec": 28,
+      "outside_dk_bounds": 0,
+      "rows": 10674
+    },
+    "low_precision_4dec": 3414,
+    "max_coord_dup_count_6dec": 52,
+    "normalization": "coordinates passed through verification only; none rewritten (already WGS84 from OGD survey dumps)",
+    "null_coord": 0,
+    "out_of_range": 0,
+    "outside_dk_bounds": 1,
+    "phase": "3",
+    "records": 746359,
+    "reference_system": "WGS84 (EPSG:4326) decimal degrees",
+    "rounded_coords_3dec": 353,
+    "swapped_axis": 0,
+    "zero_coord": 0
+  },
+  "decision.json": {
+    "after_ceiling_dedup50m": 0.5015,
+    "after_ceiling_raw_AB": 0.5231,
+    "before_ceiling": 0.506,
+    "delta_after_minus_before": -0.0045,
+    "phase": "14",
+    "primary_bottleneck": "limited_discriminative_information",
+    "primary_signal": "intercropping_co-location",
+    "recommended_next_phase": "R5.8 sub-field crop-level discrimination: use per-crop Crop_Extent footprints and 10 m Sentinel-2 patches sampled to the individual crop sub-plot; evaluate coconut-vs-pepper where the two are NOT co-located, and model intercropping co-occurrence rather than single-label field classification",
+    "rules": [
+      "50-55%: no signal -> bottleneck is limited discriminative information",
+      "60-70%: validate -> moderate signal needs validation",
+      "70-80%: strong -> retrain recommendation",
+      ">80%: substantial recovery"
+    ],
+    "verdict": "no_signal"
+  },
+  "env_match_summary.json": {
+    "distance_percentiles_m": {
+      "p50": 151.1,
+      "p90": 313.5,
+      "p95": 1042.2,
+      "p99": 4329.6
+    },
+    "emitted_schema": [
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "evi",
+      "elevation",
+      "ndre",
+      "ndvi",
+      "ndwi",
+      "relative_humidity_pct",
+      "s2_obs_count",
+      "savi",
+      "slope",
+      "soil_clay_pct",
+      "soil_moisture",
+      "soil_organic_carbon",
+      "soil_sand_pct",
+      "soil_ph",
+      "temperature_c",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "grid_year_used": {
+      "2020": 161656,
+      "2021": 13529
+    },
+    "knn_k5_vs_nearest_cell_k1": {
+      "features": {
+        "annual_rainfall_mm": {
+          "k1_mean": 4392.6281,
+          "k1_vs_k5_corr": -0.0456,
+          "k5_mean": 4323.9204,
+          "n": 2222
+        },
+        "dewpoint_c": {
+          "k1_mean": 22.0564,
+          "k1_vs_k5_corr": -0.0063,
+          "k5_mean": 21.7716,
+          "n": 2222
+        },
+        "elevation": {
+          "k1_mean": 106.4995,
+          "k1_vs_k5_corr": -0.0022,
+          "k5_mean": 99.2345,
+          "n": 2222
+        },
+        "evi": {
+          "k1_mean": 2.2023,
+          "k1_vs_k5_corr": 0.0227,
+          "k5_mean": 2.0764,
+          "n": 2222
+        },
+        "is_cropland": {
+          "k1_mean": 0.0081,
+          "k1_vs_k5_corr": -0.0054,
+          "k5_mean": 0.0036,
+          "n": 2222
+        },
+        "kharif_evi": {
+          "k1_mean": 2.0144,
+          "k1_vs_k5_corr": 0.0018,
+          "k5_mean": 2.7413,
+          "n": 2222
+        },
+        "kharif_ndvi": {
+          "k1_mean": 0.7128,
+          "k1_vs_k5_corr": 0.0176,
+          "k5_mean": 0.6733,
+          "n": 2222
+        },
+        "kharif_ndwi": {
+          "k1_mean": -0.6383,
+          "k1_vs_k5_corr": 0.0138,
+          "k5_mean": -0.5986,
+          "n": 2222
+        },
+        "land_cover_class": {
+          "k1_mean": 10.9541,
+          "k1_vs_k5_corr": 0.0044,
+          "k5_mean": 10.6391,
+          "n": 2222
+        },
+        "ndre": {
+          "k1_mean": 0.4872,
+          "k1_vs_k5_corr": -0.0131,
+          "k5_mean": 0.46,
+          "n": 2222
+        },
+        "ndvi": {
+          "k1_mean": 0.7011,
+          "k1_vs_k5_corr": 0.0105,
+          "k5_mean": 0.6731,
+          "n": 2222
+        },
+        "ndwi": {
+          "k1_mean": -0.6473,
+          "k1_vs_k5_corr": -0.0031,
+          "k5_mean": -0.6289,
+          "n": 2222
+        },
+        "rabi_evi": {
+          "k1_mean": 2.3463,
+          "k1_vs_k5_corr": 0.0124,
+          "k5_mean": 2.2944,
+          "n": 2222
+        },
+        "rabi_ndvi": {
+          "k1_mean": 0.7299,
+          "k1_vs_k5_corr": 0.0071,
+          "k5_mean": 0.7101,
+          "n": 2222
+        },
+        "rabi_ndwi": {
+          "k1_mean": -0.6659,
+          "k1_vs_k5_corr": -0.0029,
+          "k5_mean": -0.6493,
+          "n": 2222
+        },
+        "relative_humidity_pct": {
+          "k1_mean": 78.9616,
+          "k1_vs_k5_corr": 0.0125,
+          "k5_mean": 78.3397,
+          "n": 2222
+        },
+        "s2_obs_count": {
+          "k1_mean": 33.3294,
+          "k1_vs_k5_corr": 0.0213,
+          "k5_mean": 32.4984,
+          "n": 2222
+        },
+        "savi": {
+          "k1_mean": 1.0515,
+          "k1_vs_k5_corr": 0.0104,
+          "k5_mean": 1.0095,
+          "n": 2222
+        },
+        "slope": {
+          "k1_mean": 6.2542,
+          "k1_vs_k5_corr": 0.0081,
+          "k5_mean": 5.919,
+          "n": 2222
+        },
+        "soil_clay_pct": {
+          "k1_mean": 305.6382,
+          "k1_vs_k5_corr": 0.007,
+          "k5_mean": 314.7818,
+          "n": 2222
+        },
+        "soil_moisture": {
+          "k1_mean": 0.2939,
+          "k1_vs_k5_corr": 0.024,
+          "k5_mean": 0.2964,
+          "n": 2222
+        },
+        "soil_organic_carbon": {
+          "k1_mean": 357.5189,
+          "k1_vs_k5_corr": -0.0099,
+          "k5_mean": 337.6357,
+          "n": 2222
+        },
+        "soil_ph": {
+          "k1_mean": 56.0234,
+          "k1_vs_k5_corr": -0.0021,
+          "k5_mean": 56.5679,
+          "n": 2222
+        },
+        "soil_sand_pct": {
+          "k1_mean": 472.8965,
+          "k1_vs_k5_corr": -0.0061,
+          "k5_mean": 458.786,
+          "n": 2222
+        },
+        "soil_type_class": {
+          "k1_mean": 282.4068,
+          "k1_vs_k5_corr": -0.0183,
+          "k5_mean": 256.2736,
+          "n": 2222
+        },
+        "temperature_c": {
+          "k1_mean": 25.9908,
+          "k1_vs_k5_corr": -0.0101,
+          "k5_mean": 25.8296,
+          "n": 2222
+        }
+      },
+      "note": "nearest distances identical by construction; feature values compare raw cell (k=1) vs IDW interpolation (k=5)",
+      "sample_n": 20000
+    },
+    "matched_fraction": 0.973,
+    "matched_within_5km": 170462,
+    "median_distance_m": 151.1,
+    "method": "year-aware K-NN inverse-distance weighting (k=5, radius 5km) vs nearest-cell (k=1); distances = haversine great-circle metres",
+    "observations": 175185,
+    "phase": "4",
+    "within_250m_fraction": 0.8225
+  },
+  "field_dedup_summary.json": {
+    "clusters_that_are_coconut_pepper_dual": 10653,
+    "field_observation_id_duplicates": 0,
+    "intercrop_note": "77% of pepper fields co-occur with coconut at the field level; nearly all pepper clusters are coconut-pepper dual patches — separability must be read with this in mind",
+    "max_cluster_size_fields": 957,
+    "obs_in_multi_field_clusters": 160235,
+    "phase": "8",
+    "rows": 175185,
+    "unique_field_clusters": 32097
+  },
+  "geographic_audit.json": {
+    "binary_rows": 174892,
+    "co_location_0p02deg": {
+      "cells_with_both": 1575,
+      "dual_row_fraction": 0.8665,
+      "rows_in_dual_cells": 151538
+    },
+    "geographic_shortcut_probe": {
+      "models": {
+        "lr": {
+          "test_auc": 0.5029,
+          "test_balanced_acc": 0.5
+        },
+        "rf": {
+          "test_auc": 0.4985,
+          "test_balanced_acc": 0.5
+        }
+      },
+      "note": "LR/RF trained on (lat, lon) only; test AUC/balanced-accuracy",
+      "test_majority_accuracy": 0.6158
+    },
+    "intercrop_note": "77.2% of pepper fields are coconut-pepper dual fields; median nearest-coconut distance for pepper fields is 2.9 m — GPS/env at field resolution cannot separate co-located crops",
+    "nearest_cross_class_distance": {
+      "median_m": 2.9,
+      "p90_m": 21.5,
+      "sample_n": 12000
+    },
+    "phase": "11",
+    "shortcut_absent": true,
+    "split_balance": {
+      "('test', 'coconut')": 30239,
+      "('test', 'pepper')": 18869,
+      "('train', 'coconut')": 66275,
+      "('train', 'pepper')": 9173,
+      "('val', 'coconut')": 35807,
+      "('val', 'pepper')": 14529
+    },
+    "taluk_balance": {
+      "('Bantwal', 'coconut')": 24942,
+      "('Bantwal', 'pepper')": 3894,
+      "('Belthangady', 'coconut')": 26118,
+      "('Belthangady', 'pepper')": 5169,
+      "('Mangalore', 'coconut')": 15215,
+      "('Mangalore', 'pepper')": 110,
+      "('Puttur', 'coconut')": 35807,
+      "('Puttur', 'pepper')": 14529,
+      "('Sullia', 'coconut')": 30239,
+      "('Sullia', 'pepper')": 18869
+    }
+  },
+  "leakage_audit.json": {
+    "conclusion": "frozen corpus schema contains no forbidden features; master schema passes; Yield_Proxy_NPP never enters any feature table",
+    "frozen_allowed": [
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "elevation",
+      "env_match_distance_m",
+      "evi",
+      "is_cropland",
+      "kharif_evi",
+      "kharif_ndvi",
+      "kharif_ndwi",
+      "land_cover_class",
+      "lat",
+      "lon",
+      "ndre",
+      "ndvi",
+      "ndwi",
+      "rabi_evi",
+      "rabi_ndvi",
+      "rabi_ndwi",
+      "record_id",
+      "relative_humidity_pct",
+      "s2_obs_count",
+      "savi",
+      "season",
+      "slope",
+      "soil_clay_pct",
+      "soil_moisture",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_sand_pct",
+      "soil_type_class",
+      "source",
+      "source_crop_name",
+      "spatial_match_distance_km",
+      "survey_date",
+      "temperature_c",
+      "year"
+    ],
+    "frozen_corpus_schema": [
+      "annual_rainfall_mm",
+      "benchmark_eligible",
+      "crop_class_id",
+      "crop_label",
+      "dewpoint_c",
+      "elevation",
+      "env_dk_index",
+      "env_match_confidence",
+      "env_match_distance_m",
+      "env_match_method",
+      "env_match_year",
+      "env_season_for_features",
+      "env_support",
+      "evi",
+      "evi_available",
+      "image_source",
+      "is_cropland",
+      "is_recovered_v2",
+      "kharif_evi",
+      "kharif_ndvi",
+      "kharif_ndwi",
+      "land_cover_class",
+      "lat",
+      "location_district",
+      "location_hobli",
+      "location_taluk",
+      "location_village",
+      "lon",
+      "ndre",
+      "ndvi",
+      "ndvi_available",
+      "ndwi",
+      "rabi_evi",
+      "rabi_ndvi",
+      "rabi_ndwi",
+      "record_id",
+      "relative_humidity_pct",
+      "s2_obs_count",
+      "satellite_status",
+      "savi",
+      "season",
+      "slope",
+      "soil_clay_pct",
+      "soil_moisture",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_sand_pct",
+      "soil_type_class",
+      "source",
+      "source_crop_name",
+      "source_record_id",
+      "spatial_match_distance_km",
+      "split",
+      "survey_date",
+      "tabular_source",
+      "temperature_c",
+      "temporal_match_status",
+      "v1_record_id",
+      "year"
+    ],
+    "frozen_features_audited": [
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "elevation",
+      "env_match_distance_m",
+      "evi",
+      "is_cropland",
+      "kharif_evi",
+      "kharif_ndvi",
+      "kharif_ndwi",
+      "land_cover_class",
+      "lat",
+      "lon",
+      "ndre",
+      "ndvi",
+      "ndwi",
+      "rabi_evi",
+      "rabi_ndvi",
+      "rabi_ndwi",
+      "relative_humidity_pct",
+      "s2_obs_count",
+      "savi",
+      "season",
+      "slope",
+      "soil_clay_pct",
+      "soil_moisture",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_sand_pct",
+      "soil_type_class",
+      "spatial_match_distance_km",
+      "temperature_c",
+      "year"
+    ],
+    "frozen_forbidden": [
+      "benchmark_eligible",
+      "crop_class_id",
+      "crop_label",
+      "env_dk_index",
+      "env_match_confidence",
+      "env_match_method",
+      "env_match_year",
+      "env_season_for_features",
+      "env_support",
+      "evi_available",
+      "image_source",
+      "is_recovered_v2",
+      "location_district",
+      "location_hobli",
+      "location_taluk",
+      "location_village",
+      "ndvi_available",
+      "satellite_status",
+      "source_record_id",
+      "split",
+      "tabular_source",
+      "temporal_match_status",
+      "v1_record_id"
+    ],
+    "master_forbidden": [],
+    "master_schema_audit": {
+      "annual_rainfall_mm": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "dewpoint_c": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "elevation": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "env_method": {
+        "allowed": true,
+        "reason": "temporal/spatial/lookup PLC metadata",
+        "source_group": "id/metadata"
+      },
+      "environment_match_distance_m": {
+        "allowed": true,
+        "reason": "temporal/spatial/lookup PLC metadata",
+        "source_group": "id/metadata"
+      },
+      "evi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "grid_year": {
+        "allowed": true,
+        "reason": "temporal/spatial/lookup PLC metadata",
+        "source_group": "id/metadata"
+      },
+      "image_count": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "is_cropland": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "kharif_evi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "kharif_ndvi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "kharif_ndwi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "land_cover_class": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "latitude": {
+        "allowed": true,
+        "note": "shortcut risk audited in Phase 11",
+        "reason": "GPS under study; permitted as spatial features but audited for geographic-memorization shortcuts in Phase 11",
+        "source_group": "geometry"
+      },
+      "longitude": {
+        "allowed": true,
+        "note": "shortcut risk audited in Phase 11",
+        "reason": "GPS under study; permitted as spatial features but audited for geographic-memorization shortcuts in Phase 11",
+        "source_group": "geometry"
+      },
+      "ndre": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "ndvi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "ndwi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "nearest_image_date": {
+        "allowed": true,
+        "reason": "temporal/spatial/lookup PLC metadata",
+        "source_group": "id/metadata"
+      },
+      "padded_image_count": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "rabi_evi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "rabi_ndvi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "rabi_ndwi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "real_fraction": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "real_image_count": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "relative_humidity_pct": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "s2_obs_count": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "savi": {
+        "allowed": true,
+        "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+        "source_group": "satellite-composite"
+      },
+      "season": {
+        "allowed": true,
+        "reason": "temporal/spatial/lookup PLC metadata",
+        "source_group": "id/metadata"
+      },
+      "slope": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "soil_clay_pct": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "soil_moisture": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "soil_organic_carbon": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "soil_ph": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "soil_sand_pct": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "soil_type_class": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "survey_date": {
+        "allowed": true,
+        "reason": "temporal/spatial/lookup PLC metadata",
+        "source_group": "id/metadata"
+      },
+      "temperature_c": {
+        "allowed": true,
+        "reason": "independent environmental/climatological grids; permitted for crop classification",
+        "source_group": "env-climatology"
+      },
+      "temporal_gap_days": {
+        "allowed": true,
+        "reason": "temporal/spatial/lookup PLC metadata",
+        "source_group": "id/metadata"
+      },
+      "year": {
+        "allowed": true,
+        "reason": "temporal/spatial/lookup PLC metadata",
+        "source_group": "id/metadata"
+      }
+    },
+    "phase": "2",
+    "rule_family_descriptions": {
+      "aggregate-yield": "district-level production/yield aggregates that can leak trends through location; FORBIDDEN as features",
+      "env-climatology": "independent environmental/climatological grids; permitted for crop classification",
+      "geometry": "GPS under study; permitted as spatial features but audited for geographic-memorization shortcuts in Phase 11",
+      "id/metadata": "source record ids and administrative fields used only to reconstruct the sample; not causative of the crop",
+      "satellite-composite": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "survey-measured": "directly measured at the field on the survey date; metadata, not target leakage",
+      "target-derived": "originates from the crop label itself or land-use class that encodes the same information; FORBIDDEN"
+    }
+  },
+  "master_summary.json": {
+    "by_crop": {
+      "cardamom": 21,
+      "coconut": 132321,
+      "coffee": 272,
+      "pepper": 42571
+    },
+    "by_split_crop": {
+      "('test', 'cardamom')": 11,
+      "('test', 'coconut')": 30239,
+      "('test', 'coffee')": 134,
+      "('test', 'pepper')": 18869,
+      "('train', 'cardamom')": 8,
+      "('train', 'coconut')": 66275,
+      "('train', 'coffee')": 101,
+      "('train', 'pepper')": 9173,
+      "('val', 'cardamom')": 2,
+      "('val', 'coconut')": 35807,
+      "('val', 'coffee')": 37,
+      "('val', 'pepper')": 14529
+    },
+    "coconut_pepper_dual_fields": 65858,
+    "coordinate_audit_note": "issue flags joined from master_coordinate_audit.csv",
+    "environment_match_fraction": 0.973,
+    "environment_match_valid": 170462,
+    "fields_with_pepper_also_coconut": 0.7718869653050199,
+    "phase": "7",
+    "rows": 175185,
+    "rule": "one row per (field, year, season, crop_label); every row traces to a real survey record with GPS + env provenance",
+    "unique_field_observation_ids": 175185,
+    "with_r56_imagery": 9701
+  },
+  "observation_recovery.json": {
+    "definition": "recovered = master observations whose (year, season, crop, lat7, lon7) never appear in the frozen corpus; they were lost to the R5.2.x name-matched / co-downloaded construction",
+    "imagery_note": "local imagery exists only for the frozen subset (R5.6 export); recovered observations need a Kaggle export produced by scripts/kaggle_r5_7_image_stats.py — their satellite columns are empty locally",
+    "master_in_frozen_key": 9701,
+    "phase": "10",
+    "recovered_by_crop": {
+      "cardamom": 11,
+      "coconut": 126061,
+      "coffee": 179,
+      "pepper": 39233
+    },
+    "recovered_by_season": {
+      "Kharif": 165422,
+      "Rabi": 62
+    },
+    "recovered_by_split": {
+      "test": 47185,
+      "train": 70032,
+      "val": 48267
+    },
+    "recovered_by_tier": {
+      "A": 79757,
+      "B": 81004,
+      "C": 4723
+    },
+    "recovered_dual_coconut_pepper_fields": 61929,
+    "recovered_new_field_ids": 134982,
+    "recovered_observations": 165484,
+    "recovered_with_imagery_local": 0,
+    "recovery_factor_x": 16.41,
+    "total_frozen_supervised": 10674,
+    "total_master_supervised": 175185
+  },
+  "phase": "15",
+  "quality_tiers.json": {
+    "definition": {
+      "A": "valid coord + env <= 250 m + exact grid year + valid survey date, not part of a coconut-pepper dual patch",
+      "B": "valid coord + env <= 5000 m + valid survey date",
+      "C": "valid coord but env out of 5 km or non-aligned grid year",
+      "D": "invalid coordinates or missing criticals — kept for transparency, excluded from analyzable pools"
+    },
+    "disposition": "tiers never silently discard; every row carries tier_reasons",
+    "phase": "9",
+    "tier_by_crop": {
+      "('cardamom', 'A')": 5,
+      "('cardamom', 'B')": 15,
+      "('cardamom', 'C')": 1,
+      "('coconut', 'A')": 76222,
+      "('coconut', 'B')": 51894,
+      "('coconut', 'C')": 4205,
+      "('coffee', 'A')": 128,
+      "('coffee', 'B')": 136,
+      "('coffee', 'C')": 8,
+      "('pepper', 'A')": 8320,
+      "('pepper', 'B')": 33742,
+      "('pepper', 'C')": 509
+    },
+    "tier_counts": {
+      "A": 84675,
+      "B": 85787,
+      "C": 4723
+    },
+    "tier_with_satellite_counts": {
+      "A": 4918,
+      "B": 4783,
+      "no_imagery": 165484
+    }
+  },
+  "r5_7_separability.json": {
+    "R5.7_cleanA": {
+      "best_model": "lr",
+      "best_test_balanced_accuracy": 0.5234,
+      "best_test_roc_auc": 0.5303,
+      "modality": "tabular",
+      "models": {
+        "gb": {
+          "modality": "tabular",
+          "model": "gb",
+          "pool": "R5.7_cleanA",
+          "test_accuracy": 0.6684,
+          "test_balanced_accuracy": 0.5082,
+          "test_roc_auc": 0.5444,
+          "val_accuracy": 0.8689,
+          "val_balanced_accuracy": 0.4973,
+          "val_roc_auc": 0.6038
+        },
+        "lr": {
+          "modality": "tabular",
+          "model": "lr",
+          "pool": "R5.7_cleanA",
+          "test_accuracy": 0.584,
+          "test_balanced_accuracy": 0.5234,
+          "test_roc_auc": 0.5303,
+          "val_accuracy": 0.514,
+          "val_balanced_accuracy": 0.531,
+          "val_roc_auc": 0.53
+        },
+        "mlp": {
+          "modality": "tabular",
+          "model": "mlp",
+          "pool": "R5.7_cleanA",
+          "test_accuracy": 0.7553,
+          "test_balanced_accuracy": 0.5,
+          "test_roc_auc": 0.508,
+          "val_accuracy": 0.8813,
+          "val_balanced_accuracy": 0.5,
+          "val_roc_auc": 0.5049
+        },
+        "rf": {
+          "modality": "tabular",
+          "model": "rf",
+          "pool": "R5.7_cleanA",
+          "test_accuracy": 0.7553,
+          "test_balanced_accuracy": 0.5,
+          "test_roc_auc": 0.5166,
+          "val_accuracy": 0.8813,
+          "val_balanced_accuracy": 0.5,
+          "val_roc_auc": 0.6278
+        }
+      },
+      "n": 84542,
+      "pool": "R5.7_cleanA",
+      "test_majority_accuracy": 0.7553
+    },
+    "R5.7_dedup_cluster50m": {
+      "best_model": "lr",
+      "best_test_balanced_accuracy": 0.5015,
+      "best_test_roc_auc": 0.5085,
+      "modality": "tabular",
+      "models": {
+        "gb": {
+          "modality": "tabular",
+          "model": "gb",
+          "pool": "R5.7_dedup_cluster50m",
+          "test_accuracy": 0.5121,
+          "test_balanced_accuracy": 0.4953,
+          "test_roc_auc": 0.4964,
+          "val_accuracy": 0.6369,
+          "val_balanced_accuracy": 0.503,
+          "val_roc_auc": 0.5538
+        },
+        "lr": {
+          "modality": "tabular",
+          "model": "lr",
+          "pool": "R5.7_dedup_cluster50m",
+          "test_accuracy": 0.5563,
+          "test_balanced_accuracy": 0.5015,
+          "test_roc_auc": 0.5085,
+          "val_accuracy": 0.5327,
+          "val_balanced_accuracy": 0.5122,
+          "val_roc_auc": 0.5078
+        },
+        "mlp": {
+          "modality": "tabular",
+          "model": "mlp",
+          "pool": "R5.7_dedup_cluster50m",
+          "test_accuracy": 0.5932,
+          "test_balanced_accuracy": 0.5,
+          "test_roc_auc": 0.5051,
+          "val_accuracy": 0.651,
+          "val_balanced_accuracy": 0.5,
+          "val_roc_auc": 0.5073
+        },
+        "rf": {
+          "modality": "tabular",
+          "model": "rf",
+          "pool": "R5.7_dedup_cluster50m",
+          "test_accuracy": 0.5932,
+          "test_balanced_accuracy": 0.5,
+          "test_roc_auc": 0.5202,
+          "val_accuracy": 0.6509,
+          "val_balanced_accuracy": 0.4999,
+          "val_roc_auc": 0.5562
+        }
+      },
+      "n": 41659,
+      "pool": "R5.7_dedup_cluster50m",
+      "test_majority_accuracy": 0.5932
+    },
+    "R5.7_full_AB": {
+      "best_model": "lr",
+      "best_test_balanced_accuracy": 0.5231,
+      "best_test_roc_auc": 0.5367,
+      "modality": "tabular",
+      "models": {
+        "gb": {
+          "modality": "tabular",
+          "model": "gb",
+          "pool": "R5.7_full_AB",
+          "test_accuracy": 0.5539,
+          "test_balanced_accuracy": 0.5044,
+          "test_roc_auc": 0.5081,
+          "val_accuracy": 0.709,
+          "val_balanced_accuracy": 0.5039,
+          "val_roc_auc": 0.5747
+        },
+        "lr": {
+          "modality": "tabular",
+          "model": "lr",
+          "pool": "R5.7_full_AB",
+          "test_accuracy": 0.5446,
+          "test_balanced_accuracy": 0.5231,
+          "test_roc_auc": 0.5367,
+          "val_accuracy": 0.52,
+          "val_balanced_accuracy": 0.5133,
+          "val_roc_auc": 0.5111
+        },
+        "mlp": {
+          "modality": "tabular",
+          "model": "mlp",
+          "pool": "R5.7_full_AB",
+          "test_accuracy": 0.612,
+          "test_balanced_accuracy": 0.5,
+          "test_roc_auc": 0.4932,
+          "val_accuracy": 0.7114,
+          "val_balanced_accuracy": 0.5,
+          "val_roc_auc": 0.4492
+        },
+        "rf": {
+          "modality": "tabular",
+          "model": "rf",
+          "pool": "R5.7_full_AB",
+          "test_accuracy": 0.612,
+          "test_balanced_accuracy": 0.5,
+          "test_roc_auc": 0.5188,
+          "val_accuracy": 0.7114,
+          "val_balanced_accuracy": 0.5,
+          "val_roc_auc": 0.5743
+        }
+      },
+      "n": 170178,
+      "pool": "R5.7_full_AB",
+      "test_majority_accuracy": 0.612
+    },
+    "R5.7_fusion": {
+      "best_model": "gb",
+      "best_test_balanced_accuracy": 0.5189,
+      "best_test_roc_auc": 0.5283,
+      "modality": "fusion",
+      "n": 9598,
+      "pool": "R5.7_fusion"
+    },
+    "R5.7_image_only": {
+      "best_model": "lr",
+      "best_test_balanced_accuracy": 0.5157,
+      "best_test_roc_auc": 0.5278,
+      "modality": "image",
+      "models": {
+        "gb": {
+          "modality": "tabular",
+          "model": "gb",
+          "pool": "R5.7_image_only",
+          "test_accuracy": 0.5297,
+          "test_balanced_accuracy": 0.495,
+          "test_roc_auc": 0.4912,
+          "val_accuracy": 0.551,
+          "val_balanced_accuracy": 0.5016,
+          "val_roc_auc": 0.5335
+        },
+        "lr": {
+          "modality": "tabular",
+          "model": "lr",
+          "pool": "R5.7_image_only",
+          "test_accuracy": 0.4832,
+          "test_balanced_accuracy": 0.5157,
+          "test_roc_auc": 0.5278,
+          "val_accuracy": 0.4955,
+          "val_balanced_accuracy": 0.5304,
+          "val_roc_auc": 0.5433
+        },
+        "mlp": {
+          "modality": "tabular",
+          "model": "mlp",
+          "pool": "R5.7_image_only",
+          "test_accuracy": 0.5396,
+          "test_balanced_accuracy": 0.5,
+          "test_roc_auc": 0.5176,
+          "val_accuracy": 0.5591,
+          "val_balanced_accuracy": 0.5,
+          "val_roc_auc": 0.5445
+        },
+        "rf": {
+          "modality": "tabular",
+          "model": "rf",
+          "pool": "R5.7_image_only",
+          "test_accuracy": 0.5416,
+          "test_balanced_accuracy": 0.5025,
+          "test_roc_auc": 0.4974,
+          "val_accuracy": 0.5543,
+          "val_balanced_accuracy": 0.4972,
+          "val_roc_auc": 0.522
+        }
+      },
+      "n": 9598,
+      "pool": "R5.7_image_only",
+      "test_majority_accuracy": 0.5396
+    },
+    "phase": "12",
+    "stability_gb_5seeds": {
+      "means": 0.5063,
+      "stdev": 0.0025,
+      "values": [
+        0.5044,
+        0.5037,
+        0.5066,
+        0.5071,
+        0.5099
+      ]
+    }
+  },
+  "satellite_availability.json": {
+    "by_crop": [
+      {
+        "total": 21,
+        "with_imagery": 10
+      },
+      {
+        "total": 132321,
+        "with_imagery": 6260
+      },
+      {
+        "total": 272,
+        "with_imagery": 93
+      },
+      {
+        "total": 42571,
+        "with_imagery": 3338
+      }
+    ],
+    "coverage_fraction": 0.0554,
+    "disposition": "satellite_match_valid=False rows are NEVER discarded; they participate in tiering with the satellite dimension absorbed (see Phase 9)",
+    "join_rule": "exact (lat7, lon7, year, season, crop_label) match to frozen corpus rows, then record_id join to the R5.6 image_stats export",
+    "observations": 175185,
+    "phase": "6",
+    "satellite_status": "recovered observations have no local imagery; their satellite feature columns are empty until a Kaggle export of the R5.7 pool is produced with scripts/kaggle_r5_7_image_stats.py",
+    "with_r56_image_stats": 9701
+  },
+  "source_inventory.json": {
+    "no_fabrication_rule": "no observation is invented; each row traces to a real source record",
+    "observation_usable": {
+      "aggregate_district_level": false,
+      "env_grid": true,
+      "frozen_supervised": true,
+      "satellite_stats": true,
+      "survey_excluded_coarse": false,
+      "survey_geotagged": true
+    },
+    "phase": "1",
+    "purpose": "inventory every candidate observation source for the R5.7 master dataset",
+    "sources": {
+      "aggregate:All-India_-Crop-wise-Area,-Production-&-Yield (2).csv": {
+        "columns": [
+          "Crop",
+          "Season",
+          "Area-2021-22",
+          "Area-2022-23",
+          "Area-2023-24",
+          "Area-2024-25",
+          "Area-2025-26",
+          "Production-2021-22",
+          "Production-2022-23",
+          "Production-2023-24",
+          "Production-2024-25",
+          "Production-2025-26",
+          "Yield-2021-22",
+          "Yield-2022-23",
+          "Yield-2023-24",
+          "Yield-2024-25",
+          "Yield-2025-26"
+        ],
+        "dims": {
+          "coord": [],
+          "crop": [
+            "Crop"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Area-2021-22",
+            "Area-2022-23",
+            "Area-2023-24",
+            "Area-2024-25",
+            "Area-2025-26",
+            "Production-2021-22",
+            "Production-2022-23",
+            "Production-2023-24",
+            "Production-2024-25",
+            "Production-2025-26",
+            "Yield-2021-22",
+            "Yield-2022-23",
+            "Yield-2023-24",
+            "Yield-2024-25",
+            "Yield-2025-26"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": []
+        },
+        "kind": "aggregate_district_level",
+        "missing_top": {
+          "Area-2021-22": 0.1633,
+          "Area-2022-23": 0.0,
+          "Area-2023-24": 0.0,
+          "Crop": 0.0,
+          "Production-2021-22": 0.1633,
+          "Yield-2021-22": 0.1633
+        },
+        "path": "Tabular_Datasets\\All-India_-Crop-wise-Area,-Production-&-Yield (2).csv",
+        "rows": null,
+        "rows_sampled": 98,
+        "sampled": false,
+        "season_values": [
+          "Kharif",
+          "Rabi",
+          "Summer",
+          "Total"
+        ],
+        "sha256": "a1d2a57bccea7c47b453126f469cb72ac641fb44cdadbc5f6e269a8c8eb93e26",
+        "size_bytes": 14813
+      },
+      "aggregate:ICRISAT-District Level Data.csv": {
+        "columns": [
+          "Dist Code",
+          "Year",
+          "State Code",
+          "State Name",
+          "Dist Name",
+          "RICE AREA (1000 ha)",
+          "RICE PRODUCTION (1000 tons)",
+          "RICE YIELD (Kg per ha)",
+          "WHEAT AREA (1000 ha)",
+          "WHEAT PRODUCTION (1000 tons)",
+          "WHEAT YIELD (Kg per ha)",
+          "KHARIF SORGHUM AREA (1000 ha)",
+          "KHARIF SORGHUM PRODUCTION (1000 tons)",
+          "KHARIF SORGHUM YIELD (Kg per ha)",
+          "RABI SORGHUM AREA (1000 ha)",
+          "RABI SORGHUM PRODUCTION (1000 tons)",
+          "RABI SORGHUM YIELD (Kg per ha)",
+          "SORGHUM AREA (1000 ha)",
+          "SORGHUM PRODUCTION (1000 tons)",
+          "SORGHUM YIELD (Kg per ha)",
+          "PEARL MILLET AREA (1000 ha)",
+          "PEARL MILLET PRODUCTION (1000 tons)",
+          "PEARL MILLET YIELD (Kg per ha)",
+          "MAIZE AREA (1000 ha)",
+          "MAIZE PRODUCTION (1000 tons)",
+          "MAIZE YIELD (Kg per ha)",
+          "FINGER MILLET AREA (1000 ha)",
+          "FINGER MILLET PRODUCTION (1000 tons)",
+          "FINGER MILLET YIELD (Kg per ha)",
+          "BARLEY AREA (1000 ha)",
+          "BARLEY PRODUCTION (1000 tons)",
+          "BARLEY YIELD (Kg per ha)",
+          "CHICKPEA AREA (1000 ha)",
+          "CHICKPEA PRODUCTION (1000 tons)",
+          "CHICKPEA YIELD (Kg per ha)",
+          "PIGEONPEA AREA (1000 ha)",
+          "PIGEONPEA PRODUCTION (1000 tons)",
+          "PIGEONPEA YIELD (Kg per ha)",
+          "MINOR PULSES AREA (1000 ha)",
+          "MINOR PULSES PRODUCTION (1000 tons)",
+          "MINOR PULSES YIELD (Kg per ha)",
+          "GROUNDNUT AREA (1000 ha)",
+          "GROUNDNUT PRODUCTION (1000 tons)",
+          "GROUNDNUT YIELD (Kg per ha)",
+          "SESAMUM AREA (1000 ha)",
+          "SESAMUM PRODUCTION (1000 tons)",
+          "SESAMUM YIELD (Kg per ha)",
+          "RAPESEED AND MUSTARD AREA (1000 ha)",
+          "RAPESEED AND MUSTARD PRODUCTION (1000 tons)",
+          "RAPESEED AND MUSTARD YIELD (Kg per ha)",
+          "SAFFLOWER AREA (1000 ha)",
+          "SAFFLOWER PRODUCTION (1000 tons)",
+          "SAFFLOWER YIELD (Kg per ha)",
+          "CASTOR AREA (1000 ha)",
+          "CASTOR PRODUCTION (1000 tons)",
+          "CASTOR YIELD (Kg per ha)",
+          "LINSEED AREA (1000 ha)",
+          "LINSEED PRODUCTION (1000 tons)",
+          "LINSEED YIELD (Kg per ha)",
+          "SUNFLOWER AREA (1000 ha)",
+          "SUNFLOWER PRODUCTION (1000 tons)",
+          "SUNFLOWER YIELD (Kg per ha)",
+          "SOYABEAN AREA (1000 ha)",
+          "SOYABEAN PRODUCTION (1000 tons)",
+          "SOYABEAN YIELD (Kg per ha)",
+          "OILSEEDS AREA (1000 ha)",
+          "OILSEEDS PRODUCTION (1000 tons)",
+          "OILSEEDS YIELD (Kg per ha)",
+          "SUGARCANE AREA (1000 ha)",
+          "SUGARCANE PRODUCTION (1000 tons)",
+          "SUGARCANE YIELD (Kg per ha)",
+          "COTTON AREA (1000 ha)",
+          "COTTON PRODUCTION (1000 tons)",
+          "COTTON YIELD (Kg per ha)",
+          "FRUITS AREA (1000 ha)",
+          "VEGETABLES AREA (1000 ha)",
+          "FRUITS AND VEGETABLES AREA (1000 ha)",
+          "POTATOES AREA (1000 ha)",
+          "ONION AREA (1000 ha)",
+          "FODDER AREA (1000 ha)"
+        ],
+        "dims": {
+          "coord": [],
+          "crop": [],
+          "date": [],
+          "env": [],
+          "other": [
+            "Dist Code",
+            "State Code",
+            "State Name",
+            "Dist Name",
+            "RICE AREA (1000 ha)",
+            "RICE PRODUCTION (1000 tons)",
+            "RICE YIELD (Kg per ha)",
+            "WHEAT AREA (1000 ha)",
+            "WHEAT PRODUCTION (1000 tons)",
+            "WHEAT YIELD (Kg per ha)",
+            "KHARIF SORGHUM AREA (1000 ha)",
+            "KHARIF SORGHUM PRODUCTION (1000 tons)",
+            "KHARIF SORGHUM YIELD (Kg per ha)",
+            "RABI SORGHUM AREA (1000 ha)",
+            "RABI SORGHUM PRODUCTION (1000 tons)",
+            "RABI SORGHUM YIELD (Kg per ha)",
+            "SORGHUM AREA (1000 ha)",
+            "SORGHUM PRODUCTION (1000 tons)",
+            "SORGHUM YIELD (Kg per ha)",
+            "PEARL MILLET AREA (1000 ha)",
+            "PEARL MILLET PRODUCTION (1000 tons)",
+            "PEARL MILLET YIELD (Kg per ha)",
+            "MAIZE AREA (1000 ha)",
+            "MAIZE PRODUCTION (1000 tons)",
+            "MAIZE YIELD (Kg per ha)",
+            "FINGER MILLET AREA (1000 ha)",
+            "FINGER MILLET PRODUCTION (1000 tons)",
+            "FINGER MILLET YIELD (Kg per ha)",
+            "BARLEY AREA (1000 ha)",
+            "BARLEY PRODUCTION (1000 tons)",
+            "BARLEY YIELD (Kg per ha)",
+            "CHICKPEA AREA (1000 ha)",
+            "CHICKPEA PRODUCTION (1000 tons)",
+            "CHICKPEA YIELD (Kg per ha)",
+            "PIGEONPEA AREA (1000 ha)",
+            "PIGEONPEA PRODUCTION (1000 tons)",
+            "PIGEONPEA YIELD (Kg per ha)",
+            "MINOR PULSES AREA (1000 ha)",
+            "MINOR PULSES PRODUCTION (1000 tons)",
+            "MINOR PULSES YIELD (Kg per ha)",
+            "GROUNDNUT AREA (1000 ha)",
+            "GROUNDNUT PRODUCTION (1000 tons)",
+            "GROUNDNUT YIELD (Kg per ha)",
+            "SESAMUM AREA (1000 ha)",
+            "SESAMUM PRODUCTION (1000 tons)",
+            "SESAMUM YIELD (Kg per ha)",
+            "RAPESEED AND MUSTARD AREA (1000 ha)",
+            "RAPESEED AND MUSTARD PRODUCTION (1000 tons)",
+            "RAPESEED AND MUSTARD YIELD (Kg per ha)",
+            "SAFFLOWER AREA (1000 ha)",
+            "SAFFLOWER PRODUCTION (1000 tons)",
+            "SAFFLOWER YIELD (Kg per ha)",
+            "CASTOR AREA (1000 ha)",
+            "CASTOR PRODUCTION (1000 tons)",
+            "CASTOR YIELD (Kg per ha)",
+            "LINSEED AREA (1000 ha)",
+            "LINSEED PRODUCTION (1000 tons)",
+            "LINSEED YIELD (Kg per ha)",
+            "SUNFLOWER AREA (1000 ha)",
+            "SUNFLOWER PRODUCTION (1000 tons)",
+            "SUNFLOWER YIELD (Kg per ha)",
+            "SOYABEAN AREA (1000 ha)",
+            "SOYABEAN PRODUCTION (1000 tons)",
+            "SOYABEAN YIELD (Kg per ha)",
+            "OILSEEDS AREA (1000 ha)",
+            "OILSEEDS PRODUCTION (1000 tons)",
+            "OILSEEDS YIELD (Kg per ha)",
+            "SUGARCANE AREA (1000 ha)",
+            "SUGARCANE PRODUCTION (1000 tons)",
+            "SUGARCANE YIELD (Kg per ha)",
+            "COTTON AREA (1000 ha)",
+            "COTTON PRODUCTION (1000 tons)",
+            "COTTON YIELD (Kg per ha)",
+            "FRUITS AREA (1000 ha)",
+            "VEGETABLES AREA (1000 ha)",
+            "FRUITS AND VEGETABLES AREA (1000 ha)",
+            "POTATOES AREA (1000 ha)",
+            "ONION AREA (1000 ha)",
+            "FODDER AREA (1000 ha)"
+          ],
+          "season": [],
+          "veg": [],
+          "year": [
+            "Year"
+          ]
+        },
+        "kind": "aggregate_district_level",
+        "missing_top": {
+          "Dist Code": 0.0,
+          "Dist Name": 0.0,
+          "RICE AREA (1000 ha)": 0.0,
+          "State Code": 0.0,
+          "State Name": 0.0,
+          "Year": 0.0
+        },
+        "path": "Tabular_Datasets\\ICRISAT-District Level Data.csv",
+        "rows": null,
+        "rows_sampled": 16146,
+        "sampled": false,
+        "sha256": "7857decb1a196a54aac71a0f841af43c3bac98b3b90744aadca18b1859cea6f3",
+        "size_bytes": 9263222,
+        "year_coverage": [
+          1990,
+          1991,
+          1992,
+          1993,
+          1994,
+          1995,
+          1996,
+          1997,
+          1998,
+          1999,
+          2000,
+          2001,
+          2002,
+          2003,
+          2004,
+          2005,
+          2006,
+          2007,
+          2008,
+          2009,
+          2010,
+          2011,
+          2012,
+          2013,
+          2014,
+          2015,
+          2016,
+          2017
+        ]
+      },
+      "aggregate:cropdata_updated.csv": {
+        "columns": [
+          "crop ID",
+          "soil_type",
+          "Seedling Stage",
+          "MOI",
+          "temp",
+          "humidity",
+          "result"
+        ],
+        "dims": {
+          "coord": [],
+          "crop": [],
+          "date": [],
+          "env": [
+            "humidity"
+          ],
+          "other": [
+            "crop ID",
+            "soil_type",
+            "Seedling Stage",
+            "MOI",
+            "temp",
+            "result"
+          ],
+          "season": [],
+          "veg": [],
+          "year": []
+        },
+        "kind": "aggregate_district_level",
+        "missing_top": {
+          "MOI": 0.0,
+          "Seedling Stage": 0.0,
+          "crop ID": 0.0,
+          "humidity": 0.0,
+          "soil_type": 0.0,
+          "temp": 0.0
+        },
+        "path": "Tabular_Datasets\\cropdata_updated.csv",
+        "rows": null,
+        "rows_sampled": 16411,
+        "sampled": false,
+        "sha256": "dc0beb6901e732343829ee461385c91ccde1ea2c4983b882cc036da08adcd562",
+        "size_bytes": 786018
+      },
+      "aggregate:data_season.csv": {
+        "columns": [
+          "Year",
+          "Location",
+          "Area",
+          "Rainfall",
+          "Temperature",
+          "Soil type",
+          "Irrigation",
+          "yeilds",
+          "Humidity",
+          "Crops",
+          "price",
+          "Season"
+        ],
+        "dims": {
+          "coord": [],
+          "crop": [],
+          "date": [],
+          "env": [
+            "Rainfall",
+            "Temperature",
+            "Humidity"
+          ],
+          "other": [
+            "Location",
+            "Area",
+            "Soil type",
+            "Irrigation",
+            "yeilds",
+            "Crops",
+            "price"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year"
+          ]
+        },
+        "kind": "aggregate_district_level",
+        "missing_top": {
+          "Area": 0.0,
+          "Location": 0.0,
+          "Rainfall": 0.0,
+          "Soil type": 0.0184,
+          "Temperature": 0.0,
+          "Year": 0.0
+        },
+        "path": "Tabular_Datasets\\data_season.csv",
+        "rows": null,
+        "rows_sampled": 3158,
+        "sampled": false,
+        "season_values": [
+          "Kharif",
+          "Rabi",
+          "Zaid"
+        ],
+        "sha256": "57cdfccf559f1efa4d5898051c72a9627feea20d41bdad2b804d97d1ddeb493d",
+        "size_bytes": 224008,
+        "year_coverage": [
+          2004,
+          2005,
+          2006,
+          2007,
+          2008,
+          2009,
+          2010,
+          2011,
+          2012,
+          2013,
+          2014,
+          2015,
+          2016,
+          2017,
+          2018,
+          2019
+        ]
+      },
+      "aggregate:dataset.csv": {
+        "columns": [
+          "Unnamed: 0",
+          "Dist",
+          "Precipitation",
+          "Min_Temp",
+          "Cloud_Cover",
+          "Vapour_pressure",
+          "Area",
+          "Production"
+        ],
+        "dims": {
+          "coord": [],
+          "crop": [],
+          "date": [],
+          "env": [],
+          "other": [
+            "Unnamed: 0",
+            "Dist",
+            "Precipitation",
+            "Min_Temp",
+            "Cloud_Cover",
+            "Vapour_pressure",
+            "Area",
+            "Production"
+          ],
+          "season": [],
+          "veg": [],
+          "year": []
+        },
+        "kind": "aggregate_district_level",
+        "missing_top": {
+          "Cloud_Cover": 0.0,
+          "Dist": 0.0,
+          "Min_Temp": 0.0,
+          "Precipitation": 0.0,
+          "Unnamed: 0": 0.0,
+          "Vapour_pressure": 0.0
+        },
+        "path": "Tabular_Datasets\\dataset.csv",
+        "rows": null,
+        "rows_sampled": 18,
+        "sampled": false,
+        "sha256": "376b627349f2eae3d1ec7b0ea0beece90d1ef2c275a31b88aaee3b493ad0b5bb",
+        "size_bytes": 1042
+      },
+      "env_grid:DK_Features_2018": {
+        "columns": [
+          "system:index",
+          "Annual_Rainfall_mm",
+          "Area_sq_km",
+          "Country",
+          "Dewpoint_C",
+          "District",
+          "EVI",
+          "Elevation",
+          "Is_Cropland",
+          "Kharif_EVI",
+          "Kharif_NDVI",
+          "Kharif_NDWI",
+          "Land_Cover_Class",
+          "Latitude",
+          "Longitude",
+          "NDRE",
+          "NDVI",
+          "NDWI",
+          "Rabi_EVI",
+          "Rabi_NDVI",
+          "Rabi_NDWI",
+          "Relative_Humidity_Pct",
+          "S2_Obs_Count",
+          "SAVI",
+          "Season",
+          "Slope",
+          "Soil_Clay_Pct",
+          "Soil_Moisture",
+          "Soil_Organic_Carbon",
+          "Soil_Sand_Pct",
+          "Soil_Type_Class",
+          "Soil_pH",
+          "State",
+          "Temperature_C",
+          "Year",
+          "Yield_Proxy_NPP",
+          ".geo"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longitude"
+          ],
+          "crop": [],
+          "date": [],
+          "env": [
+            "Annual_Rainfall_mm",
+            "Dewpoint_C",
+            "Elevation",
+            "Relative_Humidity_Pct",
+            "Slope",
+            "Soil_Clay_Pct",
+            "Soil_Moisture",
+            "Soil_Organic_Carbon",
+            "Soil_Sand_Pct",
+            "Soil_pH",
+            "Temperature_C"
+          ],
+          "other": [
+            "system:index",
+            "Area_sq_km",
+            "Country",
+            "District",
+            "Is_Cropland",
+            "Kharif_NDWI",
+            "Land_Cover_Class",
+            "Rabi_EVI",
+            "Rabi_NDWI",
+            "Soil_Type_Class",
+            "State",
+            "Yield_Proxy_NPP",
+            ".geo"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [
+            "EVI",
+            "Kharif_EVI",
+            "Kharif_NDVI",
+            "NDRE",
+            "NDVI",
+            "NDWI",
+            "Rabi_NDVI",
+            "S2_Obs_Count",
+            "SAVI"
+          ],
+          "year": [
+            "Year"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.2501,
+          "lat_min": 12.5501,
+          "lon_max": 75.6499,
+          "lon_min": 74.8501
+        },
+        "kind": "env_grid",
+        "missing_top": {
+          "Annual_Rainfall_mm": 0.0,
+          "Area_sq_km": 0.0,
+          "Country": 0.0,
+          "Dewpoint_C": 0.0,
+          "District": 0.0,
+          "system:index": 0.0
+        },
+        "path": "Tabular_Datasets\\DK_Features_2018.csv",
+        "rows": null,
+        "rows_sampled": 71027,
+        "sampled": false,
+        "season_values": [
+          "Annual + Kharif/Rabi composites"
+        ],
+        "sha256": "478cb3e81966c89219411f8f4245137b48e0b508ab808da2519e4dc6a7f1e1c2",
+        "size_bytes": 32909041,
+        "year_coverage": [
+          2018
+        ]
+      },
+      "env_grid:DK_Features_2019": {
+        "columns": [
+          "system:index",
+          "Annual_Rainfall_mm",
+          "Area_sq_km",
+          "Country",
+          "Dewpoint_C",
+          "District",
+          "EVI",
+          "Elevation",
+          "Is_Cropland",
+          "Kharif_EVI",
+          "Kharif_NDVI",
+          "Kharif_NDWI",
+          "Land_Cover_Class",
+          "Latitude",
+          "Longitude",
+          "NDRE",
+          "NDVI",
+          "NDWI",
+          "Rabi_EVI",
+          "Rabi_NDVI",
+          "Rabi_NDWI",
+          "Relative_Humidity_Pct",
+          "S2_Obs_Count",
+          "SAVI",
+          "Season",
+          "Slope",
+          "Soil_Clay_Pct",
+          "Soil_Moisture",
+          "Soil_Organic_Carbon",
+          "Soil_Sand_Pct",
+          "Soil_Type_Class",
+          "Soil_pH",
+          "State",
+          "Temperature_C",
+          "Year",
+          "Yield_Proxy_NPP",
+          ".geo"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longitude"
+          ],
+          "crop": [],
+          "date": [],
+          "env": [
+            "Annual_Rainfall_mm",
+            "Dewpoint_C",
+            "Elevation",
+            "Relative_Humidity_Pct",
+            "Slope",
+            "Soil_Clay_Pct",
+            "Soil_Moisture",
+            "Soil_Organic_Carbon",
+            "Soil_Sand_Pct",
+            "Soil_pH",
+            "Temperature_C"
+          ],
+          "other": [
+            "system:index",
+            "Area_sq_km",
+            "Country",
+            "District",
+            "Is_Cropland",
+            "Kharif_NDWI",
+            "Land_Cover_Class",
+            "Rabi_EVI",
+            "Rabi_NDWI",
+            "Soil_Type_Class",
+            "State",
+            "Yield_Proxy_NPP",
+            ".geo"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [
+            "EVI",
+            "Kharif_EVI",
+            "Kharif_NDVI",
+            "NDRE",
+            "NDVI",
+            "NDWI",
+            "Rabi_NDVI",
+            "S2_Obs_Count",
+            "SAVI"
+          ],
+          "year": [
+            "Year"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.2501,
+          "lat_min": 12.5501,
+          "lon_max": 75.6499,
+          "lon_min": 74.8501
+        },
+        "kind": "env_grid",
+        "missing_top": {
+          "Annual_Rainfall_mm": 0.0,
+          "Area_sq_km": 0.0,
+          "Country": 0.0,
+          "Dewpoint_C": 0.0,
+          "District": 0.0,
+          "system:index": 0.0
+        },
+        "path": "Tabular_Datasets\\DK_Features_2019.csv",
+        "rows": null,
+        "rows_sampled": 71134,
+        "sampled": false,
+        "season_values": [
+          "Annual + Kharif/Rabi composites"
+        ],
+        "sha256": "e66465206a82f6e0c22bbfa794f6cee8dd1d26882876f37db79b2439417e8fa8",
+        "size_bytes": 33018842,
+        "year_coverage": [
+          2019
+        ]
+      },
+      "env_grid:DK_Features_2020": {
+        "columns": [
+          "system:index",
+          "Annual_Rainfall_mm",
+          "Area_sq_km",
+          "Country",
+          "Dewpoint_C",
+          "District",
+          "EVI",
+          "Elevation",
+          "Is_Cropland",
+          "Kharif_EVI",
+          "Kharif_NDVI",
+          "Kharif_NDWI",
+          "Land_Cover_Class",
+          "Latitude",
+          "Longitude",
+          "NDRE",
+          "NDVI",
+          "NDWI",
+          "Rabi_EVI",
+          "Rabi_NDVI",
+          "Rabi_NDWI",
+          "Relative_Humidity_Pct",
+          "S2_Obs_Count",
+          "SAVI",
+          "Season",
+          "Slope",
+          "Soil_Clay_Pct",
+          "Soil_Moisture",
+          "Soil_Organic_Carbon",
+          "Soil_Sand_Pct",
+          "Soil_Type_Class",
+          "Soil_pH",
+          "State",
+          "Temperature_C",
+          "Year",
+          "Yield_Proxy_NPP",
+          ".geo"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longitude"
+          ],
+          "crop": [],
+          "date": [],
+          "env": [
+            "Annual_Rainfall_mm",
+            "Dewpoint_C",
+            "Elevation",
+            "Relative_Humidity_Pct",
+            "Slope",
+            "Soil_Clay_Pct",
+            "Soil_Moisture",
+            "Soil_Organic_Carbon",
+            "Soil_Sand_Pct",
+            "Soil_pH",
+            "Temperature_C"
+          ],
+          "other": [
+            "system:index",
+            "Area_sq_km",
+            "Country",
+            "District",
+            "Is_Cropland",
+            "Kharif_NDWI",
+            "Land_Cover_Class",
+            "Rabi_EVI",
+            "Rabi_NDWI",
+            "Soil_Type_Class",
+            "State",
+            "Yield_Proxy_NPP",
+            ".geo"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [
+            "EVI",
+            "Kharif_EVI",
+            "Kharif_NDVI",
+            "NDRE",
+            "NDVI",
+            "NDWI",
+            "Rabi_NDVI",
+            "S2_Obs_Count",
+            "SAVI"
+          ],
+          "year": [
+            "Year"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.2501,
+          "lat_min": 12.5501,
+          "lon_max": 75.6499,
+          "lon_min": 74.8501
+        },
+        "kind": "env_grid",
+        "missing_top": {
+          "Annual_Rainfall_mm": 0.0,
+          "Area_sq_km": 0.0,
+          "Country": 0.0,
+          "Dewpoint_C": 0.0,
+          "District": 0.0,
+          "system:index": 0.0
+        },
+        "path": "Tabular_Datasets\\DK_Features_2020.csv",
+        "rows": null,
+        "rows_sampled": 71134,
+        "sampled": false,
+        "season_values": [
+          "Annual + Kharif/Rabi composites"
+        ],
+        "sha256": "c2a91ab241959edbccaea22ca137483c378ccbd7e00cc79d5bd6f397aff9fcfe",
+        "size_bytes": 33041432,
+        "year_coverage": [
+          2020
+        ]
+      },
+      "env_grid:DK_Features_2021": {
+        "columns": [
+          "system:index",
+          "Annual_Rainfall_mm",
+          "Area_sq_km",
+          "Country",
+          "Dewpoint_C",
+          "District",
+          "EVI",
+          "Elevation",
+          "Is_Cropland",
+          "Kharif_EVI",
+          "Kharif_NDVI",
+          "Kharif_NDWI",
+          "Land_Cover_Class",
+          "Latitude",
+          "Longitude",
+          "NDRE",
+          "NDVI",
+          "NDWI",
+          "Rabi_EVI",
+          "Rabi_NDVI",
+          "Rabi_NDWI",
+          "Relative_Humidity_Pct",
+          "S2_Obs_Count",
+          "SAVI",
+          "Season",
+          "Slope",
+          "Soil_Clay_Pct",
+          "Soil_Moisture",
+          "Soil_Organic_Carbon",
+          "Soil_Sand_Pct",
+          "Soil_Type_Class",
+          "Soil_pH",
+          "State",
+          "Temperature_C",
+          "Year",
+          "Yield_Proxy_NPP",
+          ".geo"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longitude"
+          ],
+          "crop": [],
+          "date": [],
+          "env": [
+            "Annual_Rainfall_mm",
+            "Dewpoint_C",
+            "Elevation",
+            "Relative_Humidity_Pct",
+            "Slope",
+            "Soil_Clay_Pct",
+            "Soil_Moisture",
+            "Soil_Organic_Carbon",
+            "Soil_Sand_Pct",
+            "Soil_pH",
+            "Temperature_C"
+          ],
+          "other": [
+            "system:index",
+            "Area_sq_km",
+            "Country",
+            "District",
+            "Is_Cropland",
+            "Kharif_NDWI",
+            "Land_Cover_Class",
+            "Rabi_EVI",
+            "Rabi_NDWI",
+            "Soil_Type_Class",
+            "State",
+            "Yield_Proxy_NPP",
+            ".geo"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [
+            "EVI",
+            "Kharif_EVI",
+            "Kharif_NDVI",
+            "NDRE",
+            "NDVI",
+            "NDWI",
+            "Rabi_NDVI",
+            "S2_Obs_Count",
+            "SAVI"
+          ],
+          "year": [
+            "Year"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.2501,
+          "lat_min": 12.5504,
+          "lon_max": 75.6499,
+          "lon_min": 74.8501
+        },
+        "kind": "env_grid",
+        "missing_top": {
+          "Annual_Rainfall_mm": 0.0,
+          "Area_sq_km": 0.0,
+          "Country": 0.0,
+          "Dewpoint_C": 0.0,
+          "District": 0.0,
+          "system:index": 0.0
+        },
+        "path": "Tabular_Datasets\\DK_Features_2021.csv",
+        "rows": null,
+        "rows_sampled": 69233,
+        "sampled": false,
+        "season_values": [
+          "Annual + Kharif/Rabi composites"
+        ],
+        "sha256": "561f450bbb9d2824e52745f8547c05792117777dcdac819cdad016b2eb244136",
+        "size_bytes": 32144259,
+        "year_coverage": [
+          2021
+        ]
+      },
+      "env_grid:DK_Features_2022": {
+        "columns": [
+          "system:index",
+          "Annual_Rainfall_mm",
+          "Area_sq_km",
+          "Country",
+          "Dewpoint_C",
+          "District",
+          "EVI",
+          "Elevation",
+          "Is_Cropland",
+          "Kharif_EVI",
+          "Kharif_NDVI",
+          "Kharif_NDWI",
+          "Land_Cover_Class",
+          "Latitude",
+          "Longitude",
+          "NDRE",
+          "NDVI",
+          "NDWI",
+          "Rabi_EVI",
+          "Rabi_NDVI",
+          "Rabi_NDWI",
+          "Relative_Humidity_Pct",
+          "S2_Obs_Count",
+          "SAVI",
+          "Season",
+          "Slope",
+          "Soil_Clay_Pct",
+          "Soil_Moisture",
+          "Soil_Organic_Carbon",
+          "Soil_Sand_Pct",
+          "Soil_Type_Class",
+          "Soil_pH",
+          "State",
+          "Temperature_C",
+          "Year",
+          "Yield_Proxy_NPP",
+          ".geo"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longitude"
+          ],
+          "crop": [],
+          "date": [],
+          "env": [
+            "Annual_Rainfall_mm",
+            "Dewpoint_C",
+            "Elevation",
+            "Relative_Humidity_Pct",
+            "Slope",
+            "Soil_Clay_Pct",
+            "Soil_Moisture",
+            "Soil_Organic_Carbon",
+            "Soil_Sand_Pct",
+            "Soil_pH",
+            "Temperature_C"
+          ],
+          "other": [
+            "system:index",
+            "Area_sq_km",
+            "Country",
+            "District",
+            "Is_Cropland",
+            "Kharif_NDWI",
+            "Land_Cover_Class",
+            "Rabi_EVI",
+            "Rabi_NDWI",
+            "Soil_Type_Class",
+            "State",
+            "Yield_Proxy_NPP",
+            ".geo"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [
+            "EVI",
+            "Kharif_EVI",
+            "Kharif_NDVI",
+            "NDRE",
+            "NDVI",
+            "NDWI",
+            "Rabi_NDVI",
+            "S2_Obs_Count",
+            "SAVI"
+          ],
+          "year": [
+            "Year"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.2501,
+          "lat_min": 12.5501,
+          "lon_max": 75.6499,
+          "lon_min": 74.8501
+        },
+        "kind": "env_grid",
+        "missing_top": {
+          "Annual_Rainfall_mm": 0.0,
+          "Area_sq_km": 0.0,
+          "Country": 0.0,
+          "Dewpoint_C": 0.0,
+          "District": 0.0,
+          "system:index": 0.0
+        },
+        "path": "Tabular_Datasets\\DK_Features_2022.csv",
+        "rows": null,
+        "rows_sampled": 71134,
+        "sampled": false,
+        "season_values": [
+          "Annual + Kharif/Rabi composites"
+        ],
+        "sha256": "79ab58060bdd220aa84a03aeced6f44afbdd299ff91bc33c905e24b05214c8fb",
+        "size_bytes": 33005364,
+        "year_coverage": [
+          2022
+        ]
+      },
+      "env_grid:DK_Features_2023": {
+        "columns": [
+          "system:index",
+          "Annual_Rainfall_mm",
+          "Area_sq_km",
+          "Country",
+          "Dewpoint_C",
+          "District",
+          "EVI",
+          "Elevation",
+          "Is_Cropland",
+          "Kharif_EVI",
+          "Kharif_NDVI",
+          "Kharif_NDWI",
+          "Land_Cover_Class",
+          "Latitude",
+          "Longitude",
+          "NDRE",
+          "NDVI",
+          "NDWI",
+          "Rabi_EVI",
+          "Rabi_NDVI",
+          "Rabi_NDWI",
+          "Relative_Humidity_Pct",
+          "S2_Obs_Count",
+          "SAVI",
+          "Season",
+          "Slope",
+          "Soil_Clay_Pct",
+          "Soil_Moisture",
+          "Soil_Organic_Carbon",
+          "Soil_Sand_Pct",
+          "Soil_Type_Class",
+          "Soil_pH",
+          "State",
+          "Temperature_C",
+          "Year",
+          "Yield_Proxy_NPP",
+          ".geo"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longitude"
+          ],
+          "crop": [],
+          "date": [],
+          "env": [
+            "Annual_Rainfall_mm",
+            "Dewpoint_C",
+            "Elevation",
+            "Relative_Humidity_Pct",
+            "Slope",
+            "Soil_Clay_Pct",
+            "Soil_Moisture",
+            "Soil_Organic_Carbon",
+            "Soil_Sand_Pct",
+            "Soil_pH",
+            "Temperature_C"
+          ],
+          "other": [
+            "system:index",
+            "Area_sq_km",
+            "Country",
+            "District",
+            "Is_Cropland",
+            "Kharif_NDWI",
+            "Land_Cover_Class",
+            "Rabi_EVI",
+            "Rabi_NDWI",
+            "Soil_Type_Class",
+            "State",
+            "Yield_Proxy_NPP",
+            ".geo"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [
+            "EVI",
+            "Kharif_EVI",
+            "Kharif_NDVI",
+            "NDRE",
+            "NDVI",
+            "NDWI",
+            "Rabi_NDVI",
+            "S2_Obs_Count",
+            "SAVI"
+          ],
+          "year": [
+            "Year"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.2501,
+          "lat_min": 12.5501,
+          "lon_max": 75.6499,
+          "lon_min": 74.8501
+        },
+        "kind": "env_grid",
+        "missing_top": {
+          "Annual_Rainfall_mm": 0.0,
+          "Area_sq_km": 0.0,
+          "Country": 0.0,
+          "Dewpoint_C": 0.0,
+          "District": 0.0,
+          "system:index": 0.0
+        },
+        "path": "Tabular_Datasets\\DK_Features_2023.csv",
+        "rows": null,
+        "rows_sampled": 71134,
+        "sampled": false,
+        "season_values": [
+          "Annual + Kharif/Rabi composites"
+        ],
+        "sha256": "4153a70b201a96200da201d66a6967706df9280a9fdd1ddacc35aa13dd17a7f7",
+        "size_bytes": 33056613,
+        "year_coverage": [
+          2023
+        ]
+      },
+      "env_grid:DK_Features_2024 (1)": {
+        "columns": [
+          "system:index",
+          "Annual_Rainfall_mm",
+          "Country",
+          "District",
+          "EVI",
+          "Elevation",
+          "Is_Cropland",
+          "Land_Cover_Class",
+          "Latitude",
+          "Longitude",
+          "NDVI",
+          "NDWI",
+          "SAVI",
+          "Slope",
+          "Soil_Clay_Pct",
+          "Soil_Moisture",
+          "Soil_Organic_Carbon",
+          "Soil_Sand_Pct",
+          "Soil_pH",
+          "State",
+          ".geo"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longitude"
+          ],
+          "crop": [],
+          "date": [],
+          "env": [
+            "Annual_Rainfall_mm",
+            "Elevation",
+            "Slope",
+            "Soil_Clay_Pct",
+            "Soil_Moisture",
+            "Soil_Organic_Carbon",
+            "Soil_Sand_Pct",
+            "Soil_pH"
+          ],
+          "other": [
+            "system:index",
+            "Country",
+            "District",
+            "Is_Cropland",
+            "Land_Cover_Class",
+            "State",
+            ".geo"
+          ],
+          "season": [],
+          "veg": [
+            "EVI",
+            "NDVI",
+            "NDWI",
+            "SAVI"
+          ],
+          "year": []
+        },
+        "geo_bbox": {
+          "lat_max": 13.2501,
+          "lat_min": 12.5502,
+          "lon_max": 75.6498,
+          "lon_min": 74.8502
+        },
+        "kind": "env_grid",
+        "missing_top": {
+          "Annual_Rainfall_mm": 0.0,
+          "Country": 0.0,
+          "District": 0.0,
+          "EVI": 0.0,
+          "Elevation": 0.0,
+          "system:index": 0.0
+        },
+        "path": "Tabular_Datasets\\DK_Features_2024 (1).csv",
+        "rows": null,
+        "rows_sampled": 95082,
+        "sampled": false,
+        "sha256": "2350b95fabd51d23fe5768cb0c2cb7981aaadd02c62a8f88f3ad7aabc7b3dee2",
+        "size_bytes": 28070019
+      },
+      "frozen:crop_supervised_v2": {
+        "columns": [
+          "source",
+          "image_source",
+          "satellite_status",
+          "season",
+          "crop_class_id",
+          "spatial_match_distance_km",
+          "source_record_id",
+          "lon",
+          "location_hobli",
+          "location_taluk",
+          "evi_available",
+          "source_crop_name",
+          "survey_date",
+          "crop_label",
+          "lat",
+          "year",
+          "temporal_match_status",
+          "record_id",
+          "location_district",
+          "tabular_source",
+          "location_village",
+          "ndvi_available",
+          "v1_record_id",
+          "is_recovered_v2",
+          "benchmark_eligible",
+          "annual_rainfall_mm",
+          "dewpoint_c",
+          "elevation",
+          "env_dk_index",
+          "env_match_confidence",
+          "env_match_distance_m",
+          "env_match_method",
+          "env_match_year",
+          "env_season_for_features",
+          "env_support",
+          "evi",
+          "is_cropland",
+          "kharif_evi",
+          "kharif_ndvi",
+          "kharif_ndwi",
+          "land_cover_class",
+          "ndre",
+          "ndvi",
+          "ndwi",
+          "rabi_evi",
+          "rabi_ndvi",
+          "rabi_ndwi",
+          "relative_humidity_pct",
+          "s2_obs_count",
+          "savi",
+          "slope",
+          "soil_clay_pct",
+          "soil_moisture",
+          "soil_organic_carbon",
+          "soil_ph",
+          "soil_sand_pct",
+          "soil_type_class",
+          "temperature_c"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "lon",
+            "lat"
+          ],
+          "crop": [
+            "crop_label"
+          ],
+          "date": [],
+          "env": [
+            "annual_rainfall_mm",
+            "dewpoint_c",
+            "elevation",
+            "relative_humidity_pct",
+            "slope",
+            "soil_clay_pct",
+            "soil_moisture",
+            "soil_organic_carbon",
+            "soil_ph",
+            "soil_sand_pct",
+            "temperature_c"
+          ],
+          "other": [
+            "source",
+            "image_source",
+            "satellite_status",
+            "crop_class_id",
+            "spatial_match_distance_km",
+            "source_record_id",
+            "location_hobli",
+            "location_taluk",
+            "evi_available",
+            "source_crop_name",
+            "survey_date",
+            "temporal_match_status",
+            "record_id",
+            "location_district",
+            "tabular_source",
+            "location_village",
+            "ndvi_available",
+            "v1_record_id",
+            "is_recovered_v2",
+            "benchmark_eligible",
+            "env_dk_index",
+            "env_match_confidence",
+            "env_match_distance_m",
+            "env_match_method",
+            "env_match_year",
+            "env_season_for_features",
+            "env_support",
+            "is_cropland",
+            "kharif_ndwi",
+            "land_cover_class",
+            "rabi_evi",
+            "rabi_ndwi",
+            "soil_type_class"
+          ],
+          "season": [
+            "season"
+          ],
+          "veg": [
+            "evi",
+            "kharif_evi",
+            "kharif_ndvi",
+            "ndre",
+            "ndvi",
+            "ndwi",
+            "rabi_ndvi",
+            "s2_obs_count",
+            "savi"
+          ],
+          "year": [
+            "year"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.1721,
+          "lat_min": 12.5408,
+          "lon_max": 75.6419,
+          "lon_min": 74.8396
+        },
+        "kind": "frozen_supervised",
+        "missing_top": {
+          "crop_class_id": 0.0,
+          "satellite_status": 0.0,
+          "season": 0.0,
+          "source": 0.0,
+          "spatial_match_distance_km": 0.0,
+          "v1_record_id": 0.0001
+        },
+        "path": "govt_crop_matched_v2\\crop_supervised_v2.csv",
+        "rows": null,
+        "rows_sampled": 10675,
+        "sampled": false,
+        "season_values": [
+          "Kharif",
+          "Rabi"
+        ],
+        "sha256": "992ee6c39832794577c93295685844848d0b03aff67a2fb03bc1cf7c9cd95446",
+        "size_bytes": 8999218,
+        "year_coverage": [
+          2020,
+          2021
+        ]
+      },
+      "frozen:v1_stam_match": {
+        "columns": [
+          "source_crop",
+          "crop_type",
+          "crop_status",
+          "hobli",
+          "taluk",
+          "village",
+          "lat",
+          "lon",
+          "year",
+          "season",
+          "survey_date",
+          "distance_km",
+          "spatial_status",
+          "temporal_status",
+          "tabular_matched",
+          "tabular_level",
+          "satellite_status",
+          "ndvi_available",
+          "evi_available",
+          "is_duplicate",
+          "valid_cropfusion_sample",
+          "rejection_reasons"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "lat",
+            "lon"
+          ],
+          "crop": [
+            "crop_type"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "source_crop",
+            "crop_status",
+            "hobli",
+            "taluk",
+            "village",
+            "survey_date",
+            "distance_km",
+            "spatial_status",
+            "temporal_status",
+            "tabular_matched",
+            "tabular_level",
+            "satellite_status",
+            "ndvi_available",
+            "evi_available",
+            "is_duplicate",
+            "valid_cropfusion_sample",
+            "rejection_reasons"
+          ],
+          "season": [
+            "season"
+          ],
+          "veg": [],
+          "year": [
+            "year"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.1786,
+          "lat_min": 12.4671,
+          "lon_max": 75.6434,
+          "lon_min": 74.7786
+        },
+        "kind": "frozen_v1_match",
+        "missing_top": {
+          "crop_status": 0.0,
+          "crop_type": 0.0,
+          "hobli": 0.0,
+          "source_crop": 0.0,
+          "taluk": 0.0,
+          "village": 0.0
+        },
+        "path": "govt_crop_matched_v1\\government_crop_stam_match.csv",
+        "rows": null,
+        "rows_sampled": 199345,
+        "sampled": false,
+        "season_values": [
+          "Kharif",
+          "Rabi"
+        ],
+        "sha256": "337140ce46ebb58e469677e06c2d46c3b54b41983152b245e2c0b64fbc74828b",
+        "size_bytes": 36904451,
+        "year_coverage": [
+          2020,
+          2021
+        ]
+      },
+      "satellite:image_stats_r5.6": {
+        "columns": [
+          "record_id",
+          "split",
+          "crop_label",
+          "real_frame_count",
+          "total_frames",
+          "zero_fill_fraction",
+          "ndvi_mean",
+          "ndvi_std",
+          "ndvi_min",
+          "ndvi_max",
+          "ndvi_last_frame_mean",
+          "evi_mean",
+          "evi_std",
+          "evi_min",
+          "evi_max",
+          "evi_last_frame_mean"
+        ],
+        "dims": {
+          "coord": [],
+          "crop": [
+            "crop_label"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "record_id",
+            "split",
+            "real_frame_count",
+            "total_frames",
+            "zero_fill_fraction",
+            "ndvi_mean",
+            "ndvi_std",
+            "ndvi_min",
+            "ndvi_max",
+            "ndvi_last_frame_mean",
+            "evi_mean",
+            "evi_std",
+            "evi_min",
+            "evi_max",
+            "evi_last_frame_mean"
+          ],
+          "season": [],
+          "veg": [],
+          "year": []
+        },
+        "kind": "satellite_stats",
+        "missing_top": {
+          "crop_label": 0.0,
+          "real_frame_count": 0.0,
+          "record_id": 0.0,
+          "split": 0.0,
+          "total_frames": 0.0,
+          "zero_fill_fraction": 0.0
+        },
+        "path": "reports\\R5.6\\image_stats.csv",
+        "rows": null,
+        "rows_sampled": 10560,
+        "sampled": false,
+        "sha256": "8c5eb9a10023e07d4f14b4d8ee230a09ac3d0eee0f26c818be040e8192ec88c0",
+        "size_bytes": 1745368
+      },
+      "survey:ogd_bantvala_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.0626,
+          "lat_min": 12.8322,
+          "lon_max": 75.2022,
+          "lon_min": 74.8352
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9507,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9508
+        },
+        "path": "govt_crop_survey_data\\ogd_bantvala_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 68436,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "84959ba0a4d5f15627c3cae0264c32e634467bf5beefb50fb775f5aa5e07b36b",
+        "size_bytes": 23566026,
+        "year_coverage": []
+      },
+      "survey:ogd_beltangadi_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.1787,
+          "lat_min": 12.8556,
+          "lon_max": 75.4986,
+          "lon_min": 74.9349
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9465,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9465
+        },
+        "path": "govt_crop_survey_data\\ogd_beltangadi_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 76821,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "5e10b10cf386cb4cc7a0cef572f424d4abf365fc5a6d2c327568a2511c3edc28",
+        "size_bytes": 26759035,
+        "year_coverage": []
+      },
+      "survey:ogd_kokkada_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.0506,
+          "lat_min": 12.8182,
+          "lon_max": 75.5285,
+          "lon_min": 75.1569
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9507,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9507
+        },
+        "path": "govt_crop_survey_data\\ogd_kokkada_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 78562,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "aafdc5629ddfec63554ab0fd3c215543c452b74534e6e1c86367a9311bee11bc",
+        "size_bytes": 27275180,
+        "year_coverage": []
+      },
+      "survey:ogd_mangaluru_a_kharif_2020_2021.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 12.8944,
+          "lat_min": 12.8439,
+          "lon_max": 74.897,
+          "lon_min": 74.8321
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9588,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9588
+        },
+        "path": "govt_crop_survey_data\\ogd_mangaluru_a_kharif_2020_2021.csv",
+        "rows": null,
+        "rows_sampled": 413,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "133aa2696389707e025d859072b91fac8f6aed9469e7179f15bbc349672ce610",
+        "size_bytes": 142390,
+        "year_coverage": []
+      },
+      "survey:ogd_mangaluru_b_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 12.9209,
+          "lat_min": 12.7552,
+          "lon_max": 74.9809,
+          "lon_min": 74.8346
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9629,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.963
+        },
+        "path": "govt_crop_survey_data\\ogd_mangaluru_b_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 37430,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "e7d7bebba155cced6d8f423a6e116746121b9615fdb198019f3be65072fe639f",
+        "size_bytes": 12839020,
+        "year_coverage": []
+      },
+      "survey:ogd_mulki_kharif_2021_22.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.1286,
+          "lat_min": 13.0244,
+          "lon_max": 74.8912,
+          "lon_min": 74.7782
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_code": 0.0,
+          "Image_url": 1.0,
+          "Month": 0.8979,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.8979
+        },
+        "path": "govt_crop_survey_data\\ogd_mulki_kharif_2021_22.csv",
+        "rows": null,
+        "rows_sampled": 56182,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "8a549ba3702401465a8a6fb23a3129a7637bc3ecc452b54eee69a0ba255b2a96",
+        "size_bytes": 8086051,
+        "year_coverage": []
+      },
+      "survey:ogd_panemangaluru_rabi_2021_2022.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 12.864,
+          "lat_min": 12.8238,
+          "lon_max": 75.0607,
+          "lon_min": 75.0012
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_code": 0.0,
+          "Image_url": 1.0,
+          "Month": 0.9928,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9928
+        },
+        "path": "govt_crop_survey_data\\ogd_panemangaluru_rabi_2021_2022.csv",
+        "rows": null,
+        "rows_sampled": 4601,
+        "sampled": false,
+        "season_values": [
+          "Rabi"
+        ],
+        "sha256": "5b06a15c2c8e8b367d8774949f4411c980173061d7207599b4b5c33b1ce27558",
+        "size_bytes": 674673,
+        "year_coverage": []
+      },
+      "survey:ogd_panja_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.1108,
+          "lat_min": 12.5105,
+          "lon_max": 75.6883,
+          "lon_min": 75.3875
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9373,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9373
+        },
+        "path": "govt_crop_survey_data\\ogd_panja_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 45327,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "8b2dad7ab72d91ca3fc0671c86d29f54d1a672b3a83d6b5abf4f91edbd76aad5",
+        "size_bytes": 15436915,
+        "year_coverage": []
+      },
+      "survey:ogd_putturu_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 23.6446,
+          "lat_min": 12.554,
+          "lon_max": 88.8453,
+          "lon_min": 75.0667
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9475,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9475
+        },
+        "path": "govt_crop_survey_data\\ogd_putturu_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 124848,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "44a72c5fc845380fae56246a2fa14cdef005eadafb709709f1f1045ea2e07b69",
+        "size_bytes": 42626084,
+        "year_coverage": []
+      },
+      "survey:ogd_sulya_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 12.7519,
+          "lat_min": 12.4664,
+          "lon_max": 75.6039,
+          "lon_min": 75.2739
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9322,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9322
+        },
+        "path": "govt_crop_survey_data\\ogd_sulya_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 114629,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "8e22ffd816e319d56afeb727d44a7db5bac68f72b283ae771864b05ca0869a3b",
+        "size_bytes": 38986993,
+        "year_coverage": []
+      },
+      "survey:ogd_suratkal_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.0466,
+          "lat_min": 12.8928,
+          "lon_max": 74.9066,
+          "lon_min": 74.7848
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9737,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9737
+        },
+        "path": "govt_crop_survey_data\\ogd_suratkal_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 61146,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "d7211e781c8614104e0a91f1b6b374cc84f289bfc8b34f74ac007e495904e0af",
+        "size_bytes": 20962660,
+        "year_coverage": []
+      },
+      "survey:ogd_uppinangadi_kharif_2021_22.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 12.8545,
+          "lat_min": 12.7554,
+          "lon_max": 75.3993,
+          "lon_min": 75.1457
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_code": 0.0,
+          "Image_url": 1.0,
+          "Month": 0.9799,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9799
+        },
+        "path": "govt_crop_survey_data\\ogd_uppinangadi_kharif_2021_22.csv",
+        "rows": null,
+        "rows_sampled": 45240,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "7b6a4d68635ca104ede445c435bb1ceab1b7df797e45d4a994bafcf2a79c3b78",
+        "size_bytes": 6971259,
+        "year_coverage": []
+      },
+      "survey:ogd_venuru_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.1527,
+          "lat_min": 12.9754,
+          "lon_max": 75.2528,
+          "lon_min": 75.0087
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9419,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9419
+        },
+        "path": "govt_crop_survey_data\\ogd_venuru_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 19546,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "11c0fe5f751789f75e33f1a92aa710a0d7d7cc68eeddbbf52492e5bd4a105ca6",
+        "size_bytes": 6737351,
+        "year_coverage": []
+      },
+      "survey:ogd_venuru_rabi_2021_22.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.059,
+          "lat_min": 12.9152,
+          "lon_max": 75.2821,
+          "lon_min": 75.066
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_code": 0.0,
+          "Image_url": 1.0,
+          "Month": 0.9526,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9526
+        },
+        "path": "govt_crop_survey_data\\ogd_venuru_rabi_2021_22.csv",
+        "rows": null,
+        "rows_sampled": 2151,
+        "sampled": false,
+        "season_values": [
+          "Rabi"
+        ],
+        "sha256": "a13f41c1b6c6baee3ec08dfa873e993b77bdce0edf2071c0647a2070751a60f3",
+        "size_bytes": 307750,
+        "year_coverage": []
+      },
+      "survey:ogd_vitla_kharif_2020_21.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 12.8467,
+          "lat_min": 12.6645,
+          "lon_max": 75.2201,
+          "lon_min": 74.9843
+        },
+        "kind": "survey_geotagged",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9199,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9199
+        },
+        "path": "govt_crop_survey_data\\ogd_vitla_kharif_2020_21.csv",
+        "rows": null,
+        "rows_sampled": 101737,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "c17eddc7c1343b7ad9e677c41e9591a1a6c43adb1a18d10449161ba660e0fd28",
+        "size_bytes": 34622354,
+        "year_coverage": []
+      },
+      "survey_duplicate_view:ogd_discovered_MjQxNDExOT.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.1286,
+          "lat_min": 13.0244,
+          "lon_max": 74.8912,
+          "lon_min": 74.7782
+        },
+        "kind": "survey_duplicate_view",
+        "missing_top": {
+          "District_code": 0.0,
+          "Image_url": 1.0,
+          "Month": 0.8979,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.8979
+        },
+        "note": "same content as a named per-hobli dump; excluded from pool to avoid double counting",
+        "path": "govt_crop_survey_data\\ogd_discovered_MjQxNDExOT.csv",
+        "rows": null,
+        "rows_sampled": 56182,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "348b4a90308fa7162c02cec49c09d71a9f92914bec1550025da1ccb44aee184c",
+        "size_bytes": 8086051,
+        "year_coverage": []
+      },
+      "survey_duplicate_view:ogd_discovered_MjQzMTExOD.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.1787,
+          "lat_min": 12.8556,
+          "lon_max": 75.4986,
+          "lon_min": 74.9349
+        },
+        "kind": "survey_duplicate_view",
+        "missing_top": {
+          "District_Name": 0.0,
+          "District_code": 0.0,
+          "Month": 0.9465,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9465
+        },
+        "note": "same content as a named per-hobli dump; excluded from pool to avoid double counting",
+        "path": "govt_crop_survey_data\\ogd_discovered_MjQzMTExOD.csv",
+        "rows": null,
+        "rows_sampled": 76821,
+        "sampled": false,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "fb0c0bd6937818caa383ec8afdc78a04628d0b91352f5abac99eb32edcdbec84",
+        "size_bytes": 26759035,
+        "year_coverage": []
+      },
+      "survey_excluded:ogd_unified_all_hoblis.csv": {
+        "columns": [
+          "Survey_id",
+          "District_code",
+          "District_Name",
+          "Taluk_code",
+          "Taluk_Name",
+          "Hobli_code",
+          "Hobli_Name",
+          "Village_code",
+          "Village_Name",
+          "Year_code",
+          "Years",
+          "Season_code",
+          "Season",
+          "Cropname",
+          "Crop_Extent",
+          "CropSurveyDate",
+          "Month",
+          "Weekname",
+          "Latitude",
+          "Longtitude",
+          "Image_url"
+        ],
+        "coord_valid_fraction": 1.0,
+        "dims": {
+          "coord": [
+            "Latitude",
+            "Longtitude"
+          ],
+          "crop": [
+            "Cropname"
+          ],
+          "date": [],
+          "env": [],
+          "other": [
+            "Survey_id",
+            "District_code",
+            "District_Name",
+            "Taluk_code",
+            "Taluk_Name",
+            "Hobli_code",
+            "Hobli_Name",
+            "Village_code",
+            "Village_Name",
+            "Season_code",
+            "Crop_Extent",
+            "CropSurveyDate",
+            "Month",
+            "Weekname",
+            "Image_url"
+          ],
+          "season": [
+            "Season"
+          ],
+          "veg": [],
+          "year": [
+            "Year_code",
+            "Years"
+          ]
+        },
+        "geo_bbox": {
+          "lat_max": 13.1787,
+          "lat_min": 12.8182,
+          "lon_max": 75.5285,
+          "lon_min": 74.7782
+        },
+        "kind": "survey_excluded_coarse",
+        "missing_top": {
+          "District_code": 0.0,
+          "Image_url": 0.221,
+          "Month": 0.9354,
+          "Survey_id": 0.0,
+          "Taluk_Name": 0.0,
+          "Weekname": 0.9354
+        },
+        "path": "govt_crop_survey_data\\ogd_unified_all_hoblis.csv",
+        "rows": null,
+        "rows_sampled": 200000,
+        "sampled": true,
+        "season_values": [
+          "Kharif"
+        ],
+        "sha256": "86ecbf19e3513cb72e04a9bf6fb1cb3ab1ffd30b2ef11b4592d5e3aa8e6a0e2f",
+        "size_bytes": 78373119,
+        "year_coverage": []
+      }
+    }
+  },
+  "temporal_alignment.json": {
+    "dates_in_season_envelope": 175179,
+    "env_grid_year_aligned": 175185,
+    "image_metadata_present": false,
+    "note": "nearest_image_date and temporal_gap_days are only populated from a Kaggle imagery export (scripts/kaggle_r5_7_image_stats.py → image_metadata.csv); locally they are absent because Sentinel-2 composites are not stored in-repo.",
+    "observations": 175185,
+    "phase": "5",
+    "season_envelopes": {
+      "Kharif": {
+        "max_date": "2021-10-28T00:00:00",
+        "min_date": "2020-08-11T00:00:00",
+        "n": 175096
+      },
+      "Rabi": {
+        "max_date": "2022-02-09T00:00:00",
+        "min_date": "2021-12-28T00:00:00",
+        "n": 89
+      }
+    },
+    "survey_date_valid": 175185
+  }
+}

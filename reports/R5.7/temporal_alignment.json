@@ -1,0 +1,21 @@
+{
+  "dates_in_season_envelope": 175179,
+  "env_grid_year_aligned": 175185,
+  "image_metadata_present": false,
+  "note": "nearest_image_date and temporal_gap_days are only populated from a Kaggle imagery export (scripts/kaggle_r5_7_image_stats.py → image_metadata.csv); locally they are absent because Sentinel-2 composites are not stored in-repo.",
+  "observations": 175185,
+  "phase": "5",
+  "season_envelopes": {
+    "Kharif": {
+      "max_date": "2021-10-28T00:00:00",
+      "min_date": "2020-08-11T00:00:00",
+      "n": 175096
+    },
+    "Rabi": {
+      "max_date": "2022-02-09T00:00:00",
+      "min_date": "2021-12-28T00:00:00",
+      "n": 89
+    }
+  },
+  "survey_date_valid": 175185
+}

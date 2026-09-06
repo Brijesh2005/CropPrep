@@ -1,0 +1,376 @@
+{
+  "conclusion": "frozen corpus schema contains no forbidden features; master schema passes; Yield_Proxy_NPP never enters any feature table",
+  "frozen_allowed": [
+    "annual_rainfall_mm",
+    "dewpoint_c",
+    "elevation",
+    "env_match_distance_m",
+    "evi",
+    "is_cropland",
+    "kharif_evi",
+    "kharif_ndvi",
+    "kharif_ndwi",
+    "land_cover_class",
+    "lat",
+    "lon",
+    "ndre",
+    "ndvi",
+    "ndwi",
+    "rabi_evi",
+    "rabi_ndvi",
+    "rabi_ndwi",
+    "record_id",
+    "relative_humidity_pct",
+    "s2_obs_count",
+    "savi",
+    "season",
+    "slope",
+    "soil_clay_pct",
+    "soil_moisture",
+    "soil_organic_carbon",
+    "soil_ph",
+    "soil_sand_pct",
+    "soil_type_class",
+    "source",
+    "source_crop_name",
+    "spatial_match_distance_km",
+    "survey_date",
+    "temperature_c",
+    "year"
+  ],
+  "frozen_corpus_schema": [
+    "annual_rainfall_mm",
+    "benchmark_eligible",
+    "crop_class_id",
+    "crop_label",
+    "dewpoint_c",
+    "elevation",
+    "env_dk_index",
+    "env_match_confidence",
+    "env_match_distance_m",
+    "env_match_method",
+    "env_match_year",
+    "env_season_for_features",
+    "env_support",
+    "evi",
+    "evi_available",
+    "image_source",
+    "is_cropland",
+    "is_recovered_v2",
+    "kharif_evi",
+    "kharif_ndvi",
+    "kharif_ndwi",
+    "land_cover_class",
+    "lat",
+    "location_district",
+    "location_hobli",
+    "location_taluk",
+    "location_village",
+    "lon",
+    "ndre",
+    "ndvi",
+    "ndvi_available",
+    "ndwi",
+    "rabi_evi",
+    "rabi_ndvi",
+    "rabi_ndwi",
+    "record_id",
+    "relative_humidity_pct",
+    "s2_obs_count",
+    "satellite_status",
+    "savi",
+    "season",
+    "slope",
+    "soil_clay_pct",
+    "soil_moisture",
+    "soil_organic_carbon",
+    "soil_ph",
+    "soil_sand_pct",
+    "soil_type_class",
+    "source",
+    "source_crop_name",
+    "source_record_id",
+    "spatial_match_distance_km",
+    "split",
+    "survey_date",
+    "tabular_source",
+    "temperature_c",
+    "temporal_match_status",
+    "v1_record_id",
+    "year"
+  ],
+  "frozen_features_audited": [
+    "annual_rainfall_mm",
+    "dewpoint_c",
+    "elevation",
+    "env_match_distance_m",
+    "evi",
+    "is_cropland",
+    "kharif_evi",
+    "kharif_ndvi",
+    "kharif_ndwi",
+    "land_cover_class",
+    "lat",
+    "lon",
+    "ndre",
+    "ndvi",
+    "ndwi",
+    "rabi_evi",
+    "rabi_ndvi",
+    "rabi_ndwi",
+    "relative_humidity_pct",
+    "s2_obs_count",
+    "savi",
+    "season",
+    "slope",
+    "soil_clay_pct",
+    "soil_moisture",
+    "soil_organic_carbon",
+    "soil_ph",
+    "soil_sand_pct",
+    "soil_type_class",
+    "spatial_match_distance_km",
+    "temperature_c",
+    "year"
+  ],
+  "frozen_forbidden": [
+    "benchmark_eligible",
+    "crop_class_id",
+    "crop_label",
+    "env_dk_index",
+    "env_match_confidence",
+    "env_match_method",
+    "env_match_year",
+    "env_season_for_features",
+    "env_support",
+    "evi_available",
+    "image_source",
+    "is_recovered_v2",
+    "location_district",
+    "location_hobli",
+    "location_taluk",
+    "location_village",
+    "ndvi_available",
+    "satellite_status",
+    "source_record_id",
+    "split",
+    "tabular_source",
+    "temporal_match_status",
+    "v1_record_id"
+  ],
+  "master_forbidden": [],
+  "master_schema_audit": {
+    "annual_rainfall_mm": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "dewpoint_c": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "elevation": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "env_method": {
+      "allowed": true,
+      "reason": "temporal/spatial/lookup PLC metadata",
+      "source_group": "id/metadata"
+    },
+    "environment_match_distance_m": {
+      "allowed": true,
+      "reason": "temporal/spatial/lookup PLC metadata",
+      "source_group": "id/metadata"
+    },
+    "evi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "grid_year": {
+      "allowed": true,
+      "reason": "temporal/spatial/lookup PLC metadata",
+      "source_group": "id/metadata"
+    },
+    "image_count": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "is_cropland": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "kharif_evi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "kharif_ndvi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "kharif_ndwi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "land_cover_class": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "latitude": {
+      "allowed": true,
+      "note": "shortcut risk audited in Phase 11",
+      "reason": "GPS under study; permitted as spatial features but audited for geographic-memorization shortcuts in Phase 11",
+      "source_group": "geometry"
+    },
+    "longitude": {
+      "allowed": true,
+      "note": "shortcut risk audited in Phase 11",
+      "reason": "GPS under study; permitted as spatial features but audited for geographic-memorization shortcuts in Phase 11",
+      "source_group": "geometry"
+    },
+    "ndre": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "ndvi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "ndwi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "nearest_image_date": {
+      "allowed": true,
+      "reason": "temporal/spatial/lookup PLC metadata",
+      "source_group": "id/metadata"
+    },
+    "padded_image_count": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "rabi_evi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "rabi_ndvi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "rabi_ndwi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "real_fraction": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "real_image_count": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "relative_humidity_pct": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "s2_obs_count": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "savi": {
+      "allowed": true,
+      "reason": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+      "source_group": "satellite-composite"
+    },
+    "season": {
+      "allowed": true,
+      "reason": "temporal/spatial/lookup PLC metadata",
+      "source_group": "id/metadata"
+    },
+    "slope": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "soil_clay_pct": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "soil_moisture": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "soil_organic_carbon": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "soil_ph": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "soil_sand_pct": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "soil_type_class": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "survey_date": {
+      "allowed": true,
+      "reason": "temporal/spatial/lookup PLC metadata",
+      "source_group": "id/metadata"
+    },
+    "temperature_c": {
+      "allowed": true,
+      "reason": "independent environmental/climatological grids; permitted for crop classification",
+      "source_group": "env-climatology"
+    },
+    "temporal_gap_days": {
+      "allowed": true,
+      "reason": "temporal/spatial/lookup PLC metadata",
+      "source_group": "id/metadata"
+    },
+    "year": {
+      "allowed": true,
+      "reason": "temporal/spatial/lookup PLC metadata",
+      "source_group": "id/metadata"
+    }
+  },
+  "phase": "2",
+  "rule_family_descriptions": {
+    "aggregate-yield": "district-level production/yield aggregates that can leak trends through location; FORBIDDEN as features",
+    "env-climatology": "independent environmental/climatological grids; permitted for crop classification",
+    "geometry": "GPS under study; permitted as spatial features but audited for geographic-memorization shortcuts in Phase 11",
+    "id/metadata": "source record ids and administrative fields used only to reconstruct the sample; not causative of the crop",
+    "satellite-composite": "satellite vegetation composites; permitted but must be temporally guarded (Phase 5)",
+    "survey-measured": "directly measured at the field on the survey date; metadata, not target leakage",
+    "target-derived": "originates from the crop label itself or land-use class that encodes the same information; FORBIDDEN"
+  }
+}

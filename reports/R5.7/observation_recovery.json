@@ -1,0 +1,33 @@
+{
+  "definition": "recovered = master observations whose (year, season, crop, lat7, lon7) never appear in the frozen corpus; they were lost to the R5.2.x name-matched / co-downloaded construction",
+  "imagery_note": "local imagery exists only for the frozen subset (R5.6 export); recovered observations need a Kaggle export produced by scripts/kaggle_r5_7_image_stats.py — their satellite columns are empty locally",
+  "master_in_frozen_key": 9701,
+  "phase": "10",
+  "recovered_by_crop": {
+    "cardamom": 11,
+    "coconut": 126061,
+    "coffee": 179,
+    "pepper": 39233
+  },
+  "recovered_by_season": {
+    "Kharif": 165422,
+    "Rabi": 62
+  },
+  "recovered_by_split": {
+    "test": 47185,
+    "train": 70032,
+    "val": 48267
+  },
+  "recovered_by_tier": {
+    "A": 79757,
+    "B": 81004,
+    "C": 4723
+  },
+  "recovered_dual_coconut_pepper_fields": 61929,
+  "recovered_new_field_ids": 134982,
+  "recovered_observations": 165484,
+  "recovered_with_imagery_local": 0,
+  "recovery_factor_x": 16.41,
+  "total_frozen_supervised": 10674,
+  "total_master_supervised": 175185
+}

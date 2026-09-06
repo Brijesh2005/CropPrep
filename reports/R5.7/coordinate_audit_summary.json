@@ -1,0 +1,102 @@
+{
+  "coord_valid": 746359,
+  "disposition": "no record discarded; every issue is logged and used for the Phase 9 quality tiers",
+  "dup_coord_6dec": 51017,
+  "environment_grids": {
+    "DK_Features_2018": {
+      "bbox": {
+        "lat_max": 13.250074927185867,
+        "lat_min": 12.55014822767554,
+        "lon_max": 75.64987605390736,
+        "lon_min": 74.85011915230255
+      },
+      "cells": 71027,
+      "dup_cells_6dec": 0,
+      "valid": 71027
+    },
+    "DK_Features_2019": {
+      "bbox": {
+        "lat_max": 13.250074927185867,
+        "lat_min": 12.55014822767554,
+        "lon_max": 75.64987605390736,
+        "lon_min": 74.85011915230255
+      },
+      "cells": 71134,
+      "dup_cells_6dec": 0,
+      "valid": 71134
+    },
+    "DK_Features_2020": {
+      "bbox": {
+        "lat_max": 13.250074927185867,
+        "lat_min": 12.55014822767554,
+        "lon_max": 75.64987605390736,
+        "lon_min": 74.85011915230255
+      },
+      "cells": 71134,
+      "dup_cells_6dec": 0,
+      "valid": 71134
+    },
+    "DK_Features_2021": {
+      "bbox": {
+        "lat_max": 13.250074927185867,
+        "lat_min": 12.55037903816107,
+        "lon_max": 75.64987605390736,
+        "lon_min": 74.85011915230255
+      },
+      "cells": 69233,
+      "dup_cells_6dec": 0,
+      "valid": 69233
+    },
+    "DK_Features_2022": {
+      "bbox": {
+        "lat_max": 13.250074927185867,
+        "lat_min": 12.55014822767554,
+        "lon_max": 75.64987605390736,
+        "lon_min": 74.85011915230255
+      },
+      "cells": 71134,
+      "dup_cells_6dec": 0,
+      "valid": 71134
+    },
+    "DK_Features_2023": {
+      "bbox": {
+        "lat_max": 13.250074927185867,
+        "lat_min": 12.55014822767554,
+        "lon_max": 75.64987605390736,
+        "lon_min": 74.85011915230255
+      },
+      "cells": 71134,
+      "dup_cells_6dec": 0,
+      "valid": 71134
+    },
+    "DK_Features_2024 (1)": {
+      "bbox": {
+        "lat_max": 13.250105524998736,
+        "lat_min": 12.550228087141218,
+        "lon_max": 75.64978010579306,
+        "lon_min": 74.85018967139827
+      },
+      "cells": 95082,
+      "dup_cells_6dec": 70,
+      "valid": 95082
+    }
+  },
+  "frozen_corpus": {
+    "coord_valid": 10674,
+    "dup_coord_6dec": 28,
+    "outside_dk_bounds": 0,
+    "rows": 10674
+  },
+  "low_precision_4dec": 3414,
+  "max_coord_dup_count_6dec": 52,
+  "normalization": "coordinates passed through verification only; none rewritten (already WGS84 from OGD survey dumps)",
+  "null_coord": 0,
+  "out_of_range": 0,
+  "outside_dk_bounds": 1,
+  "phase": "3",
+  "records": 746359,
+  "reference_system": "WGS84 (EPSG:4326) decimal degrees",
+  "rounded_coords_3dec": 353,
+  "swapped_axis": 0,
+  "zero_coord": 0
+}

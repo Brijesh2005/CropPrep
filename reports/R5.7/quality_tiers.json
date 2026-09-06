@@ -1,0 +1,34 @@
+{
+  "definition": {
+    "A": "valid coord + env <= 250 m + exact grid year + valid survey date, not part of a coconut-pepper dual patch",
+    "B": "valid coord + env <= 5000 m + valid survey date",
+    "C": "valid coord but env out of 5 km or non-aligned grid year",
+    "D": "invalid coordinates or missing criticals — kept for transparency, excluded from analyzable pools"
+  },
+  "disposition": "tiers never silently discard; every row carries tier_reasons",
+  "phase": "9",
+  "tier_by_crop": {
+    "('cardamom', 'A')": 5,
+    "('cardamom', 'B')": 15,
+    "('cardamom', 'C')": 1,
+    "('coconut', 'A')": 76222,
+    "('coconut', 'B')": 51894,
+    "('coconut', 'C')": 4205,
+    "('coffee', 'A')": 128,
+    "('coffee', 'B')": 136,
+    "('coffee', 'C')": 8,
+    "('pepper', 'A')": 8320,
+    "('pepper', 'B')": 33742,
+    "('pepper', 'C')": 509
+  },
+  "tier_counts": {
+    "A": 84675,
+    "B": 85787,
+    "C": 4723
+  },
+  "tier_with_satellite_counts": {
+    "A": 4918,
+    "B": 4783,
+    "no_imagery": 165484
+  }
+}

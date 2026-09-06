@@ -1,0 +1,50 @@
+{
+  "binary_rows": 174892,
+  "co_location_0p02deg": {
+    "cells_with_both": 1575,
+    "dual_row_fraction": 0.8665,
+    "rows_in_dual_cells": 151538
+  },
+  "geographic_shortcut_probe": {
+    "models": {
+      "lr": {
+        "test_auc": 0.5029,
+        "test_balanced_acc": 0.5
+      },
+      "rf": {
+        "test_auc": 0.4985,
+        "test_balanced_acc": 0.5
+      }
+    },
+    "note": "LR/RF trained on (lat, lon) only; test AUC/balanced-accuracy",
+    "test_majority_accuracy": 0.6158
+  },
+  "intercrop_note": "77.2% of pepper fields are coconut-pepper dual fields; median nearest-coconut distance for pepper fields is 2.9 m — GPS/env at field resolution cannot separate co-located crops",
+  "nearest_cross_class_distance": {
+    "median_m": 2.9,
+    "p90_m": 21.5,
+    "sample_n": 12000
+  },
+  "phase": "11",
+  "shortcut_absent": true,
+  "split_balance": {
+    "('test', 'coconut')": 30239,
+    "('test', 'pepper')": 18869,
+    "('train', 'coconut')": 66275,
+    "('train', 'pepper')": 9173,
+    "('val', 'coconut')": 35807,
+    "('val', 'pepper')": 14529
+  },
+  "taluk_balance": {
+    "('Bantwal', 'coconut')": 24942,
+    "('Bantwal', 'pepper')": 3894,
+    "('Belthangady', 'coconut')": 26118,
+    "('Belthangady', 'pepper')": 5169,
+    "('Mangalore', 'coconut')": 15215,
+    "('Mangalore', 'pepper')": 110,
+    "('Puttur', 'coconut')": 35807,
+    "('Puttur', 'pepper')": 14529,
+    "('Sullia', 'coconut')": 30239,
+    "('Sullia', 'pepper')": 18869
+  }
+}

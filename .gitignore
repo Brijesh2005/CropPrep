@@ -150,3 +150,12 @@ kaggle_runs/
 artifacts/
 # Transient test artifacts
 training/kaggle/tests/_tmp_*
+
+# ===========================================
+# R5.7 generated artifacts (reproducible from r5_7_data_recovery.py + committed raw sources)
+# ===========================================
+reports/R5.7/master_geospatial_features.csv
+reports/R5.7/master_coordinate_audit.csv
+reports/R5.7/env_match_knn5.csv
+reports/R5.7/satellite_join.csv
+reports/R5.7/survey_temporal.csv

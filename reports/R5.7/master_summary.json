@@ -1,0 +1,32 @@
+{
+  "by_crop": {
+    "cardamom": 21,
+    "coconut": 132321,
+    "coffee": 272,
+    "pepper": 42571
+  },
+  "by_split_crop": {
+    "('test', 'cardamom')": 11,
+    "('test', 'coconut')": 30239,
+    "('test', 'coffee')": 134,
+    "('test', 'pepper')": 18869,
+    "('train', 'cardamom')": 8,
+    "('train', 'coconut')": 66275,
+    "('train', 'coffee')": 101,
+    "('train', 'pepper')": 9173,
+    "('val', 'cardamom')": 2,
+    "('val', 'coconut')": 35807,
+    "('val', 'coffee')": 37,
+    "('val', 'pepper')": 14529
+  },
+  "coconut_pepper_dual_fields": 65858,
+  "coordinate_audit_note": "issue flags joined from master_coordinate_audit.csv",
+  "environment_match_fraction": 0.973,
+  "environment_match_valid": 170462,
+  "fields_with_pepper_also_coconut": 0.7718869653050199,
+  "phase": "7",
+  "rows": 175185,
+  "rule": "one row per (field, year, season, crop_label); every row traces to a real survey record with GPS + env provenance",
+  "unique_field_observation_ids": 175185,
+  "with_r56_imagery": 9701
+}

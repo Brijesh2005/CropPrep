@@ -1,0 +1,87 @@
+{
+  "note": "before = frozen R5.6 corpus released ceiling; after = recovered R5.7 master; tabular_dedup50m is the fair comparison because the frozen corpus enforced ~50 m observation spacing",
+  "phase": "13",
+  "rows": [
+    {
+      "modality": "tabular",
+      "model": "gb (best)",
+      "n": 10674,
+      "stage": "before_frozen",
+      "test_balanced_accuracy": 0.5047,
+      "test_majority_accuracy": 0.5374,
+      "test_roc_auc": 0.5027
+    },
+    {
+      "modality": "image",
+      "model": "rf (best)",
+      "n": 10560,
+      "stage": "before_frozen",
+      "test_balanced_accuracy": 0.5063,
+      "test_majority_accuracy": 0.5374,
+      "test_roc_auc": 0.5075
+    },
+    {
+      "modality": "fusion",
+      "model": "mlp (best)",
+      "n": 10560,
+      "stage": "before_frozen",
+      "test_balanced_accuracy": 0.5023,
+      "test_majority_accuracy": 0.5374,
+      "test_roc_auc": null
+    },
+    {
+      "modality": "tabular_raw_AB",
+      "model": "lr (best)",
+      "n": 170178,
+      "stage": "after_recovered",
+      "test_balanced_accuracy": 0.5231,
+      "test_majority_accuracy": 0.612,
+      "test_roc_auc": null
+    },
+    {
+      "modality": "tabular_dedup50m",
+      "model": "lr (best)",
+      "n": 41659,
+      "stage": "after_recovered",
+      "test_balanced_accuracy": 0.5015,
+      "test_majority_accuracy": 0.5932,
+      "test_roc_auc": null
+    },
+    {
+      "modality": "image",
+      "model": "lr (best)",
+      "n": 9598,
+      "stage": "after_recovered",
+      "test_balanced_accuracy": 0.5157,
+      "test_majority_accuracy": 0.5396,
+      "test_roc_auc": null
+    },
+    {
+      "modality": "fusion",
+      "model": "gb (best)",
+      "n": 9598,
+      "stage": "after_recovered",
+      "test_balanced_accuracy": 0.5189,
+      "test_majority_accuracy": null,
+      "test_roc_auc": null
+    },
+    {
+      "modality": "reference",
+      "model": "best any",
+      "n": 10674,
+      "stage": "R5.6_ceiling",
+      "test_balanced_accuracy": 0.5063,
+      "test_majority_accuracy": 0.5374,
+      "test_roc_auc": null
+    },
+    {
+      "modality": "reference",
+      "model": "best any (dedup conservative)",
+      "n": 41659,
+      "stage": "R5.7_ceiling",
+      "test_balanced_accuracy": 0.5015,
+      "test_majority_accuracy": 0.5932,
+      "test_roc_auc": null
+    }
+  ]
+}

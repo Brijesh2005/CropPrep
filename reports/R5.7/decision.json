@@ -1,0 +1,17 @@
+{
+  "after_ceiling_dedup50m": 0.5015,
+  "after_ceiling_raw_AB": 0.5231,
+  "before_ceiling": 0.506,
+  "delta_after_minus_before": -0.0045,
+  "phase": "14",
+  "primary_bottleneck": "limited_discriminative_information",
+  "primary_signal": "intercropping_co-location",
+  "recommended_next_phase": "R5.8 sub-field crop-level discrimination: use per-crop Crop_Extent footprints and 10 m Sentinel-2 patches sampled to the individual crop sub-plot; evaluate coconut-vs-pepper where the two are NOT co-located, and model intercropping co-occurrence rather than single-label field classification",
+  "rules": [
+    "50-55%: no signal -> bottleneck is limited discriminative information",
+    "60-70%: validate -> moderate signal needs validation",
+    "70-80%: strong -> retrain recommendation",
+    ">80%: substantial recovery"
+  ],
+  "verdict": "no_signal"
+}
