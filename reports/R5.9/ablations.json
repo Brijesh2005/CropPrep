@@ -1,0 +1,119 @@
+{
+ "phase": "19",
+ "runs": {
+  "env_only": {
+   "pool": "abl-env-only",
+   "modality": "tabular",
+   "n_train": 37211,
+   "n_val": 14611,
+   "n_test": 5838,
+   "test_majority_accuracy": 0.9664,
+   "best_test_balanced_accuracy": 0.5042,
+   "best_model": "gb",
+   "best_test_roc_auc": 0.4781,
+   "per_model": {
+    "lr": {
+     "pool": "abl-env-only",
+     "modality": "tabular",
+     "model": "lr",
+     "val_balanced_accuracy": 0.5589,
+     "val_accuracy": 0.3418,
+     "val_roc_auc": 0.58,
+     "test_balanced_accuracy": 0.5037,
+     "test_accuracy": 0.2025,
+     "test_roc_auc": 0.4879
+    },
+    "rf": {
+     "pool": "abl-env-only",
+     "modality": "tabular",
+     "model": "rf",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.9799,
+     "val_roc_auc": 0.5773,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9664,
+     "test_roc_auc": 0.5455
+    },
+    "gb": {
+     "pool": "abl-env-only",
+     "modality": "tabular",
+     "model": "gb",
+     "val_balanced_accuracy": 0.5048,
+     "val_accuracy": 0.9533,
+     "val_roc_auc": 0.5555,
+     "test_balanced_accuracy": 0.5042,
+     "test_accuracy": 0.7127,
+     "test_roc_auc": 0.4781
+    },
+    "mlp": {
+     "pool": "abl-env-only",
+     "modality": "tabular",
+     "model": "mlp",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.9799,
+     "val_roc_auc": 0.5328,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9664,
+     "test_roc_auc": 0.5307
+    }
+   }
+  },
+  "env_plus_satellite": {
+   "pool": "abl-env+sat",
+   "modality": "tabular",
+   "n_train": 37211,
+   "n_val": 14611,
+   "n_test": 5838,
+   "test_majority_accuracy": 0.9664,
+   "best_test_balanced_accuracy": 0.5042,
+   "best_model": "gb",
+   "best_test_roc_auc": 0.4781,
+   "per_model": {
+    "lr": {
+     "pool": "abl-env+sat",
+     "modality": "tabular",
+     "model": "lr",
+     "val_balanced_accuracy": 0.5589,
+     "val_accuracy": 0.3418,
+     "val_roc_auc": 0.58,
+     "test_balanced_accuracy": 0.5037,
+     "test_accuracy": 0.2025,
+     "test_roc_auc": 0.4879
+    },
+    "rf": {
+     "pool": "abl-env+sat",
+     "modality": "tabular",
+     "model": "rf",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.9799,
+     "val_roc_auc": 0.5773,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9664,
+     "test_roc_auc": 0.5455
+    },
+    "gb": {
+     "pool": "abl-env+sat",
+     "modality": "tabular",
+     "model": "gb",
+     "val_balanced_accuracy": 0.5048,
+     "val_accuracy": 0.9533,
+     "val_roc_auc": 0.5555,
+     "test_balanced_accuracy": 0.5042,
+     "test_accuracy": 0.7127,
+     "test_roc_auc": 0.4781
+    },
+    "mlp": {
+     "pool": "abl-env+sat",
+     "modality": "tabular",
+     "model": "mlp",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.9799,
+     "val_roc_auc": 0.5328,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9664,
+     "test_roc_auc": 0.5307
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "phase": "7",
+ "rule": "confidence by dominance gap: >=0.30 high, >=0.10 medium, >=0.01 low, else tie/none",
+ "tiers": {
+  "high": 272923,
+  "none": 46429,
+  "medium": 14180,
+  "low": 5660,
+  "tie": 365
+ }
+}

@@ -1,0 +1,9 @@
+{
+ "phase": "3",
+ "rule": "field_id = (taluk||hobli||village admin context) + SURVEYID=<survey_id>; crop label never part of field_id",
+ "total_rows": 837069,
+ "unique_fields": 574912,
+ "avg_rows_per_field": 1.456,
+ "duplicate_field_id_rate_in_survey": 0.3132,
+ "crop_label_excluded_from_identity": true
+}

@@ -1,0 +1,9 @@
+{
+ "phase": "5",
+ "rule": "A = >=2 cultivated crops with valid relative extents; B = single-crop or partial; C = none/tie",
+ "tiers": {
+  "B": 245158,
+  "A": 47959,
+  "C": 46440
+ }
+}

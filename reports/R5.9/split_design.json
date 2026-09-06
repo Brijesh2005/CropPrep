@@ -1,0 +1,11 @@
+{
+ "phase": "13",
+ "rule": "grouped field splits by taluk (train/val/test)",
+ "split_counts": {
+  "train": 68702,
+  "val": 39019,
+  "test": 34414
+ },
+ "fields_crossing_splits": 0,
+ "taluks_without_split_mapping": []
+}

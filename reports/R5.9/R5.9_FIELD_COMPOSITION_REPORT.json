@@ -1,0 +1,45 @@
+{
+ "title": "R5.9 Field Composition / Dominant-Crop Reconstruction",
+ "status": "COMPLETE",
+ "output_block": {
+  "STATUS": "COMPLETE",
+  "R5.6_PER_ROW_CEILING_PCT": 50.6,
+  "R5.7_CEILING_PCT": 50.15,
+  "R5.8_STATUS": "BLOCKED_BY_CROP_EXTENT_SCHEMA",
+  "FIELD_COUNT": 339557,
+  "COMPOSITION_OBSERVATIONS": 339557,
+  "COCONUT_DOMINANT_FIELDS": 56863,
+  "PEPPER_DOMINANT_FIELDS": 797,
+  "SHARED_MIXED_FIELDS": 3350,
+  "BEST_TEST_BALANCED_ACCURACY_PCT": 50.42,
+  "BEST_TEST_ROC_AUC": 0.4781,
+  "BEST_REPRESENTATION": "gb",
+  "SIGNAL_RECOVERED": false,
+  "PRIMARY_SIGNAL": "none_detectable",
+  "PRIMARY_BOTTLENECK": "UNKNOWN Crop_Extent unit + co-located intercropping + no per-crop geometry / temporal sequence locally",
+  "CROPFUSION_TRAINING_JUSTIFIED": false,
+  "RECOMMENDED_NEXT_PHASE": "R5.9 formulation does not beat the R5.6/R5.7 ceiling; do not proceed"
+ },
+ "signal": {
+  "phase": "21",
+  "gates": {
+   "no_signal": "< 55.0%",
+   "weak": "55.0-65.0%",
+   "meaningful": "65.0-75.0%",
+   "strong": "75.0-85.0%",
+   "substantially_better": "> 85.0%"
+  },
+  "best_test_balanced_accuracy_pct": 50.42,
+  "verdict": "no_signal",
+  "recommendation": "R5.9 formulation does not beat the R5.6/R5.7 ceiling; do not proceed"
+ },
+ "key_experiment": {
+  "criterion": "best test balanced accuracy (field-dominant) vs R5.6 per-row ceiling",
+  "best_test_balanced_accuracy": 0.5042,
+  "best_model": "gb",
+  "best_test_roc_auc": 0.4781,
+  "test_majority_accuracy": 0.9664,
+  "n_test": 5838,
+  "improvement_over_r5_6_pp": -0.18
+ }
+}

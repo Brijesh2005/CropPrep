@@ -1,0 +1,192 @@
+{
+ "phase": "16",
+ "hypothesis": "field-level composition target (dominant crop) carries more predictable structure than the per-row target in R5.6 (50.6%) / R5.7 (50.15%)",
+ "pool_sizes": {
+  "dominant_binary_total": 57660,
+  "coconut_dominant": 56863,
+  "pepper_dominant": 797,
+  "satellite_subset": 3176
+ },
+ "key_result": {
+  "criterion": "best test balanced accuracy (field-dominant) vs R5.6 per-row ceiling",
+  "best_test_balanced_accuracy": 0.5042,
+  "best_model": "gb",
+  "best_test_roc_auc": 0.4781,
+  "test_majority_accuracy": 0.9664,
+  "n_test": 5838,
+  "improvement_over_r5_6_pp": -0.18
+ },
+ "by_representation": {
+  "env_only": {
+   "pool": "dominant-binary-env-only",
+   "modality": "tabular",
+   "n_train": 37211,
+   "n_val": 14611,
+   "n_test": 5838,
+   "test_majority_accuracy": 0.9664,
+   "best_test_balanced_accuracy": 0.5042,
+   "best_model": "gb",
+   "best_test_roc_auc": 0.4781,
+   "per_model": {
+    "lr": {
+     "pool": "dominant-binary-env-only",
+     "modality": "tabular",
+     "model": "lr",
+     "val_balanced_accuracy": 0.5589,
+     "val_accuracy": 0.3418,
+     "val_roc_auc": 0.58,
+     "test_balanced_accuracy": 0.5037,
+     "test_accuracy": 0.2025,
+     "test_roc_auc": 0.4879
+    },
+    "rf": {
+     "pool": "dominant-binary-env-only",
+     "modality": "tabular",
+     "model": "rf",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.9799,
+     "val_roc_auc": 0.5773,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9664,
+     "test_roc_auc": 0.5455
+    },
+    "gb": {
+     "pool": "dominant-binary-env-only",
+     "modality": "tabular",
+     "model": "gb",
+     "val_balanced_accuracy": 0.5048,
+     "val_accuracy": 0.9533,
+     "val_roc_auc": 0.5555,
+     "test_balanced_accuracy": 0.5042,
+     "test_accuracy": 0.7127,
+     "test_roc_auc": 0.4781
+    },
+    "mlp": {
+     "pool": "dominant-binary-env-only",
+     "modality": "tabular",
+     "model": "mlp",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.9799,
+     "val_roc_auc": 0.5328,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9664,
+     "test_roc_auc": 0.5307
+    }
+   }
+  },
+  "env_plus_satellite": {
+   "pool": "env+satellite",
+   "modality": "tabular",
+   "n_train": 37211,
+   "n_val": 14611,
+   "n_test": 5838,
+   "test_majority_accuracy": 0.9664,
+   "best_test_balanced_accuracy": 0.5042,
+   "best_model": "gb",
+   "best_test_roc_auc": 0.4781,
+   "per_model": {
+    "lr": {
+     "pool": "env+satellite",
+     "modality": "tabular",
+     "model": "lr",
+     "val_balanced_accuracy": 0.5589,
+     "val_accuracy": 0.3418,
+     "val_roc_auc": 0.58,
+     "test_balanced_accuracy": 0.5037,
+     "test_accuracy": 0.2025,
+     "test_roc_auc": 0.4879
+    },
+    "rf": {
+     "pool": "env+satellite",
+     "modality": "tabular",
+     "model": "rf",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.9799,
+     "val_roc_auc": 0.5773,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9664,
+     "test_roc_auc": 0.5455
+    },
+    "gb": {
+     "pool": "env+satellite",
+     "modality": "tabular",
+     "model": "gb",
+     "val_balanced_accuracy": 0.5048,
+     "val_accuracy": 0.9533,
+     "val_roc_auc": 0.5555,
+     "test_balanced_accuracy": 0.5042,
+     "test_accuracy": 0.7127,
+     "test_roc_auc": 0.4781
+    },
+    "mlp": {
+     "pool": "env+satellite",
+     "modality": "tabular",
+     "model": "mlp",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.9799,
+     "val_roc_auc": 0.5328,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9664,
+     "test_roc_auc": 0.5307
+    }
+   }
+  },
+  "satellite_only": {
+   "pool": "satellite-only",
+   "modality": "tabular",
+   "n_train": 2389,
+   "n_val": 498,
+   "n_test": 289,
+   "test_majority_accuracy": 0.9204,
+   "best_test_balanced_accuracy": 0.5,
+   "best_model": "rf",
+   "best_test_roc_auc": 0.4011,
+   "per_model": {
+    "lr": {
+     "pool": "satellite-only",
+     "modality": "tabular",
+     "model": "lr",
+     "val_balanced_accuracy": 0.5329,
+     "val_accuracy": 0.3855,
+     "val_roc_auc": 0.5086,
+     "test_balanced_accuracy": 0.4579,
+     "test_accuracy": 0.2215,
+     "test_roc_auc": 0.4307
+    },
+    "rf": {
+     "pool": "satellite-only",
+     "modality": "tabular",
+     "model": "rf",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.8735,
+     "val_roc_auc": 0.5673,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9204,
+     "test_roc_auc": 0.4011
+    },
+    "gb": {
+     "pool": "satellite-only",
+     "modality": "tabular",
+     "model": "gb",
+     "val_balanced_accuracy": 0.501,
+     "val_accuracy": 0.8635,
+     "val_roc_auc": 0.5234,
+     "test_balanced_accuracy": 0.4925,
+     "test_accuracy": 0.9066,
+     "test_roc_auc": 0.6778
+    },
+    "mlp": {
+     "pool": "satellite-only",
+     "modality": "tabular",
+     "model": "mlp",
+     "val_balanced_accuracy": 0.5,
+     "val_accuracy": 0.8735,
+     "val_roc_auc": 0.4848,
+     "test_balanced_accuracy": 0.5,
+     "test_accuracy": 0.9204,
+     "test_roc_auc": 0.4603
+    }
+   }
+  }
+ }
+}

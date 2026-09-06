@@ -1,0 +1,412 @@
+{
+ "phase": "14",
+ "table": [
+  {
+   "split": "test",
+   "dominant_crop": "agarwood",
+   "count": 3
+  },
+  {
+   "split": "test",
+   "dominant_crop": "almond",
+   "count": 1
+  },
+  {
+   "split": "test",
+   "dominant_crop": "banana",
+   "count": 23
+  },
+  {
+   "split": "test",
+   "dominant_crop": "betel_nuts_(areca_nuts)",
+   "count": 15406
+  },
+  {
+   "split": "test",
+   "dominant_crop": "cashewnuts",
+   "count": 238
+  },
+  {
+   "split": "test",
+   "dominant_crop": "cocoa",
+   "count": 25
+  },
+  {
+   "split": "test",
+   "dominant_crop": "coconut",
+   "count": 5642
+  },
+  {
+   "split": "test",
+   "dominant_crop": "coffee",
+   "count": 5
+  },
+  {
+   "split": "test",
+   "dominant_crop": "grass",
+   "count": 3
+  },
+  {
+   "split": "test",
+   "dominant_crop": "jackfruit",
+   "count": 3
+  },
+  {
+   "split": "test",
+   "dominant_crop": "mangoes",
+   "count": 1
+  },
+  {
+   "split": "test",
+   "dominant_crop": "nutmeg",
+   "count": 1
+  },
+  {
+   "split": "test",
+   "dominant_crop": "oil_palm",
+   "count": 9
+  },
+  {
+   "split": "test",
+   "dominant_crop": "paddy-h",
+   "count": 7
+  },
+  {
+   "split": "test",
+   "dominant_crop": "paddy-l",
+   "count": 24
+  },
+  {
+   "split": "test",
+   "dominant_crop": "palmyra_palm",
+   "count": 1
+  },
+  {
+   "split": "test",
+   "dominant_crop": "pepper",
+   "count": 196
+  },
+  {
+   "split": "test",
+   "dominant_crop": "rambutan_fruit",
+   "count": 1
+  },
+  {
+   "split": "test",
+   "dominant_crop": "red_chillies_(mirchie)",
+   "count": 1
+  },
+  {
+   "split": "test",
+   "dominant_crop": "rubber",
+   "count": 617
+  },
+  {
+   "split": "test",
+   "dominant_crop": "teak_saguvani",
+   "count": 2
+  },
+  {
+   "split": "test",
+   "dominant_crop": "tie",
+   "count": 12205
+  },
+  {
+   "split": "train",
+   "dominant_crop": "acacia",
+   "count": 2
+  },
+  {
+   "split": "train",
+   "dominant_crop": "bajra-l",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "bamboos",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "banana",
+   "count": 88
+  },
+  {
+   "split": "train",
+   "dominant_crop": "beetlvine_(pan)",
+   "count": 2
+  },
+  {
+   "split": "train",
+   "dominant_crop": "betel_nuts_(areca_nuts)",
+   "count": 12957
+  },
+  {
+   "split": "train",
+   "dominant_crop": "cardamom",
+   "count": 7
+  },
+  {
+   "split": "train",
+   "dominant_crop": "cashewnuts",
+   "count": 197
+  },
+  {
+   "split": "train",
+   "dominant_crop": "cocoa",
+   "count": 10
+  },
+  {
+   "split": "train",
+   "dominant_crop": "coconut",
+   "count": 36903
+  },
+  {
+   "split": "train",
+   "dominant_crop": "coffee",
+   "count": 60
+  },
+  {
+   "split": "train",
+   "dominant_crop": "coriander_(dhaniya)(cilantro)",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "elephantfoot_yam",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "grass",
+   "count": 2
+  },
+  {
+   "split": "train",
+   "dominant_crop": "ivygourd",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "jackfruit",
+   "count": 8
+  },
+  {
+   "split": "train",
+   "dominant_crop": "jasmine_(mogra_bela)",
+   "count": 2
+  },
+  {
+   "split": "train",
+   "dominant_crop": "mahagani_tree",
+   "count": 3
+  },
+  {
+   "split": "train",
+   "dominant_crop": "mangoes",
+   "count": 9
+  },
+  {
+   "split": "train",
+   "dominant_crop": "nursery-ornamentals___flowers",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "nutmeg",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "oil_palm",
+   "count": 5
+  },
+  {
+   "split": "train",
+   "dominant_crop": "paddy-h",
+   "count": 219
+  },
+  {
+   "split": "train",
+   "dominant_crop": "paddy-l",
+   "count": 340
+  },
+  {
+   "split": "train",
+   "dominant_crop": "papaya",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "pepper",
+   "count": 308
+  },
+  {
+   "split": "train",
+   "dominant_crop": "pineapple",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "rambutan_fruit",
+   "count": 1
+  },
+  {
+   "split": "train",
+   "dominant_crop": "rubber",
+   "count": 438
+  },
+  {
+   "split": "train",
+   "dominant_crop": "teak_saguvani",
+   "count": 10
+  },
+  {
+   "split": "train",
+   "dominant_crop": "tie",
+   "count": 17117
+  },
+  {
+   "split": "train",
+   "dominant_crop": "tobacco",
+   "count": 2
+  },
+  {
+   "split": "train",
+   "dominant_crop": "vegetable_cowpea",
+   "count": 3
+  },
+  {
+   "split": "val",
+   "dominant_crop": "acacia",
+   "count": 2
+  },
+  {
+   "split": "val",
+   "dominant_crop": "banana",
+   "count": 31
+  },
+  {
+   "split": "val",
+   "dominant_crop": "beetlvine_(pan)",
+   "count": 1
+  },
+  {
+   "split": "val",
+   "dominant_crop": "betel_nuts_(areca_nuts)",
+   "count": 8651
+  },
+  {
+   "split": "val",
+   "dominant_crop": "cashewnuts",
+   "count": 440
+  },
+  {
+   "split": "val",
+   "dominant_crop": "cocoa",
+   "count": 20
+  },
+  {
+   "split": "val",
+   "dominant_crop": "coconut",
+   "count": 14318
+  },
+  {
+   "split": "val",
+   "dominant_crop": "cowpea",
+   "count": 1
+  },
+  {
+   "split": "val",
+   "dominant_crop": "jackfruit",
+   "count": 2
+  },
+  {
+   "split": "val",
+   "dominant_crop": "jasmine_(mogra_bela)",
+   "count": 1
+  },
+  {
+   "split": "val",
+   "dominant_crop": "mahagani_tree",
+   "count": 1
+  },
+  {
+   "split": "val",
+   "dominant_crop": "mangoes",
+   "count": 3
+  },
+  {
+   "split": "val",
+   "dominant_crop": "paddy-h",
+   "count": 5
+  },
+  {
+   "split": "val",
+   "dominant_crop": "paddy-l",
+   "count": 45
+  },
+  {
+   "split": "val",
+   "dominant_crop": "pepper",
+   "count": 293
+  },
+  {
+   "split": "val",
+   "dominant_crop": "rubber",
+   "count": 143
+  },
+  {
+   "split": "val",
+   "dominant_crop": "teak_saguvani",
+   "count": 2
+  },
+  {
+   "split": "val",
+   "dominant_crop": "tie",
+   "count": 15059
+  },
+  {
+   "split": "val",
+   "dominant_crop": "wheat-h",
+   "count": 1
+  }
+ ],
+ "roi_binary": [
+  {
+   "split": "test",
+   "dominant_crop": "coconut",
+   "count": 5642
+  },
+  {
+   "split": "test",
+   "dominant_crop": "pepper",
+   "count": 196
+  },
+  {
+   "split": "train",
+   "dominant_crop": "coconut",
+   "count": 36903
+  },
+  {
+   "split": "train",
+   "dominant_crop": "pepper",
+   "count": 308
+  },
+  {
+   "split": "val",
+   "dominant_crop": "coconut",
+   "count": 14318
+  },
+  {
+   "split": "val",
+   "dominant_crop": "pepper",
+   "count": 293
+  }
+ ],
+ "fields_per_split": {
+  "test": 34414,
+  "train": 68702,
+  "val": 39019
+ }
+}

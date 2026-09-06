@@ -1,0 +1,20 @@
+{
+ "phase": "9",
+ "satellite_features": [
+  "ndvi_mean",
+  "ndvi_std",
+  "ndvi_min",
+  "ndvi_max",
+  "evi_mean",
+  "evi_std",
+  "evi_min",
+  "evi_max",
+  "ndvi_last_frame_mean",
+  "evi_last_frame_mean",
+  "real_frame_count",
+  "zero_fill_fraction"
+ ],
+ "fields_with_satellite": 142135,
+ "rows_with_satellite_in_master": 9598,
+ "note": "imagery stats only exist for the R5.6 subset (~9.7k rows)"
+}

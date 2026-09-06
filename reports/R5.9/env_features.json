@@ -1,0 +1,37 @@
+{
+ "phase": "10",
+ "env_numeric": [
+  "annual_rainfall_mm",
+  "dewpoint_c",
+  "elevation",
+  "temperature_c",
+  "relative_humidity_pct",
+  "slope",
+  "ndvi",
+  "evi",
+  "ndwi",
+  "ndre",
+  "savi",
+  "s2_obs_count",
+  "soil_clay_pct",
+  "soil_sand_pct",
+  "soil_organic_carbon",
+  "soil_ph",
+  "soil_moisture",
+  "kharif_ndvi",
+  "kharif_evi",
+  "kharif_ndwi",
+  "rabi_ndvi",
+  "rabi_evi",
+  "rabi_ndwi",
+  "env_match_distance_m"
+ ],
+ "env_categorical": [
+  "season",
+  "is_cropland",
+  "land_cover_class",
+  "soil_type_class"
+ ],
+ "fields_with_env_features": 142135,
+ "contexts_with_env_features": 142135
+}

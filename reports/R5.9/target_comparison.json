@@ -1,0 +1,8 @@
+{
+ "phase": "8",
+ "units": "per-row supervised crop (original) vs field-level dominant crop (composition)",
+ "roi_binary_rows_with_composition_dominant": 70325,
+ "per_row_original_matches_field_dominant_fraction": 0.9844,
+ "per_row_flip_fraction_when_compressed_to_field_dominant": 0.0156,
+ "note": "R5.6/R5.7 classify each ROW (original target). R5.9 classifies the FIELD (composition dominant). For shared coconut+pepper fields a large flip fraction is expected and is the point of the field-level re-formulation."
+}

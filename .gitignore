@@ -162,3 +162,13 @@ reports/R5.7/survey_temporal.csv
 
 # R5.8 generated artifacts (reproducible from r5_8_subfield.py + committed raw sources)
 reports/R5.8/field_identity_audit.csv
+
+# R5.9 generated artifacts (reproducible from r5_9_field_composition.py + committed raw sources)
+reports/R5.9/field_composition.csv
+reports/R5.9/field_dataset.csv
+reports/R5.9/field_dataset_split.csv
+reports/R5.9/field_env_features.csv
+reports/R5.9/field_satellite_features.csv
+reports/R5.9/composition_quality_tiers.csv
+reports/R5.9/composition_confidence_tiers.csv
+reports/R5.9/crop_extent_area_audit.csv

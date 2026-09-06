@@ -1,0 +1,30 @@
+{
+ "phase": "2",
+ "crop_extent_unit_status": "UNKNOWN",
+ "absolute_unit_claim": false,
+ "used_only_as": "within-field relative extent (composition target)",
+ "used_as_feature": false,
+ "parse_method": "monotonic scalarization A + B/100 + C/10000",
+ "rows": 837069,
+ "rows_valid_extent": 837069,
+ "rows_invalid_extent": 0,
+ "rows_excluded_from_composition": 268573,
+ "exclusion_heads": [
+  "NA LAND",
+  "FALLOW",
+  "TREES AND GROOVES",
+  "HARVEST OVER CROP-*"
+ ],
+ "extent_valid_fraction": 1.0,
+ "relative_score_min": 5e-05,
+ "relative_score_median": 0.28,
+ "relative_score_max": 4266.45,
+ "sensitivity": {
+  "note": "dominant crop is recomputed under two further monotonic readings to bound the UNKNOWN-unit risk: lexicographic (A, B, C) and A-only; agreement reported in Phase 4",
+  "scalarizations": [
+   "score = A + B/100 + C/10000",
+   "lexicographic over (A, B, C)",
+   "A-only"
+  ]
+ }
+}

@@ -1,0 +1,9 @@
+{
+ "phase": "22",
+ "question": "Is a ~90% 'interpretation' of crop state supported by field-level composition? No.",
+ "r5_9_field_dominant_best_balanced_acc_pct": 50.42,
+ "r5_6_per_row_ceiling_pct": 50.6,
+ "r5_7_ceiling_pct": 50.15,
+ "conclusion": "90% interpretation is not supported by any measured signal in this data. Field-level composition is a RE-STRUCTURED TARGET, not a claim that crop state can be read from satellite at 90%.",
+ "what_would_be_needed": "per-crop geometry (R5.8 blocker), per-date temporal sequences, calibration data - none available locally."
+}

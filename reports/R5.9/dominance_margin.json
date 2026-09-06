@@ -1,0 +1,48 @@
+{
+ "phase": "18",
+ "rule": "majority accuracy on the test branch per dominance-gap bin",
+ "bins": [
+  {
+   "gap_lo": 0.0,
+   "gap_hi": 0.05,
+   "n_fields": 379,
+   "n_test": 108,
+   "test_majority_accuracy": 0.6944
+  },
+  {
+   "gap_lo": 0.05,
+   "gap_hi": 0.1,
+   "n_fields": 456,
+   "n_test": 100,
+   "test_majority_accuracy": 0.75
+  },
+  {
+   "gap_lo": 0.1,
+   "gap_hi": 0.2,
+   "n_fields": 684,
+   "n_test": 149,
+   "test_majority_accuracy": 0.8523
+  },
+  {
+   "gap_lo": 0.2,
+   "gap_hi": 0.3,
+   "n_fields": 584,
+   "n_test": 146,
+   "test_majority_accuracy": 0.9041
+  },
+  {
+   "gap_lo": 0.3,
+   "gap_hi": 0.5,
+   "n_fields": 639,
+   "n_test": 181,
+   "test_majority_accuracy": 0.9613
+  },
+  {
+   "gap_lo": 0.5,
+   "gap_hi": 1.01,
+   "n_fields": 54918,
+   "n_test": 5154,
+   "test_majority_accuracy": 0.9816
+  }
+ ]
+}

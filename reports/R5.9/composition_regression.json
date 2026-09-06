@@ -1,0 +1,33 @@
+{
+ "phase": "17",
+ "task": "continuous coconut-fraction regression (0=coconut,1=pepper)",
+ "n_train": 37211,
+ "n_val": 14611,
+ "n_test": 5838,
+ "rows": [
+  {
+   "model": "linear",
+   "mae": 0.0485,
+   "rmse": 0.181,
+   "r2": -0.0099
+  },
+  {
+   "model": "rf",
+   "mae": 0.168,
+   "rmse": 0.2588,
+   "r2": -1.064
+  },
+  {
+   "model": "gb",
+   "mae": 0.2097,
+   "rmse": 0.2779,
+   "r2": -1.3803
+  },
+  {
+   "model": "majority-mean-baseline",
+   "mae": 0.0413,
+   "rmse": 0.1819,
+   "r2": -0.0197
+  }
+ ]
+}
