@@ -1,0 +1,25 @@
+{
+  "phase": "3",
+  "n_coconut_fields": 132321,
+  "n_pepper_fields": 42571,
+  "percent_pepper_within_5m_of_coconut": 66.72,
+  "percent_pepper_within_10m_of_coconut": 82.09,
+  "percent_pepper_within_25m_of_coconut": 91.42,
+  "percent_pepper_within_50m_of_coconut": 94.98,
+  "percent_pepper_within_100m_of_coconut": 97.74,
+  "pepper_to_nearest_coconut_m": {
+    "median": 2.824,
+    "mean": 11.217,
+    "p95": 50.199,
+    "p99": 157.588
+  },
+  "distance_band_counts": {
+    "0-5": 28404,
+    "5-10": 6544,
+    "10-25": 3971,
+    "25-50": 1516,
+    "50-100": 1172,
+    ">100": 964
+  },
+  "colocation_analysis_csv": "reports/R5.8/colocation_analysis.csv"
+}

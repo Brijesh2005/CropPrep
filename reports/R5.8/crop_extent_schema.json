@@ -1,0 +1,89 @@
+{
+  "phase": "1",
+  "status": "BLOCKED_BY_CROP_EXTENT_SCHEMA",
+  "what_is_crop_extent": "a scalar land-area measure in compound A-B-C notation (e.g. '1-76-0.00'), per crop survey row",
+  "contains_geometry": false,
+  "geometry_kind": null,
+  "coordinate_system": null,
+  "crop_specific_area": true,
+  "identifies_physical_subfield_region": false,
+  "independently_measured_or_derived": "independently recorded per-row area value, NOT derived from label; but a scalar with no spatial placement",
+  "can_be_mapped_to_satellite_pixels": false,
+  "why_blocked": [
+    "no polygon, bounding box, centroid or coordinate placement",
+    "no crop geometry source exists in the repository (only hobli/taluk/district admin boundaries in application/gis)",
+    "per-crop extent cannot select or mask specific satellite pixels without a spatial location"
+  ],
+  "unblock_contract": {
+    "required_geometry_inputs": [
+      "per-crop polygon OR bbox OR centroid with crop label",
+      "geometry CRS (expected EPSG:4326 or metric projected CRS)",
+      "geometry source + provenance"
+    ],
+    "required_validation": [
+      "geometry validity / non-empty / bounds / self-intersection",
+      "area_m2 plausible range",
+      "crop label attached to each geometry, not inferred"
+    ]
+  },
+  "evidence": {
+    "total_rows": 837069,
+    "fraction_matching_compound_area_pattern": 1.0,
+    "blank_or_null_extent_rows": 0,
+    "geometry_hint_columns": [],
+    "geometry_hint_values_found": 0,
+    "rows_with_coordinate_like_extent": 0,
+    "extent_part_bounds_A_B_C": {
+      "A": {
+        "min": 0.0,
+        "max": 4266.0,
+        "mean": 0.3005952914275884,
+        "median": 0.0
+      },
+      "B": {
+        "min": 0.0,
+        "max": 99.0,
+        "mean": 28.923546326527443,
+        "median": 20.0
+      },
+      "C": {
+        "min": 0.0,
+        "max": 666.0,
+        "mean": 3.008516884510118,
+        "median": 0.0
+      }
+    },
+    "survey_ids_with_distinct_extents_across_crops": 73528,
+    "gis_files_present": [
+      "24_Dakshina_Kannada.dbf",
+      "24_Dakshina_Kannada.prj",
+      "24_Dakshina_Kannada.shp",
+      "24_Dakshina_Kannada.shx",
+      "District.cpg",
+      "District.dbf",
+      "District.kmz",
+      "District.prj",
+      "District.sbn",
+      "District.sbx",
+      "District.shp",
+      "District.shx",
+      "README.md",
+      "Taluk.cpg",
+      "Taluk.dbf",
+      "Taluk.kmz",
+      "Taluk.prj",
+      "Taluk.sbn",
+      "Taluk.sbx",
+      "Taluk.shp",
+      "Taluk.shx",
+      "__init__.py",
+      "__init__.py",
+      "__init__.py",
+      "__init__.py",
+      "models.py",
+      "resolver.py"
+    ],
+    "gis_crop_polygon_source_present": false,
+    "gis_administrative_only": true
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "phase": "schedule",
+  "status": "BLOCKED_BY_CROP_EXTENT_SCHEMA",
+  "blocked_phases": [
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "schedule"
+  ],
+  "unblocked_when": "a real per-crop / polygon geometry source is provided: cadastral parcels with crop attribution, or a village/field polygon layer with crop extents",
+  "mapping": {
+    "1": "inspect (DONE - blocked at geometry)",
+    "4": "construct_spatial_extent",
+    "5": "field_vs_subfield_geometry",
+    "6": "satellite_extraction_strategies",
+    "7": "pixel_masking",
+    "8": "temporal_signature",
+    "9": "temporal_features",
+    "10-15": "cheap baselines + split + ablations (after geometry+satellite)",
+    "16": "signal recovery decision",
+    "18": "crop_subfield_v1.csv output"
+  },
+  "unblock_contract": {
+    "required_geometry_inputs": [
+      "per-crop polygon OR bbox OR centroid with crop label",
+      "geometry CRS (expected EPSG:4326 or a metric projected CRS)",
+      "geometry source + provenance"
+    ],
+    "required_validation": [
+      "geometry validity / non-empty / bounds / self-intersection",
+      "area_m2 plausible range",
+      "crop label attached to each geometry, not inferred"
+    ],
+    "pipeline_ready": [
+      "construct_spatial_extent",
+      "field_vs_subfield_geometry",
+      "satellite_extraction_strategies",
+      "pixel_masking",
+      "temporal_signature",
+      "temporal_features",
+      "cheap baselines",
+      "split grouped by field_id",
+      "ablations",
+      "signal decision"
+    ]
+  },
+  "do_not_run_without_geometry": [
+    "pixel masking",
+    "bbox extraction",
+    "centroid patch",
+    "any 'sub-field' satellite feature"
+  ]
+}

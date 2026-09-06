@@ -1,0 +1,32 @@
+{
+  "phase": "provenance",
+  "schema_version": "r5.8.0",
+  "status": "BLOCKED_BY_CROP_EXTENT_SCHEMA",
+  "what_was_produced": {
+    "crop_extent_schema": "reports/R5.8/crop_extent_schema.md/.json",
+    "field_identity_audit": "reports/R5.8/field_identity_audit.csv/.json",
+    "colocation_analysis": "reports/R5.8/colocation_analysis.csv/.json",
+    "unblock_schedule": "reports/R5.8/unblock_schedule.json",
+    "decision": "reports/R5.8/R5.8_decision.json"
+  },
+  "every_observation_traces": {
+    "crop_record": "survey_id + survey file + raw cropname + Crop_Extent as recorded",
+    "field_id": "(taluk||hobli||village admin context)+survey_id; crop label excluded",
+    "crop_extent_source": "govt_crop_survey_data/ogd_*.csv column Crop_Extent",
+    "geometry_transformation": "NONE (extent is scalar; no geometry created)",
+    "satellite_image_date": "NOT extracted - blocked by missing geometry",
+    "pixel_mask_extraction": "NOT RUN - blocked by missing geometry",
+    "environmental_source": "not re-computed in R5.8 (R5.7 master is untouched)",
+    "feature_transformation": "none performed in R5.8 (no sub-field features)"
+  },
+  "field_counts": {
+    "unique_fields": 574912,
+    "shared_coconut_pepper_fields": 32860
+  },
+  "colocation": {
+    "median_pepper_to_nearest_coconut_m": 2.824
+  },
+  "no_fabrication": true,
+  "no_geometry_invented": true,
+  "r5_6_r5_7_frozen_untouched": true
+}

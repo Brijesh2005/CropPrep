@@ -159,3 +159,6 @@ reports/R5.7/master_coordinate_audit.csv
 reports/R5.7/env_match_knn5.csv
 reports/R5.7/satellite_join.csv
 reports/R5.7/survey_temporal.csv
+
+# R5.8 generated artifacts (reproducible from r5_8_subfield.py + committed raw sources)
+reports/R5.8/field_identity_audit.csv

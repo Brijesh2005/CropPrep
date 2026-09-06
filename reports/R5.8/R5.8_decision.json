@@ -1,0 +1,18 @@
+{
+  "phase": "decision",
+  "status": "BLOCKED_BY_CROP_EXTENT_SCHEMA",
+  "verdict": "not_testable",
+  "hypothesis": "crop-specific sub-field/crop-extent imagery contains more discriminative information than field-level satellite observation",
+  "result": "cannot be tested on the available data: crop_extent is a scalar area with no geometry and no crop polygon source exists; there is no physical sub-field region to localize crop-specific pixels",
+  "data_ceiling_r5_7_pct": 50.15,
+  "data_ceiling_r5_8_pct": null,
+  "signal_recovered": false,
+  "primary_signal": "intercropping_co_location (R5.7, confirmed co-located)",
+  "primary_bottleneck": "missing_crop_geometry: no spatial sub-field crop extent exists to separate co-located coconut/pepper (median 2.8 m) below ~10 m pixels",
+  "cropfusion_training_justified": false,
+  "recommended_next_phase": "R5.9 candidate after 'R5.8-unblock' acquires a real per-crop polygon/parcel geometry layer; until then, sub-field discrimination is not physically possible on this dataset",
+  "engineering_gate": "BLOCKED (<55% gate not evaluable without geometry)",
+  "pepper_within_5m_coconut_pct": 66.72,
+  "pepper_nearest_coconut_median_m": 2.824,
+  "crop_extent_contains_geometry": false
+}
