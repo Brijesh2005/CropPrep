@@ -14,6 +14,10 @@ The output table gives every R5.6 image representation:
                                    real_frame_count, total_frames,
                                    zero_fill_fraction
 
+Iteration is single-process and per-sample (Dataset.__getitem__ with
+try/except) so a single untransformable observation can never crash the run;
+it is recorded as ``skipped`` and still accounted in the summary.
+
 Run from repo root on Kaggle::
 
     python training/kaggle/scripts/r5_6_kaggle_image_stats.py
@@ -34,8 +38,6 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _add_repo_root(repo_root: Path) -> None:
-    import os
-
     root = str(repo_root.resolve())
     for entry in list(sys.path):
         if entry == root or entry == "":
@@ -50,7 +52,6 @@ _add_repo_root(_REPO_ROOT)
 from training.dataset_manager import DatasetManager, load_settings  # noqa: E402
 from training.kaggle.frozen_corpus import FrozenCorpusLoader  # noqa: E402
 from training.preprocessing import Preprocessor, load_preprocessing_config  # noqa: E402
-from training.preprocessing.dataloader import build_dataloader  # noqa: E402
 from training.preprocessing.dataset import CropFusionDataset  # noqa: E402
 from training.stam import STAM  # noqa: E402
 from training.stam.config import load_stam_config  # noqa: E402
@@ -59,64 +60,83 @@ BINARY = ["coconut", "pepper"]
 
 PHASE = "R5.6 image statistics export"
 
+STAT_COLUMNS = [
+    "ndvi_mean", "ndvi_std", "ndvi_min", "ndvi_max",
+    "evi_mean", "evi_std", "evi_min", "evi_max",
+    "ndvi_last_frame_mean", "evi_last_frame_mean",
+    "real_frame_count", "total_frames", "zero_fill_fraction",
+]
 
-def _obs_record_id(obs: Any) -> str:
+
+def _record_id(obs: Any) -> str:
     rid = (obs.provenance or {}).get("record_id")
     return str(rid or obs.observation_id)
 
 
-def _obs_split(obs: Any) -> str:
-    return str(getattr(obs, "split", None) or "unknown").lower()
+def _sample_stats(sample: dict[str, Any]) -> dict[str, Any] | None:
+    """Per-sample NDVI/EVI statistics from one transform result."""
+    try:
+        ndvi = sample["ndvi"]
+        evi = sample["evi"]
+        mask = sample["temporal_mask"]
+        cls = int(sample["crop_label"])
+    except Exception:
+        return None
+    flags = np.nonzero(mask.numpy())
+    n_real = int(flags[0].size)
+    zero_frac = 1.0 - (n_real / max(1, int(mask.numel())))
+    row: dict[str, Any] = {
+        "crop_label": BINARY[1] if cls == 1 else BINARY[0],
+        "real_frame_count": n_real,
+        "total_frames": int(mask.numel()),
+        "zero_fill_fraction": round(float(zero_frac), 6),
+    }
+    for stream, key in ((ndvi, "ndvi"), (evi, "evi")):
+        v = stream[mask == 1].float()
+        if v.numel() == 0:
+            row[f"{key}_mean"] = np.nan
+            row[f"{key}_std"] = np.nan
+            row[f"{key}_min"] = np.nan
+            row[f"{key}_max"] = np.nan
+        else:
+            row[f"{key}_mean"] = round(float(v.mean()), 6)
+            row[f"{key}_std"] = round(float(v.std()), 6)
+            row[f"{key}_min"] = round(float(v.min()), 6)
+            row[f"{key}_max"] = round(float(v.max()), 6)
+        if flags[0].size:
+            last = stream[flags[0][-1]].float()
+            row[f"{key}_last_frame_mean"] = round(float(last.mean()), 6)
+        else:
+            row[f"{key}_last_frame_mean"] = np.nan
+    return row
 
 
-def extract(
-    loader: torch.utils.data.DataLoader, split: str,
-    split_df: pd.DataFrame,
-) -> pd.DataFrame:
+def _extract_split(pre: Preprocessor, obs_list: list[Any], split: str,
+                   extractor: Any) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
+    # split="val" disables the train augmentation so statistics describe the
+    # real patches, not randomly-cropped/flipped ones. The transform output is
+    # deterministic regardless of the sample's official split membership.
+    ds = CropFusionDataset.build(pre, obs_list, split="val", extractor=extractor)
     rows: list[dict[str, Any]] = []
-    for batch in loader:
-        labels = batch["crop_label"].numpy()
-        obs_ids = [str(x) for x in batch["observation_id"]]
-        ndvi = batch["ndvi"]
-        evi = batch["evi"]
-        mask = batch["temporal_mask"]
-        for i in range(ndvi.size(0)):
-            flags = np.nonzero(mask[i].numpy())
-            last_idx = int(flags[0][-1]) if flags[0].size else -1
-            real = ndvi[i][mask[i] == 1]
-            n_real = real.size(0)
-            zero_frac = 1.0 - (n_real / mask[i].numel())
-            row: dict[str, Any] = {
-                "record_id": obs_ids[i],
-                "split": split,
-                "crop_label": "pepper" if labels[i] == 1 else "coconut",
-                "real_frame_count": int(n_real),
-                "total_frames": int(mask[i].numel()),
-                "zero_fill_fraction": round(float(zero_frac), 6),
-            }
-            for stream, key in ((ndvi[i], "ndvi"), (evi[i], "evi")):
-                v = stream[mask[i] == 1].float()
-                if v.numel() == 0:
-                    row[f"{key}_mean"] = np.nan
-                    row[f"{key}_std"] = np.nan
-                    row[f"{key}_min"] = np.nan
-                    row[f"{key}_max"] = np.nan
-                else:
-                    row[f"{key}_mean"] = round(float(v.mean()), 6)
-                    row[f"{key}_std"] = round(float(v.std()), 6)
-                    row[f"{key}_min"] = round(float(v.min()), 6)
-                    row[f"{key}_max"] = round(float(v.max()), 6)
-                if last_idx >= 0:
-                    last = stream[last_idx].float()
-                    row[f"{key}_last_frame_mean"] = round(float(last.mean()), 6)
-                else:
-                    row[f"{key}_last_frame_mean"] = np.nan
-            rows.append(row)
-    out = pd.DataFrame(rows)
-    # align order to the split expectation set (fetch by record_id)
-    exp = split_df.set_index("record_id")[["crop_label"]]
-    out["record_id"] = out["record_id"].astype(str)
-    return out
+    skipped: list[dict[str, Any]] = []
+    for i in range(len(ds)):
+        obs = obs_list[i]
+        rid = _record_id(obs)
+        try:
+            sample = ds[i]
+        except Exception as exc:  # noqa: BLE001
+            skipped.append({"record_id": rid, "class": str(obs.crop),
+                            "error": str(exc)[:160]})
+            continue
+        stats = _sample_stats(sample)
+        if stats is None:
+            skipped.append({"record_id": rid, "class": str(obs.crop),
+                            "error": "transform returned unusable tensor set"})
+            continue
+        rows.append({"record_id": rid, "split": split, **stats})
+        if (i + 1) % 500 == 0:
+            print(f"    [{split}] {i + 1}/{len(ds)} rows; skipped={len(skipped)}")
+    return pd.DataFrame(rows), skipped
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -135,7 +155,6 @@ def main(argv: list[str] | None = None) -> int:
                         default=str(_REPO_ROOT / "training_manifests"
                                     / "crop_supervised_v2.0_manifest.json"))
     parser.add_argument("--output", default="/kaggle/working/r5_6_image_stats")
-    parser.add_argument("--batch-size", type=int, default=48)
     args = parser.parse_args(argv)
 
     output = Path(args.output)
@@ -152,6 +171,7 @@ def main(argv: list[str] | None = None) -> int:
         print("[FATAL] imagery not available; R5.6 image stats require the Kaggle mount")
         return 1
     manager.ensure_image()
+    manager.generate_image_metadata(force=False)
     stam = STAM(manager, stam_cfg)
     stam.initialize()
     extractor = stam.get_patch
@@ -165,6 +185,10 @@ def main(argv: list[str] | None = None) -> int:
     bin_test = [o for o in test_obs if o.crop in BINARY]
     print(f"binary roster: train={len(bin_train)} val={len(bin_val)} "
           f"test={len(bin_test)}")
+    if not bin_train:
+        print("[FATAL] zero binary training observations after corpus build — "
+              "aborting (imagery index did not resolve sequences)")
+        return 1
 
     preprocessing_cfg.label.declared_classes = BINARY
     preprocessing_cfg.label.excluded_classes = []
@@ -177,24 +201,27 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     dfs: list[pd.DataFrame] = []
+    all_skips: list[dict[str, Any]] = []
     for split, obs in (("train", bin_train), ("val", bin_val), ("test", bin_test)):
-        ds = CropFusionDataset.build(pre, obs, split=split, extractor=extractor)
-        loader = build_dataloader(ds, config=preprocessing_cfg, split=split,
-                                  batch_size=args.batch_size, shuffle=False)
-        part = extract(loader, split, None)
+        part, skips = _extract_split(pre, obs, split, extractor)
         dfs.append(part)
-        print(f"  extracted [{split}] n={len(part)}")
+        all_skips.extend(skips)
+        print(f"  extracted [{split}] n={len(part)} skipped={len(skips)}")
 
     df = pd.concat(dfs, ignore_index=True)
     counts = df.groupby(["split", "crop_label"]).size().to_dict()
     print("counts:", {str(k): int(v) for k, v in counts.items()})
-    print("untransformed/all-nan samples:",
-          int(df["ndvi_mean"].isna().sum()))
+    print("missing ndvi_mean:", int(df["ndvi_mean"].isna().sum()))
+
     csv_path = output / "image_stats.csv"
     df.to_csv(csv_path, index=False)
+    (output / "image_stats_skipped.json").write_text(
+        json.dumps(all_skips, indent=2, default=str), encoding="utf-8")
     summary = {
         "phase": PHASE,
         "n_samples": int(len(df)),
+        "n_skipped": len(all_skips),
+        "expected_binary_total": 10560,
         "split_counts": {str(k): int(v) for k, v in counts.items()},
         "columns": list(df.columns),
         "missing_ndvi_mean": int(df["ndvi_mean"].isna().sum()),
@@ -202,6 +229,10 @@ def main(argv: list[str] | None = None) -> int:
         "zero_fill_fraction_mean": round(float(df["zero_fill_fraction"].mean()), 6),
         "zero_fill_mean_per_split": {
             s: round(float(g["zero_fill_fraction"].mean()), 6)
+            for s, g in df.groupby("split")
+        },
+        "mean_real_frames_per_split": {
+            s: round(float(g["real_frame_count"].mean()), 3)
             for s, g in df.groupby("split")
         },
         "image_stats_csv": str(csv_path),
