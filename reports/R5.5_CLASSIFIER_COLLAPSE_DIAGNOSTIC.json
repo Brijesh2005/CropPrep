@@ -8,9 +8,9 @@
   },
   "conclusion": {
     "root_cause_type": "DATA_CEILING",
-    "primary_root_cause": "extreme class imbalance (coconut 4292 / pepper 1599 / coffee 29 / cardamom 4) COMBINED WITH spatial co-location of all classes in the same taluk grid cells; tabular+env+seasonal vegetation features are near-identical across classes",
+    "primary_root_cause": "extreme class imbalance (coconut 4292 / pepper 1599 / coffee 29 / cardamom 4) COMBINED WITH spatial co-location of all classes in the same taluk grid cells; tabular+env+seasonal vegetation features are near-identical across classes; GPU image+tabular run confirms imagery does not separate classes either",
     "secondary_root_cause": "rare-class gradient dilution: deployed focal(gamma=2.0)+sqrt_inv+label_smoothing(0.15) is arithmetic-correct but suppresses the rare-class signal at uncertain draws",
-    "confidence": "HIGH for data-ceiling / loss arithmetic. UNVERIFIED for image-only separability (Kaggle GPU phases pending re-run).",
+    "confidence": "HIGH for data-ceiling / loss arithmetic / image statistics. GPU-verified: binary default collapse reproduces with imagery (image not a separator).",
     "cannot_be_fixed_by": ["hyperparameter sweep", "loss re-weighting alone", "loosening matching rules", "blindly adding imagery"]
   },
   "evidence": {
@@ -62,6 +62,31 @@
       "kharif_evi_std": 106.355,
       "kharif_evi_max": 6744.029,
       "file": "reports/R5.5_phase7_feature_leakage.json"
+    },
+    "gpu_kaggle_v7": {
+      "kernel": "gojosensa/r5-5-classifier-collapse-diagnostic",
+      "run_state": "completed (3.06h)",
+      "epochs": 2,
+      "phase3_binary_image_tabular_majority_acc": 0.5636,
+      "phase3_variants": {
+        "default_focal_sqrt_inv": {"acc": 0.5636, "macro_f1": 0.3604, "beats_prior": false, "pred": {"coconut": 2436, "pepper": 0}, "confusion": [[1373, 0], [1063, 0]], "pepper": {"precision": 0.0, "recall": 0.0}},
+        "ce_balanced": {"acc": 0.514, "macro_f1": 0.4241, "beats_prior": false, "pred": {"coconut": 2025, "pepper": 411}, "confusion": [[1107, 266], [918, 145]], "pepper": {"precision": 0.3528, "recall": 0.1364}},
+        "ce_none": {"acc": 0.5636, "macro_f1": 0.3604, "beats_prior": false, "pred": {"coconut": 2436, "pepper": 0}}
+      },
+      "phase5_9_image_normalization_per_class": {
+        "ndvi_mean": {"coconut": 0.611274, "pepper": 0.616111, "coffee": 0.643064, "cardamom": 0.61695},
+        "evi_mean": {"coconut": 0.66234, "pepper": 0.663279, "coffee": 0.668016, "cardamom": 0.645354},
+        "zero_fill_frac": {"coconut": 0.539375, "pepper": 0.56125, "coffee": 0.625, "cardamom": 0.65625},
+        "note": "53-66 percent of the 8 NDVI/EVI frames per sample are zero-filled padding; per-class real-frame statistics are near-identical"
+      },
+      "phase10_first_n_step_dynamics": {
+        "train_loss_descends": "0.0776 -> 0.0724 -> 0.0612 -> 0.0558 -> 0.0545 (healthy, no NaN)",
+        "mean_softmax_trajectory": "coconut 0.322->0.437, pepper 0.227->0.308, coffee 0.274->0.163, cardamom 0.177->0.091",
+        "coconut_minus_pepper_mean_logit": "0.35 at step1, stays 0.07-0.63 positive",
+        "probe_batch_accuracy": "0.5 -> 0.61 (64-sample batch partially separable, class prior wins full set)"
+      },
+      "phase11_tiny_overfit": "CRASHED - default_collate found NoneType in CropFusionDataset for tiny subset; not a signal result",
+      "evidence_source": "kernel v7 log (4333 lines) parsed to artifacts/r5_5_pull/logs_v7.json; diagnostic_r5_5.json was written on kernel but not downloaded (workspace pull truncated at 2.1GB)"
     }
   },
   "success_criteria": {
@@ -72,13 +97,14 @@
     "q5_val_acc_equals_majority": true,
     "q6_head_misordered": false,
     "q7_image_tensors_valid": true,
-    "q7b_image_model_separability": "PENDING (Kaggle GPU phase 6)",
+    "q7b_image_model_separability": "VERIFIED NON-SEPARATING on GPU: binary default collapses to all-coconut with imagery; balanced CE pepper prec 0.353; per-class NDVI/EVI stats near-identical",
     "q8_loss_dead_or_nan": false,
     "q9_imbalance_is_binding_ceiling": true,
-    "q10_architecture_correct": "wiring pass; CNN image-level unverified"
+    "q10_architecture_correct": "wiring + GPU training healthy (loss descends, no NaN, no scheduler crash); collapse reproduced with image inputs"
   },
   "open_blockers": [
-    "Phase 3/4/6/9/10/11/14/15 need a Kaggle GPU re-run; prior kernel runs (v4/v5) crashed on TR-SCHED-001 scheduler-warmup bug now fixed at 80bc3263"
+    "Phase 11 tiny-overfit: clean_image_pipeline returns None for tiny subset -> collate crash at diagnose_collapse_kaggle.py:652; fix returns a padded/zero instance before any follow-up run",
+    "Phase 15 modality ablation: strict image-only training curve not isolated (joint covered by Phase 3 binary, image statistics by Phase 5/9)"
   ],
-  "recommended_next_change": "run fixed Kaggle kernel (R5_5_DUMP_REPORT=1, --epochs 2); then held-out rare-class probe + patch-level image binary probe; if image probe shows no signal, narrow scope to coconut-vs-pepper binary with existing frozen data"
+  "recommended_next_change": "GPU re-run DONE (kernel v7) and it confirms imagery does not unlock separation. Next: held-out rare-class probe (train coc+pep only, score coffee/cardamom on frozen split) + patch-level image binary probe; if image probe shows no signal, narrow scope to coconut-vs-pepper binary with existing frozen data"
 }

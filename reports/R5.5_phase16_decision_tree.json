@@ -1,6 +1,6 @@
 {
   "phase": "R5.5 Phase 16 - Collapse root-cause decision tree",
-  "data_origin": "local CPU diagnostics (r5_5_local_baselines.py) + earlier R5.5/R5.2.9/R5.3 phase reports",
+  "data_origin": "local CPU diagnostics (r5_5_local_baselines.py) + Kaggle GPU kernel v7 (image+tabular, 2 epochs) + earlier R5.5/R5.2.9/R5.3 phase reports",
   "decision_tree": {
     "Q1_is_label_pipeline_correct": {
       "evidence": "R5.5_label_trace.json: label_mapping_ok=true, split_counts_match_manifest=true, gate_equals_trivial_coconut_anchor=true; declared class order coconut=0,pepper=1,coffee=2,cardamom=3 matches head+evaluator",
@@ -28,14 +28,14 @@
       "impact": "gradient mechanics confirmed; focal+sqrt_inv+label-smoothing jointly dilute the rare-class signal"
     },
     "Q6_does_the_model_train_at_all": {
-      "evidence": "R3 default model trained, acc=0.5636 on val (== majority prior, predicts all-coconut). Kaggle v4/v5 Phase 3 binary run CRASHED with TR-SCHED-001 warmup(2)<schedule_length(2) - scheduler warmup bug; fixed at HEAD 80bc3263 but GPU phases not re-run.",
-      "answer": "MODEL TRAINS but never escapes coconut collapse; GPU phases UNVERIFIED (blocked)",
-      "impact": "the NN does learn, it just cannot find inter-class signal; and GPU phase results are pending a re-run"
+      "evidence": "R3 default model trained, acc=0.5636 on val (== majority prior, predicts all-coconut). Kaggle GPU v7: scheduler fixed (80bc3263); Phase 3 binary ran cleanly 2 epochs - loss descends (train 0.1147 -> 0.1122 default), no NaN, val acc 0.5636 == prior. Phase 10 first-step dynamics: train_loss 0.0776 -> 0.0545, probe acc 0.5 -> 0.61, coconut-pepper logit gap positive.",
+      "answer": "YES - model trains healthily on GPU with image+tabular inputs; never escapes coconut collapse",
+      "impact": "the NN does learn, it just cannot find inter-class signal even with the CNN + imagery active"
     },
     "Q7_do_image_features_differ": {
-      "evidence": "IMAGE PHASE UNVERIFIED (requires Kaggle GPU re-run). Tabular proxies (ndvi/evi/ndwi as static composites) show near-zero unique-info per class. Note kharif_evi has std=106 max=6744 - extreme outlier present in tabular EVI input.",
-      "answer": "UNKNOWN locally - pending Phase 6/9 Kaggle re-run",
-      "impact": "image separability is the one remaining open question; even if images separate, the class distributional wall remains"
+      "evidence": "Kaggle GPU Phase 5/9 (fitted preprocessor, train subset): per-class NDVI mean 0.611 (coconut) / 0.616 (pepper) / 0.643 (coffee) / 0.617 (cardamom); EVI mean 0.662/0.663/0.668/0.645 - near-identical. zero_fill_frac 0.539-0.656 (53-66% of 8 temporal frames are padding, mask mean 0.396 in first batch). Phase 3 binary with imagery: default collapses all-coconut ([[1373,0],[1063,0]]); balanced CE pepper prec 0.353/recall 0.136 below majority.",
+      "answer": "NO - real-frame statistics are near-identical across classes and the temporal stack is mostly zero-fill padding; image+tabular training does not separate classes",
+      "impact": "image separability question is now RESOLVED for the statistics + joint-binary level; a strict image-ONLY training curve (Phase 15) is the only remaining niche"
     },
     "Q8_does_simple_ensemble_or_threshold_help": {
       "evidence": "R5.5_phase4_sweep (variants held on val): focal+sqrt_inv gave val acc 0.5584 macro-F1 0.1791 EXACTLY the majority anchor. No loss variant beat it. Newer sweep set to hold on test.",
@@ -49,15 +49,15 @@
     "3) tabular features alone cannot distinguish classes (LR/RF/GB/MLP all <= majority; binary LR AUC=0.55)",
     "4) the loss re-weighting (focal+sqrt_inv+0.15 smoothing) is arithmetic-sound but cancels the rare-class boost at uncertain draws",
     "5) the only truly informative feature is geographic (lat/lon) - a leak-adjacent split shortcut",
-    "6) image-based discrimination is the remaining open question and requires a Kaggle GPU re-run"
+    "6) GPU image+tabular run (kernel v7): default binary still collapses to all-coconut (confusion [[1373,0],[1063,0]]), balanced CE hits only 0.353 pepper precision, per-class NDVI/EVI stats near-identical and 53-66% of temporal frames are zero-fill -> image modality does not unlock separation"
   ],
-  "primary_root_cause": "CEILING: the frozen corpus is fundamentally spatially co-located and dominated by coconut; NO tabular model can beat the majority predictor, and loss re-weighting cannot manufacture signal that does not exist in the data",
+  "primary_root_cause": "CEILING: the frozen corpus is fundamentally spatially co-located and dominated by coconut; NO tabular model can beat the majority predictor, and loss re-weighting cannot manufacture signal that does not exist in the data - GPU-verified for the image modality too",
   "secondary_root_cause": "RARE-CLASS DILUTION: coffee=29 / cardamom=4 train samples sit inside coconut-heavy village pixels; focal(gamma=2)+label-smoothing(0.15) further suppress the already-weak rare-class gradient",
-  "open_question": "Whether per-pixel Sentinel-2 patches (image-only modality) add any inter-class signal; unverifiable locally on the CPU-only venv. Requires re-running the Kaggle kernel now that commit 80bc3263 fixes the scheduler warmup crash.",
-  "recommended_next_change": "Do NOT loosen matching rules or add imagery blindly. First run a small locked test-eval experiment where cardamom/coffee are EXCLUDED from training loss but scored independently on leftovers; and/or a per-pixel patch-level binary 'interior-vs-monoculture' probe to test image separability. Validate on the frozen split.",
+  "open_question": "RESOLVED at statistics + joint-binary level (Kaggle GPU v7). Only niche remaining: a strict image-ONLY training curve (Phase 15 modality ablation) and the Phase 11 tiny-set overfit attempt (which crashed on a dataset collate bug, not on a model-signal result).",
+  "recommended_next_change": "Do NOT loosen matching rules or add imagery blindly (imagery already shown non-separating on GPU). Next: small locked test-eval experiment where cardamom/coffee are EXCLUDED from training loss but scored independently on leftovers; and/or a per-pixel patch-level binary 'interior-vs-monoculture' probe. Validate on the frozen split.",
   "success_criteria_confidence_notes": [
-    "CONFIDENT about data-ceiling (tabular + spatial evidence is decisive)",
+    "CONFIDENT about data-ceiling (tabular + spatial + GPU image evidence is decisive)",
     "CONFIDENT about loss arithmetic being correct but suboptimal for ultra-rare",
-    "PENDING for image-only separability (phase 3/5/9/14 on Kaggle)"
+    "GPU phases 3/5/9/10 VERIFIED completed; phase 11 crashed on collate bug (fix pending), phase 15 (image-only) not run"
   ]
 }
