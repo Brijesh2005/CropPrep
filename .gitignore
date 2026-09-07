@@ -196,3 +196,17 @@ reports/final/final_ablation.csv
 reports/final/final_confidence_intervals.csv
 reports/final/final_tabular_selection.csv
 reports/R5.10.zip
+reports/final.zip
+
+# ===========================================
+# Feature-fusion campaign generated artifacts (reproducible: train_feature_fusion.py + frozen R5.9/R5.10 inputs)
+# ===========================================
+reports/feature_fusion/models/**/*.csv
+reports/feature_fusion/models/**/*.npz
+reports/feature_fusion/models/**/checkpoint.pt
+reports/feature_fusion/model_comparison.csv
+reports/feature_fusion/metrics.csv
+reports/feature_fusion/predictions.csv
+reports/feature_fusion/training_history.csv
+reports/feature_fusion/confusion_matrix.csv
+artifacts/feature_fusion/

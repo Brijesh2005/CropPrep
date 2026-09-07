@@ -1,0 +1,26 @@
+{
+  "model": "tabular_loc",
+  "mode": "tabular",
+  "fusion_type": "concat",
+  "threshold_val": 0.8069,
+  "val_balanced_accuracy": 0.5623,
+  "val_roc_auc": 0.5681,
+  "test_accuracy": 0.748,
+  "test_balanced_accuracy": 0.4828,
+  "test_macro_f1": 0.4576,
+  "test_roc_auc": 0.4235,
+  "test_recall_coconut": 0.9247,
+  "test_recall_pepper": 0.0408,
+  "test_confusion_matrix": [
+    [
+      725,
+      59
+    ],
+    [
+      188,
+      8
+    ]
+  ],
+  "fixed_threshold_balanced_accuracy": 0.4362,
+  "fixed_threshold_roc_auc": 0.4235
+}

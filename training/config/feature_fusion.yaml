@@ -1,0 +1,50 @@
+# Feature-level fusion configuration (CropFusion "feature fusion" campaign).
+#
+# Simpler conceptual stack than the final-cropfusion campaign:
+#   tabular  -> TabularFeatureEncoder            -> 256-D
+#   imagery  -> ImageFeatureEncoder (per obs)    -> 512-D
+#            -> TemporalAttentionPool (masked)   -> 512-D field vector
+#   fuse     -> FeatureFusion (concat | gated)   -> 256-D
+#   head     -> Linear -> 1 logit (binary)
+#
+# Faithful-to-directive local limitation (documented in reports):
+# raw Sentinel-2 patches are Kaggle-only; the local, reproducible "imagery"
+# modality is the per-year DK grid vegetation-composite vector (12-D/year),
+# projected by an MLP. The config keeps clean pretrained-backbone knobs so the
+# identical code path accepts a CNN patch-embedding backend where available.
+
+data:
+  # derived at runtime when null
+  tabular_dim: null
+  image_feature_dim: 12
+
+encoders:
+  tabular_embedding_dim: 256
+  image_embedding_dim: 512
+  hidden_dim: 512
+  dropout: 0.2
+
+fusion:
+  fusion_dim: 256
+  fusion_type: concat          # concat | gated  (gated = per-modality sigmoid gates)
+
+backbone:
+  pretrained_backbone: none    # none locally; e.g. efficientnet_b0 when raw patches exist
+  freeze_backbone: true        # kept for the image-CNN path; no-op for MLP encoders
+
+training:
+  epochs: 60
+  batch_size: 128
+  lr_head: 0.001
+  lr_backbone: 0.00001
+  weight_decay: 0.0001
+  patience: 15
+  early_metric: balanced_accuracy   # validation metric for early stop + threshold
+  grad_clip: 1.0
+  amp: true                        # used automatically when CUDA is available
+  weighted_sampler: false          # optional WeightedRandomSampler (on top of pos_weight)
+  seed: 42
+
+eval:
+  threshold_mode: val_best          # threshold maximizing val balanced accuracy, frozen to test
+  fixed_reference_threshold: 0.5    # reported alongside for transparency

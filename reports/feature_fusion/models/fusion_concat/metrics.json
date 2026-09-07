@@ -1,0 +1,26 @@
+{
+  "model": "fusion_concat",
+  "mode": "fusion",
+  "fusion_type": "concat",
+  "threshold_val": 0.5148,
+  "val_balanced_accuracy": 0.6003,
+  "val_roc_auc": 0.626,
+  "test_accuracy": 0.3092,
+  "test_balanced_accuracy": 0.4994,
+  "test_macro_f1": 0.309,
+  "test_roc_auc": 0.4962,
+  "test_recall_coconut": 0.1824,
+  "test_recall_pepper": 0.8163,
+  "test_confusion_matrix": [
+    [
+      143,
+      641
+    ],
+    [
+      36,
+      160
+    ]
+  ],
+  "fixed_threshold_balanced_accuracy": 0.4949,
+  "fixed_threshold_roc_auc": 0.4962
+}

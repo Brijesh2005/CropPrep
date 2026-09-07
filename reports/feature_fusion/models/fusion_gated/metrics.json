@@ -1,0 +1,26 @@
+{
+  "model": "fusion_gated",
+  "mode": "fusion",
+  "fusion_type": "gated",
+  "threshold_val": 0.5841,
+  "val_balanced_accuracy": 0.6049,
+  "val_roc_auc": 0.6315,
+  "test_accuracy": 0.3673,
+  "test_balanced_accuracy": 0.5242,
+  "test_macro_f1": 0.3656,
+  "test_roc_auc": 0.5259,
+  "test_recall_coconut": 0.2628,
+  "test_recall_pepper": 0.7857,
+  "test_confusion_matrix": [
+    [
+      206,
+      578
+    ],
+    [
+      42,
+      154
+    ]
+  ],
+  "fixed_threshold_balanced_accuracy": 0.5,
+  "fixed_threshold_roc_auc": 0.5259
+}

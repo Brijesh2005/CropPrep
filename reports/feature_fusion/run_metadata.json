@@ -1,0 +1,699 @@
+[
+  {
+    "model": "fusion_concat",
+    "mode": "fusion",
+    "fusion_type": "concat",
+    "with_location": false,
+    "git_revision": "fce7b10e19cf9d181b2f6cb1faf9ac5ed3bc9894",
+    "seed": 42,
+    "epochs_run": 2,
+    "best_val_epoch": 2,
+    "positional": {
+      "tabular_dim": 42,
+      "image_feature_dim": 12
+    },
+    "feature_columns": [
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "temperature_c",
+      "relative_humidity_pct",
+      "annual_rainfall_mm_tmean",
+      "annual_rainfall_mm_tstd",
+      "annual_rainfall_mm_tmin",
+      "annual_rainfall_mm_tmax",
+      "annual_rainfall_mm_trange",
+      "annual_rainfall_mm_tdelta",
+      "annual_rainfall_mm_tslope",
+      "dewpoint_c_tmean",
+      "dewpoint_c_tstd",
+      "dewpoint_c_tmin",
+      "dewpoint_c_tmax",
+      "dewpoint_c_trange",
+      "dewpoint_c_tdelta",
+      "dewpoint_c_tslope",
+      "temperature_c_tmean",
+      "temperature_c_tstd",
+      "temperature_c_tmin",
+      "temperature_c_tmax",
+      "temperature_c_trange",
+      "temperature_c_tdelta",
+      "temperature_c_tslope",
+      "relative_humidity_pct_tmean",
+      "relative_humidity_pct_tstd",
+      "relative_humidity_pct_tmin",
+      "relative_humidity_pct_tmax",
+      "relative_humidity_pct_trange",
+      "relative_humidity_pct_tdelta",
+      "relative_humidity_pct_tslope",
+      "elevation",
+      "slope",
+      "soil_clay_pct",
+      "soil_sand_pct",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_moisture",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "imagery_columns": [
+      "ndvi",
+      "evi",
+      "ndwi",
+      "ndre",
+      "savi",
+      "s2_obs_count",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi"
+    ],
+    "temporal_grid_years": [
+      2018,
+      2019,
+      2020,
+      2021
+    ],
+    "padded_slots_fraction": 0.2553,
+    "split_hash": "4db451dc47e39f6c",
+    "split_sizes": {
+      "train": 1540,
+      "val": 1465,
+      "test": 980
+    },
+    "class_weight_pos_pepper": 4.0,
+    "preprocessing": {
+      "tab_impute_norm": "median+std from TRAIN only",
+      "cat_codes": "fit on TRAIN only",
+      "imagery_norm": "mean+std of valid TRAIN cells only"
+    },
+    "test_untouched_fields": [
+      "median",
+      "std",
+      "categorical_codes",
+      "imagery_stats",
+      "pos_weight",
+      "threshold",
+      "early_stopping",
+      "model_selection"
+    ],
+    "config": {
+      "data": {
+        "tabular_dim": null,
+        "image_feature_dim": 12
+      },
+      "encoders": {
+        "tabular_embedding_dim": 256,
+        "image_embedding_dim": 512,
+        "hidden_dim": 512,
+        "dropout": 0.2
+      },
+      "fusion": {
+        "fusion_dim": 256,
+        "fusion_type": "concat"
+      },
+      "backbone": {
+        "pretrained_backbone": "none",
+        "freeze_backbone": true
+      },
+      "training": {
+        "epochs": 60,
+        "batch_size": 128,
+        "lr_head": 0.001,
+        "lr_backbone": 1e-05,
+        "weight_decay": 0.0001,
+        "patience": 15,
+        "early_metric": "balanced_accuracy",
+        "grad_clip": 1.0,
+        "amp": true,
+        "weighted_sampler": false,
+        "seed": 42
+      },
+      "eval": {
+        "threshold_mode": "val_best",
+        "fixed_reference_threshold": 0.5
+      }
+    },
+    "device": "cpu"
+  },
+  {
+    "model": "fusion_gated",
+    "mode": "fusion",
+    "fusion_type": "gated",
+    "with_location": false,
+    "git_revision": "fce7b10e19cf9d181b2f6cb1faf9ac5ed3bc9894",
+    "seed": 42,
+    "epochs_run": 2,
+    "best_val_epoch": 2,
+    "positional": {
+      "tabular_dim": 42,
+      "image_feature_dim": 12
+    },
+    "feature_columns": [
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "temperature_c",
+      "relative_humidity_pct",
+      "annual_rainfall_mm_tmean",
+      "annual_rainfall_mm_tstd",
+      "annual_rainfall_mm_tmin",
+      "annual_rainfall_mm_tmax",
+      "annual_rainfall_mm_trange",
+      "annual_rainfall_mm_tdelta",
+      "annual_rainfall_mm_tslope",
+      "dewpoint_c_tmean",
+      "dewpoint_c_tstd",
+      "dewpoint_c_tmin",
+      "dewpoint_c_tmax",
+      "dewpoint_c_trange",
+      "dewpoint_c_tdelta",
+      "dewpoint_c_tslope",
+      "temperature_c_tmean",
+      "temperature_c_tstd",
+      "temperature_c_tmin",
+      "temperature_c_tmax",
+      "temperature_c_trange",
+      "temperature_c_tdelta",
+      "temperature_c_tslope",
+      "relative_humidity_pct_tmean",
+      "relative_humidity_pct_tstd",
+      "relative_humidity_pct_tmin",
+      "relative_humidity_pct_tmax",
+      "relative_humidity_pct_trange",
+      "relative_humidity_pct_tdelta",
+      "relative_humidity_pct_tslope",
+      "elevation",
+      "slope",
+      "soil_clay_pct",
+      "soil_sand_pct",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_moisture",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "imagery_columns": [
+      "ndvi",
+      "evi",
+      "ndwi",
+      "ndre",
+      "savi",
+      "s2_obs_count",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi"
+    ],
+    "temporal_grid_years": [
+      2018,
+      2019,
+      2020,
+      2021
+    ],
+    "padded_slots_fraction": 0.2553,
+    "split_hash": "4db451dc47e39f6c",
+    "split_sizes": {
+      "train": 1540,
+      "val": 1465,
+      "test": 980
+    },
+    "class_weight_pos_pepper": 4.0,
+    "preprocessing": {
+      "tab_impute_norm": "median+std from TRAIN only",
+      "cat_codes": "fit on TRAIN only",
+      "imagery_norm": "mean+std of valid TRAIN cells only"
+    },
+    "test_untouched_fields": [
+      "median",
+      "std",
+      "categorical_codes",
+      "imagery_stats",
+      "pos_weight",
+      "threshold",
+      "early_stopping",
+      "model_selection"
+    ],
+    "config": {
+      "data": {
+        "tabular_dim": null,
+        "image_feature_dim": 12
+      },
+      "encoders": {
+        "tabular_embedding_dim": 256,
+        "image_embedding_dim": 512,
+        "hidden_dim": 512,
+        "dropout": 0.2
+      },
+      "fusion": {
+        "fusion_dim": 256,
+        "fusion_type": "concat"
+      },
+      "backbone": {
+        "pretrained_backbone": "none",
+        "freeze_backbone": true
+      },
+      "training": {
+        "epochs": 60,
+        "batch_size": 128,
+        "lr_head": 0.001,
+        "lr_backbone": 1e-05,
+        "weight_decay": 0.0001,
+        "patience": 15,
+        "early_metric": "balanced_accuracy",
+        "grad_clip": 1.0,
+        "amp": true,
+        "weighted_sampler": false,
+        "seed": 42
+      },
+      "eval": {
+        "threshold_mode": "val_best",
+        "fixed_reference_threshold": 0.5
+      }
+    },
+    "device": "cpu"
+  },
+  {
+    "model": "imagery",
+    "mode": "imagery",
+    "fusion_type": "concat",
+    "with_location": false,
+    "git_revision": "fce7b10e19cf9d181b2f6cb1faf9ac5ed3bc9894",
+    "seed": 42,
+    "epochs_run": 12,
+    "best_val_epoch": 12,
+    "positional": {
+      "tabular_dim": 42,
+      "image_feature_dim": 12
+    },
+    "feature_columns": [
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "temperature_c",
+      "relative_humidity_pct",
+      "annual_rainfall_mm_tmean",
+      "annual_rainfall_mm_tstd",
+      "annual_rainfall_mm_tmin",
+      "annual_rainfall_mm_tmax",
+      "annual_rainfall_mm_trange",
+      "annual_rainfall_mm_tdelta",
+      "annual_rainfall_mm_tslope",
+      "dewpoint_c_tmean",
+      "dewpoint_c_tstd",
+      "dewpoint_c_tmin",
+      "dewpoint_c_tmax",
+      "dewpoint_c_trange",
+      "dewpoint_c_tdelta",
+      "dewpoint_c_tslope",
+      "temperature_c_tmean",
+      "temperature_c_tstd",
+      "temperature_c_tmin",
+      "temperature_c_tmax",
+      "temperature_c_trange",
+      "temperature_c_tdelta",
+      "temperature_c_tslope",
+      "relative_humidity_pct_tmean",
+      "relative_humidity_pct_tstd",
+      "relative_humidity_pct_tmin",
+      "relative_humidity_pct_tmax",
+      "relative_humidity_pct_trange",
+      "relative_humidity_pct_tdelta",
+      "relative_humidity_pct_tslope",
+      "elevation",
+      "slope",
+      "soil_clay_pct",
+      "soil_sand_pct",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_moisture",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "imagery_columns": [
+      "ndvi",
+      "evi",
+      "ndwi",
+      "ndre",
+      "savi",
+      "s2_obs_count",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi"
+    ],
+    "temporal_grid_years": [
+      2018,
+      2019,
+      2020,
+      2021
+    ],
+    "padded_slots_fraction": 0.2553,
+    "split_hash": "4db451dc47e39f6c",
+    "split_sizes": {
+      "train": 1540,
+      "val": 1465,
+      "test": 980
+    },
+    "class_weight_pos_pepper": 4.0,
+    "preprocessing": {
+      "tab_impute_norm": "median+std from TRAIN only",
+      "cat_codes": "fit on TRAIN only",
+      "imagery_norm": "mean+std of valid TRAIN cells only"
+    },
+    "test_untouched_fields": [
+      "median",
+      "std",
+      "categorical_codes",
+      "imagery_stats",
+      "pos_weight",
+      "threshold",
+      "early_stopping",
+      "model_selection"
+    ],
+    "config": {
+      "data": {
+        "tabular_dim": null,
+        "image_feature_dim": 12
+      },
+      "encoders": {
+        "tabular_embedding_dim": 256,
+        "image_embedding_dim": 512,
+        "hidden_dim": 512,
+        "dropout": 0.2
+      },
+      "fusion": {
+        "fusion_dim": 256,
+        "fusion_type": "concat"
+      },
+      "backbone": {
+        "pretrained_backbone": "none",
+        "freeze_backbone": true
+      },
+      "training": {
+        "epochs": 60,
+        "batch_size": 128,
+        "lr_head": 0.001,
+        "lr_backbone": 1e-05,
+        "weight_decay": 0.0001,
+        "patience": 15,
+        "early_metric": "balanced_accuracy",
+        "grad_clip": 1.0,
+        "amp": true,
+        "weighted_sampler": false,
+        "seed": 42
+      },
+      "eval": {
+        "threshold_mode": "val_best",
+        "fixed_reference_threshold": 0.5
+      }
+    },
+    "device": "cpu"
+  },
+  {
+    "model": "tabular",
+    "mode": "tabular",
+    "fusion_type": "concat",
+    "with_location": false,
+    "git_revision": "fce7b10e19cf9d181b2f6cb1faf9ac5ed3bc9894",
+    "seed": 42,
+    "epochs_run": 5,
+    "best_val_epoch": 5,
+    "positional": {
+      "tabular_dim": 42,
+      "image_feature_dim": 12
+    },
+    "feature_columns": [
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "temperature_c",
+      "relative_humidity_pct",
+      "annual_rainfall_mm_tmean",
+      "annual_rainfall_mm_tstd",
+      "annual_rainfall_mm_tmin",
+      "annual_rainfall_mm_tmax",
+      "annual_rainfall_mm_trange",
+      "annual_rainfall_mm_tdelta",
+      "annual_rainfall_mm_tslope",
+      "dewpoint_c_tmean",
+      "dewpoint_c_tstd",
+      "dewpoint_c_tmin",
+      "dewpoint_c_tmax",
+      "dewpoint_c_trange",
+      "dewpoint_c_tdelta",
+      "dewpoint_c_tslope",
+      "temperature_c_tmean",
+      "temperature_c_tstd",
+      "temperature_c_tmin",
+      "temperature_c_tmax",
+      "temperature_c_trange",
+      "temperature_c_tdelta",
+      "temperature_c_tslope",
+      "relative_humidity_pct_tmean",
+      "relative_humidity_pct_tstd",
+      "relative_humidity_pct_tmin",
+      "relative_humidity_pct_tmax",
+      "relative_humidity_pct_trange",
+      "relative_humidity_pct_tdelta",
+      "relative_humidity_pct_tslope",
+      "elevation",
+      "slope",
+      "soil_clay_pct",
+      "soil_sand_pct",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_moisture",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "imagery_columns": [
+      "ndvi",
+      "evi",
+      "ndwi",
+      "ndre",
+      "savi",
+      "s2_obs_count",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi"
+    ],
+    "temporal_grid_years": [
+      2018,
+      2019,
+      2020,
+      2021
+    ],
+    "padded_slots_fraction": 0.2553,
+    "split_hash": "4db451dc47e39f6c",
+    "split_sizes": {
+      "train": 1540,
+      "val": 1465,
+      "test": 980
+    },
+    "class_weight_pos_pepper": 4.0,
+    "preprocessing": {
+      "tab_impute_norm": "median+std from TRAIN only",
+      "cat_codes": "fit on TRAIN only",
+      "imagery_norm": "mean+std of valid TRAIN cells only"
+    },
+    "test_untouched_fields": [
+      "median",
+      "std",
+      "categorical_codes",
+      "imagery_stats",
+      "pos_weight",
+      "threshold",
+      "early_stopping",
+      "model_selection"
+    ],
+    "config": {
+      "data": {
+        "tabular_dim": null,
+        "image_feature_dim": 12
+      },
+      "encoders": {
+        "tabular_embedding_dim": 256,
+        "image_embedding_dim": 512,
+        "hidden_dim": 512,
+        "dropout": 0.2
+      },
+      "fusion": {
+        "fusion_dim": 256,
+        "fusion_type": "concat"
+      },
+      "backbone": {
+        "pretrained_backbone": "none",
+        "freeze_backbone": true
+      },
+      "training": {
+        "epochs": 60,
+        "batch_size": 128,
+        "lr_head": 0.001,
+        "lr_backbone": 1e-05,
+        "weight_decay": 0.0001,
+        "patience": 15,
+        "early_metric": "balanced_accuracy",
+        "grad_clip": 1.0,
+        "amp": true,
+        "weighted_sampler": false,
+        "seed": 42
+      },
+      "eval": {
+        "threshold_mode": "val_best",
+        "fixed_reference_threshold": 0.5
+      }
+    },
+    "device": "cpu"
+  },
+  {
+    "model": "tabular_loc",
+    "mode": "tabular",
+    "fusion_type": "concat",
+    "with_location": true,
+    "git_revision": "fce7b10e19cf9d181b2f6cb1faf9ac5ed3bc9894",
+    "seed": 42,
+    "epochs_run": 7,
+    "best_val_epoch": 7,
+    "positional": {
+      "tabular_dim": 44,
+      "image_feature_dim": 12
+    },
+    "feature_columns": [
+      "annual_rainfall_mm",
+      "dewpoint_c",
+      "temperature_c",
+      "relative_humidity_pct",
+      "annual_rainfall_mm_tmean",
+      "annual_rainfall_mm_tstd",
+      "annual_rainfall_mm_tmin",
+      "annual_rainfall_mm_tmax",
+      "annual_rainfall_mm_trange",
+      "annual_rainfall_mm_tdelta",
+      "annual_rainfall_mm_tslope",
+      "dewpoint_c_tmean",
+      "dewpoint_c_tstd",
+      "dewpoint_c_tmin",
+      "dewpoint_c_tmax",
+      "dewpoint_c_trange",
+      "dewpoint_c_tdelta",
+      "dewpoint_c_tslope",
+      "temperature_c_tmean",
+      "temperature_c_tstd",
+      "temperature_c_tmin",
+      "temperature_c_tmax",
+      "temperature_c_trange",
+      "temperature_c_tdelta",
+      "temperature_c_tslope",
+      "relative_humidity_pct_tmean",
+      "relative_humidity_pct_tstd",
+      "relative_humidity_pct_tmin",
+      "relative_humidity_pct_tmax",
+      "relative_humidity_pct_trange",
+      "relative_humidity_pct_tdelta",
+      "relative_humidity_pct_tslope",
+      "elevation",
+      "slope",
+      "soil_clay_pct",
+      "soil_sand_pct",
+      "soil_organic_carbon",
+      "soil_ph",
+      "soil_moisture",
+      "lat",
+      "lon",
+      "is_cropland",
+      "land_cover_class",
+      "soil_type_class"
+    ],
+    "imagery_columns": [
+      "ndvi",
+      "evi",
+      "ndwi",
+      "ndre",
+      "savi",
+      "s2_obs_count",
+      "kharif_ndvi",
+      "kharif_evi",
+      "kharif_ndwi",
+      "rabi_ndvi",
+      "rabi_evi",
+      "rabi_ndwi"
+    ],
+    "temporal_grid_years": [
+      2018,
+      2019,
+      2020,
+      2021
+    ],
+    "padded_slots_fraction": 0.2553,
+    "split_hash": "4db451dc47e39f6c",
+    "split_sizes": {
+      "train": 1540,
+      "val": 1465,
+      "test": 980
+    },
+    "class_weight_pos_pepper": 4.0,
+    "preprocessing": {
+      "tab_impute_norm": "median+std from TRAIN only",
+      "cat_codes": "fit on TRAIN only",
+      "imagery_norm": "mean+std of valid TRAIN cells only"
+    },
+    "test_untouched_fields": [
+      "median",
+      "std",
+      "categorical_codes",
+      "imagery_stats",
+      "pos_weight",
+      "threshold",
+      "early_stopping",
+      "model_selection"
+    ],
+    "config": {
+      "data": {
+        "tabular_dim": null,
+        "image_feature_dim": 12
+      },
+      "encoders": {
+        "tabular_embedding_dim": 256,
+        "image_embedding_dim": 512,
+        "hidden_dim": 512,
+        "dropout": 0.2
+      },
+      "fusion": {
+        "fusion_dim": 256,
+        "fusion_type": "concat"
+      },
+      "backbone": {
+        "pretrained_backbone": "none",
+        "freeze_backbone": true
+      },
+      "training": {
+        "epochs": 60,
+        "batch_size": 128,
+        "lr_head": 0.001,
+        "lr_backbone": 1e-05,
+        "weight_decay": 0.0001,
+        "patience": 15,
+        "early_metric": "balanced_accuracy",
+        "grad_clip": 1.0,
+        "amp": true,
+        "weighted_sampler": false,
+        "seed": 42
+      },
+      "eval": {
+        "threshold_mode": "val_best",
+        "fixed_reference_threshold": 0.5
+      }
+    },
+    "device": "cpu"
+  }
+]
