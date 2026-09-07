@@ -1,0 +1,24 @@
+{
+ "val": {
+  "accuracy": 0.3446,
+  "balanced_accuracy": 0.5525,
+  "macro_f1": 0.3771,
+  "roc_auc": 0.6229,
+  "recall_coconut": 0.2619,
+  "recall_pepper": 0.843,
+  "confusion_matrix": [
+   [
+    307,
+    865
+   ],
+   [
+    46,
+    247
+   ]
+  ]
+ },
+ "info": {
+  "best_epoch": 10,
+  "best_val_balanced_accuracy": 0.5525
+ }
+}

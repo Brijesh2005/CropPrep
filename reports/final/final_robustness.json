@@ -1,0 +1,52 @@
+{
+ "rule": "n_valid_temporal_obs >= 3",
+ "fields": 54440,
+ "note": "applied identically to all three final models; reported as a sensitivity, never replacing the primary population",
+ "population_split_counts": {
+  "('test', 0)": 716,
+  "('test', 1)": 179,
+  "('train', 0)": 1232,
+  "('train', 1)": 308,
+  "('val', 0)": 1172,
+  "('val', 1)": 293
+ },
+ "pepper_train_val_test": {
+  "train": 308,
+  "val": 293,
+  "test": 179
+ },
+ "test_results": [
+  {
+   "model": "tabular",
+   "test_balanced_accuracy": 0.4965,
+   "test_macro_f1": 0.1697,
+   "test_roc_auc": 0.537
+  },
+  {
+   "model": "imagery",
+   "test_balanced_accuracy": 0.5014,
+   "test_macro_f1": 0.2057,
+   "test_roc_auc": 0.4871
+  },
+  {
+   "model": "cropfusion",
+   "test_balanced_accuracy": 0.4937,
+   "test_macro_f1": 0.1947,
+   "test_roc_auc": 0.5317
+  }
+ ],
+ "val_results": [
+  {
+   "model": "tabular",
+   "val_balanced_accuracy": 0.5137
+  },
+  {
+   "model": "imagery",
+   "val_balanced_accuracy": 0.5606
+  },
+  {
+   "model": "cropfusion",
+   "val_balanced_accuracy": 0.5597
+  }
+ ]
+}

@@ -186,3 +186,13 @@ reports/R5.10/baseline_results.csv
 reports/R5.10/ablation_results.csv
 reports/R5.10/robustness_results.csv
 reports/R5.10/shortcut_audit.csv
+
+# ===========================================
+# FINAL campaign generated artifacts (reproducible from final_cropfusion.py + R5.9/R5.10 committed sources)
+# ===========================================
+reports/final/final_population.csv
+reports/final/final_results.csv
+reports/final/final_ablation.csv
+reports/final/final_confidence_intervals.csv
+reports/final/final_tabular_selection.csv
+reports/R5.10.zip

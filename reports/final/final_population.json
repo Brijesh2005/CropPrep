@@ -1,0 +1,17 @@
+{
+ "rule": "retain ALL minority (pepper-dominant) fields in each split; sample majority (coconut-dominant) within each split to 4x the split's pepper count, uniform without replacement, deterministic seed 42",
+ "split_counts": {
+  "('test', 0)": 784,
+  "('test', 1)": 196,
+  "('train', 0)": 1232,
+  "('train', 1)": 308,
+  "('val', 0)": 1172,
+  "('val', 1)": 293
+ },
+ "total_fields": 3985,
+ "class_ratio_train": 0.2,
+ "near_duplicate_thread": "fields sharing the same R5.7 ~50m field_cluster_id are audited in the split-integrity probe; the split itself is inherited from R5.9",
+ "fields_crossing_splits": 0,
+ "clusters_straddling_splits": 3,
+ "approx_1km_cells_straddling_splits": 9
+}
