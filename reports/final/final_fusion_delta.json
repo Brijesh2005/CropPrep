@@ -1,0 +1,8 @@
+{
+ "vs_tabular_balanced_accuracy": -0.0077,
+ "vs_tabular_macro_f1": -0.2199,
+ "vs_tabular_roc_auc": 0.1113,
+ "vs_imagery_balanced_accuracy": 0.0038,
+ "vs_imagery_macro_f1": 0.0109,
+ "vs_imagery_roc_auc": 0.0771
+}

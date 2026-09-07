@@ -1,0 +1,14 @@
+{
+ "features_per_timestep": 12,
+ "timesteps": [
+  2018,
+  2019,
+  2020,
+  2021
+ ],
+ "matched_fraction_leading": 0.7447,
+ "obs_per_field_mean": 2.979,
+ "obs_per_field_median": 3.0,
+ "padded_slots_fraction": 0.2553,
+ "min_obs_rule": ">= 3 matched grid years (leading window) required for the robustness subset"
+}

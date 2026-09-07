@@ -1,0 +1,109 @@
+{
+ "title": "CropFusion \u2014 final multimodal experiment",
+ "target": "coconut vs pepper (R5.9 field-composition dominant crop)",
+ "crop_extent_unit_status": "UNKNOWN",
+ "spatial_split": "PASS (taluk-grouped; no field crosses splits)",
+ "leakage_audit": "PASS",
+ "results": [
+  {
+   "model": "tabular",
+   "accuracy": 0.7571,
+   "balanced_accuracy": 0.4962,
+   "macro_f1": 0.4757,
+   "weighted_f1": 0.7062,
+   "roc_auc": 0.4224,
+   "coconut_precision": 0.7987,
+   "coconut_recall": 0.9311,
+   "pepper_precision": 0.1818,
+   "pepper_recall": 0.0612,
+   "confusion_matrix": [
+    [
+     730,
+     54
+    ],
+    [
+     184,
+     12
+    ]
+   ]
+  },
+  {
+   "model": "tabular_location_sensitivity",
+   "accuracy": 0.5704,
+   "balanced_accuracy": 0.5249,
+   "macro_f1": 0.493,
+   "weighted_f1": 0.6119,
+   "roc_auc": 0.5449,
+   "coconut_precision": 0.8135,
+   "coconut_recall": 0.6008,
+   "pepper_precision": 0.2195,
+   "pepper_recall": 0.449,
+   "confusion_matrix": [
+    [
+     471,
+     313
+    ],
+    [
+     108,
+     88
+    ]
+   ]
+  },
+  {
+   "model": "imagery",
+   "accuracy": 0.252,
+   "balanced_accuracy": 0.4847,
+   "macro_f1": 0.2449,
+   "weighted_f1": 0.201,
+   "roc_auc": 0.4566,
+   "coconut_precision": 0.7525,
+   "coconut_recall": 0.0969,
+   "pepper_precision": 0.1945,
+   "pepper_recall": 0.8724,
+   "confusion_matrix": [
+    [
+     76,
+     708
+    ],
+    [
+     25,
+     171
+    ]
+   ]
+  },
+  {
+   "model": "cropfusion",
+   "accuracy": 0.2612,
+   "balanced_accuracy": 0.4885,
+   "macro_f1": 0.2558,
+   "weighted_f1": 0.2175,
+   "roc_auc": 0.5337,
+   "coconut_precision": 0.7679,
+   "coconut_recall": 0.1097,
+   "pepper_precision": 0.1959,
+   "pepper_recall": 0.8673,
+   "confusion_matrix": [
+    [
+     86,
+     698
+    ],
+    [
+     26,
+     170
+    ]
+   ]
+  }
+ ],
+ "fusion_delta": {
+  "vs_tabular_balanced_accuracy": -0.0077,
+  "vs_tabular_macro_f1": -0.2199,
+  "vs_tabular_roc_auc": 0.1113,
+  "vs_imagery_balanced_accuracy": 0.0038,
+  "vs_imagery_macro_f1": 0.0109,
+  "vs_imagery_roc_auc": 0.0771
+ },
+ "fusion_verdict": "The experiments indicate that multimodal fusion does not consistently outperform the individual modalities under the current field-level labeling conditions.",
+ "achieved_90pct_on_nominal_metrics": false,
+ "90pct_target_note": "90%+ is a project target, not a guaranteed outcome; no evaluation methodology was altered to pursue it",
+ "recommendation": "Under the current field-level composition labels, modal fusion provides no 90% class-discriminative signal."
+}

@@ -1,0 +1,126 @@
+{
+ "git_commit": "086a23056ffec8282d21f8433c10c218b28b2e06",
+ "git_branch": "final-cropfusion",
+ "dataset_version": "R5.10 field_target_dataset + temporal_field_grid",
+ "manifest_hashes": {
+  "r5_9_field_dataset_split.csv": "2ef42be509e38d37b5c039cbc8cf196d8a3fe86bd8d51f31ab42de86bb49979a",
+  "r5_10_field_target_dataset.csv": "886833cbcb0657ebd7e3f999cbb9178a07cd8e82123511f85fa72725f762ee54",
+  "r5_10_temporal_field_grid.csv": "eeebada37eb6c1010a131d53fc8838f8443beba55aacf91d16935c362c91d198"
+ },
+ "split_hash": "a70e8928703e6b3634ade5e1ebfc62a329689110e26d5806d7c98e787c947d7e",
+ "split_rule": "taluk-grouped field split inherited from R5.9",
+ "population_rule": "all pepper + 4x pepper coconut per split, seed 42",
+ "random_seed": 42,
+ "threshold_policy": "fixed 0.5 on logits; never tuned on test",
+ "crop_extent_unit_status": "UNKNOWN",
+ "crop_extent_use": "upstream target construction only; NEVER a feature",
+ "temporal_policy": "grid years <= survey year (leading window)",
+ "missing_policy": "unmatched/padded slots masked, never imputed as real",
+ "model_selection": "validation only; test evaluated exactly once",
+ "selected_tabular_model": "gb",
+ "selected_fusion_mechanism": "cross",
+ "selected_fusion_val_balanced_accuracy": 0.5606,
+ "python": "3.12.9",
+ "torch": "2.13.0+cpu",
+ "numpy": "2.4.6",
+ "pandas": "3.0.3",
+ "gpu": "none (CPU)",
+ "final_results": [
+  {
+   "model": "tabular",
+   "accuracy": 0.7571,
+   "balanced_accuracy": 0.4962,
+   "macro_f1": 0.4757,
+   "weighted_f1": 0.7062,
+   "roc_auc": 0.4224,
+   "coconut_precision": 0.7987,
+   "coconut_recall": 0.9311,
+   "pepper_precision": 0.1818,
+   "pepper_recall": 0.0612,
+   "confusion_matrix": [
+    [
+     730,
+     54
+    ],
+    [
+     184,
+     12
+    ]
+   ]
+  },
+  {
+   "model": "tabular_location_sensitivity",
+   "accuracy": 0.5704,
+   "balanced_accuracy": 0.5249,
+   "macro_f1": 0.493,
+   "weighted_f1": 0.6119,
+   "roc_auc": 0.5449,
+   "coconut_precision": 0.8135,
+   "coconut_recall": 0.6008,
+   "pepper_precision": 0.2195,
+   "pepper_recall": 0.449,
+   "confusion_matrix": [
+    [
+     471,
+     313
+    ],
+    [
+     108,
+     88
+    ]
+   ]
+  },
+  {
+   "model": "imagery",
+   "accuracy": 0.252,
+   "balanced_accuracy": 0.4847,
+   "macro_f1": 0.2449,
+   "weighted_f1": 0.201,
+   "roc_auc": 0.4566,
+   "coconut_precision": 0.7525,
+   "coconut_recall": 0.0969,
+   "pepper_precision": 0.1945,
+   "pepper_recall": 0.8724,
+   "confusion_matrix": [
+    [
+     76,
+     708
+    ],
+    [
+     25,
+     171
+    ]
+   ]
+  },
+  {
+   "model": "cropfusion",
+   "accuracy": 0.2612,
+   "balanced_accuracy": 0.4885,
+   "macro_f1": 0.2558,
+   "weighted_f1": 0.2175,
+   "roc_auc": 0.5337,
+   "coconut_precision": 0.7679,
+   "coconut_recall": 0.1097,
+   "pepper_precision": 0.1959,
+   "pepper_recall": 0.8673,
+   "confusion_matrix": [
+    [
+     86,
+     698
+    ],
+    [
+     26,
+     170
+    ]
+   ]
+  }
+ ],
+ "fusion_delta": {
+  "vs_tabular_balanced_accuracy": -0.0077,
+  "vs_tabular_macro_f1": -0.2199,
+  "vs_tabular_roc_auc": 0.1113,
+  "vs_imagery_balanced_accuracy": 0.0038,
+  "vs_imagery_macro_f1": 0.0109,
+  "vs_imagery_roc_auc": 0.0771
+ }
+}

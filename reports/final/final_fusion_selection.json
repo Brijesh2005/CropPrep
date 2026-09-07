@@ -1,0 +1,59 @@
+{
+ "mechanisms": {
+  "concat": {
+   "accuracy": 0.3139,
+   "balanced_accuracy": 0.5354,
+   "macro_f1": 0.3364,
+   "roc_auc": 0.5365,
+   "recall_coconut": 0.2039,
+   "recall_pepper": 0.8669,
+   "confusion_matrix": [
+    [
+     239,
+     933
+    ],
+    [
+     39,
+     254
+    ]
+   ]
+  },
+  "gated": {
+   "accuracy": 0.3466,
+   "balanced_accuracy": 0.5567,
+   "macro_f1": 0.3817,
+   "roc_auc": 0.5531,
+   "recall_coconut": 0.2671,
+   "recall_pepper": 0.8464,
+   "confusion_matrix": [
+    [
+     313,
+     859
+    ],
+    [
+     45,
+     248
+    ]
+   ]
+  },
+  "cross": {
+   "accuracy": 0.3585,
+   "balanced_accuracy": 0.5606,
+   "macro_f1": 0.3948,
+   "roc_auc": 0.5408,
+   "recall_coconut": 0.2884,
+   "recall_pepper": 0.8328,
+   "confusion_matrix": [
+    [
+     338,
+     834
+    ],
+    [
+     49,
+     244
+    ]
+   ]
+  }
+ },
+ "selected": "cross"
+}

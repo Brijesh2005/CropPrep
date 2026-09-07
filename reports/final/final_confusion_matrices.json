@@ -1,0 +1,66 @@
+{
+ "tabular": {
+  "cm": [
+   [
+    730,
+    54
+   ],
+   [
+    184,
+    12
+   ]
+  ],
+  "classes": [
+   "coconut",
+   "pepper"
+  ]
+ },
+ "tabular_location_sensitivity": {
+  "cm": [
+   [
+    471,
+    313
+   ],
+   [
+    108,
+    88
+   ]
+  ],
+  "classes": [
+   "coconut",
+   "pepper"
+  ]
+ },
+ "imagery": {
+  "cm": [
+   [
+    76,
+    708
+   ],
+   [
+    25,
+    171
+   ]
+  ],
+  "classes": [
+   "coconut",
+   "pepper"
+  ]
+ },
+ "cropfusion": {
+  "cm": [
+   [
+    86,
+    698
+   ],
+   [
+    26,
+    170
+   ]
+  ],
+  "classes": [
+   "coconut",
+   "pepper"
+  ]
+ }
+}
