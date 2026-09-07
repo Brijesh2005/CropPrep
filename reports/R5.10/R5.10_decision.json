@@ -1,0 +1,36 @@
+{
+ "phase": "11",
+ "status": "COMPLETE",
+ "best_model": "gb",
+ "best_feature_set": "SET_C_trajectory",
+ "best_selection_policy": "best chosen over PRIMARY runs only (the canonical cheap-baseline feature sets); ablation tag-duplicates and robustness subsets are reported separately and never promoted to the headline",
+ "best_balanced_accuracy": 0.5195,
+ "best_macro_f1": 0.511,
+ "best_auc": 0.6047,
+ "R5.9_balanced_accuracy": 0.5042,
+ "delta_vs_R5.9": 0.0153,
+ "signal_decision": "no_signal",
+ "leakage_status": {
+  "suspicious_shortcut_probes": [],
+  "clean": true
+ },
+ "spatial_split_status": "grouped by taluk; no field crosses splits",
+ "temporal_alignment_status": "leading-window grid years <= survey year",
+ "crop_extent_unit_status": "UNKNOWN",
+ "recommendation": "temporal satellite composites (leading window, 2018..survey year) do not recover a usable post-split coconut-vs-pepper field signal. The current data formulation does not provide sufficient evidence to justify full CropFusion training or claims of high-accuracy classification.",
+ "gates": {
+  "no_signal": "balanced accuracy < 55% OR a suspicious shortcut OR AUC <= 0.52",
+  "weak": "55-60% with no shortcut",
+  "promising": "60-70% with no shortcut",
+  "strong": ">70%"
+ },
+ "evidence": {
+  "SET_A_static_balanced_acc": 0.5137,
+  "SET_B_temporal_balanced_acc": 0.506,
+  "SET_B_temporal_auc": 0.6047,
+  "SET_AB_balanced_acc": 0.5124,
+  "SET_AB_auc": 0.5488,
+  "delta_SET_B_vs_R5_9": 0.0018,
+  "delta_SET_AB_vs_R5_9": 0.0082
+ }
+}

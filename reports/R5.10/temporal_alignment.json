@@ -1,0 +1,73 @@
+{
+ "phase": "3",
+ "representations": {
+  "A_available_date_sequence": "ordered sequence of grid years 2018..survey_year per field",
+  "B_season_aligned_sequence": "per-season composite columns (Kharif_* / Rabi_*) aligned across the same grid years",
+  "C_fixed_temporal_bins": "the 2018..2021 grid years ARE fixed annual bins; every bin is an observed grid composite, never imputed"
+ },
+ "grid_rows": 345960,
+ "leading_rows": 182549,
+ "usable_fields_with_any_leading_slot": 57660,
+ "fields_with_full_leading_coverage": 54440,
+ "matched_fraction_in_leading_window": 0.9368,
+ "per_grid_year_coverage": [
+  {
+   "grid_year": 2018,
+   "fields_requested": 57660,
+   "fields_matched": 54440,
+   "missing": 3220,
+   "median_nearest_distance_m": 157.7
+  },
+  {
+   "grid_year": 2019,
+   "fields_requested": 57660,
+   "fields_matched": 54440,
+   "missing": 3220,
+   "median_nearest_distance_m": 157.7
+  },
+  {
+   "grid_year": 2020,
+   "fields_requested": 57660,
+   "fields_matched": 54440,
+   "missing": 3220,
+   "median_nearest_distance_m": 157.7
+  },
+  {
+   "grid_year": 2021,
+   "fields_requested": 57660,
+   "fields_matched": 53627,
+   "missing": 4033,
+   "median_nearest_distance_m": 158.9
+  },
+  {
+   "grid_year": 2022,
+   "fields_requested": 57660,
+   "fields_matched": 54440,
+   "missing": 3220,
+   "median_nearest_distance_m": 157.7
+  },
+  {
+   "grid_year": 2023,
+   "fields_requested": 57660,
+   "fields_matched": 54440,
+   "missing": 3220,
+   "median_nearest_distance_m": 157.7
+  }
+ ],
+ "observation_slots_per_field": {
+  "mean": 3.166,
+  "median": 3,
+  "min": 3,
+  "max": 4
+ },
+ "missingness": {
+  "missing_matches_in_leading": 11533,
+  "missing_policy": "unmatched slots are kept as explicit missing (never imputed as real observations); temporal aggregates are computed over matched slots only"
+ },
+ "season_aligned": {
+  "kharif_composite_years": 4,
+  "rabi_composite_years": 4,
+  "note": "each DK grid year carries a full per-season composite set (\"Annual + Kharif/Rabi composites\"); the season-aligned sequence uses the Kharif_* columns across years for Kharif fields and Rabi_* for Rabi fields, and BOTH are emitted every year for every field"
+ },
+ "template": "grid years <= survey year define the leading window; 2020 fields -> [2018, 2019, 2020]; 2021 fields -> [2018, 2019, 2020, 2021]"
+}

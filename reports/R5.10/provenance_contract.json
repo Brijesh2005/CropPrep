@@ -1,0 +1,79 @@
+{
+ "phase": "13",
+ "schema_version": "r5.10.0",
+ "seed": 42,
+ "source_fingerprint_survey": {
+  "ogd_bantvala_kharif_2020_21.csv": "84959ba0a4d5f15627c3cae0264c32e634467bf5beefb50fb775f5aa5e07b36b",
+  "ogd_beltangadi_kharif_2020_21.csv": "5e10b10cf386cb4cc7a0cef572f424d4abf365fc5a6d2c327568a2511c3edc28",
+  "ogd_kokkada_kharif_2020_21.csv": "aafdc5629ddfec63554ab0fd3c215543c452b74534e6e1c86367a9311bee11bc",
+  "ogd_mangaluru_a_kharif_2020_2021.csv": "133aa2696389707e025d859072b91fac8f6aed9469e7179f15bbc349672ce610",
+  "ogd_mangaluru_b_kharif_2020_21.csv": "e7d7bebba155cced6d8f423a6e116746121b9615fdb198019f3be65072fe639f",
+  "ogd_mulki_kharif_2021_22.csv": "8a549ba3702401465a8a6fb23a3129a7637bc3ecc452b54eee69a0ba255b2a96",
+  "ogd_panemangaluru_rabi_2021_2022.csv": "5b06a15c2c8e8b367d8774949f4411c980173061d7207599b4b5c33b1ce27558",
+  "ogd_panja_kharif_2020_21.csv": "8b2dad7ab72d91ca3fc0671c86d29f54d1a672b3a83d6b5abf4f91edbd76aad5",
+  "ogd_putturu_kharif_2020_21.csv": "44a72c5fc845380fae56246a2fa14cdef005eadafb709709f1f1045ea2e07b69",
+  "ogd_sulya_kharif_2020_21.csv": "8e22ffd816e319d56afeb727d44a7db5bac68f72b283ae771864b05ca0869a3b",
+  "ogd_suratkal_kharif_2020_21.csv": "d7211e781c8614104e0a91f1b6b374cc84f289bfc8b34f74ac007e495904e0af",
+  "ogd_uppinangadi_kharif_2021_22.csv": "7b6a4d68635ca104ede445c435bb1ceab1b7df797e45d4a994bafcf2a79c3b78",
+  "ogd_venuru_kharif_2020_21.csv": "11c0fe5f751789f75e33f1a92aa710a0d7d7cc68eeddbbf52492e5bd4a105ca6",
+  "ogd_venuru_rabi_2021_22.csv": "a13f41c1b6c6baee3ec08dfa873e993b77bdce0edf2071c0647a2070751a60f3",
+  "ogd_vitla_kharif_2020_21.csv": "c17eddc7c1343b7ad9e677c41e9591a1a6c43adb1a18d10449161ba660e0fd28"
+ },
+ "source_fingerprint_dk_grids": {
+  "DK_Features_2018.csv": "478cb3e81966c89219411f8f4245137b48e0b508ab808da2519e4dc6a7f1e1c2",
+  "DK_Features_2019.csv": "e66465206a82f6e0c22bbfa794f6cee8dd1d26882876f37db79b2439417e8fa8",
+  "DK_Features_2020.csv": "c2a91ab241959edbccaea22ca137483c378ccbd7e00cc79d5bd6f397aff9fcfe",
+  "DK_Features_2021.csv": "561f450bbb9d2824e52745f8547c05792117777dcdac819cdad016b2eb244136",
+  "DK_Features_2022.csv": "79ab58060bdd220aa84a03aeced6f44afbdd299ff91bc33c905e24b05214c8fb",
+  "DK_Features_2023.csv": "4153a70b201a96200da201d66a6967706df9280a9fdd1ddacc35aa13dd17a7f7"
+ },
+ "r5_9_dataset": {
+  "path": "D:\\CropPrep\\reports\\R5.9\\field_dataset_split.csv",
+  "sha256": "2ef42be509e38d37b5c039cbc8cf196d8a3fe86bd8d51f31ab42de86bb49979a"
+ },
+ "r5_9_report": {
+  "path": "D:\\CropPrep\\reports\\R5.9\\R5.9_FIELD_COMPOSITION_REPORT.json",
+  "sha256": "f27ab6ee03adf6c6e30ff337c31c7ea0d4a3caa2bd1efa4efe1234ca4e4cfa21"
+ },
+ "master": {
+  "path": "D:\\CropPrep\\reports\\R5.7\\master_geospatial_features.csv",
+  "sha256": "a208ad1c18df375e7f2e2ed23a1d11ef22c58dc151477f63aa1477601217dd6a"
+ },
+ "target_construction": "R5.9 dominant-crop composition target consumed unchanged from reports/R5.9/field_dataset_split.csv; dominant crop derived from the UNKNOWN-unit Crop_Extent via the R5.9 relative scalarization A + B/100 + C/10000 within each field only",
+ "crop_extent_unit_status": "UNKNOWN",
+ "crop_extent_as_feature": false,
+ "temporal_features_source": "DK_Features_YYYY grids matched to each field's real survey GPS with the R5.2.9 SpatialTabularMatcher (K-NN IDW, radius 5 km, k=5, idw^2); Yield_Proxy_NPP excluded by the matcher contract",
+ "leading_window_policy": "grid years <= composition survey year only in primary experiments; 2018-2023 full window reported strictly as sensitivity",
+ "no_fabrication": true,
+ "no_future_information_in_primary": true,
+ "r5_6_r5_7_r5_8_r5_9_artifacts_untouched": true,
+ "generated_artifacts": [
+  "reports/R5.10/R5.10_decision.json",
+  "reports/R5.10/R5.10_report.json",
+  "reports/R5.10/R5.10_report.md",
+  "reports/R5.10/ablation_results.csv",
+  "reports/R5.10/ablation_results.json",
+  "reports/R5.10/baseline_results.csv",
+  "reports/R5.10/cheap_baselines.json",
+  "reports/R5.10/field_target_dataset.csv",
+  "reports/R5.10/provenance_contract.json",
+  "reports/R5.10/robustness_results.csv",
+  "reports/R5.10/robustness_results.json",
+  "reports/R5.10/shortcut_audit.csv",
+  "reports/R5.10/shortcut_audit.json",
+  "reports/R5.10/source_schema.json",
+  "reports/R5.10/source_schema.md",
+  "reports/R5.10/split_audit.csv",
+  "reports/R5.10/split_design.json",
+  "reports/R5.10/target.json",
+  "reports/R5.10/target_audit.csv",
+  "reports/R5.10/temporal_alignment.json",
+  "reports/R5.10/temporal_coverage_audit.csv",
+  "reports/R5.10/temporal_feature_audit.csv",
+  "reports/R5.10/temporal_features.csv",
+  "reports/R5.10/temporal_features.json",
+  "reports/R5.10/temporal_field_grid.csv",
+  "reports/R5.10/temporal_unit.csv",
+  "reports/R5.10/temporal_unit.json"
+ ]
+}

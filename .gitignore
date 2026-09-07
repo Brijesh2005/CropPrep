@@ -172,3 +172,17 @@ reports/R5.9/field_satellite_features.csv
 reports/R5.9/composition_quality_tiers.csv
 reports/R5.9/composition_confidence_tiers.csv
 reports/R5.9/crop_extent_area_audit.csv
+
+# R5.10 generated artifacts (reproducible from r5_10_temporal_field_target.py + committed raw sources)
+reports/R5.10/temporal_field_grid.csv
+reports/R5.10/temporal_features.csv
+reports/R5.10/field_target_dataset.csv
+reports/R5.10/temporal_unit.csv
+reports/R5.10/temporal_coverage_audit.csv
+reports/R5.10/temporal_feature_audit.csv
+reports/R5.10/target_audit.csv
+reports/R5.10/split_audit.csv
+reports/R5.10/baseline_results.csv
+reports/R5.10/ablation_results.csv
+reports/R5.10/robustness_results.csv
+reports/R5.10/shortcut_audit.csv

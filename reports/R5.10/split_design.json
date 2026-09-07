@@ -1,0 +1,17 @@
+{
+ "phase": "6",
+ "rule": "grouped field splits by taluk (TALUK_SPLIT), inherited from R5.9; no new split logic introduced",
+ "fields_crossing_splits": 0,
+ "intersection_sizes": {
+  "train_val": 0,
+  "train_test": 0,
+  "val_test": 0
+ },
+ "split_integrity": true,
+ "co_located_audit": {
+  "r5_7_50m_clusters_straddling_splits": 4,
+  "approx_1km_cells_straddling_splits": 34,
+  "fields_in_cells_straddling_train_test": 0,
+  "note": "a field can never straddle splits (grouped by taluk); co-located neighbours CAN sit in different splits when a ~1 km grid cell or 50 m cluster crosses a taluk boundary - this is audited in the shortcut phase"
+ }
+}

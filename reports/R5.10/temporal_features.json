@@ -1,0 +1,50 @@
+{
+ "phase": "4",
+ "set_b_temporal_aggregates": 112,
+ "set_c_trajectory_slots": 64,
+ "temporal_vars": [
+  "annual_rainfall_mm",
+  "dewpoint_c",
+  "temperature_c",
+  "relative_humidity_pct",
+  "evi",
+  "ndvi",
+  "ndwi",
+  "ndre",
+  "savi",
+  "s2_obs_count",
+  "kharif_ndvi",
+  "kharif_evi",
+  "kharif_ndwi",
+  "rabi_ndvi",
+  "rabi_evi",
+  "rabi_ndwi"
+ ],
+ "static_numeric_vars": [
+  "elevation",
+  "slope",
+  "soil_clay_pct",
+  "soil_sand_pct",
+  "soil_organic_carbon",
+  "soil_ph",
+  "soil_moisture"
+ ],
+ "static_categorical_vars": [
+  "is_cropland",
+  "land_cover_class",
+  "soil_type_class"
+ ],
+ "aggregate_stats": [
+  "mean",
+  "std",
+  "min",
+  "max",
+  "range",
+  "first-to-last delta",
+  "linear slope"
+ ],
+ "trajectory_policy": "ordered per-grid-year values emitted as slot columns v_y<year>; missing slots stay NaN; fields surveyed in 2020 have 3 slots, fields surveyed in 2021 have 4 slots",
+ "min_obs_for_stats": "range/delta require >=2 matched grid years; slope requires >=3",
+ "rows": 57660,
+ "fields_with_temporal_features": 57660
+}
