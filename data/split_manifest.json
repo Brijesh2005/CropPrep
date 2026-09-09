@@ -1,0 +1,39 @@
+{
+  "split_strategy": "spatial_leave_one_taluk_out",
+  "split_groups": {
+    "train_taluk": [
+      "Belthangady",
+      "Mangalore",
+      "Bantwal"
+    ],
+    "validation_taluk": "Puttur",
+    "test_taluk": "Sullia"
+  },
+  "total_samples": 226854,
+  "split_counts": {
+    "train": 104753,
+    "test": 34543,
+    "val": 87558
+  },
+  "class_by_split": {
+    "train": {
+      "coconut": 99504,
+      "pepper": 5173,
+      "coffee": 71,
+      "cardamom": 5
+    },
+    "val": {
+      "coconut": 72687,
+      "pepper": 14823,
+      "coffee": 46,
+      "cardamom": 2
+    },
+    "test": {
+      "coconut": 26914,
+      "pepper": 7549,
+      "coffee": 56,
+      "cardamom": 24
+    }
+  },
+  "frozen_split_source": "crop_supervised_v2.0_manifest.json (reference only)"
+}

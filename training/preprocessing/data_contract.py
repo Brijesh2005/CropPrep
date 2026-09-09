@@ -1,12 +1,20 @@
 """Training-data contract: reject invalid mixed-target corpora (R5.2.1 Task D).
 
+LEGACY MODULE — superseded by the Phase-2 active pipeline
+(``training/prepare_data.py`` + ``data/master.csv``). Retained only for the
+historic R5.x chain; it is NOT imported by the new training entry points.
+
+Phase-2 contract note: the kg/ha village records (``data_season.csv``) and the
+district-level ICRISAT series are EXCLUDED datasets and are no longer
+recognised as valid yield sources. ``Yield_Proxy_NPP`` (``DK_Features_*.csv``)
+is excluded as a supervised yield target.
+
 A training corpus is contract-valid only when it satisfies two hard rules:
 
 1. **Single yield unit** — the regression target must not mix physical yields
-   (kg/ha village records, e.g. ``data_season.csv``) with a normalized per-
-   district proxy (``Yield_Proxy_NPP``, e.g. ``DK_Features_*.csv``). Mixing
-   them trains one scaler on two incommensurable quantities and produces a
-   meaningless ``R2``.
+   (kg/ha village records) with a normalized per-district proxy
+   (``Yield_Proxy_NPP``, e.g. ``DK_Features_*.csv``). Mixing them trains one
+   scaler on two incommensurable quantities and produces a meaningless ``R2``.
 
 2. **Crop classifier needs real labels** — the final crop classifier must not
    be trained on unlabeled ``-1`` sentinel observations. A run that enables the
@@ -31,7 +39,9 @@ from typing import Any, Iterable
 from .exceptions import DataContractViolationError
 
 #: Yield-unit tokens recognised in a tabular source path.
-_KG_HA_SOURCES = ("data_season", "icrisat", "kg_ha", "yield_kg", "yeilds")
+#: Excluded datasets (``data_season``, ``icrisat``) are intentionally absent —
+#: they are NOT valid yield sources under the Phase-2 contract.
+_KG_HA_SOURCES = ("kg_ha", "yield_kg")
 _NPP_SOURCES = ("dk_features", "yield_proxy_npp", "npp", "proxy")
 
 

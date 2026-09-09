@@ -1,0 +1,104 @@
+# PHASE 2 SOURCE INVENTORY
+
+Status: COMPLETE — inventory of every actual data source on disk for the new master dataset.
+
+This inventory covers **approved sources** (may feed the new `data/master.csv`) and **excluded/legacy sources** (must NOT feed the active pipeline). All findings are from direct inspection of the actual files.
+
+---
+
+## 1. Approved sources (may be used)
+
+### 1.1 Karnataka OGD Crop Survey (primary)
+
+| Attribute | Value |
+|---|---|
+| Path | `govt_crop_survey_data/ogd_unified_all_hoblis.csv` |
+| Rows | 261,906 |
+| Columns (21) | `Survey_id, District_code, District_Name, Taluk_code, Taluk_Name, Hobli_code, Hobli_Name, Village_code, Village_Name, Year_code, Years, Season_code, Season, Cropname, Crop_Extent, CropSurveyDate, Month, Weekname, Latitude, Longtitude, Image_url` |
+| Identifier | `Survey_id` (NOT unique — one survey can contain multiple crop observations) |
+| Location fields | `Latitude`, `Longtitude` (decimal degrees, lat 12.5105–13.1787, lon 74.7782–75.6883), `Taluk_Name`, `Hobli_Name`, `Village_Name` |
+| Time fields | `Years` (values `2020-2021`, `2021-2022`), `Season` (`Kharif`, `Rabi`), `CropSurveyDate`, `Month`, `Weekname` |
+| Crop field | `Cropname` (raw OGD names, e.g. `Betel Nuts (Areca nuts)`, `Coconut`, `Pepper (Black)`, `Coffee arabica`, `Coffee robusta`, `Cardamom`, plus non-targets `NA Land`, `Fallow`, `Rubber`, `Paddy-H`, `Banana`, …) |
+| Yield candidates | **None.** `Crop_Extent` is a parcel-area string (acres-ares-sq.m format, e.g. `0-34-0.00` = 0 ac, 34 ares, 0 m²). There is NO production/yield column anywhere in the OGD files. |
+| Image linkage | `Image_url` — per-observation crop-survey field photo URL (kodi.karnataka.gov.in). Present for 201,123 / 261,906 (~77%). |
+| Taluks covered | Bantwal, Belthangady, Mangalore, Sullia. **Puttur is NOT in the unified file.** |
+| Notes | Rows are per crop-observation inside a survey visit. Multiple rows share a `Survey_id`. |
+
+| Attribute | Value |
+|---|---|
+| Path | `govt_crop_survey_data/ogd_putturu_kharif_2020_21.csv` |
+| Rows | 124,848 |
+| Columns | Same 21-column schema as unified file |
+| Coverage | Taluk = Puttur only, Season = `Kharif` only, Years = `2020-2021` only |
+| Image linkage | `Image_url` present for 124,848 / 124,848 (100%). |
+| Notes | This is the only Puttur source on disk and is REQUIRED for the VAL split. A stub `ogd_putturu_rabi_2021_22.json` (17 bytes) exists — it is empty/no real data. |
+
+### 1.2 DK_Features (approved but effectively unusable)
+
+| Attribute | Value |
+|---|---|
+| Path | `training/datasets/tabular/DK_Features_2018.csv` … `DK_Features_2023.csv` |
+| Rows | 2018: 71,028 · 2019: 71,135 · 2020: 71,135 · 2021: 69,234 · 2022: 71,135 · 2023: 71,135 |
+| Columns | ONLY 4: `Season, Year, Yield_Proxy_NPP, District` |
+| Notes | Season = `Annual + Kharif/Rabi composites`; District = `Dakshina Kannada`. No coordinates, no environment grid. The only non-trivial column is `Yield_Proxy_NPP` (NPP-based proxy), which is **excluded as a supervised yield target** (Phase-2 rule). → **DK_Features contributes zero usable observation-level features to the master dataset.** It also does not provide satellite indices despite the name. |
+
+### 1.3 Sentinel-2 imagery (approved but not downloaded)
+
+| Attribute | Value |
+|---|---|
+| Source | Kaggle: `shathanandabhatn/crop-yield-forecasting-karnataka-dakshina-kannada` (handle stored in `training/config/kaggle.yaml`) |
+| Size | **86.9 GB** (kagglehub download attempt started, cancelled as infeasible) |
+| Local disk | `training/datasets/raw/kaggle-crop-yield/` is EMPTY — no `.tif`/`.tiff` files present |
+| Mapping to samples | No verified sample↔image-ID mapping exists in the repo. Projected link mechanism: sample lat/lon + survey year → Sentinel-2 tiles. |
+| Status in `data/image_manifest.csv` | All rows: `sentinel2_status = NOT_DOWNLOADED`; no fabricated matches. |
+
+---
+
+## 2. Excluded / legacy sources (must NOT feed the active pipeline)
+
+### 2.1 Excluded dataset files (present on disk, do NOT delete, do NOT use)
+
+| File | Path | Why excluded |
+|---|---|---|
+| `data_season.csv` | `training/datasets/tabular/` | Not an approved source (state/season-level; would leak/confuse target) |
+| `ICRISAT-District Level Data.csv` | `training/datasets/tabular/` | District-level yield/production table (target leakage candidate, non-approved) |
+| `cropdata_updated.csv` | `training/datasets/tabular/` | Non-approved tabular source |
+| `All-India_-Crop-wise-Area,-Production-&-Yield (2).csv` | `training/datasets/tabular/` | All-India national aggregation; non-approved |
+| `dataset.csv` | `training/datasets/tabular/` | Non-approved raw export |
+| `Yield_Proxy_NPP` (column) | `training/datasets/tabular/DK_Features_*.csv` | Explicitly excluded as supervised yield target |
+
+### 2.2 Frozen corpus / legacy pipeline (historical reference ONLY)
+
+| File | Path | Content |
+|---|---|---|
+| `crop_supervised_v2.csv` | `govt_crop_matched_v2/` | 10,675 rows, 59 cols. Generated by the OLD R5.2.9 enrichment (KD tree match + multi-level scorer). Contains satellite env features (ndvi, evi, ndwi, soil_*, elevation, …) with `satellite_status=FULL` for all rows. NO yield column. |
+| `crop_supervised_v2.0_manifest.json` | `training_manifests/` | Manifest for frozen corpus. Raw totals imply 10,674 samples; CSV has 10,675 rows (1-row discrepancy, flagged below). |
+| `provenance.json` | `govt_crop_matched_v2/` | Legacy match provenance. |
+
+**Phase-2 rule:** the frozen corpus is historical/reference ONLY. `training/prepare_data.py` does NOT import `frozen_corpus.py`, does NOT build from `crop_supervised_v2.csv`, and is reproducible without any of the old enrichment chain. The 27 environment features are NOT available in fresh approved sources and are therefore absent from the new master dataset by design.
+
+### 2.3 Legacy code modules (superseded, not part of new pipeline)
+
+`training/matching/spatial_tabular_matcher.py`, `training/stam/…` (patch_generator, coordinate_transform, observation), `frozen_corpus.py`, `dataset_manager`, STAM config, MLOps/experiment framework, feature store. The new `prepare_data.py` is self-contained.
+
+---
+
+## 3. Discrepancies & flag list
+
+1. **Frozen corpus row-count mismatch:** CSV = 10,675 rows; manifest implies 10,674 (5924+2459+2291). Extra row is the single `benchmark_eligible=False` row. Frozen corpus is reference-only, so this does not block anything.
+2. **Unified OGD file lacks Puttur:** Puttur (VAL split) data exists ONLY in `ogd_putturu_kharif_2020_21.csv`. Any future OGD refresh must re-check Puttur coverage.
+3. **`Survey_id` is not unique:** one survey visit yields multiple crop-observation rows. The master dataset uses a new hashed `sample_id` per observation (lat/lon/year/season/crop/hobli/village).
+4. **No yield anywhere in approved sources** — target is UNRESOLVED (see `docs/YIELD_TARGET_ANALYSIS.md`).
+5. **Crop_Extent is area, not yield**; format `A-AAAA-SS.SS` (acres-ares-square metres).
+6. **OGD Year granularity:** file-level year is `2020-2021`/`2021-2022` (crop-year string, not calendar year). Master uses leading year (`2020`, `2021`).
+7. **One bad coordinate row:** the Puttur file contains a single observation at lat 23.64N, lon 88.85E (inland West Bengal, far outside DK). Dropped by the DK bounding-box filter during master build (documented in `docs/MASTER_DATASET_SCHEMA.md` §1).
+
+---
+
+## 4. Master dataset build rules (derived from this inventory)
+
+- Master row = **one OGD crop-survey observation** (one crop at a surveyed lat/lon within a year+season).
+- Only target crop classes retained: coconut (incl. `Betel Nuts (Areca nuts)`), pepper, coffee (arabica+robusta), cardamom.
+- Deduplicate at (lat, lon, year, season, crop, hobli, village) → unique `sample_id`.
+- Taluk → split: train = Belthangady/Mangalore/Bantwal, val = Puttur, test = Sullia.
+- Image linkage: OGD `Image_url` → `image_status` VALID/MISSING; Sentinel-2 explicitly `NOT_DOWNLOADED`.

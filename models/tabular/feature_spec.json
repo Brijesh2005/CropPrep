@@ -1,0 +1,94 @@
+{
+  "feature_columns": [
+    "latitude",
+    "longitude",
+    "year",
+    "month",
+    "season"
+  ],
+  "continuous_columns": [
+    "latitude",
+    "longitude",
+    "year",
+    "month"
+  ],
+  "season_encode": {
+    "Kharif": 0,
+    "Rabi": 1
+  },
+  "class_ids": {
+    "cardamom": 0,
+    "coffee": 1,
+    "pepper": 2,
+    "coconut": 3
+  },
+  "class_names": [
+    "cardamom",
+    "coffee",
+    "pepper",
+    "coconut"
+  ],
+  "split_rule": {
+    "train_taluk": [
+      "Belthangady",
+      "Mangalore",
+      "Bantwal"
+    ],
+    "validation_taluk": "Puttur",
+    "test_taluk": "Sullia"
+  },
+  "n_features": 5,
+  "n_train": 104753,
+  "n_val": 87558,
+  "n_test": 34543,
+  "train_class_counts": {
+    "coconut": 99504,
+    "pepper": 5173,
+    "coffee": 71,
+    "cardamom": 5
+  },
+  "val_class_counts": {
+    "coconut": 72687,
+    "pepper": 14823,
+    "coffee": 46,
+    "cardamom": 2
+  },
+  "test_class_counts": {
+    "coconut": 26914,
+    "pepper": 7549,
+    "coffee": 56,
+    "cardamom": 24
+  },
+  "weight_schemes": {
+    "uniform": {
+      "coconut": 1.0,
+      "pepper": 1.0,
+      "coffee": 1.0,
+      "cardamom": 1.0
+    },
+    "balanced": {
+      "coconut": 0.2631879120437369,
+      "pepper": 5.062487918035956,
+      "coffee": 368.84859154929575,
+      "cardamom": 5237.65
+    },
+    "cap5": {
+      "coconut": 1.0,
+      "pepper": 5.0,
+      "coffee": 5.0,
+      "cardamom": 5.0
+    },
+    "cap10": {
+      "coconut": 1.0,
+      "pepper": 10.0,
+      "coffee": 10.0,
+      "cardamom": 10.0
+    },
+    "cap20": {
+      "coconut": 1.0,
+      "pepper": 19.235260003866227,
+      "coffee": 20.0,
+      "cardamom": 20.0
+    }
+  }
+}

@@ -1,0 +1,3463 @@
+{
+  "phase": 3,
+  "split": "spatial leave-one-taluk-out (frozen)",
+  "feature_count": 5,
+  "imbalance_method": "inverse-frequency class weights (scan: uniform/balanced/cap5/cap10/cap20), train-only",
+  "selection_criterion": "mean validation macro F1 over 3 seeds (test untouched)",
+  "validation_split": "Puttur",
+  "test_used_in_training_or_selection": false,
+  "scan": {
+    "XGBoost+uniform": {
+      "model": "XGBoost",
+      "scheme": "uniform",
+      "per_seed_macro_f1": [
+        0.2268,
+        0.2268,
+        0.2268
+      ],
+      "mean_val_macro_f1": 0.2268,
+      "std_val_macro_f1": 0.0
+    },
+    "XGBoost+balanced": {
+      "model": "XGBoost",
+      "scheme": "balanced",
+      "per_seed_macro_f1": [
+        0.22992,
+        0.219974,
+        0.234886
+      ],
+      "mean_val_macro_f1": 0.22826,
+      "std_val_macro_f1": 0.0062
+    },
+    "XGBoost+cap5": {
+      "model": "XGBoost",
+      "scheme": "cap5",
+      "per_seed_macro_f1": [
+        0.2268,
+        0.2268,
+        0.2268
+      ],
+      "mean_val_macro_f1": 0.2268,
+      "std_val_macro_f1": 0.0
+    },
+    "XGBoost+cap10": {
+      "model": "XGBoost",
+      "scheme": "cap10",
+      "per_seed_macro_f1": [
+        0.2268,
+        0.2268,
+        0.2268
+      ],
+      "mean_val_macro_f1": 0.2268,
+      "std_val_macro_f1": 0.0
+    },
+    "XGBoost+cap20": {
+      "model": "XGBoost",
+      "scheme": "cap20",
+      "per_seed_macro_f1": [
+        0.242306,
+        0.200865,
+        0.19024
+      ],
+      "mean_val_macro_f1": 0.211137,
+      "std_val_macro_f1": 0.022463
+    },
+    "CatBoost+uniform": {
+      "model": "CatBoost",
+      "scheme": "uniform",
+      "per_seed_macro_f1": [
+        0.2268,
+        0.2268,
+        0.2268
+      ],
+      "mean_val_macro_f1": 0.2268,
+      "std_val_macro_f1": 0.0
+    },
+    "CatBoost+balanced": {
+      "model": "CatBoost",
+      "scheme": "balanced",
+      "per_seed_macro_f1": [
+        0.069772,
+        0.06374,
+        0.060921
+      ],
+      "mean_val_macro_f1": 0.064811,
+      "std_val_macro_f1": 0.003692
+    },
+    "CatBoost+cap5": {
+      "model": "CatBoost",
+      "scheme": "cap5",
+      "per_seed_macro_f1": [
+        0.226844,
+        0.2268,
+        0.2268
+      ],
+      "mean_val_macro_f1": 0.226815,
+      "std_val_macro_f1": 2.1e-05
+    },
+    "CatBoost+cap10": {
+      "model": "CatBoost",
+      "scheme": "cap10",
+      "per_seed_macro_f1": [
+        0.256282,
+        0.253526,
+        0.241754
+      ],
+      "mean_val_macro_f1": 0.250521,
+      "std_val_macro_f1": 0.0063
+    },
+    "CatBoost+cap20": {
+      "model": "CatBoost",
+      "scheme": "cap20",
+      "per_seed_macro_f1": [
+        0.188721,
+        0.180529,
+        0.183438
+      ],
+      "mean_val_macro_f1": 0.184229,
+      "std_val_macro_f1": 0.003391
+    },
+    "LightGBM+uniform": {
+      "model": "LightGBM",
+      "scheme": "uniform",
+      "per_seed_macro_f1": [
+        0.2268,
+        0.2268,
+        0.2268
+      ],
+      "mean_val_macro_f1": 0.2268,
+      "std_val_macro_f1": 0.0
+    },
+    "LightGBM+balanced": {
+      "model": "LightGBM",
+      "scheme": "balanced",
+      "per_seed_macro_f1": [
+        0.202131,
+        0.202131,
+        0.202131
+      ],
+      "mean_val_macro_f1": 0.202131,
+      "std_val_macro_f1": 0.0
+    },
+    "LightGBM+cap5": {
+      "model": "LightGBM",
+      "scheme": "cap5",
+      "per_seed_macro_f1": [
+        0.226739,
+        0.226739,
+        0.226739
+      ],
+      "mean_val_macro_f1": 0.226739,
+      "std_val_macro_f1": 0.0
+    },
+    "LightGBM+cap10": {
+      "model": "LightGBM",
+      "scheme": "cap10",
+      "per_seed_macro_f1": [
+        0.226739,
+        0.226739,
+        0.226739
+      ],
+      "mean_val_macro_f1": 0.226739,
+      "std_val_macro_f1": 0.0
+    },
+    "LightGBM+cap20": {
+      "model": "LightGBM",
+      "scheme": "cap20",
+      "per_seed_macro_f1": [
+        0.190244,
+        0.190244,
+        0.190244
+      ],
+      "mean_val_macro_f1": 0.190244,
+      "std_val_macro_f1": 0.0
+    }
+  },
+  "scan_detail": {
+    "XGBoost+uniform": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.48
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.81
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.83
+      }
+    ],
+    "XGBoost+balanced": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.513431,
+          "macro_f1": 0.22992,
+          "weighted_f1": 0.572239,
+          "macro_precision": 0.261787,
+          "macro_recall": 0.271065,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.19222500498681266,
+              "recall": 0.5851042299129731,
+              "f1": 0.2893797337426179,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8549211809891845,
+              "recall": 0.49915390647571095,
+              "f1": 0.6303007140003127,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              40,
+              6
+            ],
+            [
+              0,
+              0,
+              8673,
+              6150
+            ],
+            [
+              0,
+              0,
+              36405,
+              36282
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.9
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.492382,
+          "macro_f1": 0.219974,
+          "weighted_f1": 0.553236,
+          "macro_precision": 0.25423,
+          "macro_recall": 0.257516,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.17742111346141265,
+              "recall": 0.5488767455980571,
+              "f1": 0.26816084377059984,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8394978758130716,
+              "recall": 0.48118645700056406,
+              "f1": 0.6117358985570617,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              40,
+              6
+            ],
+            [
+              7,
+              0,
+              8136,
+              6680
+            ],
+            [
+              31,
+              0,
+              37680,
+              34976
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.96
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.544576,
+          "macro_f1": 0.234886,
+          "weighted_f1": 0.601325,
+          "macro_precision": 0.257384,
+          "macro_recall": 0.263151,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.18547819971870605,
+              "recall": 0.4982122377386494,
+              "f1": 0.2703197349878292,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.844057643165347,
+              "recall": 0.5543907438744204,
+              "f1": 0.6692241901867491,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              40,
+              6
+            ],
+            [
+              0,
+              0,
+              7385,
+              7438
+            ],
+            [
+              0,
+              0,
+              32390,
+              40297
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.98
+      }
+    ],
+    "XGBoost+cap5": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.79
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.79
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.8
+      }
+    ],
+    "XGBoost+cap10": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.84
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.77
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.82
+      }
+    ],
+    "XGBoost+cap20": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.624717,
+          "macro_f1": 0.242306,
+          "weighted_f1": 0.66204,
+          "macro_precision": 0.249067,
+          "macro_recall": 0.248765,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.1669871320810531,
+              "recall": 0.30466167442488024,
+              "f1": 0.21573076647478923,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8292791750669266,
+              "recall": 0.6903985582016041,
+              "f1": 0.753492841645333,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              23,
+              23
+            ],
+            [
+              0,
+              0,
+              4516,
+              10307
+            ],
+            [
+              0,
+              0,
+              22504,
+              50183
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.78
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.432856,
+          "macro_f1": 0.200865,
+          "weighted_f1": 0.49191,
+          "macro_precision": 0.25018,
+          "macro_recall": 0.250478,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.1697175484189161,
+              "recall": 0.6035890170680699,
+              "f1": 0.26493929523245485,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8310037025343704,
+              "recall": 0.3983243220933592,
+              "f1": 0.5385201993899263,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              36,
+              10
+            ],
+            [
+              0,
+              0,
+              8947,
+              5876
+            ],
+            [
+              0,
+              0,
+              43734,
+              28953
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.87
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.39825,
+          "macro_f1": 0.19024,
+          "weighted_f1": 0.449889,
+          "macro_precision": 0.252536,
+          "macro_recall": 0.254168,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.17281432571645866,
+              "recall": 0.6744923429805033,
+              "f1": 0.2751351871981507,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8373283059520603,
+              "recall": 0.34217948188809555,
+              "f1": 0.4858239493705501,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              40,
+              6
+            ],
+            [
+              0,
+              0,
+              9998,
+              4825
+            ],
+            [
+              0,
+              0,
+              47815,
+              24872
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.88
+      }
+    ],
+    "CatBoost+uniform": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.67
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.65
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.82
+      }
+    ],
+    "CatBoost+balanced": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.142351,
+          "macro_f1": 0.069772,
+          "weighted_f1": 0.047222,
+          "macro_precision": 0.041819,
+          "macro_recall": 0.335197,
+          "per_class": {
+            "cardamom": {
+              "precision": 7.681081496274676e-05,
+              "recall": 0.5,
+              "f1": 0.00015359803394516551,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.16720106253102401,
+              "recall": 0.8407879646495311,
+              "f1": 0.2789328797475437,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              1,
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              44,
+              0
+            ],
+            [
+              2360,
+              0,
+              12463,
+              0
+            ],
+            [
+              10656,
+              0,
+              62031,
+              0
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.02
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.11871,
+          "macro_f1": 0.06374,
+          "weighted_f1": 0.043474,
+          "macro_precision": 0.288869,
+          "macro_recall": 0.300043,
+          "per_class": {
+            "cardamom": {
+              "precision": 4.810467577448528e-05,
+              "recall": 0.5,
+              "f1": 9.62000962000962e-05,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.15542605465004794,
+              "recall": 0.6999257910004723,
+              "f1": 0.25436714679742567,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 1.0,
+              "recall": 0.0002476371290602171,
+              "f1": 0.0004951516401898082,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              1,
+              0,
+              1,
+              0
+            ],
+            [
+              19,
+              0,
+              27,
+              0
+            ],
+            [
+              4448,
+              0,
+              10375,
+              0
+            ],
+            [
+              16320,
+              0,
+              56349,
+              18
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.93
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.10633,
+          "macro_f1": 0.060921,
+          "weighted_f1": 0.041241,
+          "macro_precision": 0.037787,
+          "macro_recall": 0.282003,
+          "per_class": {
+            "cardamom": {
+              "precision": 3.85297064036372e-05,
+              "recall": 0.5,
+              "f1": 7.705347511172754e-05,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.1511103175118499,
+              "recall": 0.6280105241853876,
+              "f1": 0.24360500870111348,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              1,
+              0,
+              1,
+              0
+            ],
+            [
+              22,
+              0,
+              24,
+              0
+            ],
+            [
+              5514,
+              0,
+              9309,
+              0
+            ],
+            [
+              20417,
+              0,
+              52270,
+              0
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.09
+      }
+    ],
+    "CatBoost+cap5": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.83001,
+          "macro_f1": 0.226844,
+          "weighted_f1": 0.753088,
+          "macro_precision": 0.236949,
+          "macro_recall": 0.249982,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.11764705882352941,
+              "recall": 0.00013492545368683803,
+              "f1": 0.00026954177897574127,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301481591482848,
+              "recall": 0.9997936357257832,
+              "f1": 0.9071073719949072,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              2,
+              14821
+            ],
+            [
+              0,
+              0,
+              15,
+              72672
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.49
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.53
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.39
+      }
+    ],
+    "CatBoost+cap10": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.777268,
+          "macro_f1": 0.256282,
+          "weighted_f1": 0.749713,
+          "macro_precision": 0.262698,
+          "macro_recall": 0.257729,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.21577271614009308,
+              "recall": 0.1188693246981043,
+              "f1": 0.15329070424985863,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8350211608222491,
+              "recall": 0.9120475463287796,
+              "f1": 0.8718363482137573,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              10,
+              36
+            ],
+            [
+              0,
+              0,
+              1762,
+              13061
+            ],
+            [
+              0,
+              0,
+              6393,
+              66294
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.39
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.669259,
+          "macro_f1": 0.253526,
+          "weighted_f1": 0.693719,
+          "macro_precision": 0.25551,
+          "macro_recall": 0.257654,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.18605583010551624,
+              "recall": 0.28192673547864805,
+              "f1": 0.22417122626327649,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8359832250334117,
+              "recall": 0.748689586858723,
+              "f1": 0.7899320675840446,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              14,
+              32
+            ],
+            [
+              0,
+              0,
+              4179,
+              10644
+            ],
+            [
+              0,
+              0,
+              18267,
+              54420
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.36
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.61405,
+          "macro_f1": 0.241754,
+          "weighted_f1": 0.654936,
+          "macro_precision": 0.250022,
+          "macro_recall": 0.250238,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.1696836524711381,
+              "recall": 0.3282061660932335,
+              "f1": 0.22370901733572446,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8304039940903765,
+              "recall": 0.6727475339469231,
+              "f1": 0.743307948378859,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              18,
+              28
+            ],
+            [
+              0,
+              0,
+              4865,
+              9958
+            ],
+            [
+              0,
+              0,
+              23787,
+              48900
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.19
+      }
+    ],
+    "CatBoost+cap20": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.396925,
+          "macro_f1": 0.188721,
+          "weighted_f1": 0.450249,
+          "macro_precision": 0.248983,
+          "macro_recall": 0.248586,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.16807721899699238,
+              "recall": 0.6484517304189436,
+              "f1": 0.26695921456444155,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8278564372736252,
+              "recall": 0.3458940388239988,
+              "f1": 0.4879241584754068,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              30,
+              16
+            ],
+            [
+              0,
+              0,
+              9612,
+              5211
+            ],
+            [
+              0,
+              0,
+              47545,
+              25142
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.4
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.37293,
+          "macro_f1": 0.180529,
+          "weighted_f1": 0.41873,
+          "macro_precision": 0.250606,
+          "macro_recall": 0.251041,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.17011573731087734,
+              "recall": 0.6970923564730487,
+              "f1": 0.27349002170345665,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.832307864414364,
+              "recall": 0.3070700400346692,
+              "f1": 0.44862518089725034,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              40,
+              6
+            ],
+            [
+              0,
+              0,
+              10333,
+              4490
+            ],
+            [
+              0,
+              0,
+              50367,
+              22320
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.22
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.382307,
+          "macro_f1": 0.183438,
+          "weighted_f1": 0.432252,
+          "macro_precision": 0.248448,
+          "macro_recall": 0.247782,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.1674405992610921,
+              "recall": 0.6665317412129799,
+              "f1": 0.26764550515380137,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8263519193051275,
+              "recall": 0.3245972457248201,
+              "f1": 0.4661049595511611,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              32,
+              14
+            ],
+            [
+              0,
+              0,
+              9880,
+              4943
+            ],
+            [
+              0,
+              0,
+              49093,
+              23594
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 3.48
+      }
+    ],
+    "LightGBM+uniform": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.96
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.93
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.830158,
+          "macro_f1": 0.2268,
+          "weighted_f1": 0.753118,
+          "macro_precision": 0.20754,
+          "macro_recall": 0.25,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8301582950729802,
+              "recall": 1.0,
+              "f1": 0.9071983525226996,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              0,
+              0,
+              0,
+              14823
+            ],
+            [
+              0,
+              0,
+              0,
+              72687
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.91
+      }
+    ],
+    "LightGBM+balanced": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.440394,
+          "macro_f1": 0.202131,
+          "weighted_f1": 0.501514,
+          "macro_precision": 0.247666,
+          "macro_recall": 0.245807,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.1658175809909715,
+              "recall": 0.5687107872900222,
+              "f1": 0.256769516615394,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8248466929478756,
+              "recall": 0.41451703881024116,
+              "f1": 0.5517557112118299,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              36,
+              10
+            ],
+            [
+              0,
+              6,
+              8430,
+              6387
+            ],
+            [
+              0,
+              185,
+              42372,
+              30130
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.95
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.440394,
+          "macro_f1": 0.202131,
+          "weighted_f1": 0.501514,
+          "macro_precision": 0.247666,
+          "macro_recall": 0.245807,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.1658175809909715,
+              "recall": 0.5687107872900222,
+              "f1": 0.256769516615394,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8248466929478756,
+              "recall": 0.41451703881024116,
+              "f1": 0.5517557112118299,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              36,
+              10
+            ],
+            [
+              0,
+              6,
+              8430,
+              6387
+            ],
+            [
+              0,
+              185,
+              42372,
+              30130
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.99
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.440394,
+          "macro_f1": 0.202131,
+          "weighted_f1": 0.501514,
+          "macro_precision": 0.247666,
+          "macro_recall": 0.245807,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.1658175809909715,
+              "recall": 0.5687107872900222,
+              "f1": 0.256769516615394,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8248466929478756,
+              "recall": 0.41451703881024116,
+              "f1": 0.5517557112118299,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              36,
+              10
+            ],
+            [
+              0,
+              6,
+              8430,
+              6387
+            ],
+            [
+              0,
+              185,
+              42372,
+              30130
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.95
+      }
+    ],
+    "LightGBM+cap5": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.829553,
+          "macro_f1": 0.226739,
+          "weighted_f1": 0.752917,
+          "macro_precision": 0.207564,
+          "macro_recall": 0.249818,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8302546751405971,
+              "recall": 0.9992708462311005,
+              "f1": 0.9069556911051314,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              21,
+              0,
+              0,
+              14802
+            ],
+            [
+              53,
+              0,
+              0,
+              72634
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.91
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.829553,
+          "macro_f1": 0.226739,
+          "weighted_f1": 0.752917,
+          "macro_precision": 0.207564,
+          "macro_recall": 0.249818,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8302546751405971,
+              "recall": 0.9992708462311005,
+              "f1": 0.9069556911051314,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              21,
+              0,
+              0,
+              14802
+            ],
+            [
+              53,
+              0,
+              0,
+              72634
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 2.01
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.829553,
+          "macro_f1": 0.226739,
+          "weighted_f1": 0.752917,
+          "macro_precision": 0.207564,
+          "macro_recall": 0.249818,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8302546751405971,
+              "recall": 0.9992708462311005,
+              "f1": 0.9069556911051314,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              21,
+              0,
+              0,
+              14802
+            ],
+            [
+              53,
+              0,
+              0,
+              72634
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.89
+      }
+    ],
+    "LightGBM+cap10": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.829553,
+          "macro_f1": 0.226739,
+          "weighted_f1": 0.752917,
+          "macro_precision": 0.207564,
+          "macro_recall": 0.249818,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8302546751405971,
+              "recall": 0.9992708462311005,
+              "f1": 0.9069556911051314,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              21,
+              0,
+              0,
+              14802
+            ],
+            [
+              53,
+              0,
+              0,
+              72634
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.91
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.829553,
+          "macro_f1": 0.226739,
+          "weighted_f1": 0.752917,
+          "macro_precision": 0.207564,
+          "macro_recall": 0.249818,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8302546751405971,
+              "recall": 0.9992708462311005,
+              "f1": 0.9069556911051314,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              21,
+              0,
+              0,
+              14802
+            ],
+            [
+              53,
+              0,
+              0,
+              72634
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.93
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.829553,
+          "macro_f1": 0.226739,
+          "weighted_f1": 0.752917,
+          "macro_precision": 0.207564,
+          "macro_recall": 0.249818,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8302546751405971,
+              "recall": 0.9992708462311005,
+              "f1": 0.9069556911051314,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              46
+            ],
+            [
+              21,
+              0,
+              0,
+              14802
+            ],
+            [
+              53,
+              0,
+              0,
+              72634
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.96
+      }
+    ],
+    "LightGBM+cap20": [
+      {
+        "seed": 2020,
+        "metrics": {
+          "accuracy": 0.398033,
+          "macro_f1": 0.190244,
+          "weighted_f1": 0.449726,
+          "macro_precision": 0.252743,
+          "macro_recall": 0.254197,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.17299512397551614,
+              "recall": 0.6749645820684073,
+              "f1": 0.2754036087369421,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8379763912310286,
+              "recall": 0.34182178381278633,
+              "f1": 0.4855721781955695,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              40,
+              6
+            ],
+            [
+              21,
+              0,
+              10005,
+              4797
+            ],
+            [
+              53,
+              0,
+              47788,
+              24846
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.93
+      },
+      {
+        "seed": 2021,
+        "metrics": {
+          "accuracy": 0.398033,
+          "macro_f1": 0.190244,
+          "weighted_f1": 0.449726,
+          "macro_precision": 0.252743,
+          "macro_recall": 0.254197,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.17299512397551614,
+              "recall": 0.6749645820684073,
+              "f1": 0.2754036087369421,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8379763912310286,
+              "recall": 0.34182178381278633,
+              "f1": 0.4855721781955695,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              40,
+              6
+            ],
+            [
+              21,
+              0,
+              10005,
+              4797
+            ],
+            [
+              53,
+              0,
+              47788,
+              24846
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.92
+      },
+      {
+        "seed": 2022,
+        "metrics": {
+          "accuracy": 0.398033,
+          "macro_f1": 0.190244,
+          "weighted_f1": 0.449726,
+          "macro_precision": 0.252743,
+          "macro_recall": 0.254197,
+          "per_class": {
+            "cardamom": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 2
+            },
+            "coffee": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 46
+            },
+            "pepper": {
+              "precision": 0.17299512397551614,
+              "recall": 0.6749645820684073,
+              "f1": 0.2754036087369421,
+              "support": 14823
+            },
+            "coconut": {
+              "precision": 0.8379763912310286,
+              "recall": 0.34182178381278633,
+              "f1": 0.4855721781955695,
+              "support": 72687
+            }
+          },
+          "confusion_matrix": [
+            [
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              40,
+              6
+            ],
+            [
+              21,
+              0,
+              10005,
+              4797
+            ],
+            [
+              53,
+              0,
+              47788,
+              24846
+            ]
+          ],
+          "class_names": [
+            "cardamom",
+            "coffee",
+            "pepper",
+            "coconut"
+          ]
+        },
+        "train_seconds": 1.95
+      }
+    ]
+  },
+  "selected": {
+    "combo": "CatBoost+cap10",
+    "model": "CatBoost",
+    "scheme": "cap10",
+    "final_seed": 42,
+    "validation_metrics": {
+      "accuracy": 0.743244,
+      "macro_f1": 0.26016,
+      "weighted_f1": 0.736198,
+      "macro_precision": 0.26089,
+      "macro_recall": 0.259916,
+      "per_class": {
+        "cardamom": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 2
+        },
+        "coffee": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 46
+        },
+        "pepper": {
+          "precision": 0.20678513731825526,
+          "recall": 0.1813398097551103,
+          "f1": 0.19322838041837395,
+          "support": 14823
+        },
+        "coconut": {
+          "precision": 0.8367735618771711,
+          "recall": 0.8583240469409936,
+          "f1": 0.8474118142428317,
+          "support": 72687
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          12,
+          34
+        ],
+        [
+          0,
+          0,
+          2688,
+          12135
+        ],
+        [
+          0,
+          0,
+          10298,
+          62389
+        ]
+      ],
+      "class_names": [
+        "cardamom",
+        "coffee",
+        "pepper",
+        "coconut"
+      ],
+      "seed": 42,
+      "train_seconds": 3.37
+    },
+    "artifact_path": "D:\\CropPrep\\models\\tabular\\best_standalone_tabular.model",
+    "artifact_size_bytes": 63544
+  },
+  "tabular_encoder": {
+    "architecture": "Linear(5)-ReLU-Linear(64)-ReLU-embed(16)-head(4)",
+    "imbalance_method": "weighted CrossEntropy (balanced, train-only)",
+    "validation_metrics": {
+      "accuracy": 0.718929,
+      "macro_f1": 0.262026,
+      "weighted_f1": 0.725122,
+      "macro_precision": 0.261617,
+      "macro_recall": 0.262878,
+      "per_class": {
+        "cardamom": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 2
+        },
+        "coffee": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 46
+        },
+        "pepper": {
+          "precision": 0.2072234221262299,
+          "recall": 0.23301625851716926,
+          "f1": 0.21936426280524593,
+          "support": 14823
+        },
+        "coconut": {
+          "precision": 0.8392438989984483,
+          "recall": 0.818495742017142,
+          "f1": 0.8287399792445865,
+          "support": 72687
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          20,
+          26
+        ],
+        [
+          0,
+          0,
+          3454,
+          11369
+        ],
+        [
+          0,
+          0,
+          13193,
+          59494
+        ]
+      ],
+      "class_names": [
+        "cardamom",
+        "coffee",
+        "pepper",
+        "coconut"
+      ],
+      "best_epoch": 3,
+      "best_val_macro_f1": 0.262026,
+      "train_seconds": 1.62
+    },
+    "artifact_path": "D:\\CropPrep\\models\\tabular\\tabular_encoder.pt",
+    "artifact_size_bytes": 9077,
+    "scaler_path": "D:\\CropPrep\\models\\tabular\\scaler.joblib"
+  }
+}

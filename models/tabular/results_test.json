@@ -1,0 +1,142 @@
+{
+  "phase": 3,
+  "split": "test (Sullia) \u2014 untouched during training/selection",
+  "selected_model_final_test": {
+    "name": "CatBoost",
+    "metrics": {
+      "accuracy": 0.705469,
+      "macro_f1": 0.248058,
+      "weighted_f1": 0.677183,
+      "macro_precision": 0.251188,
+      "macro_recall": 0.251213,
+      "per_class": {
+        "cardamom": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 24
+        },
+        "coffee": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 56
+        },
+        "pepper": {
+          "precision": 0.22459086993970714,
+          "recall": 0.13816399523115644,
+          "f1": 0.17108176822767163,
+          "support": 7549
+        },
+        "coconut": {
+          "precision": 0.7801598715676109,
+          "recall": 0.8666864828713681,
+          "f1": 0.8211500888881066,
+          "support": 26914
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          3,
+          21
+        ],
+        [
+          0,
+          0,
+          10,
+          46
+        ],
+        [
+          0,
+          0,
+          1043,
+          6506
+        ],
+        [
+          0,
+          0,
+          3588,
+          23326
+        ]
+      ],
+      "class_names": [
+        "cardamom",
+        "coffee",
+        "pepper",
+        "coconut"
+      ]
+    },
+    "artifact_path": "D:\\CropPrep\\models\\tabular\\best_standalone_tabular.model"
+  },
+  "tabular_encoder_final_test": {
+    "metrics": {
+      "accuracy": 0.466028,
+      "macro_f1": 0.21797,
+      "weighted_f1": 0.508908,
+      "macro_precision": 0.246621,
+      "macro_recall": 0.245488,
+      "per_class": {
+        "cardamom": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 24
+        },
+        "coffee": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 56
+        },
+        "pepper": {
+          "precision": 0.21255146205003694,
+          "recall": 0.5334481388263346,
+          "f1": 0.30398188337422155,
+          "support": 7549
+        },
+        "coconut": {
+          "precision": 0.7739308841443867,
+          "recall": 0.4485026380322509,
+          "f1": 0.5679000729223025,
+          "support": 26914
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          0,
+          24,
+          0
+        ],
+        [
+          0,
+          0,
+          52,
+          4
+        ],
+        [
+          0,
+          0,
+          4027,
+          3522
+        ],
+        [
+          0,
+          0,
+          14843,
+          12071
+        ]
+      ],
+      "class_names": [
+        "cardamom",
+        "coffee",
+        "pepper",
+        "coconut"
+      ]
+    },
+    "artifact_path": "D:\\CropPrep\\models\\tabular\\tabular_encoder.pt"
+  },
+  "note": "Test performance used ONLY for final reporting, never for model selection."
+}

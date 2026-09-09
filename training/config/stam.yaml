@@ -1,11 +1,15 @@
 # STAM (Spatial-Temporal Alignment Module) configuration.
 #
+# LEGACY CONFIG — superseded by the Phase-2 active pipeline
+# (``training/prepare_data.py`` + ``data/master.csv``). Retained only for the
+# historic R5.x STAM chain; it is NOT read by the new training entry points.
+#
+# Phase-2 excluded datasets are removed from ``tables``:
+#   * data_season.csv (kg/ha village records)
+#   * ICRISAT-District Level Data.csv (district-level annual series)
+#
 # Resolution precedence: ST_* environment variables (``__``-nested) > this
 # file > built-in defaults. See ``training/stam/config.py`` for every option.
-#
-# The tabular block must match the columns of the agricultural record table
-# shipped in the repository (training/datasets/tabular/data_season.csv), so
-# STAM can resolve years, seasons, crops and yields end-to-end.
 
 patch:
   size: 224
@@ -24,8 +28,8 @@ temporal:
   default_season: null
   tolerance_days: 15
   max_gap_days: 60
-  # Project calendar (Kharif / Rabi / Zaid) matching data_season.csv's season
-  # values. Resolved against the repository root by the pipeline driver.
+  # Project calendar (Kharif / Rabi / Zaid). Resolved against the repository
+  # root by the pipeline driver.
   season_file: seasons.yaml
 
 image:
@@ -74,32 +78,15 @@ admin:
   level_column: level
 
 tabular:
-  # Ordered list of tabular record tables. Every (location, year, season) is
-  # matched against the first table at village -> taluk -> district level,
-  # falling back to the next table only when no exact match exists — so the
-  # fine-grained data_season.csv (2004-2019, Kharif/Rabi/Zaid) wins over the
-  # ICRISAT district-level series (1966-2017, annual) wherever both answer.
+  # Ordered list of tabular record tables (approved sources only). Every
+  # (location, year, season) is matched against the first table at village ->
+  # taluk -> district level, falling back to the next table only when no exact
+  # match exists. Excluded datasets (data_season.csv, ICRISAT) are removed.
   # The winning record's source is stamped as matched_level / source_path.
   tables:
-    - name: data_season.csv
-      # Location column holds colloquial district/town names (Mangalore,
-      # Bangalore, ...). district_column is null: the same column is used for
-      # village/taluk attempts, so Madikeri matches via its taluk name.
-      village_column: Location
-      taluk_column: Location
-      district_column: null
-      season_column: Season
-      year_column: Year
-      crop_column: Crops
-      yield_column: yeilds
-      feature_columns: [Area, Rainfall, Temperature, Soil type, Irrigation, Humidity, price]
-      fallback_to_district: false
-
-    # DK grid-cell yield proxies (2018-2023, District/Year/Season/Yield_Proxy_NPP).
-    # These fill the tabular gap for the 2020+ imagery years the older series
-    # cannot answer. They carry no crop label (crop_column null): matched
-    # observations are crop-less and train the yield head only — the crop task
-    # is masked for them (label sentinel -1).
+    # DK grid-cell yields (2018-2023, District/Year/Season/Yield_Proxy_NPP).
+    # Phase-2 note: Yield_Proxy_NPP is EXCLUDED as a supervised target — these
+    # tables may supply features only, never the yield label.
     - name: DK_Features_2018.csv
       village_column: null
       taluk_column: null
@@ -159,22 +146,6 @@ tabular:
       crop_column: null
       yield_column: Yield_Proxy_NPP
       feature_columns: []
-      fallback_to_district: true
-
-    - name: ICRISAT-District Level Data.csv
-      # District-level annual series for 20 states. crop/yield columns are
-      # null: the wide "<CROP> AREA/YIELD" triples are reduced to the dominant
-      # crop (largest planted area) whose yield becomes the record label.
-      village_column: null
-      taluk_column: null
-      district_column: Dist Name
-      season_column: null
-      year_column: Year
-      crop_column: null
-      yield_column: null
-      feature_columns: []
-      state_column: State Name
-      state_value: Karnataka
       fallback_to_district: true
 
 # Cropping calendar aligned with the season values actually present in the

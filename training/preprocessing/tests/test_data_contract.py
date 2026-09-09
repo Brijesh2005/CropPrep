@@ -72,7 +72,7 @@ def _village_obs(crop="Coconut", yield_value=5200.0):
     return _obs(
         crop=crop,
         yield_value=yield_value,
-        source_path="data_season.csv",
+        source_path="crop_yield_village.csv",
         matched_level="village",
     )
 
@@ -82,16 +82,19 @@ def _village_obs(crop="Coconut", yield_value=5200.0):
 # --------------------------------------------------------------------------- #
 
 
-def test_infer_yield_unit_kg_ha_from_data_season():
-    assert infer_yield_unit("data_season.csv", "village", 5200.0) == "kg/ha"
+def test_infer_yield_unit_kg_ha_from_village_source():
+    assert infer_yield_unit("crop_yield_village.csv", "village", 5200.0) == "kg/ha"
 
 
 def test_infer_yield_unit_npp_from_dk_features():
     assert infer_yield_unit("DK_Features_2020.csv", "district", 1.2) == "npp_proxy"
 
 
-def test_infer_yield_unit_icrisat_kg_ha():
-    assert infer_yield_unit("ICRISAT-District Level Data.csv", "district", 4000.0) == "kg/ha"
+def test_infer_yield_unit_excluded_icrisat_not_kg_ha():
+    # ICRISAT / data_season are excluded datasets: they must NOT be recognised
+    # as a valid kg/ha yield source.
+    assert infer_yield_unit("ICRISAT-District Level Data.csv", "district", 4000.0) != "kg/ha"
+    assert infer_yield_unit("data_season.csv", "district", 4000.0) != "kg/ha"
 
 
 def test_infer_yield_unit_magnitude_fallback():
@@ -112,7 +115,7 @@ def test_valid_homogeneous_village_corpus():
     assert report.crop_training_samples == 10
     assert report.yield_training_samples == 10
     assert report.yield_unit == "kg/ha"
-    assert "data_season.csv" in report.yield_source
+    assert "crop_yield_village.csv" in report.yield_source
     assert report.image_samples == 10
     assert report.tabular_samples == 10
 
