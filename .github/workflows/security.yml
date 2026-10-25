@@ -27,7 +27,7 @@ jobs:
       - name: Bandit
         run: bandit -q -r training application/backend application/database shared -f json -o bandit.json || true
       - name: Upload bandit report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bandit
           path: bandit.json
