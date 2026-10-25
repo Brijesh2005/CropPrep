@@ -63,7 +63,7 @@ pyproj==3.7.2
 pyogrio==0.13.0
 
 # ---------------------------------------------------------------- reporting
-matplotlib==3.11.0
+matplotlib==3.11.1
 reportlab==5.0.0
 Jinja2==3.1.6
 pyarrow==25.0.0
