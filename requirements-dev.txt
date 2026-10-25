@@ -10,7 +10,7 @@ fakeredis==2.37.0
 
 # Linters / static analysis
 ruff>=0.6,<1
-mypy>=1.10
+mypy>=2.3.0
 bandit==1.9.4
 safety==3.8.1
 
