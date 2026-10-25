@@ -12,7 +12,7 @@
 
 # ---------------------------------------------------------------- web/api
 fastapi==0.115.0
-uvicorn==0.30.6
+uvicorn==0.52.1
 python-multipart==0.0.32
 python-jose==3.5.0
 passlib==1.7.4
